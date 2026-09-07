@@ -88,6 +88,10 @@ export default function GeoMap({
   const map = useRef<MlMap | null>(null);
   const markers = useRef<Marker[]>([]);
   const ready = useRef(false);
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
+
 
   useEffect(() => {
     if (!box.current || map.current) return;
