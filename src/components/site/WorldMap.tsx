@@ -80,7 +80,7 @@ export function WorldMap({
   return (
     <div
       className={cn(
-        "graded relative select-none overflow-hidden rounded-md border border-border bg-background-deep shadow-[var(--shadow-card)]",
+        "graded relative select-none overflow-hidden rounded-md border border-border bg-map-sea shadow-[var(--shadow-card)]",
         className,
       )}
       style={{ height }}
@@ -145,7 +145,7 @@ export function WorldMap({
             <span className="relative flex flex-col items-center">
               {detailed ? (
                 <>
-                  <span className="flex items-center rounded-sm bg-background-deep/90 p-1 shadow-[var(--shadow-pop)] ring-1 ring-border backdrop-blur-sm">
+                  <span className="flex items-center rounded-sm bg-card/95 p-1 shadow-[var(--shadow-pop)] ring-1 ring-border backdrop-blur-sm">
                     {p.symbols.slice(0, 3).map((s, i) => (
                       <TokenChip
                         key={`${s}-${i}`}
@@ -155,7 +155,7 @@ export function WorldMap({
                       />
                     ))}
                     <span
-                      className="readout ml-1 grid h-5 min-w-5 place-items-center rounded-sm px-1.5 text-[10px] text-background-deep"
+                      className="readout ml-1 grid h-5 min-w-5 place-items-center rounded-sm px-1.5 text-[10px] text-card"
                       style={{ background: rarityVar(p.rarity) }}
                     >
                       {p.count}
@@ -163,7 +163,7 @@ export function WorldMap({
                   </span>
                   <span
                     className={cn(
-                      "label-caps mt-1 whitespace-nowrap rounded-sm bg-background-deep/80 px-2 py-0.5 text-[9px] text-muted-foreground backdrop-blur-sm",
+                      "label-caps mt-1 whitespace-nowrap rounded-sm bg-card/90 px-2 py-0.5 text-[9px] text-muted-foreground backdrop-blur-sm",
                       isSel && "bg-primary text-primary-foreground",
                     )}
                   >
