@@ -244,7 +244,13 @@ export default function GeoMap({
         features: points.map((p) => ({
           type: "Feature" as const,
           geometry: { type: "Point" as const, coordinates: [p.lng, p.lat] },
-          properties: { symbol: p.symbol, rarity: p.rarity, place: p.place },
+          properties: {
+            symbol: p.symbol,
+            rarity: p.rarity,
+            place: p.place,
+            amount: p.amount ?? 0,
+            expiresAt: p.expiresAt ?? "",
+          },
         })),
       });
     };
