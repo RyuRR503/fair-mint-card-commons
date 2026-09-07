@@ -61,7 +61,8 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
 
   return {
     pins,
-    totalSpawns: data?.length ?? 0,
+    points,
+    totalSpawns: rows.length,
     totalCities: pins.length,
     totalPlaces: placeCount ?? 0,
     tokens: Object.keys(TOKEN_BY_SYMBOL).length,
