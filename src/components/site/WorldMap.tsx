@@ -112,21 +112,22 @@ export function WorldMap({
             <path
               d="M40 0H0V40"
               fill="none"
-              stroke="oklch(0.93 0.006 95 / 0.05)"
+              stroke="oklch(0.253 0.008 135 / 0.07)"
               strokeWidth={0.5 / view.z}
             />
           </pattern>
         </defs>
-        {/* ocean: near-black, so land reads as a lit surface */}
-        <rect x="0" y="0" width="1000" height="1000" fill="oklch(0.11 0.01 250)" />
+        {/* sea: pale paper, land: printed field green */}
+        <rect x="0" y="0" width="1000" height="1000" fill="var(--map-sea)" />
         <rect x="0" y="0" width="1000" height="1000" fill="url(#map-grid)" />
         <path
           d={WORLD_PATH}
-          fill="oklch(0.19 0.014 250)"
-          stroke="oklch(0.78 0.14 55 / 0.35)"
+          fill="var(--map-land)"
+          stroke="oklch(0.39 0.058 135 / 0.5)"
           strokeWidth={0.7 / view.z}
         />
       </svg>
+
 
       {visible.map((p) => {
         // Zoomed out the world must read as a constellation of signals, not a
