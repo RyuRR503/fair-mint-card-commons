@@ -4,7 +4,7 @@ import { Section, Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
 import { WorldMap, type MapPin } from "@/components/site/WorldMap";
 import { WaitlistForm } from "@/components/site/WaitlistForm";
-import { spawnsByCity, TOTAL_CITIES, TOTAL_SPAWNS } from "@/lib/spawns";
+import { getMapSummary } from "@/lib/map.functions";
 import { TOKENS, RARITY_LABEL, rarityVar, CHAIN } from "@/lib/tokens";
 import { useT } from "@/lib/i18n";
 
@@ -25,6 +25,7 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: () => getMapSummary(),
   component: Home,
 });
 
@@ -41,23 +42,21 @@ function Stat({ label, value, accent }: { label: string; value: string; accent?:
 
 function Home() {
   const t = useT();
-  const cities = useMemo(() => spawnsByCity(), []);
+  const summary = Route.useLoaderData();
+  const TOTAL_SPAWNS = summary.totalSpawns;
+  const TOTAL_CITIES = summary.totalCities;
   const pins: MapPin[] = useMemo(
     () =>
-      cities.map((c) => ({
-        key: c.city.name,
-        lat: c.city.lat,
-        lng: c.city.lng,
-        label: c.city.name,
-        count: c.spawns.length,
-        symbols: c.spawns.slice(0, 3).map((s) => s.symbol),
-        rarity: c.spawns.some((s) => s.rarity === "epic")
-          ? "epic"
-          : c.spawns.some((s) => s.rarity === "rare")
-            ? "rare"
-            : "common",
+      summary.pins.map((c) => ({
+        key: c.key,
+        lat: c.lat,
+        lng: c.lng,
+        label: t(c.name, c.nameZh),
+        count: c.count,
+        symbols: c.symbols,
+        rarity: c.rarity,
       })),
-    [cities],
+    [summary.pins, t],
   );
 
   return (
