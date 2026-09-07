@@ -82,7 +82,7 @@ const CHAPTERS: {
     items: [
       {
         s: "live",
-        h: ["Chinese cities on the map", "中文城市already上线"],
+        h: ["Chinese cities on the map", "中国城市已上线"],
         p: [
           "Beijing, Shanghai, Shenzhen, Guangzhou, Hangzhou, Chengdu and more are in the spawn table from day one.",
           "北京、上海、深圳、广州、杭州、成都等城市第一天就在投放表里。",
