@@ -291,13 +291,16 @@ export const claimDrop = createServerFn({ method: "POST" })
       spawn_id: spawn.id,
       symbol: spawn.symbol,
       amount: spawn.amount,
-      city: spawn.city,
+      city: spawn.cityName,
       place: spawn.place,
       lat: data.lat,
       lng: data.lng,
       accuracy: data.accuracy,
       mode,
     });
+
+    // one physical store, one catch per day
+    await db.from("spawns").update({ claimed_by: wallet, claimed_at: new Date().toISOString() }).eq("id", spawn.id);
 
     return {
       ok: true,
