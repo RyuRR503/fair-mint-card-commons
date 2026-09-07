@@ -26,6 +26,14 @@ export const Route = createFileRoute("/")({
     ],
   }),
   loader: () => getMapSummary(),
+  errorComponent: () => (
+    <div className="mx-auto max-w-3xl px-5 py-32 text-center text-muted-foreground">
+      信号板暂时读不出来，请稍后刷新。
+    </div>
+  ),
+  notFoundComponent: () => (
+    <div className="mx-auto max-w-3xl px-5 py-32 text-center text-muted-foreground">页面不存在。</div>
+  ),
   component: Home,
 });
 
