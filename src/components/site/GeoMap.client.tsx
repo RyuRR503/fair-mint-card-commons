@@ -181,7 +181,7 @@ export default function GeoMap({
         const tr = tRef.current;
         const tok = TOKEN_BY_SYMBOL[p["symbol"] ?? ""];
         const rarity = (p["rarity"] ?? "common") as Rarity;
-        const label = RARITY_LABEL[rarity];
+        const rarityZh: Record<Rarity, string> = { common: "普通", rare: "稀有", epic: "史诗", legendary: "传说" };
         const amount = Number(p["amount"] ?? 0);
         const exp = p["expiresAt"] ? new Date(p["expiresAt"]) : null;
         const left = exp ? Math.max(0, Math.round((exp.getTime() - Date.now()) / 60000)) : null;
@@ -193,12 +193,12 @@ export default function GeoMap({
               : tr(`${left}m left`, `剩余 ${left} 分钟`);
         const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
         popup
-          .setLngLat((f.geometry as GeoJSON.Point).coordinates.slice(0, 2) as [number, number])
+          .setLngLat(((f.geometry as { coordinates: number[] }).coordinates.slice(0, 2) as [number, number]))
           .setHTML(
             `<div class="catch-pop" style="--pin:${rarityVar(rarity)}">
               <div class="catch-pop-top">
                 <span class="catch-pop-sym">${esc(p["symbol"] ?? "")}</span>
-                <span class="catch-pop-rar">${esc(tr(label.en, label.zh))}</span>
+                <span class="catch-pop-rar">${esc(tr(RARITY_LABEL[rarity], rarityZh[rarity]))}</span>
               </div>
               <div class="catch-pop-name">${esc(tok ? tr(tok.name, tok.nameZh) : "")}</div>
               <div class="catch-pop-amt">${amount} <span>${esc(p["symbol"] ?? "")}</span></div>
