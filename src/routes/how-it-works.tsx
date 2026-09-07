@@ -141,7 +141,7 @@ function HowItWorks() {
         title={t("Close the distance. Catch. The chain does the rest.", "拉近距离，捕捉，剩下的交给链上。")}
         lead={t(
           "Three parts make it work: a signal table that says where and how much, a claim server that checks you are really there and signs a voucher, and a vault contract that holds the tokens and only releases them against a valid voucher.",
-          "三个部分构成整套机制：决定"在哪、给多少"的信号表；核验你确实在场并签发凭证的服务器；持有代币、仅凭有效凭证放款的金库合约。",
+          "三个部分构成整套机制：决定「在哪、给多少」的信号表；核验你确实在场并签发凭证的服务器；持有代币、仅凭有效凭证放款的金库合约。",
         )}
         className="mt-10"
       />
