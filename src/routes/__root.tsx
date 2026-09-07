@@ -10,10 +10,12 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { SkyBackdrop } from "@/components/site/SkyBackdrop";
+import { HuntBackdrop } from "@/components/site/HuntBackdrop";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { LangProvider } from "@/lib/i18n";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+
 
 function NotFoundComponent() {
   return (
