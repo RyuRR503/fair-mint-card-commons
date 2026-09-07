@@ -2,11 +2,20 @@ import { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
 import type { Map as MlMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { rarityVar } from "@/lib/tokens";
+import { rarityVar, type Rarity } from "@/lib/tokens";
 import type { MapPin } from "./WorldMap";
+
+export type MapPoint = {
+  symbol: string;
+  rarity: Rarity;
+  place: string;
+  lat: number;
+  lng: number;
+};
 
 type Props = {
   pins: MapPin[];
+  points?: MapPoint[];
   me?: { lat: number; lng: number } | null;
   onSelect?: (key: string) => void;
   selected?: string | null;
@@ -15,11 +24,65 @@ type Props = {
 };
 
 const STYLE = "https://tiles.openfreemap.org/styles/dark";
+/** Above this zoom the city bubbles step aside and each store shows itself. */
+const CITY_MAX_ZOOM = 7.2;
 
-export default function GeoMap({ pins, me, onSelect, selected, center, zoom }: Props) {
+/** maplibre only speaks sRGB, so bake the oklch tokens down to hex in the browser. */
+function toHex(value: string): string {
+  const v = value.trim();
+  const m = v.match(/^oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)/i);
+  if (!m) return v || "#6ee7b7";
+  let L = parseFloat(m[1]!);
+  if (m[2] === "%") L /= 100;
+  const C = parseFloat(m[3]!);
+  const h = (parseFloat(m[4]!) * Math.PI) / 180;
+  const a = C * Math.cos(h);
+  const bb = C * Math.sin(h);
+  const l_ = (L + 0.3963377774 * a + 0.2158037573 * bb) ** 3;
+  const m_ = (L - 0.1055613458 * a - 0.0638541728 * bb) ** 3;
+  const s_ = (L - 0.0894841775 * a - 1.291485548 * bb) ** 3;
+  const lin = [
+    4.0767416621 * l_ - 3.3077115913 * m_ + 0.2309699292 * s_,
+    -1.2684380046 * l_ + 2.6097574011 * m_ - 0.3413193965 * s_,
+    -0.0041960863 * l_ - 0.7034186147 * m_ + 1.707614701 * s_,
+  ];
+  const ch = lin.map((u) => {
+    const g = u <= 0.0031308 ? 12.92 * u : 1.055 * Math.pow(Math.max(u, 0), 1 / 2.4) - 0.055;
+    return Math.round(Math.max(0, Math.min(1, g)) * 255)
+      .toString(16)
+      .padStart(2, "0");
+  });
+  return `#${ch.join("")}`;
+}
+
+function rarityColors(): Record<Rarity, string> {
+  const cs = getComputedStyle(document.documentElement);
+  const read = (r: Rarity) => {
+    const raw = rarityVar(r);
+    const name = raw.match(/var\((--[^)]+)\)/)?.[1];
+    return toHex(name ? cs.getPropertyValue(name).trim() : raw);
+  };
+  return {
+    common: read("common"),
+    rare: read("rare"),
+    epic: read("epic"),
+    legendary: read("legendary"),
+  };
+}
+
+export default function GeoMap({
+  pins,
+  points = [],
+  me,
+  onSelect,
+  selected,
+  center,
+  zoom,
+}: Props) {
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<MlMap | null>(null);
   const markers = useRef<Marker[]>([]);
+  const ready = useRef(false);
 
   useEffect(() => {
     if (!box.current || map.current) return;
@@ -32,15 +95,105 @@ export default function GeoMap({ pins, me, onSelect, selected, center, zoom }: P
     });
     m.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
     m.addControl(new maplibregl.ScaleControl({ unit: "metric" }), "bottom-left");
+    m.on("load", () => {
+      ready.current = true;
+      const c = rarityColors();
+      m.addSource("signals", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      });
+      const color: maplibregl.DataDrivenPropertyValueSpecification<string> = [
+        "match",
+        ["get", "rarity"],
+        "rare",
+        c.rare,
+        "epic",
+        c.epic,
+        "legendary",
+        c.legendary,
+        c.common,
+      ] as unknown as maplibregl.DataDrivenPropertyValueSpecification<string>;
+
+      m.addLayer({
+        id: "signal-glow",
+        type: "circle",
+        source: "signals",
+        paint: {
+          "circle-color": color,
+          "circle-blur": 1,
+          "circle-opacity": 0.35,
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 4, 12, 12, 16, 22],
+        },
+      });
+      m.addLayer({
+        id: "signal-dot",
+        type: "circle",
+        source: "signals",
+        paint: {
+          "circle-color": color,
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.6, 10, 3.5, 14, 6, 17, 9],
+          "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 10, 0, 13, 1.5],
+          "circle-stroke-color": "#0a0d0c",
+        },
+      });
+      m.addLayer({
+        id: "signal-label",
+        type: "symbol",
+        source: "signals",
+        minzoom: 10.5,
+        layout: {
+          "text-field": ["concat", ["get", "symbol"], "  ·  ", ["get", "place"]],
+          "text-font": ["Noto Sans Regular"],
+          "text-size": ["interpolate", ["linear"], ["zoom"], 11, 10, 15, 12],
+          "text-offset": [0, 1.2],
+          "text-anchor": "top",
+          "text-allow-overlap": false,
+          "text-max-width": 14,
+        },
+        paint: {
+          "text-color": "#e8f5ef",
+          "text-halo-color": "#05070699",
+          "text-halo-width": 1.4,
+        },
+      });
+    });
+    const syncCity = () => {
+      const hide = m.getZoom() >= CITY_MAX_ZOOM;
+      for (const mk of markers.current) {
+        mk.getElement().style.display = hide ? "none" : "";
+      }
+    };
+    m.on("zoom", syncCity);
     map.current = m;
     return () => {
       m.remove();
       map.current = null;
+      ready.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // pins
+  // individual store signals
+  useEffect(() => {
+    const m = map.current;
+    if (!m) return;
+    const push = () => {
+      const src = m.getSource("signals") as maplibregl.GeoJSONSource | undefined;
+      if (!src) return;
+      src.setData({
+        type: "FeatureCollection",
+        features: points.map((p) => ({
+          type: "Feature" as const,
+          geometry: { type: "Point" as const, coordinates: [p.lng, p.lat] },
+          properties: { symbol: p.symbol, rarity: p.rarity, place: p.place },
+        })),
+      });
+    };
+    if (ready.current) push();
+    else m.once("load", push);
+  }, [points]);
+
+  // city bubbles
   useEffect(() => {
     const m = map.current;
     if (!m) return;
@@ -52,12 +205,14 @@ export default function GeoMap({ pins, me, onSelect, selected, center, zoom }: P
       el.type = "button";
       el.className = "catch-pin" + (selected === p.key ? " is-on" : "");
       el.style.setProperty("--pin", rarityVar(p.rarity));
+      el.style.display = m.getZoom() >= CITY_MAX_ZOOM ? "none" : "";
       el.innerHTML =
         `<span class="catch-pin-dot"></span>` +
         `<span class="catch-pin-label">${p.label} <b>${p.count}</b></span>`;
       el.addEventListener("click", (e) => {
         e.stopPropagation();
         onSelect?.(p.key);
+        m.flyTo({ center: [p.lng, p.lat], zoom: 12, duration: 1400, essential: true });
       });
       markers.current.push(
         new maplibregl.Marker({ element: el, anchor: "center" })

@@ -1,11 +1,13 @@
 import { lazy, Suspense } from "react";
 import { ClientOnly } from "@tanstack/react-router";
 import type { MapPin } from "./WorldMap";
+import type { MapPoint } from "./GeoMap.client";
 
 const GeoMap = lazy(() => import("./GeoMap.client"));
 
 type Props = {
   pins: MapPin[];
+  points?: MapPoint[];
   me?: { lat: number; lng: number } | null;
   onSelect?: (key: string) => void;
   selected?: string | null;

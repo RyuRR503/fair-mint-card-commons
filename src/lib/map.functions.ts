@@ -12,14 +12,18 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
 
   const { data, error } = await supabaseAdmin
     .from("spawns")
-    .select("symbol, rarity, claimed_by, places!inner(city)")
+    .select("symbol, rarity, claimed_by, places!inner(name, city, lat, lng)")
     .eq("day", day)
-    .is("claimed_by", null);
+    .is("claimed_by", null)
+    .limit(3000);
   if (error) throw new Error(error.message);
 
+  type Row = { symbol: string; rarity: string | null; places: { name: string; city: string; lat: number; lng: number } };
+  const rows = (data ?? []) as unknown as Row[];
+
   const byCity = new Map<string, { count: number; symbols: Set<string>; rarity: Rarity }>();
-  for (const row of data ?? []) {
-    const city = (row as unknown as { places: { city: string } }).places.city;
+  for (const row of rows) {
+    const city = row.places.city;
     const entry = byCity.get(city) ?? { count: 0, symbols: new Set<string>(), rarity: "common" as Rarity };
     entry.count += 1;
     entry.symbols.add(row.symbol);
@@ -27,6 +31,15 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
     if ((RANK[r] ?? 0) > (RANK[entry.rarity] ?? 0)) entry.rarity = r;
     byCity.set(city, entry);
   }
+
+  /** Every individual signal, so the map can show real stores once you zoom in. */
+  const points = rows.map((r) => ({
+    symbol: r.symbol,
+    rarity: (r.rarity ?? "common") as Rarity,
+    place: r.places.name,
+    lat: r.places.lat,
+    lng: r.places.lng,
+  }));
 
   const pins: CityPin[] = CN_CITIES.filter((c) => byCity.has(c.key)).map((c) => {
     const e = byCity.get(c.key)!;
@@ -48,7 +61,8 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
 
   return {
     pins,
-    totalSpawns: data?.length ?? 0,
+    points,
+    totalSpawns: rows.length,
     totalCities: pins.length,
     totalPlaces: placeCount ?? 0,
     tokens: Object.keys(TOKEN_BY_SYMBOL).length,

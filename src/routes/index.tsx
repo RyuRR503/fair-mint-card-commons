@@ -186,7 +186,7 @@ function Home() {
 
         <div className="ink-frame relative overflow-hidden rounded-3xl p-3">
           <div className="overflow-hidden rounded-2xl">
-            <LiveMap pins={pins} />
+            <LiveMap pins={pins} points={summary.points} />
           </div>
         </div>
       </section>
