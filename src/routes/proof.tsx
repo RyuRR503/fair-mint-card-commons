@@ -5,6 +5,7 @@ import { Section, Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
 import { getVault, getClaims } from "@/lib/game.functions";
 import { CHAIN, VAULT_ADDRESS } from "@/lib/tokens";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/proof")({
   head: () => ({
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/proof")({
         content:
           "Every fragment is bought and deposited before it spawns. The vault balance is public on BscScan and re-read every minute.",
       },
-      { property: "og:title", content: "Touch Grass proof of reserves" },
+      { property: "og:title", content: "CATCH proof of reserves" },
       {
         property: "og:description",
         content: "Nothing is minted. The vault holds the shares before the drop appears.",
@@ -41,6 +42,7 @@ type Claim = {
 };
 
 function Proof() {
+  const t = useT();
   const vault = useServerFn(getVault);
   const claims = useServerFn(getClaims);
   const [rows, setRows] = useState<VaultRow[] | null>(null);
@@ -85,50 +87,65 @@ function Proof() {
   return (
     <>
       <Section
-        eyebrow="proof of reserves"
-        title="Nothing is minted. Count it yourself."
-        lead="Every fragment that spawns was bought on the open market and deposited into the vault first. If the vault cannot pay a drop, the drop does not appear."
+        eyebrow={t("proof of reserves", "储备证明")}
+        title={t("Nothing is minted. Count it yourself.", "不增发。你自己数。")}
+        lead={t(
+          "Every fragment that spawns was bought on the open market and deposited into the vault first. If the vault cannot pay a signal, the signal does not appear.",
+          "每一枚投放出去的碎片，都是先在市场上买入、再存进金库的。金库付不出的信号，压根不会出现在地图上。",
+        )}
         className="mt-10"
       />
 
-      <Section title="The addresses">
+      <Section title={t("The addresses", "地址")}>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {[
-            { h: "Vault", d: "Holds the stock tokens that back every live drop.", a: VAULT_ADDRESS },
             {
-              h: "Treasury",
-              d: "Receives fees, buys stock, tops the vault back up.",
+              h: t("Vault", "金库"),
+              d: t("Holds the stock tokens that back every live signal.", "持有支撑每个在线信号的股票代币。"),
+              a: VAULT_ADDRESS,
+            },
+            {
+              h: t("Treasury", "国库"),
+              d: t("Receives fees, buys stock tokens, tops the vault back up.", "收取手续费、买入股票代币、给金库补货。"),
               a: "0xdE852DF21C3628270e9B938B5215B7C78e9A8dc4",
             },
           ].map((c) => (
-            <Panel key={c.h}>
+            <Panel key={String(c.h)}>
               <h3 className="label-caps text-xs text-muted-foreground">{c.h}</h3>
-              <p className="mt-2 text-sm text-foreground/70">{c.d}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{c.d}</p>
               <a
                 href={`${CHAIN.explorer}/address/${c.a}`}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="mt-3 block break-all font-mono text-xs text-primary-foreground underline underline-offset-4"
+                className="mt-3 block break-all font-mono text-xs text-primary underline underline-offset-4"
               >
                 {c.a}
               </a>
             </Panel>
           ))}
         </div>
-        <p className="mt-4 text-sm text-foreground/70">
-          Read on {CHAIN.name} (chain id {CHAIN.id}), refreshed every minute{checkedAt ? `, last at ${new Date(checkedAt).toLocaleTimeString()}` : ""}.
-          {!live && " Showing seeded figures until the vault contract is deployed."}
+        <p className="mt-4 text-sm text-muted-foreground">
+          {t(
+            `Read on ${CHAIN.name} (chain id ${CHAIN.id}), refreshed every minute`,
+            `数据读自 ${CHAIN.name}（链 id ${CHAIN.id}），每分钟刷新一次`,
+          )}
+          {checkedAt ? `, ${t("last at", "最近")} ${new Date(checkedAt).toLocaleTimeString()}` : ""}.
+          {!live &&
+            t(
+              " Showing seeded figures until the vault contract is deployed.",
+              " 金库合约部署前，此处显示的是预置数据。",
+            )}
         </p>
       </Section>
 
-      <Section title="What the vault holds right now">
+      <Section title={t("What the vault holds right now", "金库当前持仓")}>
         <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
           <table className="w-full min-w-[520px] text-left text-sm">
             <thead>
               <tr className="label-caps border-b border-border text-[10px] text-muted-foreground">
-                <th className="px-6 py-4">Token</th>
-                <th className="px-6 py-4">Balance</th>
-                <th className="px-6 py-4">Drops it covers</th>
+                <th className="px-6 py-4">{t("Token", "代币")}</th>
+                <th className="px-6 py-4">{t("Balance", "余额")}</th>
+                <th className="px-6 py-4">{t("Signals it covers", "可支撑信号数")}</th>
               </tr>
             </thead>
             <tbody>
@@ -147,7 +164,7 @@ function Proof() {
               {!rows && (
                 <tr>
                   <td colSpan={3} className="px-6 py-8 text-center text-sm text-muted-foreground">
-                    Reading the chain…
+                    {t("Reading the chain…", "正在读取链上数据…")}
                   </td>
                 </tr>
               )}
@@ -156,11 +173,14 @@ function Proof() {
         </Panel>
       </Section>
 
-      <Section title="Recent catches" lead="Every claim is a public transfer out of the vault.">
+      <Section
+        title={t("Recent catches", "最近的领取")}
+        lead={t("Every claim is a public transfer out of the vault.", "每一次领取都是一笔从金库转出的公开交易。")}
+      >
         <Panel className="mt-6">
           {feed.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No catches yet. Be the first — the map is open.
+              {t("No catches yet. Be the first — the map is open.", "还没有人抓到。地图已经开了，你可以是第一个。")}
             </p>
           ) : (
             <ul className="divide-y divide-border/60">
@@ -168,8 +188,11 @@ function Proof() {
                 <li key={i} className="flex flex-wrap items-center gap-3 py-3 text-sm">
                   <TokenChip symbol={c.symbol} size={28} />
                   <span className="font-mono text-xs">{c.wallet}</span>
-                  <span className="text-foreground/70">
-                    caught {c.amount} {c.symbol} at {c.place}, {c.city}
+                  <span className="text-muted-foreground">
+                    {t(
+                      `caught ${c.amount} ${c.symbol} at ${c.place}, ${c.city}`,
+                      `在${c.city} ${c.place} 抓到 ${c.amount} ${c.symbol}`,
+                    )}
                   </span>
                   <span className="label-caps ml-auto text-[10px] text-muted-foreground">
                     {new Date(c.created_at).toLocaleString()}

@@ -8,15 +8,16 @@ import { claimDrop, getSpawns, RULES } from "@/lib/game.functions";
 import { catchRadius, formatDistance, haversine } from "@/lib/geo";
 import { CHAIN, RARITY_LABEL, rarityVar } from "@/lib/tokens";
 import type { Rarity } from "@/lib/tokens";
+import { useT, useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "Touch Grass — the map" },
+      { title: "CATCH — the live map" },
       {
         name: "description",
         content:
-          "Every live drop near you. Connect a wallet, walk to a spawn, tap, and the fragment lands on BNB Smart Chain.",
+          "Every live signal near you. Connect a wallet, walk to a spawn, tap, and the fragment lands on BNB Smart Chain.",
       },
     ],
   }),
@@ -37,6 +38,13 @@ type Spawn = {
 
 type Fix = { lat: number; lng: number; accuracy: number };
 
+const RARITY_LABEL_ZH: Record<Rarity, string> = {
+  common: "普通",
+  rare: "稀有",
+  epic: "史诗",
+  legendary: "传奇",
+};
+
 function deviceId() {
   const key = "tg.device";
   let v = localStorage.getItem(key);
@@ -48,6 +56,8 @@ function deviceId() {
 }
 
 function AppMap() {
+  const t = useT();
+  const { lang } = useLang();
   const fetchSpawns = useServerFn(getSpawns);
   const claim = useServerFn(claimDrop);
 
@@ -66,13 +76,13 @@ function AppMap() {
   useEffect(() => {
     fetchSpawns({ data: fix ? { lat: fix.lat, lng: fix.lng, limit: 600 } : { limit: 600 } })
       .then((r) => setSpawns(r.spawns as Spawn[]))
-      .catch(() => setNote("Could not load the map. Try again in a moment."));
-  }, [fetchSpawns, fix?.lat, fix?.lng]);
+      .catch(() => setNote(t("Could not load the map. Try again in a moment.", "地图加载失败，请稍后再试。")));
+  }, [fetchSpawns, fix?.lat, fix?.lng, t]);
 
   /* ---------------------------------------------------------- geolocation */
   const startGeo = useCallback(() => {
     if (!("geolocation" in navigator)) {
-      setGeoError("This browser has no location support.");
+      setGeoError(t("This browser has no location support.", "这个浏览器不支持定位。"));
       return;
     }
     navigator.geolocation.watchPosition(
@@ -87,10 +97,10 @@ function AppMap() {
         samples.current = [...samples.current.slice(-60), s];
         setFix({ lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy });
       },
-      () => setGeoError("Location is blocked. The game does not work without it."),
+      () => setGeoError(t("Location is blocked. The game does not work without it.", "定位被拒绝。没有定位就没法玩。")),
       { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 },
     );
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     const onMotion = (e: DeviceMotionEvent) => {
@@ -107,7 +117,7 @@ function AppMap() {
   const connect = useCallback(async () => {
     const eth = (window as any).ethereum;
     if (!eth) {
-      setNote("No wallet found. Install MetaMask or open this in a wallet browser.");
+      setNote(t("No wallet found. Install MetaMask or open this in a wallet browser.", "没有检测到钱包。请安装 MetaMask，或在钱包内置浏览器中打开。"));
       setNoteOk(false);
       return;
     }
@@ -131,10 +141,10 @@ function AppMap() {
         });
       setWallet(accounts[0] ?? "");
     } catch {
-      setNote("Wallet connection was refused.");
+      setNote(t("Wallet connection was refused.", "钱包连接被拒绝。"));
       setNoteOk(false);
     }
-  }, []);
+  }, [t]);
 
   /* --------------------------------------------------------------- lists */
   const nearby = useMemo(() => {
@@ -197,13 +207,19 @@ function AppMap() {
         setNoteOk(true);
         setNote(
           res.mode === "live"
-            ? `Caught ${active.amount} ${active.symbol}. Confirm the transfer in your wallet.`
-            : `Caught ${active.amount} ${active.symbol}. The vault contract is not deployed yet, so this catch is recorded and will be settled on ${CHAIN.short} at launch.`,
+            ? t(
+                `Caught ${active.amount} ${active.symbol}. Confirm the transfer in your wallet.`,
+                `已抓到 ${active.amount} ${active.symbol}，请在钱包里确认这笔转账。`,
+              )
+            : t(
+                `Caught ${active.amount} ${active.symbol}. The vault contract is not deployed yet, so this catch is recorded and will be settled on ${CHAIN.short} at launch.`,
+                `已抓到 ${active.amount} ${active.symbol}。金库合约尚未部署，这次领取已记录，上线时会在 ${CHAIN.short} 上结算。`,
+              ),
         );
       }
     } catch {
       setNoteOk(false);
-      setNote("The claim server did not answer. Try again.");
+      setNote(t("The claim server did not answer. Try again.", "领取服务没有响应，请重试。"));
     } finally {
       setBusy(false);
     }
@@ -221,7 +237,7 @@ function AppMap() {
             height="520px"
           />
           <Panel className="mt-4">
-            <h2 className="label-caps text-xs text-muted-foreground">Nearby drops</h2>
+            <h2 className="label-caps text-xs text-muted-foreground">{t("Nearby signals", "附近信号")}</h2>
             <ul className="mt-3 max-h-72 divide-y divide-border/60 overflow-y-auto">
               {nearby.map((s) => (
                 <li key={s.id}>
@@ -241,10 +257,10 @@ function AppMap() {
                       </span>
                     </span>
                     <span
-                      className="label-caps rounded-full px-2.5 py-1 text-[9px] text-primary-foreground"
+                      className="label-caps rounded-md px-2.5 py-1 text-[9px] text-primary-foreground"
                       style={{ background: rarityVar(s.rarity) }}
                     >
-                      {RARITY_LABEL[s.rarity]}
+                      {lang === "zh" ? RARITY_LABEL_ZH[s.rarity] : RARITY_LABEL[s.rarity]}
                     </span>
                     <span className="w-20 text-right font-mono text-[11px] text-muted-foreground">
                       {s.distance != null ? formatDistance(s.distance) : "—"}
@@ -259,15 +275,15 @@ function AppMap() {
         {/* -------------------------------------------------------- sidebar */}
         <aside className="space-y-4">
           <Panel>
-            <h2 className="label-caps text-xs text-muted-foreground">Wallet</h2>
+            <h2 className="label-caps text-xs text-muted-foreground">{t("Wallet", "钱包")}</h2>
             {wallet ? (
               <p className="mt-2 break-all font-mono text-xs">{wallet}</p>
             ) : (
               <button
                 onClick={connect}
-                className="label-caps mt-3 w-full rounded-full bg-primary px-5 py-3 text-xs text-primary-foreground shadow-[var(--shadow-glossy)]"
+                className="label-caps mt-3 w-full rounded-md bg-primary px-5 py-3 text-xs text-primary-foreground shadow-[var(--shadow-glossy)]"
               >
-                Connect wallet
+                {t("Connect wallet", "连接钱包")}
               </button>
             )}
             <p className="mt-2 text-xs text-muted-foreground">
@@ -276,30 +292,32 @@ function AppMap() {
           </Panel>
 
           <Panel>
-            <h2 className="label-caps text-xs text-muted-foreground">Location</h2>
+            <h2 className="label-caps text-xs text-muted-foreground">{t("Location", "定位")}</h2>
             {fix ? (
               <>
                 <p className="mt-2 font-mono text-xs">
                   {fix.lat.toFixed(5)}, {fix.lng.toFixed(5)}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  ±{Math.round(fix.accuracy)} m · catch radius {Math.round(radius)} m ·{" "}
-                  {samples.current.length} readings
+                  {t(
+                    `±${Math.round(fix.accuracy)} m · catch radius ${Math.round(radius)} m · ${samples.current.length} readings`,
+                    `±${Math.round(fix.accuracy)} 米 · 领取半径 ${Math.round(radius)} 米 · ${samples.current.length} 条采样`,
+                  )}
                 </p>
               </>
             ) : (
               <button
                 onClick={startGeo}
-                className="label-caps mt-3 w-full rounded-full bg-card px-5 py-3 text-xs shadow-[var(--shadow-pop)]"
+                className="label-caps mt-3 w-full rounded-md border border-border bg-card px-5 py-3 text-xs shadow-[var(--shadow-pop)]"
               >
-                Enable location
+                {t("Enable location", "开启定位")}
               </button>
             )}
             {geoError && <p className="mt-2 text-xs text-destructive">{geoError}</p>}
           </Panel>
 
           <Panel>
-            <h2 className="label-caps text-xs text-muted-foreground">Selected drop</h2>
+            <h2 className="label-caps text-xs text-muted-foreground">{t("Selected signal", "已选信号")}</h2>
             {active ? (
               <>
                 <div className="mt-3 flex items-center gap-3">
@@ -315,50 +333,64 @@ function AppMap() {
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground">
                   {active.distance != null
-                    ? `${formatDistance(active.distance)} away`
-                    : "Enable location to measure the distance."}
+                    ? t(`${formatDistance(active.distance)} away`, `距离 ${formatDistance(active.distance)}`)
+                    : t("Enable location to measure the distance.", "开启定位后才能测距。")}
                 </p>
                 <button
                   onClick={onCatch}
                   disabled={!wallet || !fix || !inRange || busy}
-                  className="label-caps mt-4 w-full rounded-full bg-primary px-5 py-3.5 text-xs text-primary-foreground shadow-[var(--shadow-glossy)] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="label-caps mt-4 w-full rounded-md bg-primary px-5 py-3.5 text-xs text-primary-foreground shadow-[var(--shadow-glossy)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {busy
-                    ? "Checking…"
+                    ? t("Checking…", "校验中…")
                     : !wallet
-                      ? "Connect a wallet first"
+                      ? t("Connect a wallet first", "请先连接钱包")
                       : !fix
-                        ? "Enable location first"
+                        ? t("Enable location first", "请先开启定位")
                         : inRange
-                          ? "Catch it"
-                          : "Walk closer"}
+                          ? t("Catch it", "抓取")
+                          : t("Walk closer", "再靠近一点")}
                 </button>
               </>
             ) : (
-              <p className="mt-2 text-sm text-foreground/70">
-                Pick a drop from the list to see the distance and the catch button.
+              <p className="mt-2 text-sm text-muted-foreground">
+                {t(
+                  "Pick a signal from the list to see the distance and the catch button.",
+                  "从列表里选一个信号，就能看到距离和抓取按钮。",
+                )}
               </p>
             )}
             {note && (
-              <p className={`mt-3 text-sm ${noteOk ? "text-primary-foreground" : "text-destructive"}`}>
+              <p className={`mt-3 text-sm ${noteOk ? "text-primary" : "text-destructive"}`}>
                 {note}
               </p>
             )}
           </Panel>
 
           <Panel>
-            <h2 className="label-caps text-xs text-muted-foreground">The rules</h2>
-            <ul className="mt-3 space-y-2 text-xs leading-relaxed text-foreground/70">
-              <li>· GPS accuracy under {RULES.maxAccuracyM} m.</li>
+            <h2 className="label-caps text-xs text-muted-foreground">{t("The rules", "规则")}</h2>
+            <ul className="mt-3 space-y-2 text-xs leading-relaxed text-muted-foreground">
               <li>
-                · Catch radius {RULES.baseRadiusM}–{RULES.maxRadiusM} m, scaled to your own error.
+                {t(`· GPS accuracy under ${RULES.maxAccuracyM} m.`, `· GPS 精度需优于 ${RULES.maxAccuracyM} 米。`)}
               </li>
               <li>
-                · Keep the app open {RULES.minFixSeconds} s so the log has at least{" "}
-                {RULES.minFixSamples} readings.
+                {t(
+                  `· Catch radius ${RULES.baseRadiusM}–${RULES.maxRadiusM} m, scaled to your own error.`,
+                  `· 领取半径 ${RULES.baseRadiusM}–${RULES.maxRadiusM} 米，按你的定位误差浮动。`,
+                )}
               </li>
-              <li>· {RULES.perWalletPerDay} catches per wallet per day.</li>
-              <li>· {RULES.walletCooldownMin} minutes between catches.</li>
+              <li>
+                {t(
+                  `· Keep the page open ${RULES.minFixSeconds} s so the log has at least ${RULES.minFixSamples} readings.`,
+                  `· 页面保持打开 ${RULES.minFixSeconds} 秒，让日志至少有 ${RULES.minFixSamples} 条采样。`,
+                )}
+              </li>
+              <li>
+                {t(`· ${RULES.perWalletPerDay} catches per wallet per day.`, `· 每个钱包每天最多 ${RULES.perWalletPerDay} 次。`)}
+              </li>
+              <li>
+                {t(`· ${RULES.walletCooldownMin} minutes between catches.`, `· 两次领取之间间隔 ${RULES.walletCooldownMin} 分钟。`)}
+              </li>
             </ul>
           </Panel>
         </aside>
