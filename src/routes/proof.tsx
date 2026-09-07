@@ -116,8 +116,8 @@ function Proof() {
           ))}
         </div>
         <p className="mt-4 text-sm text-foreground/70">
-          Read on {CHAIN.name} (chain id {CHAIN.id}), refreshed every minute.
-          {mode === "demo" && " Showing seeded figures until the vault contract is deployed."}
+          Read on {CHAIN.name} (chain id {CHAIN.id}), refreshed every minute{checkedAt ? `, last at ${new Date(checkedAt).toLocaleTimeString()}` : ""}.
+          {!live && " Showing seeded figures until the vault contract is deployed."}
         </p>
       </Section>
 
@@ -140,7 +140,7 @@ function Proof() {
                       <span className="label-caps text-xs">{r.symbol}</span>
                     </span>
                   </td>
-                  <td className="px-6 py-4 font-mono text-xs">{r.balance}</td>
+                  <td className="px-6 py-4 font-mono text-xs">{r.balance.toFixed(4)}{r.onChain ? "" : " *"}</td>
                   <td className="px-6 py-4 font-mono text-xs">{r.drops}</td>
                 </tr>
               ))}
@@ -172,7 +172,7 @@ function Proof() {
                     caught {c.amount} {c.symbol} at {c.place}, {c.city}
                   </span>
                   <span className="label-caps ml-auto text-[10px] text-muted-foreground">
-                    {new Date(c.at).toLocaleString()}
+                    {new Date(c.created_at).toLocaleString()}
                   </span>
                 </li>
               ))}

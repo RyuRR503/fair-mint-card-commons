@@ -30,9 +30,9 @@ type Ev = {
   amount: number;
   place: string;
   city: string;
-  startsAt: string;
-  durationMin: number;
-  winnerWallet?: string | null;
+  starts_at: string;
+  duration_min: number;
+  winner_wallet?: string | null;
 };
 
 function useCountdown(target?: string) {
@@ -60,7 +60,7 @@ function Legendary() {
 
   useEffect(() => {
     let alive = true;
-    load({ data: {} })
+    load()
       .then((r: any) => {
         if (!alive || !r?.ok) return;
         setNext(r.next ?? null);
@@ -72,7 +72,7 @@ function Legendary() {
     };
   }, [load]);
 
-  const cd = useCountdown(next?.startsAt);
+  const cd = useCountdown(next?.starts_at);
 
   return (
     <>
@@ -95,7 +95,7 @@ function Legendary() {
                   {next.amount} {next.symbol}
                 </p>
                 <p className="mt-1 text-sm text-foreground/70">
-                  {new Date(next.startsAt).toLocaleString()} · open for {next.durationMin} minutes
+                  {new Date(next.starts_at).toLocaleString()} · open for {next.duration_min} minutes
                 </p>
                 {cd && (
                   <div className="mt-6 flex gap-3">
@@ -161,7 +161,7 @@ function Legendary() {
                     {e.amount} {e.symbol} — {e.place}, {e.city}
                   </span>
                   <span className="ml-auto font-mono text-xs text-muted-foreground">
-                    {e.winnerWallet ?? "unclaimed"}
+                    {e.winner_wallet ?? "unclaimed"}
                   </span>
                 </li>
               ))}
