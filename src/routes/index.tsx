@@ -61,8 +61,9 @@ function Home() {
   return (
     <>
       {/* ---------------------------------------------------------- hero */}
-      <section className="relative mx-auto max-w-7xl px-4 pb-6 pt-14 text-center sm:pt-20">
-        <div aria-hidden className="pointer-events-none absolute inset-0 hidden opacity-70 sm:block">
+      <section className="graded relative overflow-hidden px-5 pb-16 pt-20 sm:pt-28">
+        {/* drifting ticker plates, kept far from the type */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 hidden opacity-25 lg:block">
           {FLOATERS.map((f) => (
             <span key={`${f.s}-pos`} className="absolute" style={{ top: f.top, left: f.left }}>
               <TokenChip symbol={f.s} size={f.size} float spin={f.spin} delay={f.d} />
@@ -70,55 +71,73 @@ function Home() {
           ))}
         </div>
 
-        <span className="label-caps relative inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 text-[10px] text-primary">
-          <span className="size-1.5 animate-pulse rounded-full bg-primary" />
-          {t(
-            `${TOTAL_SPAWNS} live signals · ${TOTAL_CITIES} cities · ${CHAIN.short}`,
-            `${TOTAL_SPAWNS} 个实时信号 · ${TOTAL_CITIES} 座城市 · ${CHAIN.short}`,
-          )}
-        </span>
+        <div className="reveal-focus relative mx-auto max-w-4xl">
+          {/* slate */}
+          <div className="flex items-center gap-3">
+            <span className="size-1.5 animate-pulse rounded-full bg-primary" />
+            <p className="readout">
+              {t(
+                `LIVE · ${TOTAL_SPAWNS} SIGNALS · ${TOTAL_CITIES} CITIES · ${CHAIN.short}`,
+                `实时 · ${TOTAL_SPAWNS} 个信号 · ${TOTAL_CITIES} 座城市 · ${CHAIN.short}`,
+              )}
+            </p>
+          </div>
 
-        <h1 className="relative mx-auto mt-7 max-w-4xl font-display text-6xl font-bold leading-[0.92] tracking-tighter sm:text-8xl">
-          <span className="text-glossy">CATCH</span>
-          <span className="block text-foreground">{t("the market", "整个市场")}</span>
-          <span className="block text-muted-foreground">{t("on foot", "用脚走出来")}</span>
-        </h1>
+          <h1 className="mt-10 text-[2.6rem] leading-[1.18] sm:text-[4.25rem]">
+            <span className="block text-foreground">{t("The market", "市场")}</span>
+            <span className="block text-foreground">{t("has an address.", "有一个地址。")}</span>
+            <span className="mt-3 block text-muted-foreground">{t("Go stand on it.", "走过去，站上去。")}</span>
+          </h1>
 
-        <p className="relative mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          {t(
-            "Tokenized stock fragments appear at real coordinates. Get in range, catch the signal, and the fragment is transferred straight to your wallet. No mint, no pre-sale — a funded vault pays every catch.",
-            "代币化的股票碎片会出现在真实坐标上。走进范围、捕捉信号，碎片直接进入你的钱包。不增发、不预售——每一次捕捉都由已注资的金库支付。",
-          )}
-        </p>
+          <p className="font-latin mt-8 text-[11px] uppercase tracking-[0.44em] text-primary">
+            catch the market on foot
+          </p>
 
-        <div className="relative mt-9 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            to="/app"
-            className="label-caps rounded-md bg-primary px-7 py-3.5 text-[11px] text-primary-foreground shadow-[var(--shadow-glossy)] transition-transform hover:-translate-y-0.5"
-          >
-            {t("Start hunting", "开始捕捉")}
-          </Link>
-          <Link
-            to="/download"
-            className="label-caps rounded-md border border-border bg-card/60 px-7 py-3.5 text-[11px] transition-colors hover:border-primary/50"
-          >
-            {t("Get the app", "下载 App")}
-          </Link>
-          <Link
-            to="/docs"
-            className="label-caps rounded-md border border-border bg-card/60 px-7 py-3.5 text-[11px] transition-colors hover:border-primary/50"
-          >
-            {t("Docs", "文档")}
-          </Link>
+          <p className="mt-8 max-w-xl text-[0.975rem] leading-[1.9] text-muted-foreground">
+            {t(
+              "Tokenized stock fragments sit at real coordinates. Get in range, catch the signal, and the fragment moves out of a funded vault straight into your wallet. No mint. No pre-sale.",
+              "代币化的股票碎片停在真实坐标上。走进范围、捕捉信号，碎片就从已注资的金库转进你的钱包。不增发，不预售。",
+            )}
+          </p>
+
+          <div className="mt-12 flex flex-wrap items-center gap-4">
+            <Link
+              to="/app"
+              className="label-caps halation rounded-md bg-primary px-8 py-3.5 text-[11px] text-primary-foreground transition-all duration-300 hover:brightness-110"
+            >
+              {t("Start hunting", "开始捕捉")}
+            </Link>
+            <Link
+              to="/download"
+              className="label-caps rounded-md border border-border px-8 py-3.5 text-[11px] text-foreground transition-colors duration-300 hover:border-primary/60 hover:text-primary"
+            >
+              {t("Get the app", "下载 App")}
+            </Link>
+            <Link
+              to="/docs"
+              className="label-caps text-[11px] text-muted-foreground underline underline-offset-8 transition-colors hover:text-primary"
+            >
+              {t("Docs", "文档")}
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* ---------------------------------------------------------- map */}
-      <div className="mx-auto mt-12 max-w-7xl px-4">
-        <div className="scanline overflow-hidden rounded-2xl border border-border">
-          <WorldMap pins={pins} />
+      <div className="cinema-frame graded relative">
+        <div className="mx-auto max-w-6xl px-5 py-8">
+          <div className="flex items-center justify-between gap-4 pb-4">
+            <p className="readout">{t("SECTOR MAP · REALTIME", "全球扇区图 · 实时")}</p>
+            <p className="readout hidden sm:block">
+              {t(`${TOTAL_CITIES} CITIES / ${TOTAL_SPAWNS} SPAWNS`, `${TOTAL_CITIES} 城 / ${TOTAL_SPAWNS} 点`)}
+            </p>
+          </div>
+          <div className="scanline overflow-hidden rounded-md border border-border">
+            <WorldMap pins={pins} />
+          </div>
         </div>
       </div>
+
 
       {/* ------------------------------------------------------ what is this */}
       <Section
