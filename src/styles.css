@@ -273,6 +273,83 @@
   animation: sweep 28s linear infinite;
 }
 
+/* ---------- survey / expedition layer ---------- */
+
+/* Contour lines: faint elevation rings printed under a band */
+@utility contour {
+  background-image:
+    repeating-radial-gradient(
+      circle at 18% 12%,
+      transparent 0 46px,
+      oklch(0.39 0.058 135 / 0.07) 46px 47px
+    ),
+    repeating-radial-gradient(
+      circle at 88% 78%,
+      transparent 0 62px,
+      oklch(0.39 0.058 135 / 0.055) 62px 63px
+    );
+}
+
+/* Ink plate: the dark instrument surface that holds the map */
+@utility ink-frame {
+  background: var(--ink);
+  color: var(--primary-foreground);
+  box-shadow:
+    0 40px 80px -48px oklch(0.253 0.008 135 / 0.65),
+    inset 0 0 0 1px oklch(0.985 0.006 92 / 0.08);
+}
+
+/* Hairline mosaic: children sit on 1px ink rules, no rounded corners */
+@utility hair-grid {
+  background: var(--border);
+  border: 1px solid var(--border);
+  gap: 1px;
+}
+
+/* Field plate: printed card with a real, warm drop */
+@utility plate {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 1px 0 0 oklch(0.253 0.008 135 / 0.05),
+    0 24px 48px -34px oklch(0.253 0.008 135 / 0.4);
+}
+
+/* Viewfinder corner ticks around a framed image */
+@utility viewfinder {
+  position: relative;
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--alert);
+    pointer-events: none;
+  }
+  &::before {
+    top: -9px;
+    left: -9px;
+    border-right: 0;
+    border-bottom: 0;
+  }
+  &::after {
+    right: -9px;
+    bottom: -9px;
+    border-left: 0;
+    border-top: 0;
+  }
+}
+
+/* Plate index number, printed like a survey sheet reference */
+@utility plate-no {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+
+
 @keyframes float-soft {
   0%,
   100% {
