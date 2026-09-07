@@ -5,27 +5,27 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * CATCH — "Daylight Field" design system
- * Original identity: paper-white morning light, damp-grass green, asphalt ink
- * and one hot orange marker. Everything reads like a field guide printed for
- * people who are actually outside walking. Flat ink, hairline rules, generous
- * air. No neon, no glass, no dark HUD.
+ * CATCH — "Instrument" design system
+ * Near-black instrument surface, one acid-green signal colour, cool glass
+ * panels and soft ambient light. Chinese-first typography: headings use a
+ * heavy sans that also renders CJK properly, never negative tracking,
+ * never all-caps for Chinese. Latin labels stay small and wide-tracked.
  * Never hardcode colors in components — always use the tokens below.
  */
 
 @theme inline {
-  --font-display: "Space Grotesk", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "DM Sans", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Noto Sans SC", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Noto Sans SC", "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-latin: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  --radius-sm: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
   --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 2px);
-  --radius-xl: calc(var(--radius) + 6px);
-  --radius-2xl: calc(var(--radius) + 10px);
-  --radius-3xl: calc(var(--radius) + 16px);
-  --radius-4xl: calc(var(--radius) + 22px);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+  --radius-2xl: calc(var(--radius) + 14px);
+  --radius-3xl: calc(var(--radius) + 20px);
+  --radius-4xl: calc(var(--radius) + 28px);
 
   --color-background: var(--background);
   --color-background-deep: var(--background-deep);
@@ -64,61 +64,60 @@
   --color-map-sea: var(--map-sea);
   --color-map-land: var(--map-land);
 
-  --shadow-pop: 0 10px 24px -14px oklch(0.25 0.008 135 / 0.35);
-  --shadow-glossy: 0 0 0 1px oklch(0.556 0.072 133 / 0.28);
-  --shadow-card: 0 1px 0 0 oklch(0.25 0.008 135 / 0.06);
+  --shadow-pop: 0 30px 60px -30px oklch(0 0 0 / 0.85);
+  --shadow-glossy: 0 0 0 1px oklch(0.87 0.24 160 / 0.35);
+  --shadow-card: 0 20px 44px -32px oklch(0 0 0 / 0.9);
   --ease-cine: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {
-  /* printed-card geometry: soft corners, never capsules except pills */
-  --radius: 0.625rem;
+  --radius: 0.75rem;
 
-  /* paper */
-  --background: oklch(0.955 0.011 92);
-  --background-deep: oklch(0.925 0.014 92);
-  --foreground: oklch(0.253 0.008 135);
+  /* instrument black */
+  --background: oklch(0.145 0.002 250);
+  --background-deep: oklch(0.11 0.002 250);
+  --foreground: oklch(0.985 0 0);
 
-  --card: oklch(0.995 0.004 92);
-  --card-foreground: oklch(0.253 0.008 135);
-  --popover: oklch(0.995 0.004 92);
-  --popover-foreground: oklch(0.253 0.008 135);
+  --card: oklch(0.2 0.004 250);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.185 0.004 250);
+  --popover-foreground: oklch(0.985 0 0);
 
-  /* damp grass — the brand colour */
-  --primary: oklch(0.556 0.072 133);
-  --primary-foreground: oklch(0.985 0.006 92);
+  /* acid signal green — the one colour that means "live" */
+  --primary: oklch(0.87 0.235 158);
+  --primary-foreground: oklch(0.145 0.002 250);
 
-  --secondary: oklch(0.915 0.014 100);
-  --secondary-foreground: oklch(0.3 0.012 135);
+  --secondary: oklch(0.26 0.006 250);
+  --secondary-foreground: oklch(0.96 0 0);
 
-  --muted: oklch(0.915 0.014 100);
-  --muted-foreground: oklch(0.48 0.012 120);
+  --muted: oklch(0.25 0.005 250);
+  --muted-foreground: oklch(0.73 0.008 250);
 
-  /* hot orange marker — used sparingly, like a survey flag */
-  --accent: oklch(0.588 0.166 39);
-  --accent-foreground: oklch(0.985 0.006 92);
+  /* cool blue counterlight */
+  --accent: oklch(0.66 0.16 250);
+  --accent-foreground: oklch(0.985 0 0);
 
-  --destructive: oklch(0.55 0.19 27);
+  --destructive: oklch(0.62 0.21 25);
   --destructive-foreground: oklch(0.985 0 0);
 
-  --border: oklch(0.253 0.008 135 / 14%);
-  --input: oklch(0.253 0.008 135 / 18%);
-  --ring: oklch(0.556 0.072 133 / 45%);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.87 0.235 158 / 45%);
 
-  --signal: oklch(0.556 0.072 133);
-  --signal-deep: oklch(0.39 0.058 135);
-  --alert: oklch(0.588 0.166 39);
-  --gold: oklch(0.72 0.13 75);
-  --sky-deep: oklch(0.52 0.07 235);
-  --sky-soft: oklch(0.83 0.05 230);
-  --rare: oklch(0.52 0.07 235);
-  --epic: oklch(0.5 0.13 310);
-  --common: oklch(0.6 0.02 130);
-  --ink: oklch(0.253 0.008 135);
-  --bnb: oklch(0.78 0.15 88);
+  --signal: oklch(0.87 0.235 158);
+  --signal-deep: oklch(0.62 0.16 160);
+  --alert: oklch(0.78 0.17 62);
+  --gold: oklch(0.84 0.16 88);
+  --sky-deep: oklch(0.66 0.16 250);
+  --sky-soft: oklch(0.78 0.1 245);
+  --rare: oklch(0.7 0.15 245);
+  --epic: oklch(0.7 0.18 312);
+  --common: oklch(0.72 0.02 250);
+  --ink: oklch(0.11 0.002 250);
+  --bnb: oklch(0.84 0.16 88);
 
-  --map-sea: oklch(0.925 0.014 92);
-  --map-land: oklch(0.87 0.03 120);
+  --map-sea: oklch(0.17 0.004 250);
+  --map-land: oklch(0.27 0.012 220);
 }
 
 @layer base {
@@ -128,7 +127,7 @@
 
   html {
     scroll-behavior: smooth;
-    color-scheme: light;
+    color-scheme: dark;
   }
 
   body {
@@ -139,23 +138,25 @@
     text-rendering: optimizeLegibility;
   }
 
-  /*
-   * Latin headings get tight grotesk tracking; CJK never goes negative,
-   * so headings stay at 0 and rely on weight and size instead.
-   */
+  /* Chinese never gets negative tracking; weight and size carry the hierarchy */
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: 900;
     letter-spacing: 0;
-    line-height: 1.15;
+    line-height: 1.25;
   }
 
   p,
   li {
-    line-height: 1.75;
+    line-height: 1.85;
+  }
+
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
 }
 
@@ -163,43 +164,30 @@
 
 @utility font-latin {
   font-family: var(--font-latin);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
-/* Morning haze: warm paper with a cool wash rising from the horizon */
+/* Ambient instrument light: green from top-left, cold blue from bottom-right */
 @utility hunt-bg {
   background-color: var(--background);
   background-image:
-    radial-gradient(1100px 620px at 82% -14%, oklch(0.83 0.05 230 / 0.35), transparent 62%),
-    radial-gradient(900px 560px at 2% -6%, oklch(0.556 0.072 133 / 0.14), transparent 60%);
+    radial-gradient(900px 620px at 6% -8%, oklch(0.87 0.235 158 / 0.1), transparent 62%),
+    radial-gradient(900px 700px at 96% 104%, oklch(0.66 0.16 250 / 0.12), transparent 64%);
 }
 
 @utility sky-bg {
   background-color: var(--background);
 }
 
-/* Survey grid — like graph paper under the content */
+/* Instrument dot field */
 @utility grid-field {
-  background-image:
-    linear-gradient(oklch(0.253 0.008 135 / 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(0.253 0.008 135 / 0.055) 1px, transparent 1px);
-  background-size: 88px 88px;
-  mask-image: linear-gradient(180deg, black, transparent 78%);
+  background-image: radial-gradient(oklch(1 0 0 / 0.14) 1px, transparent 1px);
+  background-size: 30px 30px;
+  mask-image: linear-gradient(180deg, black, transparent 82%);
 }
 
-/* Paper tooth — the faintest print texture, never visible as "noise" */
 @utility grain {
   position: relative;
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.035;
-    mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
-    background-size: 160px 160px;
-  }
 }
 
 @utility vignette {
@@ -210,44 +198,79 @@
   position: relative;
 }
 
-/* Full-bleed band: one screen, one idea */
+@utility contour {
+  position: relative;
+}
+
+/* Full-bleed band on a slightly lifted surface */
 @utility cinema-frame {
   position: relative;
-  background: var(--card);
+  background: oklch(1 0 0 / 0.03);
   border-block: 1px solid var(--border);
 }
 
+/* Frosted instrument panel */
 @utility panel {
-  background: var(--card);
+  background: linear-gradient(160deg, oklch(1 0 0 / 0.075), oklch(1 0 0 / 0.03));
   border: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow-card);
+}
+
+@utility plate {
+  background: linear-gradient(160deg, oklch(1 0 0 / 0.075), oklch(1 0 0 / 0.03));
+  border: 1px solid var(--border);
+  backdrop-filter: blur(18px);
   box-shadow: var(--shadow-card);
 }
 
 @utility glass-panel {
-  background: oklch(0.995 0.004 92 / 0.9);
-  backdrop-filter: blur(10px);
+  background: oklch(0.145 0.002 250 / 0.7);
+  backdrop-filter: blur(20px);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-pop);
 }
 
+/* Deep well that holds the map */
+@utility ink-frame {
+  background: var(--background-deep);
+  border: 1px solid var(--border);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 0.06),
+    0 40px 80px -50px oklch(0 0 0 / 0.9);
+}
+
+@utility hair-grid {
+  background: var(--border);
+  border: 1px solid var(--border);
+  gap: 1px;
+}
+
+/* Latin micro-labels only — never wrap Chinese in this */
 @utility label-caps {
   font-family: var(--font-latin);
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.22em;
   font-weight: 600;
 }
 
-/* Field-notebook readout: coordinates, distances, timecodes */
 @utility readout {
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   color: var(--muted-foreground);
 }
 
-/* No glow in daylight — "halation" becomes a soft ground shadow */
+@utility plate-no {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+
+/* Signal bloom around live elements */
 @utility halation {
-  box-shadow: 0 12px 26px -14px oklch(0.556 0.072 133 / 0.55);
+  box-shadow: 0 0 32px -6px oklch(0.87 0.235 158 / 0.45);
 }
 
 @utility text-glossy {
@@ -263,92 +286,41 @@
   overflow: hidden;
 }
 
-@utility map-sweep {
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    oklch(0.556 0.072 133 / 0.1) 10deg,
-    transparent 34deg
-  );
-  animation: sweep 28s linear infinite;
-}
-
-/* ---------- survey / expedition layer ---------- */
-
-/* Contour lines: faint elevation rings printed under a band */
-@utility contour {
-  background-image:
-    repeating-radial-gradient(
-      circle at 18% 12%,
-      transparent 0 46px,
-      oklch(0.39 0.058 135 / 0.07) 46px 47px
-    ),
-    repeating-radial-gradient(
-      circle at 88% 78%,
-      transparent 0 62px,
-      oklch(0.39 0.058 135 / 0.055) 62px 63px
-    );
-}
-
-/* Ink plate: the dark instrument surface that holds the map */
-@utility ink-frame {
-  background: var(--ink);
-  color: var(--primary-foreground);
-  box-shadow:
-    0 40px 80px -48px oklch(0.253 0.008 135 / 0.65),
-    inset 0 0 0 1px oklch(0.985 0.006 92 / 0.08);
-}
-
-/* Hairline mosaic: children sit on 1px ink rules, no rounded corners */
-@utility hair-grid {
-  background: var(--border);
-  border: 1px solid var(--border);
-  gap: 1px;
-}
-
-/* Field plate: printed card with a real, warm drop */
-@utility plate {
-  background: var(--card);
-  border: 1px solid var(--border);
-  box-shadow:
-    0 1px 0 0 oklch(0.253 0.008 135 / 0.05),
-    0 24px 48px -34px oklch(0.253 0.008 135 / 0.4);
-}
-
-/* Viewfinder corner ticks around a framed image */
+/* HUD bracket corners */
 @utility viewfinder {
   position: relative;
   &::before,
   &::after {
     content: "";
     position: absolute;
-    width: 22px;
-    height: 22px;
-    border: 1px solid var(--alert);
+    width: 42px;
+    height: 42px;
+    border: 2px solid var(--primary);
     pointer-events: none;
   }
   &::before {
-    top: -9px;
-    left: -9px;
-    border-right: 0;
+    top: -10px;
+    right: -10px;
+    border-left: 0;
     border-bottom: 0;
   }
   &::after {
-    right: -9px;
-    bottom: -9px;
-    border-left: 0;
+    bottom: -10px;
+    left: -10px;
+    border-right: 0;
     border-top: 0;
   }
 }
 
-/* Plate index number, printed like a survey sheet reference */
-@utility plate-no {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
+@utility map-sweep {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    oklch(0.87 0.235 158 / 0.16) 12deg,
+    transparent 36deg
+  );
+  animation: sweep 22s linear infinite;
 }
-
 
 @keyframes float-soft {
   0%,
@@ -372,10 +344,10 @@
 @keyframes pulse-ring {
   0% {
     transform: scale(0.8);
-    opacity: 0.55;
+    opacity: 0.6;
   }
   100% {
-    transform: scale(2.4);
+    transform: scale(2.6);
     opacity: 0;
   }
 }
@@ -413,7 +385,7 @@
 }
 
 @utility animate-sweep {
-  animation: sweep 28s linear infinite;
+  animation: sweep 22s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
