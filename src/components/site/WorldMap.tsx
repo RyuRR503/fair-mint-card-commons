@@ -80,7 +80,7 @@ export function WorldMap({
   return (
     <div
       className={cn(
-        "graded relative select-none overflow-hidden rounded-md border border-border bg-background-deep shadow-[var(--shadow-card)]",
+        "graded relative select-none overflow-hidden rounded-md border border-border bg-map-sea shadow-[var(--shadow-card)]",
         className,
       )}
       style={{ height }}
@@ -112,21 +112,22 @@ export function WorldMap({
             <path
               d="M40 0H0V40"
               fill="none"
-              stroke="oklch(0.93 0.006 95 / 0.05)"
+              stroke="oklch(0.253 0.008 135 / 0.07)"
               strokeWidth={0.5 / view.z}
             />
           </pattern>
         </defs>
-        {/* ocean: near-black, so land reads as a lit surface */}
-        <rect x="0" y="0" width="1000" height="1000" fill="oklch(0.11 0.01 250)" />
+        {/* sea: pale paper, land: printed field green */}
+        <rect x="0" y="0" width="1000" height="1000" fill="var(--map-sea)" />
         <rect x="0" y="0" width="1000" height="1000" fill="url(#map-grid)" />
         <path
           d={WORLD_PATH}
-          fill="oklch(0.19 0.014 250)"
-          stroke="oklch(0.78 0.14 55 / 0.35)"
+          fill="var(--map-land)"
+          stroke="oklch(0.39 0.058 135 / 0.5)"
           strokeWidth={0.7 / view.z}
         />
       </svg>
+
 
       {visible.map((p) => {
         // Zoomed out the world must read as a constellation of signals, not a
@@ -144,7 +145,7 @@ export function WorldMap({
             <span className="relative flex flex-col items-center">
               {detailed ? (
                 <>
-                  <span className="flex items-center rounded-sm bg-background-deep/90 p-1 shadow-[var(--shadow-pop)] ring-1 ring-border backdrop-blur-sm">
+                  <span className="flex items-center rounded-sm bg-card/95 p-1 shadow-[var(--shadow-pop)] ring-1 ring-border backdrop-blur-sm">
                     {p.symbols.slice(0, 3).map((s, i) => (
                       <TokenChip
                         key={`${s}-${i}`}
@@ -154,7 +155,7 @@ export function WorldMap({
                       />
                     ))}
                     <span
-                      className="readout ml-1 grid h-5 min-w-5 place-items-center rounded-sm px-1.5 text-[10px] text-background-deep"
+                      className="readout ml-1 grid h-5 min-w-5 place-items-center rounded-sm px-1.5 text-[10px] text-card"
                       style={{ background: rarityVar(p.rarity) }}
                     >
                       {p.count}
@@ -162,7 +163,7 @@ export function WorldMap({
                   </span>
                   <span
                     className={cn(
-                      "label-caps mt-1 whitespace-nowrap rounded-sm bg-background-deep/80 px-2 py-0.5 text-[9px] text-muted-foreground backdrop-blur-sm",
+                      "label-caps mt-1 whitespace-nowrap rounded-sm bg-card/90 px-2 py-0.5 text-[9px] text-muted-foreground backdrop-blur-sm",
                       isSel && "bg-primary text-primary-foreground",
                     )}
                   >
@@ -183,9 +184,10 @@ export function WorldMap({
                       className="size-1.5 rounded-full transition-transform duration-300 group-hover:scale-150"
                       style={{
                         background: rarityVar(p.rarity),
-                        boxShadow: `0 0 10px ${rarityVar(p.rarity)}`,
+                        boxShadow: `0 0 0 2px var(--card)`,
                       }}
                     />
+
                   </span>
                   <span className="label-caps pointer-events-none mt-1 whitespace-nowrap text-[8px] text-muted-foreground opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     {p.label} · {p.count}

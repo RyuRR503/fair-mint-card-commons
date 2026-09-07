@@ -71,7 +71,7 @@ export function SiteHeader() {
   const NAV = useNav();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background-deep/80 px-3 py-3 backdrop-blur-xl sm:px-5">
+    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 px-3 py-3 backdrop-blur-xl sm:px-5">
       <div className="mx-auto flex max-w-6xl items-center gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="CATCH home">
           <CatchMark />
