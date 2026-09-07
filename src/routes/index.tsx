@@ -129,10 +129,10 @@ function Home() {
                 <span className="absolute size-2 rounded-full bg-accent" />
                 <span className="absolute size-2 animate-pulse-ring rounded-full bg-accent" />
               </div>
-              <p className="readout absolute bottom-3 left-4 text-[10px] text-background/70">
+              <p className="readout absolute bottom-3 right-4 text-[10px] text-background/70">
                 37.3708° N, 121.9631° W
               </p>
-              <p className="readout absolute right-4 top-3 text-[10px] text-background/70">NVDA</p>
+              <p className="readout absolute left-4 top-3 text-[10px] text-background/70">NVDA</p>
             </div>
             <div className="plate absolute -bottom-6 -left-6 flex size-24 items-center justify-center rounded-full">
               <span className="label-caps text-center text-[10px] leading-tight text-accent">
