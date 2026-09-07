@@ -24,7 +24,7 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
     entry.count += 1;
     entry.symbols.add(row.symbol);
     const r = (row.rarity ?? "common") as Rarity;
-    if (RANK[r] > RANK[entry.rarity]) entry.rarity = r;
+    if ((RANK[r] ?? 0) > (RANK[entry.rarity] ?? 0)) entry.rarity = r;
     byCity.set(city, entry);
   }
 

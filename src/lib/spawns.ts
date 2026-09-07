@@ -1,3 +1,4 @@
+export type { Rarity } from "./tokens";
 import type { Rarity } from "./tokens";
 import { CN_CITIES, CITY_BY_KEY, type CityDef } from "./cities";
 
