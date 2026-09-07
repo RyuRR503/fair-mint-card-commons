@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { Section, Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
-import { WorldMap, type MapPin } from "@/components/site/WorldMap";
+import { type MapPin } from "@/components/site/WorldMap";
+import { LiveMap } from "@/components/site/LiveMap";
 import { WaitlistForm } from "@/components/site/WaitlistForm";
 import { getMapSummary } from "@/lib/map.functions";
 import { TOKENS, RARITY_LABEL, rarityVar, CHAIN } from "@/lib/tokens";
@@ -184,8 +185,8 @@ function Home() {
         </div>
 
         <div className="ink-frame relative overflow-hidden rounded-3xl p-3">
-          <div className="scanline overflow-hidden rounded-2xl">
-            <WorldMap pins={pins} />
+          <div className="overflow-hidden rounded-2xl">
+            <LiveMap pins={pins} />
           </div>
         </div>
       </section>

@@ -30,10 +30,13 @@ type Spawn = {
   amount: number;
   rarity: Rarity;
   city: string;
+  cityName: string;
+  cityNameZh: string;
+  country: string;
   place: string;
   lat: number;
   lng: number;
-  distance: number | null;
+  distance?: number | null;
 };
 
 type Fix = { lat: number; lng: number; accuracy: number };
