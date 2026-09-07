@@ -1,8 +1,51 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { allSpawns, type Spawn } from "./spawns";
-import { TOKEN_BY_SYMBOL, TOKENS, VAULT_ADDRESS, CHAIN } from "./tokens";
+import { cityByKey, type Spawn } from "./spawns";
+import { TOKEN_BY_SYMBOL, TOKENS, VAULT_ADDRESS, CHAIN, type Rarity } from "./tokens";
 import { catchRadius, haversine, MAX_ACCURACY_M } from "./geo";
+
+type SpawnRow = {
+  id: string;
+  symbol: string;
+  amount: number;
+  rarity: string;
+  claimed_by: string | null;
+  places: { name: string; city: string; country: string; lat: number; lng: number };
+};
+
+function toSpawn(row: SpawnRow): Spawn {
+  const city = cityByKey(row.places.city);
+  return {
+    id: row.id,
+    symbol: row.symbol,
+    amount: Number(row.amount),
+    rarity: row.rarity as Rarity,
+    city: row.places.city,
+    cityName: city?.name ?? row.places.city,
+    cityNameZh: city?.nameZh ?? row.places.city,
+    country: row.places.country,
+    place: row.places.name,
+    lat: row.places.lat,
+    lng: row.places.lng,
+  };
+}
+
+const SPAWN_SELECT = "id, symbol, amount, rarity, claimed_by, places!inner(name, city, country, lat, lng)";
+
+/** Today's open signals, straight out of the database. */
+async function openSpawns(): Promise<Spawn[]> {
+  const supabase = await admin();
+  const day = new Date().toISOString().slice(0, 10);
+  const { data, error } = await supabase
+    .from("spawns")
+    .select(SPAWN_SELECT)
+    .eq("day", day)
+    .is("claimed_by", null)
+    .limit(3000);
+  if (error) throw new Error(error.message);
+  return (data as unknown as SpawnRow[]).map(toSpawn);
+}
+
 
 /* ------------------------------------------------------------------ rules */
 
