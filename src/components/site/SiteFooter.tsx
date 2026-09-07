@@ -1,47 +1,54 @@
 import { Link } from "@tanstack/react-router";
 import { CHAIN } from "@/lib/tokens";
+import { useT } from "@/lib/i18n";
+import { CatchMark, LangToggle } from "@/components/site/SiteHeader";
 
 export function SiteFooter() {
+  const t = useT();
+
   return (
     <footer className="mx-auto mt-24 max-w-7xl px-4 pb-14">
-      <div className="glass-panel rounded-[2rem] p-8 sm:p-10">
+      <div className="glass-panel rounded-2xl p-8 sm:p-10">
         <div className="flex flex-wrap items-start justify-between gap-8">
           <div className="max-w-sm">
             <div className="flex items-center gap-3">
-              <span className="grid size-10 place-items-center rounded-2xl bg-primary font-display text-base font-extrabold text-primary-foreground">
-                TG
-              </span>
-              <span className="label-caps text-sm">Touch Grass</span>
+              <CatchMark />
+              <span className="label-caps text-sm tracking-[0.32em]">CATCH</span>
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
-              Real tokenized stocks spawn at real places. Walk there, tap, and the fragment
-              lands in your wallet on {CHAIN.name}.
+              {t(
+                `Tokenized stock fragments appear at real coordinates. Get within range, catch the signal, and the fragment settles into your wallet on ${CHAIN.name}.`,
+                `代币化的股票碎片出现在真实坐标上。走进范围、捕捉信号，碎片就会进入你在 ${CHAIN.name} 上的钱包。`,
+              )}
             </p>
+            <LangToggle className="mt-5 w-fit" />
           </div>
 
           <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm sm:grid-cols-3">
-            <FooterLink to="/how-it-works">How it works</FooterLink>
-            <FooterLink to="/legendary">Legendary</FooterLink>
-            <FooterLink to="/proof">Proof of reserves</FooterLink>
-            <FooterLink to="/sponsor">Sponsor a spot</FooterLink>
-            <FooterLink to="/roadmap">Roadmap</FooterLink>
-            <FooterLink to="/docs">Docs</FooterLink>
-            <FooterLink to="/download">Get the app</FooterLink>
-            <FooterLink to="/app">Open the app</FooterLink>
+            <FooterLink to="/how-it-works">{t("How it works", "玩法")}</FooterLink>
+            <FooterLink to="/legendary">{t("Legendary", "传奇掉落")}</FooterLink>
+            <FooterLink to="/proof">{t("Proof of reserves", "储备证明")}</FooterLink>
+            <FooterLink to="/sponsor">{t("Sponsor a spot", "品牌合作")}</FooterLink>
+            <FooterLink to="/roadmap">{t("Roadmap", "路线图")}</FooterLink>
+            <FooterLink to="/docs">{t("Docs", "文档")}</FooterLink>
+            <FooterLink to="/download">{t("Get the app", "下载 App")}</FooterLink>
+            <FooterLink to="/app">{t("Open the map", "打开地图")}</FooterLink>
             <a
-              href="https://x.com/TouchGrassRWA"
+              href="https://x.com/catchonchain"
               target="_blank"
               rel="noreferrer noopener"
               className="text-muted-foreground transition-colors hover:text-foreground"
             >
-              𝕏 TouchGrassRWA
+              𝕏 catchonchain
             </a>
           </div>
         </div>
 
         <p className="mt-10 border-t border-border pt-6 text-xs text-muted-foreground">
-          Chain id {CHAIN.id} · {CHAIN.name} · Fragments are transferred from a funded vault.
-          Nothing is minted. 18+ only. Not investment advice.
+          {t(
+            `Chain id ${CHAIN.id} · ${CHAIN.name} · Fragments are transferred out of a funded vault. Nothing is minted on catch. 18+ only. Not investment advice.`,
+            `链 ID ${CHAIN.id} · ${CHAIN.name} · 碎片从已注资的金库转出，捕捉时不增发任何代币。仅限 18 岁以上。不构成投资建议。`,
+          )}
         </p>
       </div>
     </footer>
@@ -50,10 +57,7 @@ export function SiteFooter() {
 
 function FooterLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
-    <Link
-      to={to}
-      className="text-muted-foreground transition-colors hover:text-foreground"
-    >
+    <Link to={to} className="text-muted-foreground transition-colors hover:text-foreground">
       {children}
     </Link>
   );
