@@ -12,13 +12,20 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
 
   const { data, error } = await supabaseAdmin
     .from("spawns")
-    .select("symbol, rarity, claimed_by, places!inner(name, city, lat, lng)")
+    .select("id, symbol, amount, rarity, expires_at, claimed_by, places!inner(name, city, lat, lng)")
     .eq("day", day)
     .is("claimed_by", null)
     .limit(3000);
   if (error) throw new Error(error.message);
 
-  type Row = { symbol: string; rarity: string | null; places: { name: string; city: string; lat: number; lng: number } };
+  type Row = {
+    id: string;
+    symbol: string;
+    amount: number | string;
+    rarity: string | null;
+    expires_at: string;
+    places: { name: string; city: string; lat: number; lng: number };
+  };
   const rows = (data ?? []) as unknown as Row[];
 
   const byCity = new Map<string, { count: number; symbols: Set<string>; rarity: Rarity }>();
@@ -34,9 +41,13 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
 
   /** Every individual signal, so the map can show real stores once you zoom in. */
   const points = rows.map((r) => ({
+    id: r.id,
     symbol: r.symbol,
+    amount: Number(r.amount),
     rarity: (r.rarity ?? "common") as Rarity,
     place: r.places.name,
+    cityKey: r.places.city,
+    expiresAt: r.expires_at,
     lat: r.places.lat,
     lng: r.places.lng,
   }));

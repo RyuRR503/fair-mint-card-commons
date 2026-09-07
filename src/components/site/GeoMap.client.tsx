@@ -2,13 +2,18 @@ import { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
 import type { Map as MlMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { rarityVar, type Rarity } from "@/lib/tokens";
+import { rarityVar, RARITY_LABEL, TOKEN_BY_SYMBOL, type Rarity } from "@/lib/tokens";
+import { useT } from "@/lib/i18n";
 import type { MapPin } from "./WorldMap";
 
 export type MapPoint = {
+  id?: string;
   symbol: string;
   rarity: Rarity;
   place: string;
+  cityKey?: string;
+  amount?: number;
+  expiresAt?: string;
   lat: number;
   lng: number;
 };
@@ -83,6 +88,10 @@ export default function GeoMap({
   const map = useRef<MlMap | null>(null);
   const markers = useRef<Marker[]>([]);
   const ready = useRef(false);
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
+
 
   useEffect(() => {
     if (!box.current || map.current) return;
@@ -156,6 +165,56 @@ export default function GeoMap({
           "text-halo-width": 1.4,
         },
       });
+
+      // tap a store signal -> card with token, amount, place and countdown
+      const popup = new maplibregl.Popup({
+        closeButton: true,
+        closeOnClick: true,
+        offset: 14,
+        maxWidth: "280px",
+        className: "catch-popup",
+      });
+      m.on("click", "signal-dot", (e) => {
+        const f = e.features?.[0];
+        if (!f) return;
+        const p = f.properties as Record<string, string>;
+        const tr = tRef.current;
+        const tok = TOKEN_BY_SYMBOL[p["symbol"] ?? ""];
+        const rarity = (p["rarity"] ?? "common") as Rarity;
+        const rarityZh: Record<Rarity, string> = { common: "普通", rare: "稀有", epic: "史诗", legendary: "传说" };
+        const amount = Number(p["amount"] ?? 0);
+        const exp = p["expiresAt"] ? new Date(p["expiresAt"]) : null;
+        const left = exp ? Math.max(0, Math.round((exp.getTime() - Date.now()) / 60000)) : null;
+        const timeText =
+          left === null
+            ? ""
+            : left > 60
+              ? tr(`${Math.floor(left / 60)}h ${left % 60}m left`, `剩余 ${Math.floor(left / 60)} 小时 ${left % 60} 分`)
+              : tr(`${left}m left`, `剩余 ${left} 分钟`);
+        const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
+        popup
+          .setLngLat(((f.geometry as { coordinates: number[] }).coordinates.slice(0, 2) as [number, number]))
+          .setHTML(
+            `<div class="catch-pop" style="--pin:${rarityVar(rarity)}">
+              <div class="catch-pop-top">
+                <span class="catch-pop-sym">${esc(p["symbol"] ?? "")}</span>
+                <span class="catch-pop-rar">${esc(tr(RARITY_LABEL[rarity], rarityZh[rarity]))}</span>
+              </div>
+              <div class="catch-pop-name">${esc(tok ? tr(tok.name, tok.nameZh) : "")}</div>
+              <div class="catch-pop-amt">${amount} <span>${esc(p["symbol"] ?? "")}</span></div>
+              <div class="catch-pop-place">${esc(p["place"] ?? "")}</div>
+              ${timeText ? `<div class="catch-pop-time">${esc(timeText)}</div>` : ""}
+              <div class="catch-pop-hint">${esc(tr("Walk here and tap Catch in the app", "走到这里，在 app 里点 Catch 领取"))}</div>
+            </div>`,
+          )
+          .addTo(m);
+      });
+      m.on("mouseenter", "signal-dot", () => {
+        m.getCanvas().style.cursor = "pointer";
+      });
+      m.on("mouseleave", "signal-dot", () => {
+        m.getCanvas().style.cursor = "";
+      });
     });
     const syncCity = () => {
       const hide = m.getZoom() >= CITY_MAX_ZOOM;
@@ -185,7 +244,13 @@ export default function GeoMap({
         features: points.map((p) => ({
           type: "Feature" as const,
           geometry: { type: "Point" as const, coordinates: [p.lng, p.lat] },
-          properties: { symbol: p.symbol, rarity: p.rarity, place: p.place },
+          properties: {
+            symbol: p.symbol,
+            rarity: p.rarity,
+            place: p.place,
+            amount: p.amount ?? 0,
+            expiresAt: p.expiresAt ?? "",
+          },
         })),
       });
     };
