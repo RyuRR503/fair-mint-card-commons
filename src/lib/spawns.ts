@@ -148,8 +148,9 @@ export function allSpawns(): Spawn[] {
     const rand = rng(hash(city.name) + 7);
     const count = 6 + Math.floor(rand() * 5); // 6..10 drops per city
     for (let i = 0; i < count; i++) {
-      const token = pool[Math.floor(rand() * pool.length)];
+      const token = pool[Math.floor(rand() * pool.length)]!;
       const templates = PLACE_TEMPLATES[token.symbol] ?? ["{city} Spot"];
+      const place = (templates[Math.floor(rand() * templates.length)] ?? "{city} Spot").replace(
       const place = templates[Math.floor(rand() * templates.length)].replace(
         "{city}",
         city.name,
