@@ -183,6 +183,23 @@ function AppMap() {
     }));
   }, [spawns, t]);
 
+  const points: MapPoint[] = useMemo(
+    () =>
+      spawns.map((s) => ({
+        id: s.id,
+        symbol: s.symbol,
+        rarity: s.rarity,
+        place: s.place,
+        cityKey: s.city,
+        amount: s.amount,
+        lat: s.lat,
+        lng: s.lng,
+      })),
+    [spawns],
+  );
+
+
+
   const active = nearby.find((s) => s.id === selected) ?? null;
   const radius = fix ? catchRadius(fix.accuracy) : RULES.baseRadiusM;
   const inRange = !!(active && fix && (active.distance ?? Infinity) <= radius);
@@ -236,12 +253,16 @@ function AppMap() {
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         {/* ------------------------------------------------------------ map */}
         <div>
-          <WorldMap
+          <LiveMap
             pins={pins}
+            points={points}
             me={fix ? { lat: fix.lat, lng: fix.lng } : null}
-            focus={fix ? { lat: fix.lat, lng: fix.lng } : null}
+            selected={selected}
+            center={fix ? [fix.lng, fix.lat] : undefined}
+            zoom={fix ? 13 : undefined}
             height="520px"
           />
+
           <Panel className="mt-4">
             <h2 className="label-caps text-xs text-muted-foreground">{t("Nearby signals", "附近信号")}</h2>
             <ul className="mt-3 max-h-72 divide-y divide-border/60 overflow-y-auto">
