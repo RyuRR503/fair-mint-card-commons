@@ -5,7 +5,7 @@ import { TokenChip } from "@/components/site/TokenChip";
 import { WorldMap, type MapPin } from "@/components/site/WorldMap";
 import { WaitlistForm } from "@/components/site/WaitlistForm";
 import { spawnsByCity, TOTAL_CITIES, TOTAL_SPAWNS } from "@/lib/spawns";
-import { TOKENS, EXTRA_BADGES, RARITY_LABEL, rarityVar, CHAIN } from "@/lib/tokens";
+import { TOKENS, RARITY_LABEL, rarityVar, CHAIN } from "@/lib/tokens";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -373,7 +373,7 @@ function Home() {
       {/* --------------------------------------------------------- catchdex */}
       <Section
         eyebrow={t("the catchdex", "图鉴")}
-        title={t("Collect all 13.", "集齐全部 13 枚。")}
+        title={t(`Collect all ${TOKENS.length}.`, `集齐全部 ${TOKENS.length} 枚。`)}
       >
         <Panel className="mt-8">
           <div className="flex flex-wrap gap-4">
@@ -383,17 +383,11 @@ function Home() {
                 <span className="label-caps text-[9px] text-muted-foreground">{tk.symbol}</span>
               </span>
             ))}
-            {EXTRA_BADGES.map((s) => (
-              <span key={s} className="flex w-16 flex-col items-center gap-2 opacity-35 grayscale">
-                <TokenChip symbol={s} size={52} />
-                <span className="label-caps text-[9px] text-muted-foreground">{s}</span>
-              </span>
-            ))}
           </div>
           <p className="mt-6 text-sm text-muted-foreground">
             {t(
-              `${TOKENS.length} of ${TOKENS.length + EXTRA_BADGES.length} tokens are stocked in the vault. Grey means the vault holds none yet — those need an on-chain pool on ${CHAIN.short} or a manual deposit.`,
-              `金库中已备货 ${TOKENS.length} / ${TOKENS.length + EXTRA_BADGES.length} 枚代币。灰色表示金库暂时没有存货——需要 ${CHAIN.short} 上的链上流动性或人工充值。`,
+              `Every token maps to a real chain of stores you can walk into. Fragments are paid out of the vault on ${CHAIN.short}.`,
+              `每一枚代币都对应一个你能真的走进去的连锁门店。碎片从 ${CHAIN.short} 上的金库里发出。`,
             )}
           </p>
         </Panel>

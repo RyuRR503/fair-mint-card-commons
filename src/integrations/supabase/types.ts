@@ -116,6 +116,48 @@ export type Database = {
         }
         Relationships: []
       }
+      places: {
+        Row: {
+          brand: string
+          city: string
+          country: string
+          created_at: string
+          id: string
+          lat: number
+          lng: number
+          name: string
+          osm_id: number
+          osm_type: string
+          symbol: string
+        }
+        Insert: {
+          brand: string
+          city: string
+          country?: string
+          created_at?: string
+          id?: string
+          lat: number
+          lng: number
+          name: string
+          osm_id: number
+          osm_type: string
+          symbol: string
+        }
+        Update: {
+          brand?: string
+          city?: string
+          country?: string
+          created_at?: string
+          id?: string
+          lat?: number
+          lng?: number
+          name?: string
+          osm_id?: number
+          osm_type?: string
+          symbol?: string
+        }
+        Relationships: []
+      }
       position_log: {
         Row: {
           accuracy: number
@@ -148,6 +190,56 @@ export type Database = {
           wallet?: string | null
         }
         Relationships: []
+      }
+      spawns: {
+        Row: {
+          amount: number
+          claimed_at: string | null
+          claimed_by: string | null
+          created_at: string
+          day: string
+          expires_at: string
+          id: string
+          place_id: string
+          rarity: string
+          symbol: string
+          tx_hash: string | null
+        }
+        Insert: {
+          amount: number
+          claimed_at?: string | null
+          claimed_by?: string | null
+          created_at?: string
+          day: string
+          expires_at: string
+          id: string
+          place_id: string
+          rarity?: string
+          symbol: string
+          tx_hash?: string | null
+        }
+        Update: {
+          amount?: number
+          claimed_at?: string | null
+          claimed_by?: string | null
+          created_at?: string
+          day?: string
+          expires_at?: string
+          id?: string
+          place_id?: string
+          rarity?: string
+          symbol?: string
+          tx_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spawns_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       waitlist: {
         Row: {

@@ -3,7 +3,11 @@ export type Rarity = "common" | "rare" | "epic" | "legendary";
 export type StockToken = {
   symbol: string;
   name: string;
-  /** BEP-20 address on BNB Smart Chain (chainId 56). */
+  /** Chinese brand name shown to zh users. */
+  nameZh: string;
+  /** OpenStreetMap brand:wikidata ids used to find the real stores. */
+  wikidata: string[];
+  /** BEP-20 address on BNB Smart Chain (chainId 56). Filled once deployed. */
   address: string;
   decimals: number;
   /** Fragment size handed out per catch. */
@@ -32,85 +36,117 @@ export const CHAIN = {
 /** Vault holding the fragments. Set once the contract is deployed. */
 export const VAULT_ADDRESS = "0x0000000000000000000000000000000000000000";
 
+/**
+ * Every token maps to a real, physically visitable retail brand.
+ * Store coordinates come from OpenStreetMap, matched on `brand:wikidata`.
+ */
 export const TOKENS: StockToken[] = [
   {
-    symbol: "AMZN",
-    name: "Amazon",
-    address: "0x1111111111111111111111111111111111110001",
+    symbol: "SBUX",
+    name: "Starbucks",
+    nameZh: "星巴克",
+    wikidata: ["Q37158"],
+    address: "0x0000000000000000000000000000000000000000",
     decimals: 18,
-    fragment: 0.008,
+    fragment: 0.02,
     rarity: "common",
-    color: "#FF9900",
-    color2: "#E07B00",
-    glyph: "a",
+    color: "#00704A",
+    color2: "#004E34",
+    glyph: "S",
+    ink: "light",
+  },
+  {
+    symbol: "MCD",
+    name: "McDonald's",
+    nameZh: "麦当劳",
+    wikidata: ["Q38076"],
+    address: "0x0000000000000000000000000000000000000000",
+    decimals: 18,
+    fragment: 0.02,
+    rarity: "common",
+    color: "#FFC72C",
+    color2: "#DA291C",
+    glyph: "M",
     ink: "dark",
   },
   {
-    symbol: "GME",
-    name: "GameStop",
-    address: "0x1111111111111111111111111111111111110002",
+    symbol: "YUMC",
+    name: "Yum China (KFC / Pizza Hut)",
+    nameZh: "百胜中国（肯德基 / 必胜客）",
+    wikidata: ["Q524757", "Q191615"],
+    address: "0x0000000000000000000000000000000000000000",
     decimals: 18,
-    fragment: 0.11,
+    fragment: 0.05,
     rarity: "common",
     color: "#E4002B",
     color2: "#9E0020",
-    glyph: "GS",
+    glyph: "K",
+    ink: "light",
+  },
+  {
+    symbol: "LKNCY",
+    name: "Luckin Coffee",
+    nameZh: "瑞幸咖啡",
+    wikidata: ["Q56222066"],
+    address: "0x0000000000000000000000000000000000000000",
+    decimals: 18,
+    fragment: 0.08,
+    rarity: "common",
+    color: "#0A2D82",
+    color2: "#04174A",
+    glyph: "L",
+    ink: "light",
+  },
+  {
+    symbol: "NKE",
+    name: "Nike",
+    nameZh: "耐克",
+    wikidata: ["Q483915"],
+    address: "0x0000000000000000000000000000000000000000",
+    decimals: 18,
+    fragment: 0.01,
+    rarity: "rare",
+    color: "#F5F5F5",
+    color2: "#B8B8B8",
+    glyph: "N",
+    ink: "dark",
+  },
+  {
+    symbol: "WMT",
+    name: "Walmart / Sam's Club",
+    nameZh: "沃尔玛 / 山姆会员店",
+    wikidata: ["Q483551", "Q1972120"],
+    address: "0x0000000000000000000000000000000000000000",
+    decimals: 18,
+    fragment: 0.008,
+    rarity: "rare",
+    color: "#0071CE",
+    color2: "#004F91",
+    glyph: "W",
     ink: "light",
   },
   {
     symbol: "AAPL",
     name: "Apple",
-    address: "0x1111111111111111111111111111111111110003",
+    nameZh: "苹果",
+    wikidata: ["Q421253"],
+    address: "0x0000000000000000000000000000000000000000",
     decimals: 18,
-    fragment: 0.011,
-    rarity: "rare",
+    fragment: 0.004,
+    rarity: "epic",
     color: "#4B4B4F",
     color2: "#131315",
     glyph: "",
     ink: "light",
   },
   {
-    symbol: "GOOGL",
-    name: "Alphabet",
-    address: "0x1111111111111111111111111111111111110004",
-    decimals: 18,
-    fragment: 0.011,
-    rarity: "rare",
-    color: "#4285F4",
-    color2: "#0F62D0",
-    glyph: "G",
-    ink: "light",
-  },
-  {
-    symbol: "META",
-    name: "Meta",
-    address: "0x1111111111111111111111111111111111110005",
-    decimals: 18,
-    fragment: 0.0055,
-    rarity: "rare",
-    color: "#0866FF",
-    color2: "#0146BE",
-    glyph: "M",
-    ink: "light",
-  },
-  {
-    symbol: "MSFT",
-    name: "Microsoft",
-    address: "0x1111111111111111111111111111111111110006",
-    decimals: 18,
-    fragment: 0.007,
-    rarity: "rare",
-    color: "#00A4EF",
-    color2: "#0078D4",
-    glyph: "▦",
-    ink: "light",
-  },
-  {
     symbol: "TSLA",
     name: "Tesla",
-    address: "0x1111111111111111111111111111111111110007",
+    nameZh: "特斯拉",
+    wikidata: ["Q478214"],
+    address: "0x0000000000000000000000000000000000000000",
     decimals: 18,
-    fragment: 0.013,
+    fragment: 0.005,
     rarity: "epic",
     color: "#E82127",
     color2: "#8E0B10",
@@ -118,20 +154,26 @@ export const TOKENS: StockToken[] = [
     ink: "light",
   },
   {
-    symbol: "NVDA",
-    name: "Nvidia",
-    address: "0x1111111111111111111111111111111111110008",
+    symbol: "COST",
+    name: "Costco",
+    nameZh: "开市客",
+    wikidata: ["Q715583"],
+    address: "0x0000000000000000000000000000000000000000",
     decimals: 18,
-    fragment: 1,
+    fragment: 0.002,
     rarity: "legendary",
-    color: "#76B900",
-    color2: "#4C7A00",
-    glyph: "N",
+    color: "#E31837",
+    color2: "#005DAA",
+    glyph: "C",
     ink: "light",
   },
 ];
 
-export const EXTRA_BADGES = ["NFLX", "COST", "LULU", "UPS", "NU"];
+/** Wikidata brand id -> token symbol, for the OSM importer. */
+export const SYMBOL_BY_WIKIDATA: Record<string, string> = Object.fromEntries(
+  TOKENS.flatMap((t) => t.wikidata.map((w) => [w, t.symbol])),
+);
+
 
 export const TOKEN_BY_SYMBOL: Record<string, StockToken> = Object.fromEntries(
   TOKENS.map((t) => [t.symbol, t]),
