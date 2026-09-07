@@ -216,8 +216,8 @@ function AppMap() {
         <div>
           <WorldMap
             pins={pins}
-            me={fix ? { lat: fix.lat, lng: fix.lng } : undefined}
-            focus={fix ? { lat: fix.lat, lng: fix.lng } : undefined}
+            me={fix ? { lat: fix.lat, lng: fix.lng } : null}
+            focus={fix ? { lat: fix.lat, lng: fix.lng } : null}
             height="520px"
           />
           <Panel className="mt-4">
