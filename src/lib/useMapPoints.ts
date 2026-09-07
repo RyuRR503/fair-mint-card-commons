@@ -10,10 +10,13 @@ export function useMapPoints(): MapPoint[] {
 
   useEffect(() => {
     let alive = true;
+    const w = window as unknown as {
+      requestIdleCallback?: (c: () => void) => number;
+      setTimeout: (c: () => void, ms: number) => number;
+    };
     const idle = (cb: () => void) =>
-      "requestIdleCallback" in window
-        ? (window as unknown as { requestIdleCallback: (c: () => void) => number }).requestIdleCallback(cb)
-        : window.setTimeout(cb, 200);
+      w.requestIdleCallback ? w.requestIdleCallback(cb) : w.setTimeout(cb, 200);
+
     idle(() => {
       load()
         .then((p) => {
