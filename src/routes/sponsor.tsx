@@ -33,7 +33,7 @@ function Sponsor() {
         title={t("Pay for footsteps. Not impressions.", "为脚步付费，而不是为曝光付费。")}
         lead={t(
           "A brand sponsors signals at its own doors. It funds the vault with its stock token — or pays us to buy it — we schedule the drops, and it pays per verified visit: a claim that passed every check.",
-          "品牌可以在自己门店投放信号：用自家股票代币为金库注资（或委托我们买入），我们安排投放，品牌按"已验证到店"计费——即通过全部校验的一次领取。",
+          "品牌可以在自己门店投放信号：用自家股票代币为金库注资（或委托我们买入），我们安排投放，品牌按「已验证到店」计费——即通过全部校验的一次领取。",
         )}
         className="mt-10"
       />
