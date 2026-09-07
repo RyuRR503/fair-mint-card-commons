@@ -46,7 +46,7 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
     amount: Number(r.amount),
     rarity: (r.rarity ?? "common") as Rarity,
     place: r.places.name,
-    city: cityName(r.places.city),
+    cityKey: r.places.city,
     expiresAt: r.expires_at,
     lat: r.places.lat,
     lng: r.places.lng,
