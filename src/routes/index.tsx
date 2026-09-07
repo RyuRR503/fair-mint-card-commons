@@ -61,22 +61,8 @@ function Home() {
     <>
       {/* ---------------------------------------------------------- hero */}
       <section className="relative mx-auto max-w-7xl px-4 pb-6 pt-10 text-center sm:pt-16">
-        <div aria-hidden className="pointer-events-none absolute inset-0 hidden sm:block">
-          {FLOATERS.map((f) => (
-            <TokenChip
-              key={f.s}
-              symbol={f.s}
-              size={f.size}
-              float
-              spin={f.spin}
-              delay={f.d}
-              className="absolute"
-              // position handled inline
-            />
-          ))}
-        </div>
+        {/* floating brand chips */}
 
-        {/* positioned floaters (kept separate so the chip stays layout-free) */}
         <div aria-hidden className="pointer-events-none absolute inset-0 hidden sm:block">
           {FLOATERS.map((f) => (
             <span
