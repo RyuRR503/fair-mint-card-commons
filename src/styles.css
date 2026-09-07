@@ -397,3 +397,93 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------------------------------------------- real vector map (maplibre) */
+.catch-map .maplibregl-canvas {
+  filter: saturate(0.55) brightness(0.95) contrast(1.05);
+}
+
+.catch-map .maplibregl-ctrl-group {
+  background: color-mix(in oklab, var(--card) 85%, transparent);
+  border: 1px solid var(--border);
+  box-shadow: none;
+  backdrop-filter: blur(8px);
+}
+
+.catch-map .maplibregl-ctrl-group button + button {
+  border-top: 1px solid var(--border);
+}
+
+.catch-map .maplibregl-ctrl-scale,
+.catch-map .maplibregl-ctrl-attrib {
+  background: color-mix(in oklab, var(--card) 70%, transparent);
+  border-color: var(--border);
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.catch-map .maplibregl-ctrl-attrib a {
+  color: var(--muted-foreground);
+}
+
+.catch-pin {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+.catch-pin-dot {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--pin);
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--background) 80%, transparent),
+    0 0 14px var(--pin);
+}
+
+.catch-pin-dot::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  border: 1px solid var(--pin);
+  opacity: 0.5;
+  animation: pulse-ring 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.catch-pin-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--card) 88%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  backdrop-filter: blur(6px);
+}
+
+.catch-pin-label b {
+  color: var(--pin);
+}
+
+.catch-pin.is-on .catch-pin-label {
+  border-color: var(--pin);
+}
+
+.catch-me {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--accent);
+  border: 2px solid var(--card);
+  box-shadow: 0 0 18px var(--accent);
+}
