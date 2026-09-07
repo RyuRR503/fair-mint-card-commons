@@ -6,6 +6,8 @@ import { type MapPin } from "@/components/site/WorldMap";
 import { LiveMap } from "@/components/site/LiveMap";
 import { WaitlistForm } from "@/components/site/WaitlistForm";
 import { getMapSummary } from "@/lib/map.functions";
+import { useMapPoints } from "@/lib/useMapPoints";
+
 import { TOKENS, RARITY_LABEL, rarityVar, CHAIN } from "@/lib/tokens";
 import { useT } from "@/lib/i18n";
 
@@ -52,8 +54,10 @@ function Stat({ label, value, accent }: { label: string; value: string; accent?:
 function Home() {
   const t = useT();
   const summary = Route.useLoaderData();
+  const points = useMapPoints();
   const TOTAL_SPAWNS = summary.totalSpawns;
   const TOTAL_CITIES = summary.totalCities;
+
   const pins: MapPin[] = useMemo(
     () =>
       summary.pins.map((c) => ({
@@ -186,7 +190,7 @@ function Home() {
 
         <div className="ink-frame relative overflow-hidden rounded-3xl p-3">
           <div className="overflow-hidden rounded-2xl">
-            <LiveMap pins={pins} points={summary.points} />
+            <LiveMap pins={pins} points={points} />
           </div>
         </div>
       </section>
