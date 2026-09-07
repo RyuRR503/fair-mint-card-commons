@@ -184,9 +184,10 @@ export function WorldMap({
                       className="size-1.5 rounded-full transition-transform duration-300 group-hover:scale-150"
                       style={{
                         background: rarityVar(p.rarity),
-                        boxShadow: `0 0 10px ${rarityVar(p.rarity)}`,
+                        boxShadow: `0 0 0 2px var(--card)`,
                       }}
                     />
+
                   </span>
                   <span className="label-caps pointer-events-none mt-1 whitespace-nowrap text-[8px] text-muted-foreground opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     {p.label} · {p.count}
