@@ -6,9 +6,13 @@ import { rarityVar, type Rarity } from "@/lib/tokens";
 import type { MapPin } from "./WorldMap";
 
 export type MapPoint = {
+  id?: string;
   symbol: string;
   rarity: Rarity;
   place: string;
+  cityKey?: string;
+  amount?: number;
+  expiresAt?: string;
   lat: number;
   lng: number;
 };
