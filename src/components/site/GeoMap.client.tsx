@@ -4,6 +4,8 @@ import type { Map as MlMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { rarityVar, RARITY_LABEL, TOKEN_BY_SYMBOL, type Rarity } from "@/lib/tokens";
 import { useT } from "@/lib/i18n";
+import { CITY_BY_KEY } from "@/lib/cities";
+import { haversine, catchRadius, formatDistance } from "@/lib/geo";
 import type { MapPin } from "./WorldMap";
 
 export type MapPoint = {
@@ -91,6 +93,8 @@ export default function GeoMap({
   const t = useT();
   const tRef = useRef(t);
   tRef.current = t;
+  const meRef = useRef(me);
+  meRef.current = me;
 
 
   useEffect(() => {
@@ -192,8 +196,23 @@ export default function GeoMap({
               ? tr(`${Math.floor(left / 60)}h ${left % 60}m left`, `剩余 ${Math.floor(left / 60)} 小时 ${left % 60} 分`)
               : tr(`${left}m left`, `剩余 ${left} 分钟`);
         const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
+        const coords = (f.geometry as { coordinates: number[] }).coordinates.slice(0, 2) as [number, number];
+        const [lng, lat] = coords;
+        const city = CITY_BY_KEY[p["cityKey"] ?? ""];
+        const cityText = city ? tr(city.name, city.nameZh) : "";
+        const expired = left !== null && left <= 0;
+        const here = meRef.current;
+        const dist = here ? haversine(here.lat, here.lng, lat, lng) : null;
+        const inRange = dist !== null && dist <= catchRadius(20);
+        const status = expired
+          ? { cls: "is-off", text: tr("Expired", "已过期") }
+          : inRange
+            ? { cls: "is-on", text: tr("In range - catchable", "已在范围内，可捕捉") }
+            : dist !== null
+              ? { cls: "is-far", text: tr(`${formatDistance(dist)} away`, `距你 ${formatDistance(dist)}`) }
+              : { cls: "is-ok", text: tr("Catchable on site", "到现场即可捕捉") };
         popup
-          .setLngLat(((f.geometry as { coordinates: number[] }).coordinates.slice(0, 2) as [number, number]))
+          .setLngLat(coords)
           .setHTML(
             `<div class="catch-pop" style="--pin:${rarityVar(rarity)}">
               <div class="catch-pop-top">
@@ -202,8 +221,10 @@ export default function GeoMap({
               </div>
               <div class="catch-pop-name">${esc(tok ? tr(tok.name, tok.nameZh) : "")}</div>
               <div class="catch-pop-amt">${amount} <span>${esc(p["symbol"] ?? "")}</span></div>
-              <div class="catch-pop-place">${esc(p["place"] ?? "")}</div>
-              ${timeText ? `<div class="catch-pop-time">${esc(timeText)}</div>` : ""}
+              <div class="catch-pop-place">${esc(p["place"] ?? "")}${cityText ? ` &middot; ${esc(cityText)}` : ""}</div>
+              <div class="catch-pop-geo">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
+              <div class="catch-pop-status ${status.cls}">${esc(status.text)}</div>
+              ${timeText && !expired ? `<div class="catch-pop-time">${esc(timeText)}</div>` : ""}
               <div class="catch-pop-hint">${esc(tr("Walk here and tap Catch in the app", "走到这里，在 app 里点 Catch 领取"))}</div>
             </div>`,
           )
@@ -224,6 +245,7 @@ export default function GeoMap({
     };
     m.on("zoom", syncCity);
     map.current = m;
+    if (import.meta.env.DEV) (window as unknown as Record<string, unknown>)["__catchMap"] = m;
     return () => {
       m.remove();
       map.current = null;
@@ -248,6 +270,7 @@ export default function GeoMap({
             symbol: p.symbol,
             rarity: p.rarity,
             place: p.place,
+            cityKey: p.cityKey ?? "",
             amount: p.amount ?? 0,
             expiresAt: p.expiresAt ?? "",
           },
