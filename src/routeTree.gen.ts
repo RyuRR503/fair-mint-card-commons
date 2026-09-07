@@ -10,33 +10,141 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as DownloadRouteImport } from './routes/download'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as LegendaryRouteImport } from './routes/legendary'
+import { Route as ProofRouteImport } from './routes/proof'
+import { Route as RoadmapRouteImport } from './routes/roadmap'
+import { Route as SponsorRouteImport } from './routes/sponsor'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegendaryRoute = LegendaryRouteImport.update({
+  id: '/legendary',
+  path: '/legendary',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProofRoute = ProofRouteImport.update({
+  id: '/proof',
+  path: '/proof',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoadmapRoute = RoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SponsorRoute = SponsorRouteImport.update({
+  id: '/sponsor',
+  path: '/sponsor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRoute
+  '/docs': typeof DocsRoute
+  '/download': typeof DownloadRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/legendary': typeof LegendaryRoute
+  '/proof': typeof ProofRoute
+  '/roadmap': typeof RoadmapRoute
+  '/sponsor': typeof SponsorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app': typeof AppRoute
+  '/docs': typeof DocsRoute
+  '/download': typeof DownloadRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/legendary': typeof LegendaryRoute
+  '/proof': typeof ProofRoute
+  '/roadmap': typeof RoadmapRoute
+  '/sponsor': typeof SponsorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRoute
+  '/docs': typeof DocsRoute
+  '/download': typeof DownloadRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/legendary': typeof LegendaryRoute
+  '/proof': typeof ProofRoute
+  '/roadmap': typeof RoadmapRoute
+  '/sponsor': typeof SponsorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/docs'
+    | '/download'
+    | '/how-it-works'
+    | '/legendary'
+    | '/proof'
+    | '/roadmap'
+    | '/sponsor'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/app'
+    | '/docs'
+    | '/download'
+    | '/how-it-works'
+    | '/legendary'
+    | '/proof'
+    | '/roadmap'
+    | '/sponsor'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/docs'
+    | '/download'
+    | '/how-it-works'
+    | '/legendary'
+    | '/proof'
+    | '/roadmap'
+    | '/sponsor'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRoute
+  DocsRoute: typeof DocsRoute
+  DownloadRoute: typeof DownloadRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  LegendaryRoute: typeof LegendaryRoute
+  ProofRoute: typeof ProofRoute
+  RoadmapRoute: typeof RoadmapRoute
+  SponsorRoute: typeof SponsorRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +156,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legendary': {
+      id: '/legendary'
+      path: '/legendary'
+      fullPath: '/legendary'
+      preLoaderRoute: typeof LegendaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proof': {
+      id: '/proof'
+      path: '/proof'
+      fullPath: '/proof'
+      preLoaderRoute: typeof ProofRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap': {
+      id: '/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof RoadmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sponsor': {
+      id: '/sponsor'
+      path: '/sponsor'
+      fullPath: '/sponsor'
+      preLoaderRoute: typeof SponsorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRoute,
+  DocsRoute: DocsRoute,
+  DownloadRoute: DownloadRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  LegendaryRoute: LegendaryRoute,
+  ProofRoute: ProofRoute,
+  RoadmapRoute: RoadmapRoute,
+  SponsorRoute: SponsorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
