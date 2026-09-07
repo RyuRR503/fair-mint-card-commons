@@ -95,18 +95,19 @@ export const getSpawns = createServerFn({ method: "GET" })
       .parse(d ?? {}),
   )
   .handler(async ({ data }) => {
-    const all = allSpawns();
-    const list =
+    const all = await openSpawns();
+    const list: Spawn[] =
       data.lat != null && data.lng != null
-        ? [...all]
+        ? all
             .map((s) => ({
               ...s,
               distance: haversine(data.lat!, data.lng!, s.lat, s.lng),
             }))
-            .sort((a, b) => a.distance - b.distance)
-        : all.map((s) => ({ ...s, distance: null as number | null }));
+            .sort((a, b) => (a.distance ?? 0) - (b.distance ?? 0))
+        : all.map((s) => ({ ...s, distance: null }));
     return { spawns: list.slice(0, data.limit ?? 400), total: all.length };
   });
+
 
 /* ----------------------------------------------------------------- claims */
 
