@@ -3,7 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
-import { WorldMap, type MapPin } from "@/components/site/WorldMap";
+import { type MapPin } from "@/components/site/WorldMap";
+import { LiveMap } from "@/components/site/LiveMap";
+import type { MapPoint } from "@/components/site/GeoMap.client";
+
 import { claimDrop, getSpawns, RULES } from "@/lib/game.functions";
 import { catchRadius, formatDistance, haversine } from "@/lib/geo";
 import { CHAIN, RARITY_LABEL, rarityVar } from "@/lib/tokens";
