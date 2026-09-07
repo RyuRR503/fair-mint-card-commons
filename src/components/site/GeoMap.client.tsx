@@ -245,6 +245,7 @@ export default function GeoMap({
     };
     m.on("zoom", syncCity);
     map.current = m;
+    if (import.meta.env.DEV) (window as unknown as Record<string, unknown>)["__catchMap"] = m;
     return () => {
       m.remove();
       map.current = null;
