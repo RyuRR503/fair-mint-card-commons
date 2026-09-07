@@ -41,9 +41,13 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
 
   /** Every individual signal, so the map can show real stores once you zoom in. */
   const points = rows.map((r) => ({
+    id: r.id,
     symbol: r.symbol,
+    amount: Number(r.amount),
     rarity: (r.rarity ?? "common") as Rarity,
     place: r.places.name,
+    city: cityName(r.places.city),
+    expiresAt: r.expires_at,
     lat: r.places.lat,
     lng: r.places.lng,
   }));
