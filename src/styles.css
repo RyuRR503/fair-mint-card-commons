@@ -400,7 +400,7 @@
 
 /* ---------------------------------------------- real vector map (maplibre) */
 .catch-map .maplibregl-canvas {
-  filter: saturate(0.55) brightness(0.95) contrast(1.05);
+  filter: saturate(0.5) brightness(1.25) contrast(0.95);
 }
 
 .catch-map .maplibregl-ctrl-group {
