@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
 import type { Map as MlMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { rarityVar, type Rarity } from "@/lib/tokens";
+import { rarityVar, RARITY_LABEL, TOKEN_BY_SYMBOL, type Rarity } from "@/lib/tokens";
+import { useT } from "@/lib/i18n";
 import type { MapPin } from "./WorldMap";
 
 export type MapPoint = {
