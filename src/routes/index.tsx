@@ -186,7 +186,6 @@ function Home() {
 
       {/* ------------------------------------------------------ what is this */}
       <Section
-        index="03"
         eyebrow={t("what this is", "这是什么")}
         title={t("A market with coordinates.", "一个有坐标的市场。")}
       >
@@ -221,10 +220,8 @@ function Home() {
               key={c.n}
               className="group bg-background p-8 transition-colors duration-500 hover:bg-primary/10 sm:p-10"
             >
-              <p className="plate-no text-muted-foreground transition-colors group-hover:text-primary">
-                {c.n}
-              </p>
-              <span className="mt-8 block h-0.5 w-10 bg-accent" />
+              <span className="label-caps text-[10px] text-primary">{c.n}</span>
+              <span className="mt-7 block h-0.5 w-10 bg-primary/60" />
               <h3 className="font-latin mt-7 text-2xl tracking-tight transition-colors group-hover:text-foreground">
                 {c.h}
               </h3>
@@ -238,7 +235,6 @@ function Home() {
 
       {/* ------------------------------------------------------ how it works */}
       <Section
-        index="04"
         eyebrow={t("how it works", "怎么玩")}
         title={t("Three steps. One of them is cardio.", "三步。其中一步是有氧运动。")}
         lead={t(
@@ -295,7 +291,6 @@ function Home() {
 
       {/* ------------------------------------------------------- spawn table */}
       <Section
-        index="05"
         eyebrow={t("signal table", "信号表")}
         title={t("One drop rule per token, worldwide.", "每个代币一条掉落规则，全球通用。")}
       >
@@ -353,7 +348,6 @@ function Home() {
 
       {/* --------------------------------------------------------- legendary */}
       <Section
-        index="06"
         eyebrow={t("legendary", "传奇")}
         title={t("One share. One place. One winner.", "一整股。一个地点。一个人。")}
       >
@@ -378,7 +372,6 @@ function Home() {
 
       {/* --------------------------------------------------------- catchdex */}
       <Section
-        index="07"
         eyebrow={t("the catchdex", "图鉴")}
         title={t("Collect all 13.", "集齐全部 13 枚。")}
       >
@@ -408,7 +401,6 @@ function Home() {
 
       {/* --------------------------------------------------------- waitlist */}
       <Section
-        index="08"
         eyebrow={t("early access", "抢先体验")}
         title={t("Tell us where to drop next.", "告诉我们下一站投放在哪。")}
       >
