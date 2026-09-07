@@ -12,9 +12,10 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
 
   const { data, error } = await supabaseAdmin
     .from("spawns")
-    .select("symbol, rarity, claimed_by, places!inner(city)")
+    .select("symbol, rarity, claimed_by, places!inner(name, city, lat, lng)")
     .eq("day", day)
-    .is("claimed_by", null);
+    .is("claimed_by", null)
+    .limit(3000);
   if (error) throw new Error(error.message);
 
   const byCity = new Map<string, { count: number; symbols: Set<string>; rarity: Rarity }>();
