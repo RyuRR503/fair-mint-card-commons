@@ -72,7 +72,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background-deep/80 px-3 py-3 backdrop-blur-xl sm:px-5">
-      <div className="mx-auto flex max-w-7xl items-center gap-3">
+      <div className="mx-auto flex max-w-6xl items-center gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="CATCH home">
           <CatchMark />
           <span className="font-latin text-base font-semibold uppercase tracking-[0.42em]">CATCH</span>
@@ -112,7 +112,7 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <nav className="glass-panel mx-auto mt-2 grid max-w-7xl gap-1 rounded-xl p-3 lg:hidden">
+        <nav className="glass-panel mx-auto mt-2 grid max-w-6xl gap-1 rounded-md p-3 lg:hidden">
           {NAV.map((item) => (
             <Link
               key={item.to}
