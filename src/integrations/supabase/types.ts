@@ -14,7 +14,168 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      catches: {
+        Row: {
+          accuracy: number
+          amount: number
+          city: string
+          created_at: string
+          device_id: string | null
+          id: string
+          lat: number
+          lng: number
+          mode: string
+          place: string
+          spawn_id: string
+          symbol: string
+          tx_hash: string | null
+          wallet: string
+        }
+        Insert: {
+          accuracy: number
+          amount: number
+          city: string
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          lat: number
+          lng: number
+          mode?: string
+          place: string
+          spawn_id: string
+          symbol: string
+          tx_hash?: string | null
+          wallet: string
+        }
+        Update: {
+          accuracy?: number
+          amount?: number
+          city?: string
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          lat?: number
+          lng?: number
+          mode?: string
+          place?: string
+          spawn_id?: string
+          symbol?: string
+          tx_hash?: string | null
+          wallet?: string
+        }
+        Relationships: []
+      }
+      legendary_events: {
+        Row: {
+          amount: number
+          city: string
+          code: string
+          created_at: string
+          duration_min: number
+          id: string
+          lat: number
+          lng: number
+          place: string
+          radius_m: number
+          starts_at: string
+          symbol: string
+          tx_hash: string | null
+          winner_wallet: string | null
+        }
+        Insert: {
+          amount: number
+          city: string
+          code: string
+          created_at?: string
+          duration_min?: number
+          id?: string
+          lat: number
+          lng: number
+          place: string
+          radius_m?: number
+          starts_at: string
+          symbol: string
+          tx_hash?: string | null
+          winner_wallet?: string | null
+        }
+        Update: {
+          amount?: number
+          city?: string
+          code?: string
+          created_at?: string
+          duration_min?: number
+          id?: string
+          lat?: number
+          lng?: number
+          place?: string
+          radius_m?: number
+          starts_at?: string
+          symbol?: string
+          tx_hash?: string | null
+          winner_wallet?: string | null
+        }
+        Relationships: []
+      }
+      position_log: {
+        Row: {
+          accuracy: number
+          city: string
+          created_at: string
+          device_id: string | null
+          id: string
+          lat: number
+          lng: number
+          wallet: string | null
+        }
+        Insert: {
+          accuracy: number
+          city: string
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          lat: number
+          lng: number
+          wallet?: string | null
+        }
+        Update: {
+          accuracy?: number
+          city?: string
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          lat?: number
+          lng?: number
+          wallet?: string | null
+        }
+        Relationships: []
+      }
+      waitlist: {
+        Row: {
+          city: string | null
+          company: string | null
+          created_at: string
+          email: string
+          id: string
+          kind: string
+        }
+        Insert: {
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          kind?: string
+        }
+        Update: {
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          kind?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
