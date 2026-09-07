@@ -128,42 +128,75 @@ export function WorldMap({
         />
       </svg>
 
-      {visible.map((p) => (
-        <button
-          key={p.key}
-          type="button"
-          onClick={() => onSelect?.(p.key)}
-          className="absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none"
-          style={pinStyle(p.lat, p.lng)}
-        >
-          <span className="relative flex flex-col items-center">
-            <span className="flex items-center rounded-sm bg-background-deep/90 p-1 shadow-[var(--shadow-pop)] ring-1 ring-border backdrop-blur-sm">
-              {p.symbols.slice(0, 3).map((s, i) => (
-                <TokenChip
-                  key={`${s}-${i}`}
-                  symbol={s}
-                  size={22}
-                  className={i > 0 ? "-ml-2" : ""}
-                />
-              ))}
-              <span
-                className="readout ml-1 grid h-5 min-w-5 place-items-center rounded-sm px-1.5 text-[10px] text-background-deep"
-                style={{ background: rarityVar(p.rarity) }}
-              >
-                {p.count}
-              </span>
-            </span>
-            <span
-              className={cn(
-                "label-caps mt-1 whitespace-nowrap rounded-sm bg-background-deep/80 px-2 py-0.5 text-[9px] text-muted-foreground backdrop-blur-sm",
-                selected === p.key && "bg-primary text-primary-foreground",
+      {visible.map((p) => {
+        // Zoomed out the world must read as a constellation of signals, not a
+        // wall of badges. Detail only develops as the camera pushes in.
+        const detailed = view.z >= 2.4 || selected === p.key;
+        const isSel = selected === p.key;
+        return (
+          <button
+            key={p.key}
+            type="button"
+            onClick={() => onSelect?.(p.key)}
+            className="group absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none"
+            style={pinStyle(p.lat, p.lng)}
+          >
+            <span className="relative flex flex-col items-center">
+              {detailed ? (
+                <>
+                  <span className="flex items-center rounded-sm bg-background-deep/90 p-1 shadow-[var(--shadow-pop)] ring-1 ring-border backdrop-blur-sm">
+                    {p.symbols.slice(0, 3).map((s, i) => (
+                      <TokenChip
+                        key={`${s}-${i}`}
+                        symbol={s}
+                        size={22}
+                        className={i > 0 ? "-ml-2" : ""}
+                      />
+                    ))}
+                    <span
+                      className="readout ml-1 grid h-5 min-w-5 place-items-center rounded-sm px-1.5 text-[10px] text-background-deep"
+                      style={{ background: rarityVar(p.rarity) }}
+                    >
+                      {p.count}
+                    </span>
+                  </span>
+                  <span
+                    className={cn(
+                      "label-caps mt-1 whitespace-nowrap rounded-sm bg-background-deep/80 px-2 py-0.5 text-[9px] text-muted-foreground backdrop-blur-sm",
+                      isSel && "bg-primary text-primary-foreground",
+                    )}
+                  >
+                    {p.label}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="relative grid size-2.5 place-items-center">
+                    <span
+                      className="animate-pulse-ring absolute inset-0 rounded-full opacity-40"
+                      style={{
+                        background: rarityVar(p.rarity),
+                        animationDelay: `${(p.label.length % 6) * 0.7}s`,
+                      }}
+                    />
+                    <span
+                      className="size-1.5 rounded-full transition-transform duration-300 group-hover:scale-150"
+                      style={{
+                        background: rarityVar(p.rarity),
+                        boxShadow: `0 0 10px ${rarityVar(p.rarity)}`,
+                      }}
+                    />
+                  </span>
+                  <span className="label-caps pointer-events-none mt-1 whitespace-nowrap text-[8px] text-muted-foreground opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    {p.label} · {p.count}
+                  </span>
+                </>
               )}
-            >
-              {p.label}
             </span>
-          </span>
-        </button>
-      ))}
+          </button>
+        );
+      })}
+
 
       {me && (
         <span
