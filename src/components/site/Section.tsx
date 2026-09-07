@@ -26,21 +26,18 @@ export function Section({
   return (
     <section id={id} className={cn("mx-auto mt-32 max-w-6xl px-5 sm:mt-40", className)}>
       {(eyebrow || index) && (
-        <div className="flex items-baseline gap-5 border-b border-border pb-4">
-          {index && <span className="plate-no text-accent">{index}</span>}
-          {eyebrow && (
-            <p className="label-caps text-[10px] text-muted-foreground">{eyebrow}</p>
-          )}
-          <span className="ml-auto hidden h-px flex-1 bg-border sm:block" />
+        <div className="flex items-center gap-4">
+          <span className="h-0.5 w-10 bg-primary" />
+          {eyebrow && <p className="label-caps text-[10px] text-primary">{eyebrow}</p>}
         </div>
       )}
       {title && (
-        <h2 className="font-latin mt-8 max-w-3xl text-balance text-[2.1rem] leading-[1.02] tracking-tight sm:text-[3.25rem]">
+        <h2 className="mt-6 max-w-3xl text-balance text-[1.9rem] leading-[1.3] sm:text-[2.75rem]">
           {title}
         </h2>
       )}
       {lead && (
-        <p className="mt-6 max-w-xl text-pretty border-l-2 border-accent pl-6 text-[1.0625rem] leading-[1.8] text-muted-foreground">
+        <p className="mt-6 max-w-xl text-pretty border-l-2 border-primary/50 pl-6 text-[1.0625rem] leading-[1.8] text-muted-foreground">
           {lead}
         </p>
       )}

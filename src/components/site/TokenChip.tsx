@@ -11,9 +11,8 @@ type Props = {
 };
 
 /**
- * A field-guide specimen tag, not a glossy crypto coin.
- * Printed white card, hairline ink rule, a solid colour band along the top in
- * the company's hue, and the ticker set in mono like a catalogue number.
+ * An instrument-panel token key: dark frosted square, a saturated colour bar
+ * along the top in the company's hue, ticker set in mono.
  */
 export function TokenChip({
   symbol,
@@ -24,13 +23,13 @@ export function TokenChip({
   delay = 0,
 }: Props) {
   const token = TOKEN_BY_SYMBOL[symbol];
-  const hue = token?.color ?? "#5C7A4A";
+  const hue = token?.color ?? "#00FF9D";
   const glyph = token?.glyph || symbol.slice(0, 2);
 
   return (
     <span
       className={cn(
-        "relative inline-grid place-items-center overflow-hidden rounded-[14%] bg-card",
+        "relative inline-grid place-items-center overflow-hidden rounded-[22%] bg-card",
         float && "animate-float",
         className,
       )}
@@ -40,28 +39,20 @@ export function TokenChip({
         // @ts-expect-error custom property
         "--spin": `${spin}deg`,
         animationDelay: `${delay}s`,
-        boxShadow: `inset 0 0 0 1px var(--border), 0 ${size * 0.08}px ${size * 0.2}px -${size * 0.12}px oklch(0.25 0.008 135 / 0.35)`,
+        boxShadow: `inset 0 0 0 1px var(--border), inset 0 1px 0 0 oklch(1 0 0 / 0.1), 0 ${size * 0.12}px ${size * 0.28}px -${size * 0.16}px oklch(0 0 0 / 0.8)`,
       }}
       aria-label={symbol}
     >
-      {/* colour band — the only saturated area on the tag */}
       <span
         className="absolute inset-x-0 top-0"
-        style={{ height: Math.max(3, size * 0.14), background: hue }}
-      />
-      {/* punched hole, like a tag tied to a branch */}
-      <span
-        className="absolute rounded-full bg-background"
         style={{
-          width: Math.max(2, size * 0.07),
-          height: Math.max(2, size * 0.07),
-          top: size * 0.2,
-          left: size * 0.1,
-          boxShadow: "inset 0 0 0 1px var(--border)",
+          height: Math.max(3, size * 0.1),
+          background: hue,
+          boxShadow: `0 0 ${size * 0.3}px ${hue}`,
         }}
       />
       <span
-        className="relative mt-[8%] font-mono font-semibold leading-none text-foreground"
+        className="relative mt-[6%] font-mono font-semibold leading-none text-foreground"
         style={{
           fontSize: size * (glyph.length > 1 ? 0.28 : 0.38),
           letterSpacing: "0.02em",
@@ -72,4 +63,5 @@ export function TokenChip({
     </span>
   );
 }
+
 

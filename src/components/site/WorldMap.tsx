@@ -112,21 +112,22 @@ export function WorldMap({
             <path
               d="M40 0H0V40"
               fill="none"
-              stroke="oklch(0.253 0.008 135 / 0.07)"
+              stroke="oklch(1 0 0 / 0.05)"
               strokeWidth={0.5 / view.z}
             />
           </pattern>
         </defs>
-        {/* sea: pale paper, land: printed field green */}
+        {/* deep well sea, lifted landmass, signal-green coastline */}
         <rect x="0" y="0" width="1000" height="1000" fill="var(--map-sea)" />
         <rect x="0" y="0" width="1000" height="1000" fill="url(#map-grid)" />
         <path
           d={WORLD_PATH}
           fill="var(--map-land)"
-          stroke="oklch(0.39 0.058 135 / 0.5)"
+          stroke="oklch(0.87 0.235 158 / 0.35)"
           strokeWidth={0.7 / view.z}
         />
       </svg>
+
 
 
       {visible.map((p) => {
