@@ -12,6 +12,7 @@ export function Section({
   children,
   className,
   id,
+  index,
 }: {
   eyebrow?: React.ReactNode;
   title?: React.ReactNode;
@@ -19,22 +20,27 @@ export function Section({
   children?: React.ReactNode;
   className?: string;
   id?: string;
+  /** Survey-sheet plate number, e.g. "03" */
+  index?: string;
 }) {
   return (
-    <section id={id} className={cn("mx-auto mt-28 max-w-6xl px-5 sm:mt-32", className)}>
-      {eyebrow && (
-        <p className="label-caps flex items-center gap-3 text-[10px] text-primary">
-          <span className="h-px w-10 bg-primary/50" />
-          {eyebrow}
-        </p>
+    <section id={id} className={cn("mx-auto mt-32 max-w-6xl px-5 sm:mt-40", className)}>
+      {(eyebrow || index) && (
+        <div className="flex items-baseline gap-5 border-b border-border pb-4">
+          {index && <span className="plate-no text-accent">{index}</span>}
+          {eyebrow && (
+            <p className="label-caps text-[10px] text-muted-foreground">{eyebrow}</p>
+          )}
+          <span className="ml-auto hidden h-px flex-1 bg-border sm:block" />
+        </div>
       )}
       {title && (
-        <h2 className="mt-5 max-w-3xl text-balance text-[1.75rem] leading-[1.25] sm:text-4xl">
+        <h2 className="font-latin mt-8 max-w-3xl text-balance text-[2.1rem] leading-[1.02] tracking-tight sm:text-[3.25rem]">
           {title}
         </h2>
       )}
       {lead && (
-        <p className="mt-5 max-w-2xl text-pretty text-[0.975rem] leading-[1.85] text-muted-foreground sm:text-base">
+        <p className="mt-6 max-w-xl text-pretty border-l-2 border-accent pl-6 text-[1.0625rem] leading-[1.8] text-muted-foreground">
           {lead}
         </p>
       )}
@@ -53,7 +59,7 @@ export function Panel({
   return (
     <div
       className={cn(
-        "panel rounded-md p-6 transition-colors duration-300 sm:p-8",
+        "plate rounded-md p-6 transition-all duration-500 sm:p-8",
         className,
       )}
     >
@@ -61,6 +67,7 @@ export function Panel({
     </div>
   );
 }
+
 
 /** Machine readout strip: coordinates, timecodes, status. Pure atmosphere. */
 export function Readout({
