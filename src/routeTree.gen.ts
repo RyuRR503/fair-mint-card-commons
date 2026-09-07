@@ -10,7 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DownloadRouteImport } from './routes/download'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as LegendaryRouteImport } from './routes/legendary'
+import { Route as ProofRouteImport } from './routes/proof'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as SponsorRouteImport } from './routes/sponsor'
 
@@ -19,9 +22,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HowItWorksRoute = HowItWorksRouteImport.update({
   id: '/how-it-works',
   path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegendaryRoute = LegendaryRouteImport.update({
+  id: '/legendary',
+  path: '/legendary',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProofRoute = ProofRouteImport.update({
+  id: '/proof',
+  path: '/proof',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RoadmapRoute = RoadmapRouteImport.update({
@@ -37,34 +55,68 @@ const SponsorRoute = SponsorRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/download': typeof DownloadRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/legendary': typeof LegendaryRoute
+  '/proof': typeof ProofRoute
   '/roadmap': typeof RoadmapRoute
   '/sponsor': typeof SponsorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/download': typeof DownloadRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/legendary': typeof LegendaryRoute
+  '/proof': typeof ProofRoute
   '/roadmap': typeof RoadmapRoute
   '/sponsor': typeof SponsorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/download': typeof DownloadRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/legendary': typeof LegendaryRoute
+  '/proof': typeof ProofRoute
   '/roadmap': typeof RoadmapRoute
   '/sponsor': typeof SponsorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/how-it-works' | '/roadmap' | '/sponsor'
+  fullPaths:
+    | '/'
+    | '/download'
+    | '/how-it-works'
+    | '/legendary'
+    | '/proof'
+    | '/roadmap'
+    | '/sponsor'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/how-it-works' | '/roadmap' | '/sponsor'
-  id: '__root__' | '/' | '/how-it-works' | '/roadmap' | '/sponsor'
+  to:
+    | '/'
+    | '/download'
+    | '/how-it-works'
+    | '/legendary'
+    | '/proof'
+    | '/roadmap'
+    | '/sponsor'
+  id:
+    | '__root__'
+    | '/'
+    | '/download'
+    | '/how-it-works'
+    | '/legendary'
+    | '/proof'
+    | '/roadmap'
+    | '/sponsor'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DownloadRoute: typeof DownloadRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  LegendaryRoute: typeof LegendaryRoute
+  ProofRoute: typeof ProofRoute
   RoadmapRoute: typeof RoadmapRoute
   SponsorRoute: typeof SponsorRoute
 }
@@ -78,11 +130,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/how-it-works': {
       id: '/how-it-works'
       path: '/how-it-works'
       fullPath: '/how-it-works'
       preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legendary': {
+      id: '/legendary'
+      path: '/legendary'
+      fullPath: '/legendary'
+      preLoaderRoute: typeof LegendaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proof': {
+      id: '/proof'
+      path: '/proof'
+      fullPath: '/proof'
+      preLoaderRoute: typeof ProofRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/roadmap': {
@@ -104,7 +177,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DownloadRoute: DownloadRoute,
   HowItWorksRoute: HowItWorksRoute,
+  LegendaryRoute: LegendaryRoute,
+  ProofRoute: ProofRoute,
   RoadmapRoute: RoadmapRoute,
   SponsorRoute: SponsorRoute,
 }
