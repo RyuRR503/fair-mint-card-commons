@@ -285,6 +285,7 @@ function Home() {
 
       {/* ------------------------------------------------------- spawn table */}
       <Section
+        index="05"
         eyebrow={t("signal table", "信号表")}
         title={t("One drop rule per token, worldwide.", "每个代币一条掉落规则，全球通用。")}
       >
@@ -342,6 +343,7 @@ function Home() {
 
       {/* --------------------------------------------------------- legendary */}
       <Section
+        index="06"
         eyebrow={t("legendary", "传奇")}
         title={t("One share. One place. One winner.", "一整股。一个地点。一个人。")}
       >
@@ -366,6 +368,7 @@ function Home() {
 
       {/* --------------------------------------------------------- catchdex */}
       <Section
+        index="07"
         eyebrow={t("the catchdex", "图鉴")}
         title={t("Collect all 13.", "集齐全部 13 枚。")}
       >
@@ -395,6 +398,7 @@ function Home() {
 
       {/* --------------------------------------------------------- waitlist */}
       <Section
+        index="08"
         eyebrow={t("early access", "抢先体验")}
         title={t("Tell us where to drop next.", "告诉我们下一站投放在哪。")}
       >
