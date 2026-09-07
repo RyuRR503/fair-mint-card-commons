@@ -5,27 +5,31 @@ import type { CityPin, Rarity } from "@/lib/spawns";
 
 const RANK: Record<Rarity, number> = { common: 0, rare: 1, epic: 2, legendary: 3 };
 
-/** Public: today's live signals grouped per city, for the world map. */
-export const getMapSummary = createServerFn({ method: "GET" }).handler(async () => {
+const today = () => new Date().toISOString().slice(0, 10);
+
+async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const day = new Date().toISOString().slice(0, 10);
+  return supabaseAdmin;
+}
+
+/**
+ * Public: light summary for the first paint — city bubbles and counters only.
+ * The per-store signals are a separate, bigger payload (getMapPoints) so the
+ * page can render before they arrive.
+ */
+export const getMapSummary = createServerFn({ method: "GET" }).handler(async () => {
+  const supabaseAdmin = await admin();
+  const day = today();
 
   const { data, error } = await supabaseAdmin
     .from("spawns")
-    .select("id, symbol, amount, rarity, expires_at, claimed_by, places!inner(name, city, lat, lng)")
+    .select("symbol, rarity, places!inner(city)")
     .eq("day", day)
     .is("claimed_by", null)
     .limit(3000);
   if (error) throw new Error(error.message);
 
-  type Row = {
-    id: string;
-    symbol: string;
-    amount: number | string;
-    rarity: string | null;
-    expires_at: string;
-    places: { name: string; city: string; lat: number; lng: number };
-  };
+  type Row = { symbol: string; rarity: string | null; places: { city: string } };
   const rows = (data ?? []) as unknown as Row[];
 
   const byCity = new Map<string, { count: number; symbols: Set<string>; rarity: Rarity }>();
@@ -38,19 +42,6 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
     if ((RANK[r] ?? 0) > (RANK[entry.rarity] ?? 0)) entry.rarity = r;
     byCity.set(city, entry);
   }
-
-  /** Every individual signal, so the map can show real stores once you zoom in. */
-  const points = rows.map((r) => ({
-    id: r.id,
-    symbol: r.symbol,
-    amount: Number(r.amount),
-    rarity: (r.rarity ?? "common") as Rarity,
-    place: r.places.name,
-    cityKey: r.places.city,
-    expiresAt: r.expires_at,
-    lat: r.places.lat,
-    lng: r.places.lng,
-  }));
 
   const pins: CityPin[] = CN_CITIES.filter((c) => byCity.has(c.key)).map((c) => {
     const e = byCity.get(c.key)!;
@@ -72,11 +63,45 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
 
   return {
     pins,
-    points,
     totalSpawns: rows.length,
     totalCities: pins.length,
     totalPlaces: placeCount ?? 0,
     tokens: Object.keys(TOKEN_BY_SYMBOL).length,
     day,
   };
+});
+
+/** Every individual signal, fetched by the browser once the map is on screen. */
+export const getMapPoints = createServerFn({ method: "GET" }).handler(async () => {
+  const supabaseAdmin = await admin();
+  const day = today();
+
+  const { data, error } = await supabaseAdmin
+    .from("spawns")
+    .select("id, symbol, amount, rarity, expires_at, places!inner(name, city, lat, lng)")
+    .eq("day", day)
+    .is("claimed_by", null)
+    .limit(3000);
+  if (error) throw new Error(error.message);
+
+  type Row = {
+    id: string;
+    symbol: string;
+    amount: number | string;
+    rarity: string | null;
+    expires_at: string;
+    places: { name: string; city: string; lat: number; lng: number };
+  };
+
+  return ((data ?? []) as unknown as Row[]).map((r) => ({
+    id: r.id,
+    symbol: r.symbol,
+    amount: Number(r.amount),
+    rarity: (r.rarity ?? "common") as Rarity,
+    place: r.places.name,
+    cityKey: r.places.city,
+    expiresAt: r.expires_at,
+    lat: r.places.lat,
+    lng: r.places.lng,
+  }));
 });
