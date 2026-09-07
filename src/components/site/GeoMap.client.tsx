@@ -27,13 +27,40 @@ const STYLE = "https://tiles.openfreemap.org/styles/dark";
 /** Above this zoom the city bubbles step aside and each store shows itself. */
 const CITY_MAX_ZOOM = 7.2;
 
-/** maplibre needs literal colours, so resolve the rarity tokens once in the browser. */
+/** maplibre only speaks sRGB, so bake the oklch tokens down to hex in the browser. */
+function toHex(value: string): string {
+  const v = value.trim();
+  const m = v.match(/^oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)/i);
+  if (!m) return v || "#6ee7b7";
+  let L = parseFloat(m[1]!);
+  if (m[2] === "%") L /= 100;
+  const C = parseFloat(m[3]!);
+  const h = (parseFloat(m[4]!) * Math.PI) / 180;
+  const a = C * Math.cos(h);
+  const bb = C * Math.sin(h);
+  const l_ = (L + 0.3963377774 * a + 0.2158037573 * bb) ** 3;
+  const m_ = (L - 0.1055613458 * a - 0.0638541728 * bb) ** 3;
+  const s_ = (L - 0.0894841775 * a - 1.291485548 * bb) ** 3;
+  const lin = [
+    4.0767416621 * l_ - 3.3077115913 * m_ + 0.2309699292 * s_,
+    -1.2684380046 * l_ + 2.6097574011 * m_ - 0.3413193965 * s_,
+    -0.0041960863 * l_ - 0.7034186147 * m_ + 1.707614701 * s_,
+  ];
+  const ch = lin.map((u) => {
+    const g = u <= 0.0031308 ? 12.92 * u : 1.055 * Math.pow(Math.max(u, 0), 1 / 2.4) - 0.055;
+    return Math.round(Math.max(0, Math.min(1, g)) * 255)
+      .toString(16)
+      .padStart(2, "0");
+  });
+  return `#${ch.join("")}`;
+}
+
 function rarityColors(): Record<Rarity, string> {
   const cs = getComputedStyle(document.documentElement);
   const read = (r: Rarity) => {
     const raw = rarityVar(r);
     const name = raw.match(/var\((--[^)]+)\)/)?.[1];
-    return (name ? cs.getPropertyValue(name).trim() : raw) || "#6ee7b7";
+    return toHex(name ? cs.getPropertyValue(name).trim() : raw);
   };
   return {
     common: read("common"),
