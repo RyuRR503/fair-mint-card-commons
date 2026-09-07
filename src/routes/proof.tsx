@@ -25,30 +25,38 @@ export const Route = createFileRoute("/proof")({
   component: Proof,
 });
 
-type VaultRow = { symbol: string; balance: string; drops: number; mode?: string };
+type VaultRow = {
+  symbol: string;
+  balance: number;
+  drops: number;
+  onChain: boolean;
+};
+type Claim = {
+  wallet: string;
+  symbol: string;
+  amount: number;
+  place: string;
+  city: string;
+  created_at: string;
+};
 
 function Proof() {
   const vault = useServerFn(getVault);
   const claims = useServerFn(getClaims);
   const [rows, setRows] = useState<VaultRow[] | null>(null);
-  const [mode, setMode] = useState<string>("");
-  const [feed, setFeed] = useState<
-    { wallet: string; symbol: string; amount: number; place: string; city: string; at: string }[]
-  >([]);
+  const [live, setLive] = useState(true);
+  const [checkedAt, setCheckedAt] = useState("");
+  const [feed, setFeed] = useState<Claim[]>([]);
 
   useEffect(() => {
     let alive = true;
     const load = async () => {
       try {
-        const v = (await vault({ data: {} })) as {
-          ok: boolean;
-          mode?: string;
-          holdings?: VaultRow[];
-        };
-        if (alive && v.ok && v.holdings) {
-          setRows(v.holdings);
-          setMode(v.mode ?? "");
-        }
+        const v = await vault();
+        if (!alive) return;
+        setRows(v.balances);
+        setLive(v.live);
+        setCheckedAt(v.checkedAt);
       } catch {
         /* keep last good data */
       }
@@ -64,14 +72,15 @@ function Proof() {
   useEffect(() => {
     let alive = true;
     claims({ data: {} })
-      .then((r: any) => {
-        if (alive && r?.ok) setFeed(r.claims ?? []);
+      .then((r) => {
+        if (alive) setFeed(r as Claim[]);
       })
       .catch(() => {});
     return () => {
       alive = false;
     };
   }, [claims]);
+
 
   return (
     <>
