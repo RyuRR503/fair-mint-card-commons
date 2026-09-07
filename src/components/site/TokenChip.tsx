@@ -11,8 +11,9 @@ type Props = {
 };
 
 /**
- * Glossy 3D "app icon" chip standing in for a listed company.
- * Drawn with tokens so it themes cleanly and never ships a bitmap.
+ * A ticker plate, not a glossy crypto coin.
+ * Near-black silhouette + a single rim light in the company's hue, the way a
+ * subject reads against a dark set. Corner ticks make it a captured frame.
  */
 export function TokenChip({
   symbol,
@@ -23,10 +24,9 @@ export function TokenChip({
   delay = 0,
 }: Props) {
   const token = TOKEN_BY_SYMBOL[symbol];
-  const color = token?.color ?? "#9aa6b2";
-  const color2 = token?.color2 ?? "#6b7885";
+  const hue = token?.color ?? "#c9a227";
   const glyph = token?.glyph || symbol.slice(0, 2);
-  const light = (token?.ink ?? "light") === "light";
+  const corner = Math.max(3, size * 0.16);
 
   return (
     <span
@@ -40,31 +40,53 @@ export function TokenChip({
       }}
       aria-label={symbol}
     >
+      {/* plate */}
       <span
-        className="absolute inset-0 rounded-[28%]"
+        className="absolute inset-0 rounded-[6%]"
         style={{
-          background: `linear-gradient(150deg, ${color} 0%, ${color2} 100%)`,
-          boxShadow: `0 ${size * 0.18}px ${size * 0.32}px -${size * 0.12}px rgba(20,40,70,.45), inset 0 ${size * 0.05}px ${size * 0.08}px rgba(255,255,255,.55), inset 0 -${size * 0.08}px ${size * 0.12}px rgba(0,0,0,.3)`,
-        }}
-      />
-      <span
-        className="absolute rounded-full"
-        style={{
-          top: size * 0.08,
-          left: size * 0.12,
-          width: size * 0.55,
-          height: size * 0.28,
           background:
-            "linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,0))",
-          filter: "blur(1px)",
+            "linear-gradient(160deg, oklch(0.22 0.014 250), oklch(0.13 0.01 250))",
+          boxShadow: `inset 0 0 0 1px ${hue}55, 0 ${size * 0.1}px ${size * 0.3}px -${size * 0.12}px rgba(0,0,0,.9)`,
         }}
       />
+      {/* rim light along the top-left edge */}
       <span
-        className="relative font-display font-extrabold leading-none"
+        className="absolute inset-0 rounded-[6%]"
         style={{
-          fontSize: size * (glyph.length > 1 ? 0.36 : 0.46),
-          color: light ? "#fff" : "#1b1b1b",
-          textShadow: light ? "0 1px 2px rgba(0,0,0,.35)" : "0 1px 1px rgba(255,255,255,.5)",
+          background: `linear-gradient(150deg, ${hue}33 0%, transparent 42%)`,
+        }}
+      />
+      {/* focus corners */}
+      {[
+        { top: 0, left: 0, borderTop: 1, borderLeft: 1 },
+        { top: 0, right: 0, borderTop: 1, borderRight: 1 },
+        { bottom: 0, left: 0, borderBottom: 1, borderLeft: 1 },
+        { bottom: 0, right: 0, borderBottom: 1, borderRight: 1 },
+      ].map((pos, i) => (
+        <span
+          key={i}
+          className="absolute"
+          style={{
+            width: corner,
+            height: corner,
+            borderStyle: "solid",
+            borderColor: `${hue}aa`,
+            borderWidth: 0,
+            ...pos,
+            borderTopWidth: (pos as any).borderTop ? 1 : 0,
+            borderBottomWidth: (pos as any).borderBottom ? 1 : 0,
+            borderLeftWidth: (pos as any).borderLeft ? 1 : 0,
+            borderRightWidth: (pos as any).borderRight ? 1 : 0,
+          }}
+        />
+      ))}
+      <span
+        className="relative font-mono font-semibold leading-none"
+        style={{
+          fontSize: size * (glyph.length > 1 ? 0.3 : 0.4),
+          letterSpacing: "0.04em",
+          color: hue,
+          textShadow: `0 0 ${size * 0.28}px ${hue}66`,
         }}
       >
         {glyph}
