@@ -27,10 +27,10 @@ type Props = {
 };
 
 const LEGEND: { r: Rarity; label: string }[] = [
-  { r: "common", label: "Common" },
-  { r: "rare", label: "Rare" },
-  { r: "epic", label: "Epic" },
-  { r: "legendary", label: "Legendary" },
+  { r: "common", label: "COMMON" },
+  { r: "rare", label: "RARE" },
+  { r: "epic", label: "EPIC" },
+  { r: "legendary", label: "LEGENDARY" },
 ];
 
 export function WorldMap({
@@ -80,7 +80,7 @@ export function WorldMap({
   return (
     <div
       className={cn(
-        "relative select-none overflow-hidden rounded-[2rem] border border-border bg-[oklch(0.94_0.03_235)] shadow-[var(--shadow-card)]",
+        "graded relative select-none overflow-hidden rounded-md border border-border bg-background-deep shadow-[var(--shadow-card)]",
         className,
       )}
       style={{ height }}
@@ -107,51 +107,96 @@ export function WorldMap({
         preserveAspectRatio="xMidYMid slice"
         aria-hidden
       >
-        <rect x="0" y="0" width="1000" height="1000" fill="oklch(0.93 0.04 232)" />
+        <defs>
+          <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path
+              d="M40 0H0V40"
+              fill="none"
+              stroke="oklch(0.93 0.006 95 / 0.05)"
+              strokeWidth={0.5 / view.z}
+            />
+          </pattern>
+        </defs>
+        {/* ocean: near-black, so land reads as a lit surface */}
+        <rect x="0" y="0" width="1000" height="1000" fill="oklch(0.11 0.01 250)" />
+        <rect x="0" y="0" width="1000" height="1000" fill="url(#map-grid)" />
         <path
           d={WORLD_PATH}
-          fill="oklch(0.97 0.02 140)"
-          stroke="oklch(0.86 0.04 200)"
-          strokeWidth={0.6 / view.z}
+          fill="oklch(0.19 0.014 250)"
+          stroke="oklch(0.78 0.14 55 / 0.35)"
+          strokeWidth={0.7 / view.z}
         />
       </svg>
 
-      {visible.map((p) => (
-        <button
-          key={p.key}
-          type="button"
-          onClick={() => onSelect?.(p.key)}
-          className="absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none"
-          style={pinStyle(p.lat, p.lng)}
-        >
-          <span className="relative flex flex-col items-center">
-            <span className="flex items-center rounded-full bg-card/95 p-1 shadow-[var(--shadow-pop)] ring-1 ring-border">
-              {p.symbols.slice(0, 3).map((s, i) => (
-                <TokenChip
-                  key={`${s}-${i}`}
-                  symbol={s}
-                  size={22}
-                  className={i > 0 ? "-ml-2" : ""}
-                />
-              ))}
-              <span
-                className="label-caps ml-1 grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[10px] text-primary-foreground"
-                style={{ background: rarityVar(p.rarity) }}
-              >
-                {p.count}
-              </span>
-            </span>
-            <span
-              className={cn(
-                "label-caps mt-1 whitespace-nowrap rounded-full bg-card/90 px-2 py-0.5 text-[9px] text-foreground shadow-sm",
-                selected === p.key && "bg-foreground text-background",
+      {visible.map((p) => {
+        // Zoomed out the world must read as a constellation of signals, not a
+        // wall of badges. Detail only develops as the camera pushes in.
+        const detailed = view.z >= 2.4 || selected === p.key;
+        const isSel = selected === p.key;
+        return (
+          <button
+            key={p.key}
+            type="button"
+            onClick={() => onSelect?.(p.key)}
+            className="group absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none"
+            style={pinStyle(p.lat, p.lng)}
+          >
+            <span className="relative flex flex-col items-center">
+              {detailed ? (
+                <>
+                  <span className="flex items-center rounded-sm bg-background-deep/90 p-1 shadow-[var(--shadow-pop)] ring-1 ring-border backdrop-blur-sm">
+                    {p.symbols.slice(0, 3).map((s, i) => (
+                      <TokenChip
+                        key={`${s}-${i}`}
+                        symbol={s}
+                        size={22}
+                        className={i > 0 ? "-ml-2" : ""}
+                      />
+                    ))}
+                    <span
+                      className="readout ml-1 grid h-5 min-w-5 place-items-center rounded-sm px-1.5 text-[10px] text-background-deep"
+                      style={{ background: rarityVar(p.rarity) }}
+                    >
+                      {p.count}
+                    </span>
+                  </span>
+                  <span
+                    className={cn(
+                      "label-caps mt-1 whitespace-nowrap rounded-sm bg-background-deep/80 px-2 py-0.5 text-[9px] text-muted-foreground backdrop-blur-sm",
+                      isSel && "bg-primary text-primary-foreground",
+                    )}
+                  >
+                    {p.label}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="relative grid size-2.5 place-items-center">
+                    <span
+                      className="animate-pulse-ring absolute inset-0 rounded-full opacity-40"
+                      style={{
+                        background: rarityVar(p.rarity),
+                        animationDelay: `${(p.label.length % 6) * 0.7}s`,
+                      }}
+                    />
+                    <span
+                      className="size-1.5 rounded-full transition-transform duration-300 group-hover:scale-150"
+                      style={{
+                        background: rarityVar(p.rarity),
+                        boxShadow: `0 0 10px ${rarityVar(p.rarity)}`,
+                      }}
+                    />
+                  </span>
+                  <span className="label-caps pointer-events-none mt-1 whitespace-nowrap text-[8px] text-muted-foreground opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    {p.label} · {p.count}
+                  </span>
+                </>
               )}
-            >
-              {p.label}
             </span>
-          </span>
-        </button>
-      ))}
+          </button>
+        );
+      })}
+
 
       {me && (
         <span
@@ -163,19 +208,19 @@ export function WorldMap({
         </span>
       )}
 
-      <div className="glass-panel absolute left-4 top-4 flex items-center gap-2 rounded-full px-3 py-1.5">
-        <span className="size-2 animate-pulse rounded-full bg-primary" />
-        <span className="label-caps text-[10px]">
-          Live · {new Set(pins.map((p) => p.label)).size} cities ·{" "}
-          {pins.reduce((n, p) => n + p.count, 0)} spawn points
+      <div className="glass-panel absolute left-4 top-4 flex items-center gap-2 rounded-sm px-3 py-1.5">
+        <span className="size-1.5 animate-pulse rounded-full bg-primary" />
+        <span className="readout text-[10px]">
+          LIVE · {new Set(pins.map((p) => p.label)).size} CITIES ·{" "}
+          {pins.reduce((n, p) => n + p.count, 0)} SPAWNS
         </span>
       </div>
 
-      <div className="glass-panel absolute right-4 top-4 hidden gap-2 rounded-full px-3 py-1.5 sm:flex">
+      <div className="glass-panel absolute right-4 top-4 hidden gap-3 rounded-sm px-3 py-1.5 sm:flex">
         {LEGEND.map((l) => (
           <span key={l.r} className="flex items-center gap-1">
-            <span className="size-2 rounded-full" style={{ background: rarityVar(l.r) }} />
-            <span className="label-caps text-[9px] text-muted-foreground">{l.label}</span>
+            <span className="size-1.5 rounded-full" style={{ background: rarityVar(l.r) }} />
+            <span className="readout text-[9px]">{l.label}</span>
           </span>
         ))}
       </div>
@@ -207,7 +252,7 @@ function MapBtn({ onClick, children }: { onClick: () => void; children: React.Re
     <button
       type="button"
       onClick={onClick}
-      className="glass-panel grid size-9 place-items-center rounded-xl transition-transform hover:-translate-y-0.5"
+      className="glass-panel grid size-9 place-items-center rounded-sm text-muted-foreground transition-colors duration-300 hover:text-primary"
     >
       {children}
     </button>

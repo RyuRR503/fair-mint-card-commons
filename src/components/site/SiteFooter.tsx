@@ -7,8 +7,8 @@ export function SiteFooter() {
   const t = useT();
 
   return (
-    <footer className="mx-auto mt-24 max-w-7xl px-4 pb-14">
-      <div className="glass-panel rounded-2xl p-8 sm:p-10">
+    <footer className="mx-auto mt-32 max-w-6xl px-5 pb-16">
+      <div className="border-t border-border pt-10">
         <div className="flex flex-wrap items-start justify-between gap-8">
           <div className="max-w-sm">
             <div className="flex items-center gap-3">

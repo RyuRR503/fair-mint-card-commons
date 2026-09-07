@@ -25,19 +25,19 @@ const LangContext = createContext<LangValue>({
 });
 
 export function LangProvider({ children }: { children: ReactNode }) {
-  // Server always renders English, then we resolve the real language after
-  // hydration so there is never a markup mismatch.
-  const [lang, setLangState] = useState<Lang>("en");
+  // Chinese is the primary language, so the server renders zh and we resolve
+  // any saved/browser preference after hydration.
+  const [lang, setLangState] = useState<Lang>("zh");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    let next: Lang = "en";
+    let next: Lang = "zh";
     try {
       const saved = window.localStorage.getItem(STORAGE_KEY);
       if (saved === "en" || saved === "zh") {
         next = saved;
-      } else if (/^zh\b/i.test(navigator.language ?? "")) {
-        next = "zh";
+      } else if (!/^zh/i.test(navigator.language ?? "")) {
+        next = "en";
       }
     } catch {
       /* storage blocked — fall back to English */

@@ -42,13 +42,25 @@ export function LangToggle({ className = "" }: { className?: string }) {
   );
 }
 
+/**
+ * The reticle: four camera-style focus corners around a single signal dot.
+ * Not a game crosshair — a viewfinder.
+ */
 export function CatchMark({ className = "" }: { className?: string }) {
   return (
-    <span
-      className={`relative grid size-9 shrink-0 place-items-center rounded-md border border-primary/50 bg-primary/10 ${className}`}
-    >
-      <span className="absolute inset-1 rounded-sm border border-primary/30" />
-      <span className="size-1.5 rounded-full bg-primary shadow-[0_0_12px_var(--signal)]" />
+    <span className={`group relative grid size-9 shrink-0 place-items-center ${className}`}>
+      {[
+        "left-0 top-0 border-l border-t",
+        "right-0 top-0 border-r border-t",
+        "left-0 bottom-0 border-l border-b",
+        "right-0 bottom-0 border-r border-b",
+      ].map((pos) => (
+        <span
+          key={pos}
+          className={`absolute size-2.5 border-primary/70 transition-all duration-300 ${pos}`}
+        />
+      ))}
+      <span className="size-1.5 rounded-full bg-primary shadow-[0_0_14px_var(--signal)]" />
     </span>
   );
 }
@@ -59,11 +71,11 @@ export function SiteHeader() {
   const NAV = useNav();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 px-3 py-3 backdrop-blur-xl sm:px-5">
-      <div className="mx-auto flex max-w-7xl items-center gap-3">
+    <header className="sticky top-0 z-40 border-b border-border/60 bg-background-deep/80 px-3 py-3 backdrop-blur-xl sm:px-5">
+      <div className="mx-auto flex max-w-6xl items-center gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="CATCH home">
           <CatchMark />
-          <span className="label-caps text-base tracking-[0.32em]">CATCH</span>
+          <span className="font-latin text-base font-semibold uppercase tracking-[0.42em]">CATCH</span>
         </Link>
 
         <nav className="hidden flex-1 items-center justify-center gap-0.5 lg:flex">
@@ -84,7 +96,7 @@ export function SiteHeader() {
           <LangToggle className="hidden sm:flex" />
           <Link
             to="/app"
-            className="label-caps rounded-md bg-primary px-4 py-2.5 text-[10px] text-primary-foreground shadow-[var(--shadow-glossy)] transition-transform hover:-translate-y-0.5"
+            className="label-caps rounded-md bg-primary px-4 py-2.5 text-[10px] text-primary-foreground halation transition-all duration-300 hover:shadow-[var(--shadow-glossy)]"
           >
             {t("Start hunting", "开始捕捉")}
           </Link>
@@ -100,7 +112,7 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <nav className="glass-panel mx-auto mt-2 grid max-w-7xl gap-1 rounded-xl p-3 lg:hidden">
+        <nav className="glass-panel mx-auto mt-2 grid max-w-6xl gap-1 rounded-md p-3 lg:hidden">
           {NAV.map((item) => (
             <Link
               key={item.to}
