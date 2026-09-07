@@ -258,8 +258,8 @@ function AppMap() {
             points={points}
             me={fix ? { lat: fix.lat, lng: fix.lng } : null}
             selected={selected}
-            center={fix ? [fix.lng, fix.lat] : undefined}
-            zoom={fix ? 13 : undefined}
+            {...(fix ? { center: [fix.lng, fix.lat] as [number, number], zoom: 13 } : {})}
+
             height="520px"
           />
 
