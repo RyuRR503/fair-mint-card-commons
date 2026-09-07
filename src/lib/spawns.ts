@@ -151,7 +151,7 @@ export function allSpawns(): Spawn[] {
       const token = pool[Math.floor(rand() * pool.length)]!;
       const templates = PLACE_TEMPLATES[token.symbol] ?? ["{city} Spot"];
       const place = (templates[Math.floor(rand() * templates.length)] ?? "{city} Spot").replace(
-      const place = templates[Math.floor(rand() * templates.length)].replace(
+      
         "{city}",
         city.name,
       );
