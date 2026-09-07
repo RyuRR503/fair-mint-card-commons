@@ -216,9 +216,9 @@ function AppMap() {
         <div>
           <WorldMap
             pins={pins}
-            me={fix ? { lat: fix.lat, lng: fix.lng } : undefined}
-            focus={fix ? { lat: fix.lat, lng: fix.lng } : undefined}
-            height={520}
+            me={fix ? { lat: fix.lat, lng: fix.lng } : null}
+            focus={fix ? { lat: fix.lat, lng: fix.lng } : null}
+            height="520px"
           />
           <Panel className="mt-4">
             <h2 className="label-caps text-xs text-muted-foreground">Nearby drops</h2>
