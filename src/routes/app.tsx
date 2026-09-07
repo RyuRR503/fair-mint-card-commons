@@ -166,7 +166,7 @@ function AppMap() {
       key: city,
       lat: list[0]!.lat,
       lng: list[0]!.lng,
-      label: city,
+      label: t(list[0]!.cityName, list[0]!.cityNameZh),
       count: list.length,
       symbols: list.slice(0, 3).map((s) => s.symbol),
       rarity: list.some((s) => s.rarity === "epic")
@@ -175,7 +175,7 @@ function AppMap() {
           ? "rare"
           : "common",
     }));
-  }, [spawns]);
+  }, [spawns, t]);
 
   const active = nearby.find((s) => s.id === selected) ?? null;
   const radius = fix ? catchRadius(fix.accuracy) : RULES.baseRadiusM;

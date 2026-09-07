@@ -1,8 +1,51 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { allSpawns, type Spawn } from "./spawns";
-import { TOKEN_BY_SYMBOL, TOKENS, VAULT_ADDRESS, CHAIN } from "./tokens";
+import { cityByKey, type Spawn } from "./spawns";
+import { TOKEN_BY_SYMBOL, TOKENS, VAULT_ADDRESS, CHAIN, type Rarity } from "./tokens";
 import { catchRadius, haversine, MAX_ACCURACY_M } from "./geo";
+
+type SpawnRow = {
+  id: string;
+  symbol: string;
+  amount: number;
+  rarity: string;
+  claimed_by: string | null;
+  places: { name: string; city: string; country: string; lat: number; lng: number };
+};
+
+function toSpawn(row: SpawnRow): Spawn {
+  const city = cityByKey(row.places.city);
+  return {
+    id: row.id,
+    symbol: row.symbol,
+    amount: Number(row.amount),
+    rarity: row.rarity as Rarity,
+    city: row.places.city,
+    cityName: city?.name ?? row.places.city,
+    cityNameZh: city?.nameZh ?? row.places.city,
+    country: row.places.country,
+    place: row.places.name,
+    lat: row.places.lat,
+    lng: row.places.lng,
+  };
+}
+
+const SPAWN_SELECT = "id, symbol, amount, rarity, claimed_by, places!inner(name, city, country, lat, lng)";
+
+/** Today's open signals, straight out of the database. */
+async function openSpawns(): Promise<Spawn[]> {
+  const supabase = await admin();
+  const day = new Date().toISOString().slice(0, 10);
+  const { data, error } = await supabase
+    .from("spawns")
+    .select(SPAWN_SELECT)
+    .eq("day", day)
+    .is("claimed_by", null)
+    .limit(3000);
+  if (error) throw new Error(error.message);
+  return (data as unknown as SpawnRow[]).map(toSpawn);
+}
+
 
 /* ------------------------------------------------------------------ rules */
 
@@ -52,18 +95,19 @@ export const getSpawns = createServerFn({ method: "GET" })
       .parse(d ?? {}),
   )
   .handler(async ({ data }) => {
-    const all = allSpawns();
-    const list =
+    const all = await openSpawns();
+    const list: Spawn[] =
       data.lat != null && data.lng != null
-        ? [...all]
+        ? all
             .map((s) => ({
               ...s,
               distance: haversine(data.lat!, data.lng!, s.lat, s.lng),
             }))
-            .sort((a, b) => a.distance - b.distance)
-        : all.map((s) => ({ ...s, distance: null as number | null }));
+            .sort((a, b) => (a.distance ?? 0) - (b.distance ?? 0))
+        : all.map((s) => ({ ...s, distance: null }));
     return { spawns: list.slice(0, data.limit ?? 400), total: all.length };
   });
+
 
 /* ----------------------------------------------------------------- claims */
 
@@ -110,8 +154,17 @@ export const claimDrop = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => claimInput.parse(d))
   .handler(async ({ data }): Promise<Fail | Success> => {
     const wallet = data.address.toLowerCase();
-    const spawn = allSpawns().find((s) => s.id === data.spawnId);
-    if (!spawn) return fail("That drop does not exist any more.");
+    const day = new Date().toISOString().slice(0, 10);
+    const { data: row } = await (await admin())
+      .from("spawns")
+      .select(SPAWN_SELECT)
+      .eq("id", data.spawnId)
+      .eq("day", day)
+      .maybeSingle();
+    if (!row) return fail("That drop does not exist any more.");
+    if ((row as unknown as SpawnRow).claimed_by)
+      return fail("Someone already caught this one today.");
+    const spawn = toSpawn(row as unknown as SpawnRow);
     if (spawn.rarity === "legendary")
       return fail("Legendary drops are claimed during their event window, with the code on site.");
 
@@ -238,13 +291,16 @@ export const claimDrop = createServerFn({ method: "POST" })
       spawn_id: spawn.id,
       symbol: spawn.symbol,
       amount: spawn.amount,
-      city: spawn.city,
+      city: spawn.cityName,
       place: spawn.place,
       lat: data.lat,
       lng: data.lng,
       accuracy: data.accuracy,
       mode,
     });
+
+    // one physical store, one catch per day
+    await db.from("spawns").update({ claimed_by: wallet, claimed_at: new Date().toISOString() }).eq("id", spawn.id);
 
     return {
       ok: true,
