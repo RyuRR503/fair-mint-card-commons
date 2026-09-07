@@ -28,14 +28,16 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const FLOATERS = [
-  { s: "AMZN", top: "8%", left: "8%", size: 66, spin: -8, d: 0 },
-  { s: "NVDA", top: "46%", left: "2%", size: 78, spin: 10, d: 1.1 },
-  { s: "TSLA", top: "78%", left: "14%", size: 62, spin: -12, d: 2 },
-  { s: "NFLX", top: "8%", left: "84%", size: 62, spin: 12, d: 0.6 },
-  { s: "AAPL", top: "44%", left: "90%", size: 80, spin: -6, d: 1.6 },
-  { s: "GME", top: "78%", left: "80%", size: 66, spin: 9, d: 2.4 },
-];
+function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="label-caps text-[10px] text-muted-foreground">{label}</span>
+      <span className={`readout text-2xl font-semibold ${accent ? "text-primary" : "text-foreground"}`}>
+        {value}
+      </span>
+    </div>
+  );
+}
 
 function Home() {
   const t = useT();
@@ -217,16 +219,16 @@ function Home() {
           ].map((c) => (
             <div
               key={c.n}
-              className="group bg-background p-8 transition-colors duration-500 hover:bg-foreground sm:p-10"
+              className="group bg-background p-8 transition-colors duration-500 hover:bg-primary/10 sm:p-10"
             >
-              <p className="plate-no text-muted-foreground transition-colors group-hover:text-background/60">
+              <p className="plate-no text-muted-foreground transition-colors group-hover:text-primary">
                 {c.n}
               </p>
               <span className="mt-8 block h-0.5 w-10 bg-accent" />
-              <h3 className="font-latin mt-7 text-2xl tracking-tight transition-colors group-hover:text-background">
+              <h3 className="font-latin mt-7 text-2xl tracking-tight transition-colors group-hover:text-foreground">
                 {c.h}
               </h3>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground transition-colors group-hover:text-background/70">
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground transition-colors group-hover:text-foreground/75">
                 {c.p}
               </p>
             </div>
