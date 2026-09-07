@@ -154,8 +154,17 @@ export const claimDrop = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => claimInput.parse(d))
   .handler(async ({ data }): Promise<Fail | Success> => {
     const wallet = data.address.toLowerCase();
-    const spawn = allSpawns().find((s) => s.id === data.spawnId);
-    if (!spawn) return fail("That drop does not exist any more.");
+    const day = new Date().toISOString().slice(0, 10);
+    const { data: row } = await (await admin())
+      .from("spawns")
+      .select(SPAWN_SELECT)
+      .eq("id", data.spawnId)
+      .eq("day", day)
+      .maybeSingle();
+    if (!row) return fail("That drop does not exist any more.");
+    if ((row as unknown as SpawnRow).claimed_by)
+      return fail("Someone already caught this one today.");
+    const spawn = toSpawn(row as unknown as SpawnRow);
     if (spawn.rarity === "legendary")
       return fail("Legendary drops are claimed during their event window, with the code on site.");
 
