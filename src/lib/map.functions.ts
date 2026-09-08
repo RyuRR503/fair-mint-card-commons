@@ -46,15 +46,8 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
   const supabaseAdmin = await admin();
   const day = today();
 
-  const { data, error } = await supabaseAdmin
-    .from("spawns")
-    .select("symbol, rarity, places!inner(city)")
-    .or(OPEN_FILTER())
-    .limit(4000);
-  if (error) throw new Error(error.message);
-
   type Row = { symbol: string; rarity: string | null; places: { city: string } };
-  const rows = (data ?? []) as unknown as Row[];
+  const rows = (await allOpenSpawns("symbol, rarity, places!inner(city)")) as unknown as Row[];
 
   const byCity = new Map<string, { count: number; symbols: Set<string>; rarity: Rarity }>();
   for (const row of rows) {
