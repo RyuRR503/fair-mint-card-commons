@@ -16,6 +16,28 @@ async function admin() {
 }
 
 /**
+ * PostgREST caps a single response at 1000 rows, so page through the open
+ * spawns instead of trusting one .limit() call.
+ */
+async function allOpenSpawns(select: string, max = 6000) {
+  const supabaseAdmin = await admin();
+  const page = 1000;
+  const out: unknown[] = [];
+  for (let from = 0; from < max; from += page) {
+    const { data, error } = await supabaseAdmin
+      .from("spawns")
+      .select(select)
+      .or(OPEN_FILTER())
+      .range(from, from + page - 1);
+    if (error) throw new Error(error.message);
+    const rows = data ?? [];
+    out.push(...rows);
+    if (rows.length < page) break;
+  }
+  return out;
+}
+
+/**
  * Public: light summary for the first paint — city bubbles and counters only.
  * The per-store signals are a separate, bigger payload (getMapPoints) so the
  * page can render before they arrive.
