@@ -90,15 +90,6 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
 
 /** Every individual signal, fetched by the browser once the map is on screen. */
 export const getMapPoints = createServerFn({ method: "GET" }).handler(async () => {
-  const supabaseAdmin = await admin();
-
-  const { data, error } = await supabaseAdmin
-    .from("spawns")
-    .select("id, symbol, amount, rarity, respawn_at, places!inner(name, city, lat, lng)")
-    .or(OPEN_FILTER())
-    .limit(4000);
-  if (error) throw new Error(error.message);
-
   type Row = {
     id: string;
     symbol: string;
