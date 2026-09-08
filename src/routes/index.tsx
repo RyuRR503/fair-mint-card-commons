@@ -207,8 +207,8 @@ function Home() {
               n: "01 / REAL",
               h: t("Real assets.", "真实资产。"),
               p: t(
-                `Not points and not a picture of a stock. Tokenized shares as BEP-20s on ${CHAIN.name} — AAPL, NVDA, TSLA — sitting in your own wallet.`,
-                `不是积分，也不是股票截图。而是 ${CHAIN.name} 上的 BEP-20 代币化股票——AAPL、NVDA、TSLA——直接放在你自己的钱包里。`,
+                `Not points and not a picture of a stock. Tokenized shares as BEP-20s on ${CHAIN.name} — BABAON, AAPLON, TSLAON — sitting in your own wallet.`,
+                `不是积分，也不是股票截图。而是 ${CHAIN.name} 上的 BEP-20 代币化股票——BABAON、AAPLON、TSLAON——直接放在你自己的钱包里。`,
               ),
             },
             {

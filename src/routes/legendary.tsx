@@ -14,7 +14,7 @@ export const Route = createFileRoute("/legendary")({
       {
         name: "description",
         content:
-          "Once a month a full NVDA share sits at one spot for one hour. Announced 24 hours ahead. Be within 25 metres and find the code.",
+          "Every day a full BILION share sits at one spot for one hour. Announced 24 hours ahead. Be within 25 metres and find the code.",
       },
       { property: "og:title", content: "CATCH legendary drop" },
       {
@@ -83,7 +83,7 @@ function Legendary() {
         title={t("One whole share. One hour. One winner.", "一整股。一小时。一个赢家。")}
         lead={t(
           "Fragments are the everyday loot. Once a month, a full share sits at exactly one spot on earth for sixty minutes.",
-          "碎片是日常掉落。每月一次，一整股会在地球上某一个确切地点停留六十分钟。",
+          "碎片是日常掉落。每天一次，一整股会在某个确切地点停留六十分钟。",
         )}
         className="mt-10"
       />
