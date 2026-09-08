@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Section, Panel } from "@/components/site/Section";
 import { RULES } from "@/lib/game.functions";
-import { CHAIN } from "@/lib/tokens";
+import { CHAIN, COOLDOWN_MIN, TOKENS, RARITY_LABEL, type Rarity } from "@/lib/tokens";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/how-it-works")({
