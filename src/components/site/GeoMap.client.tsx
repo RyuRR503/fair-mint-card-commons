@@ -140,7 +140,7 @@ export default function GeoMap({
           "circle-color": color,
           "circle-blur": 1,
           "circle-opacity": 0.35,
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 4, 12, 12, 16, 22],
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 2.5, 5, 4, 12, 12, 16, 22],
         },
       });
       m.addLayer({
@@ -149,7 +149,7 @@ export default function GeoMap({
         source: "signals",
         paint: {
           "circle-color": color,
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.6, 10, 3.5, 14, 6, 17, 9],
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 1.4, 5, 2.2, 10, 3.5, 14, 6, 17, 9],
           "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 10, 0, 13, 1.5],
           "circle-stroke-color": "#0a0d0c",
         },
