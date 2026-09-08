@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Section, Panel } from "@/components/site/Section";
 import { RULES } from "@/lib/game.functions";
-import { CHAIN } from "@/lib/tokens";
+import { CHAIN, COOLDOWN_MIN, TOKENS, RARITY_LABEL, type Rarity } from "@/lib/tokens";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/how-it-works")({
@@ -155,6 +155,60 @@ function HowItWorks() {
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.p}</p>
             </Panel>
           ))}
+        </div>
+      </Section>
+
+      <Section title={t("Cooldowns & daily caps", "冷却与每日上限")}>
+        <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
+          <table className="w-full min-w-[420px] text-left text-sm">
+            <thead>
+              <tr className="label-caps border-b border-border text-[10px] text-muted-foreground">
+                <th className="px-6 py-4">{t("Rarity", "稀有度")}</th>
+                <th className="px-6 py-4">{t("Tokens", "代币")}</th>
+                <th className="px-6 py-4">{t("Point cooldown", "点位冷却")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(["common", "rare", "epic", "legendary"] as Rarity[]).map((r) => {
+                const tokens = TOKENS.filter((t) => t.rarity === r && !t.eventOnly);
+                const eventOnly = TOKENS.find((t) => t.rarity === r && t.eventOnly);
+                return (
+                  <tr key={r} className="border-b border-border/60 last:border-0">
+                    <td className="px-6 py-3 font-medium">{RARITY_LABEL[r]}</td>
+                    <td className="px-6 py-3 text-muted-foreground">
+                      {tokens.map((t) => t.symbol).join(", ")}
+                      {eventOnly && (
+                        <span className="ml-1 text-[11px]">
+                          {t("(event only: ", "（仅传奇活动：")}{eventOnly.symbol}{")"}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-3 font-mono text-xs">{COOLDOWN_MIN[r]} min</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </Panel>
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <Panel>
+            <h3 className="label-caps text-[11px] text-primary">{t("Wallet caps", "钱包限制")}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {t(
+                `One wallet can catch ${RULES.perWalletPerDay} drops per day, with at least ${RULES.walletCooldownMin} minutes between two catches. The same wallet cannot take the same signal twice within 24 hours.`,
+                `每个钱包每天可捕捉 ${RULES.perWalletPerDay} 次，两次捕捉之间至少间隔 ${RULES.walletCooldownMin} 分钟，且 24 小时内不能重复捕捉同一信号。`,
+              )}
+            </p>
+          </Panel>
+          <Panel>
+            <h3 className="label-caps text-[11px] text-primary">{t("Permanent points", "固定点位")}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {t(
+                "Signals are tied to real stores, not regenerated every day. A caught point simply goes to sleep, then reopens automatically when its cooldown ends.",
+                "信号绑定真实门店，并非每天重新生成。被捕捉后只是进入休眠，冷却结束后自动重新开放。",
+              )}
+            </p>
+          </Panel>
         </div>
       </Section>
 
