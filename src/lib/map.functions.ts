@@ -98,7 +98,11 @@ export const getMapPoints = createServerFn({ method: "GET" }).handler(async () =
     places: { name: string; city: string; lat: number; lng: number };
   };
 
-  return ((data ?? []) as unknown as Row[]).map((r) => ({
+  const rows = (await allOpenSpawns(
+    "id, symbol, amount, rarity, respawn_at, places!inner(name, city, lat, lng)",
+  )) as unknown as Row[];
+
+  return rows.map((r) => ({
     id: r.id,
     symbol: r.symbol,
     amount: Number(r.amount),
