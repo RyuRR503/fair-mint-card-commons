@@ -1,3 +1,4 @@
+import { BRAND_PATH } from "@/lib/brandMarks";
 import { TOKEN_BY_SYMBOL } from "@/lib/tokens";
 import { cn } from "@/lib/utils";
 
@@ -10,9 +11,21 @@ type Props = {
   delay?: number;
 };
 
+/** Brands whose real mark is near-black; drawn light on the dark chip. */
+const MARK_COLOR: Record<string, string> = {
+  NKEON: "#F5F5F5",
+  AAPLON: "#F5F5F5",
+};
+
+/** Brands with no clean vector mark available: use their wordmark instead. */
+const WORDMARK: Record<string, string> = {
+  NIOON: "NIO",
+  COSTON: "COSTCO",
+};
+
 /**
  * An instrument-panel token key: dark frosted square, a saturated colour bar
- * along the top in the company's hue, ticker set in mono.
+ * along the top in the company's hue, and the company's real brand mark.
  */
 export function TokenChip({
   symbol,
@@ -25,6 +38,10 @@ export function TokenChip({
   const token = TOKEN_BY_SYMBOL[symbol];
   const hue = token?.color ?? "#00FF9D";
   const glyph = token?.glyph || symbol.slice(0, 2);
+  const path = BRAND_PATH[symbol];
+  const word = WORDMARK[symbol];
+  const markColor = MARK_COLOR[symbol] ?? hue;
+
 
   return (
     <span
@@ -51,15 +68,39 @@ export function TokenChip({
           boxShadow: `0 0 ${size * 0.3}px ${hue}`,
         }}
       />
-      <span
-        className="relative mt-[6%] font-mono font-semibold leading-none text-foreground"
-        style={{
-          fontSize: size * (glyph.length > 1 ? 0.28 : 0.38),
-          letterSpacing: "0.02em",
-        }}
-      >
-        {glyph}
-      </span>
+      {path ? (
+        <svg
+          viewBox="0 0 24 24"
+          role="img"
+          aria-hidden="true"
+          className="relative mt-[6%]"
+          style={{ width: size * 0.5, height: size * 0.5, fill: markColor }}
+        >
+          <path d={path} />
+        </svg>
+      ) : word ? (
+        <span
+          className="relative mt-[6%] font-semibold leading-none"
+          style={{
+            color: markColor,
+            fontSize: size * (0.62 / word.length),
+            letterSpacing: "0.04em",
+          }}
+        >
+          {word}
+        </span>
+      ) : (
+        <span
+          className="relative mt-[6%] font-mono font-semibold leading-none text-foreground"
+          style={{
+            fontSize: size * (glyph.length > 1 ? 0.28 : 0.38),
+            letterSpacing: "0.02em",
+          }}
+        >
+          {glyph}
+        </span>
+      )}
+
     </span>
   );
 }
