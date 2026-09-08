@@ -7,6 +7,8 @@ export type StockToken = {
   nameZh: string;
   /** OpenStreetMap brand:wikidata ids used to find the real stores. */
   wikidata: string[];
+  /** Fallback OSM name/brand regex when the brand has no clean wikidata tag. */
+  brands: string[];
   /** BEP-20 address on BNB Smart Chain (chainId 56). Filled once deployed. */
   address: string;
   decimals: number;
@@ -21,6 +23,8 @@ export type StockToken = {
   glyph: string;
   /** Foreground of the glyph: light or dark. */
   ink: "light" | "dark";
+  /** Legendary drops have no permanent store pins — timed events only. */
+  eventOnly?: boolean;
 };
 
 export const CHAIN = {
@@ -36,17 +40,28 @@ export const CHAIN = {
 /** Vault holding the fragments. Set once the contract is deployed. */
 export const VAULT_ADDRESS = "0x0000000000000000000000000000000000000000";
 
+const PLACEHOLDER = "0x0000000000000000000000000000000000000000";
+
+/** Minutes a drop stays on cooldown after someone catches it, by rarity. */
+export const COOLDOWN_MIN: Record<Rarity, number> = {
+  common: 20,
+  rare: 45,
+  epic: 90,
+  legendary: 120,
+};
+
 /**
- * Every token maps to a real, physically visitable retail brand.
- * Store coordinates come from OpenStreetMap, matched on `brand:wikidata`.
+ * Nine tokenised stocks, picked so every one of them maps to a place you can
+ * physically walk to in China. Contract addresses are filled in once verified.
  */
 export const TOKENS: StockToken[] = [
   {
-    symbol: "SBUX",
+    symbol: "SBUXON",
     name: "Starbucks",
     nameZh: "星巴克",
     wikidata: ["Q37158"],
-    address: "0x0000000000000000000000000000000000000000",
+    brands: ["星巴克", "Starbucks"],
+    address: PLACEHOLDER,
     decimals: 18,
     fragment: 0.02,
     rarity: "common",
@@ -56,11 +71,12 @@ export const TOKENS: StockToken[] = [
     ink: "light",
   },
   {
-    symbol: "MCD",
+    symbol: "MCDON",
     name: "McDonald's",
     nameZh: "麦当劳",
     wikidata: ["Q38076"],
-    address: "0x0000000000000000000000000000000000000000",
+    brands: ["麦当劳", "McDonald"],
+    address: PLACEHOLDER,
     decimals: 18,
     fragment: 0.02,
     rarity: "common",
@@ -70,39 +86,27 @@ export const TOKENS: StockToken[] = [
     ink: "dark",
   },
   {
-    symbol: "YUMC",
-    name: "Yum China (KFC / Pizza Hut)",
-    nameZh: "百胜中国（肯德基 / 必胜客）",
-    wikidata: ["Q524757", "Q191615"],
-    address: "0x0000000000000000000000000000000000000000",
+    symbol: "BABAON",
+    name: "Alibaba (Hema / Cainiao)",
+    nameZh: "阿里巴巴（盒马 / 菜鸟驿站）",
+    wikidata: ["Q1359568"],
+    brands: ["盒马", "Hema", "菜鸟", "Cainiao", "天猫"],
+    address: PLACEHOLDER,
     decimals: 18,
-    fragment: 0.05,
+    fragment: 0.03,
     rarity: "common",
-    color: "#E4002B",
-    color2: "#9E0020",
-    glyph: "K",
+    color: "#FF6A00",
+    color2: "#C64300",
+    glyph: "A",
     ink: "light",
   },
   {
-    symbol: "LKNCY",
-    name: "Luckin Coffee",
-    nameZh: "瑞幸咖啡",
-    wikidata: ["Q56222066"],
-    address: "0x0000000000000000000000000000000000000000",
-    decimals: 18,
-    fragment: 0.08,
-    rarity: "common",
-    color: "#0A2D82",
-    color2: "#04174A",
-    glyph: "L",
-    ink: "light",
-  },
-  {
-    symbol: "NKE",
+    symbol: "NKEON",
     name: "Nike",
     nameZh: "耐克",
     wikidata: ["Q483915"],
-    address: "0x0000000000000000000000000000000000000000",
+    brands: ["耐克", "Nike"],
+    address: PLACEHOLDER,
     decimals: 18,
     fragment: 0.01,
     rarity: "rare",
@@ -112,39 +116,42 @@ export const TOKENS: StockToken[] = [
     ink: "dark",
   },
   {
-    symbol: "WMT",
-    name: "Walmart / Sam's Club",
-    nameZh: "沃尔玛 / 山姆会员店",
-    wikidata: ["Q483551", "Q1972120"],
-    address: "0x0000000000000000000000000000000000000000",
+    symbol: "NIOON",
+    name: "NIO",
+    nameZh: "蔚来",
+    wikidata: ["Q24905510"],
+    brands: ["蔚来", "NIO"],
+    address: PLACEHOLDER,
     decimals: 18,
-    fragment: 0.008,
+    fragment: 0.012,
     rarity: "rare",
-    color: "#0071CE",
-    color2: "#004F91",
-    glyph: "W",
-    ink: "light",
+    color: "#00BEBE",
+    color2: "#04797B",
+    glyph: "N",
+    ink: "dark",
   },
   {
-    symbol: "AAPL",
+    symbol: "AAPLON",
     name: "Apple",
     nameZh: "苹果",
     wikidata: ["Q421253"],
-    address: "0x0000000000000000000000000000000000000000",
+    brands: ["Apple Store", "苹果"],
+    address: PLACEHOLDER,
     decimals: 18,
     fragment: 0.004,
     rarity: "epic",
     color: "#4B4B4F",
     color2: "#131315",
-    glyph: "",
+    glyph: "A",
     ink: "light",
   },
   {
-    symbol: "TSLA",
+    symbol: "TSLAON",
     name: "Tesla",
     nameZh: "特斯拉",
     wikidata: ["Q478214"],
-    address: "0x0000000000000000000000000000000000000000",
+    brands: ["特斯拉", "Tesla"],
+    address: PLACEHOLDER,
     decimals: 18,
     fragment: 0.005,
     rarity: "epic",
@@ -154,18 +161,35 @@ export const TOKENS: StockToken[] = [
     ink: "light",
   },
   {
-    symbol: "COST",
+    symbol: "COSTON",
     name: "Costco",
     nameZh: "开市客",
     wikidata: ["Q715583"],
-    address: "0x0000000000000000000000000000000000000000",
+    brands: ["开市客", "Costco"],
+    address: PLACEHOLDER,
     decimals: 18,
     fragment: 0.002,
-    rarity: "legendary",
+    rarity: "epic",
     color: "#E31837",
     color2: "#005DAA",
     glyph: "C",
     ink: "light",
+  },
+  {
+    symbol: "BILION",
+    name: "Bilibili",
+    nameZh: "哔哩哔哩",
+    wikidata: [],
+    brands: [],
+    address: PLACEHOLDER,
+    decimals: 18,
+    fragment: 0.05,
+    rarity: "legendary",
+    color: "#FB7299",
+    color2: "#B23A62",
+    glyph: "B",
+    ink: "dark",
+    eventOnly: true,
   },
 ];
 
@@ -174,10 +198,12 @@ export const SYMBOL_BY_WIKIDATA: Record<string, string> = Object.fromEntries(
   TOKENS.flatMap((t) => t.wikidata.map((w) => [w, t.symbol])),
 );
 
-
 export const TOKEN_BY_SYMBOL: Record<string, StockToken> = Object.fromEntries(
   TOKENS.map((t) => [t.symbol, t]),
 );
+
+/** Tokens that get permanent pins on the map. */
+export const MAP_TOKENS = TOKENS.filter((t) => !t.eventOnly);
 
 export const RARITY_LABEL: Record<Rarity, string> = {
   common: "Common",

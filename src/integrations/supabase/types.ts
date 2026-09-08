@@ -194,40 +194,49 @@ export type Database = {
       spawns: {
         Row: {
           amount: number
+          catches_count: number
           claimed_at: string | null
           claimed_by: string | null
+          cooldown_min: number
           created_at: string
-          day: string
-          expires_at: string
+          day: string | null
+          expires_at: string | null
           id: string
           place_id: string
           rarity: string
+          respawn_at: string | null
           symbol: string
           tx_hash: string | null
         }
         Insert: {
           amount: number
+          catches_count?: number
           claimed_at?: string | null
           claimed_by?: string | null
+          cooldown_min?: number
           created_at?: string
-          day: string
-          expires_at: string
+          day?: string | null
+          expires_at?: string | null
           id: string
           place_id: string
           rarity?: string
+          respawn_at?: string | null
           symbol: string
           tx_hash?: string | null
         }
         Update: {
           amount?: number
+          catches_count?: number
           claimed_at?: string | null
           claimed_by?: string | null
+          cooldown_min?: number
           created_at?: string
-          day?: string
-          expires_at?: string
+          day?: string | null
+          expires_at?: string | null
           id?: string
           place_id?: string
           rarity?: string
+          respawn_at?: string | null
           symbol?: string
           tx_hash?: string | null
         }

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { importCityPlaces, rollDailySpawns } from "@/lib/sync.functions";
+import { importCityPlaces, seedSpawns } from "@/lib/sync.functions";
 import { CN_CITIES } from "@/lib/cities";
 
 /**
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/api/public/sync")({
           }
         }
         let rolled: unknown = null;
-        if (roll) rolled = await rollDailySpawns({ data: { token } });
+        if (roll) rolled = await seedSpawns({ data: { token, city: cityParam ?? "all" } });
 
         return Response.json({ ok: true, results, rolled });
       },

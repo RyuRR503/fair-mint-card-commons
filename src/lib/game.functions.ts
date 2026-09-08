@@ -10,6 +10,8 @@ type SpawnRow = {
   amount: number;
   rarity: string;
   claimed_by: string | null;
+  respawn_at: string | null;
+  cooldown_min: number | null;
   places: { name: string; city: string; country: string; lat: number; lng: number };
 };
 
@@ -30,18 +32,17 @@ function toSpawn(row: SpawnRow): Spawn {
   };
 }
 
-const SPAWN_SELECT = "id, symbol, amount, rarity, claimed_by, places!inner(name, city, country, lat, lng)";
+const SPAWN_SELECT =
+  "id, symbol, amount, rarity, claimed_by, respawn_at, cooldown_min, places!inner(name, city, country, lat, lng)";
 
-/** Today's open signals, straight out of the database. */
+/** Live signals: never caught, or their cooldown already ran out. */
 async function openSpawns(): Promise<Spawn[]> {
   const supabase = await admin();
-  const day = new Date().toISOString().slice(0, 10);
   const { data, error } = await supabase
     .from("spawns")
     .select(SPAWN_SELECT)
-    .eq("day", day)
-    .is("claimed_by", null)
-    .limit(3000);
+    .or(`respawn_at.is.null,respawn_at.lte.${new Date().toISOString()}`)
+    .limit(4000);
   if (error) throw new Error(error.message);
   return (data as unknown as SpawnRow[]).map(toSpawn);
 }
@@ -154,16 +155,17 @@ export const claimDrop = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => claimInput.parse(d))
   .handler(async ({ data }): Promise<Fail | Success> => {
     const wallet = data.address.toLowerCase();
-    const day = new Date().toISOString().slice(0, 10);
     const { data: row } = await (await admin())
       .from("spawns")
       .select(SPAWN_SELECT)
       .eq("id", data.spawnId)
-      .eq("day", day)
       .maybeSingle();
     if (!row) return fail("That drop does not exist any more.");
-    if ((row as unknown as SpawnRow).claimed_by)
-      return fail("Someone already caught this one today.");
+    const spawnRow = row as unknown as SpawnRow;
+    if (spawnRow.respawn_at && new Date(spawnRow.respawn_at).getTime() > Date.now()) {
+      const mins = Math.ceil((new Date(spawnRow.respawn_at).getTime() - Date.now()) / 60000);
+      return fail(`Someone just took this one. It comes back in ${mins} min.`);
+    }
     const spawn = toSpawn(row as unknown as SpawnRow);
     if (spawn.rarity === "legendary")
       return fail("Legendary drops are claimed during their event window, with the code on site.");
@@ -218,7 +220,7 @@ export const claimDrop = createServerFn({ method: "POST" })
     if (mine.length >= RULES.perWalletPerDay)
       return fail(`You have caught ${RULES.perWalletPerDay} drops today. Come back after midnight UTC.`);
     if (mine.some((c) => c.spawn_id === data.spawnId))
-      return fail("You already caught this drop today. One per drop per day.");
+      return fail("You already caught this drop in the last 24 hours. Find another one.");
     const lastMine = mine
       .map((c) => new Date(c.created_at).getTime())
       .sort((a, b) => b - a)[0];
@@ -227,19 +229,7 @@ export const claimDrop = createServerFn({ method: "POST" })
         `Cooldown: ${Math.ceil((RULES.walletCooldownMin * 60000 - (now - lastMine)) / 60000)} minutes before your next catch.`,
       );
 
-    const { data: dropDay } = await db
-      .from("catches")
-      .select("id, created_at")
-      .eq("spawn_id", data.spawnId)
-      .gte("created_at", dayAgo);
-    const drops = dropDay ?? [];
-    if (drops.length >= RULES.perDropPerDay)
-      return fail("This drop is empty for today. It refills at midnight UTC.");
-    const lastDrop = drops
-      .map((c) => new Date(c.created_at).getTime())
-      .sort((a, b) => b - a)[0];
-    if (lastDrop && now - lastDrop < RULES.dropCooldownMin * 60000)
-      return fail("Somebody just took this one. It wakes up in a few minutes.");
+    // the drop's own cooldown is authoritative and was checked above (respawn_at)
 
     // 5. travel: no teleporting, no city hopping
     const { data: fixes } = await db
@@ -299,8 +289,16 @@ export const claimDrop = createServerFn({ method: "POST" })
       mode,
     });
 
-    // one physical store, one catch per day
-    await db.from("spawns").update({ claimed_by: wallet, claimed_at: new Date().toISOString() }).eq("id", spawn.id);
+    // the drop goes on cooldown and respawns by itself
+    const cooldown = spawnRow.cooldown_min ?? RULES.dropCooldownMin;
+    await db
+      .from("spawns")
+      .update({
+        claimed_by: wallet,
+        claimed_at: new Date().toISOString(),
+        respawn_at: new Date(now + cooldown * 60000).toISOString(),
+      })
+      .eq("id", spawn.id);
 
     return {
       ok: true,

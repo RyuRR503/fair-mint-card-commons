@@ -149,19 +149,19 @@ function Home() {
               <div className="viewfinder absolute inset-8 flex items-center justify-center">
                 <div className="panel w-full rotate-3 rounded-2xl p-8 transition-transform duration-500 hover:rotate-0">
                   <div className="mb-10 flex items-start justify-between">
-                    <TokenChip symbol="NVDA" size={48} />
+                    <TokenChip symbol="SBUXON" size={48} />
                     <span className="readout text-[11px]">FRAG #8842</span>
                   </div>
                   <p className="label-caps text-[10px] text-muted-foreground">Stock fragment</p>
-                  <p className="mt-2 text-3xl font-bold">NVIDIA Corp.</p>
+                  <p className="mt-2 text-3xl font-bold">Starbucks Corp.</p>
                   <div className="mt-8 flex items-end justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">{t("Fragment", "碎片")}</p>
-                      <p className="readout mt-1 text-xl text-primary">1.000 NVDA</p>
+                      <p className="readout mt-1 text-xl text-primary">0.010 SBUXON</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-muted-foreground">{t("Location", "坐标")}</p>
-                      <p className="mt-1 text-sm">SANTA CLARA, US</p>
+                      <p className="mt-1 text-sm">{t("SHANGHAI, CN", "中国 上海")}</p>
                     </div>
                   </div>
                 </div>
@@ -207,8 +207,8 @@ function Home() {
               n: "01 / REAL",
               h: t("Real assets.", "真实资产。"),
               p: t(
-                `Not points and not a picture of a stock. Tokenized shares as BEP-20s on ${CHAIN.name} — AAPL, NVDA, TSLA — sitting in your own wallet.`,
-                `不是积分，也不是股票截图。而是 ${CHAIN.name} 上的 BEP-20 代币化股票——AAPL、NVDA、TSLA——直接放在你自己的钱包里。`,
+                `Not points and not a picture of a stock. Tokenized shares as BEP-20s on ${CHAIN.name} — BABAON, AAPLON, TSLAON — sitting in your own wallet.`,
+                `不是积分，也不是股票截图。而是 ${CHAIN.name} 上的 BEP-20 代币化股票——BABAON、AAPLON、TSLAON——直接放在你自己的钱包里。`,
               ),
             },
             {
@@ -326,8 +326,8 @@ function Home() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-muted-foreground">
-                    {tk.symbol === "NVDA"
-                      ? t("Nvidia HQ, once a month", "英伟达总部，每月一次")
+                    {tk.rarity === "legendary"
+                      ? t("Event spot, once a day", "活动地点，每天一次")
                       : t(`Any ${tk.name} door`, `任意 ${tk.name} 门店`)}
                   </td>
                   <td className="px-6 py-4">
@@ -348,8 +348,8 @@ function Home() {
         </Panel>
         <p className="mt-4 text-sm text-muted-foreground">
           {t(
-            `${TOTAL_SPAWNS} signals across ${TOTAL_CITIES} cities, refilled every day at 00:00 UTC. A signal only appears if the vault can pay it — `,
-            `${TOTAL_CITIES} 座城市共 ${TOTAL_SPAWNS} 个信号，每天 UTC 00:00 刷新。只有金库付得起，信号才会出现——`,
+            `${TOTAL_SPAWNS} permanent drops across ${TOTAL_CITIES} cities. Catch one and it goes on cooldown, then respawns by itself — the map is never empty. A signal only appears if the vault can pay it — `,
+            `${TOTAL_CITIES} 座城市共 ${TOTAL_SPAWNS} 个固定掉落点。被捡走后进入冷却，时间一到自动复活，地图永远不会空。只有金库付得起，信号才会出现——`,
           )}
           <Link to="/proof" className="text-primary underline underline-offset-4">
             {t("count the vault yourself", "自己去数金库")}
@@ -367,8 +367,8 @@ function Home() {
           <div className="max-w-xl">
             <p className="text-base leading-relaxed text-muted-foreground">
               {t(
-                "Once a month a whole NVDA share sits at one spot for one hour, announced 24 hours ahead with a live countdown. Be there, be within 25 metres, and read the code physically posted at the spot. No code, no prize — which is exactly what makes spoofing useless.",
-                "每月一次，一整股 NVDA 会在某个地点停留一小时，提前 24 小时公布并附实时倒计时。到场、进入 25 米范围，并读取现场张贴的验证码。没有码就没有奖——这正是伪造定位毫无意义的原因。",
+                "Every day a whole BILION share sits at one spot for one hour, announced 24 hours ahead with a live countdown. Be there, be within 25 metres, and read the code physically posted at the spot. No code, no prize — which is exactly what makes spoofing useless.",
+                "每天一次，一整股 BILION 会在某个地点停留一小时，提前 24 小时公布并附实时倒计时。到场、进入 25 米范围，并读取现场张贴的验证码。没有码就没有奖——这正是伪造定位毫无意义的原因。",
               )}
             </p>
             <Link
@@ -378,7 +378,7 @@ function Home() {
               {t("See the countdown", "查看倒计时")}
             </Link>
           </div>
-          <TokenChip symbol="NVDA" size={140} float />
+          <TokenChip symbol="BILION" size={140} float />
         </Panel>
       </Section>
 

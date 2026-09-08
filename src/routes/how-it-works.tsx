@@ -114,15 +114,15 @@ function HowItWorks() {
     [
       t("Cooldowns", "冷却时间"),
       t(
-        `${RULES.walletCooldownMin} minutes between two catches by the same wallet, ${RULES.dropCooldownMin} minutes before the same signal wakes up for anyone.`,
-        `同一钱包两次捕捉间隔 ${RULES.walletCooldownMin} 分钟；同一个信号 ${RULES.dropCooldownMin} 分钟后才会对任何人重新激活。`,
+        `${RULES.walletCooldownMin} minutes between two catches by the same wallet. Each signal sleeps 20–120 minutes after it is caught, depending on rarity, then wakes up by itself.`,
+        `同一钱包两次捕捉间隔 ${RULES.walletCooldownMin} 分钟。每个信号被捡走后按稀有度休眠 20–120 分钟，时间一到自动复活。`,
       ),
     ],
     [
       t("Caps", "上限"),
       t(
-        `${RULES.perWalletPerDay} catches per wallet per day, ${RULES.perDropPerDay} per signal per day, one catch per signal per wallet.`,
-        `每个钱包每天 ${RULES.perWalletPerDay} 次，每个信号每天 ${RULES.perDropPerDay} 次，同一钱包对同一信号只能捕捉一次。`,
+        `${RULES.perWalletPerDay} catches per wallet per day, and the same wallet cannot take the same signal twice within 24 hours.`,
+        `每个钱包每天 ${RULES.perWalletPerDay} 次，且同一钱包 24 小时内不能重复捕捉同一个信号。`,
       ),
     ],
     [
