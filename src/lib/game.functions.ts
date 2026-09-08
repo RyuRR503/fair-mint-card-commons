@@ -220,7 +220,7 @@ export const claimDrop = createServerFn({ method: "POST" })
     if (mine.length >= RULES.perWalletPerDay)
       return fail(`You have caught ${RULES.perWalletPerDay} drops today. Come back after midnight UTC.`);
     if (mine.some((c) => c.spawn_id === data.spawnId))
-      return fail("You already caught this drop today. One per drop per day.");
+      return fail("You already caught this drop in the last 24 hours. Find another one.");
     const lastMine = mine
       .map((c) => new Date(c.created_at).getTime())
       .sort((a, b) => b - a)[0];
@@ -229,19 +229,7 @@ export const claimDrop = createServerFn({ method: "POST" })
         `Cooldown: ${Math.ceil((RULES.walletCooldownMin * 60000 - (now - lastMine)) / 60000)} minutes before your next catch.`,
       );
 
-    const { data: dropDay } = await db
-      .from("catches")
-      .select("id, created_at")
-      .eq("spawn_id", data.spawnId)
-      .gte("created_at", dayAgo);
-    const drops = dropDay ?? [];
-    if (drops.length >= RULES.perDropPerDay)
-      return fail("This drop is empty for today. It refills at midnight UTC.");
-    const lastDrop = drops
-      .map((c) => new Date(c.created_at).getTime())
-      .sort((a, b) => b - a)[0];
-    if (lastDrop && now - lastDrop < RULES.dropCooldownMin * 60000)
-      return fail("Somebody just took this one. It wakes up in a few minutes.");
+    // the drop's own cooldown is authoritative and was checked above (respawn_at)
 
     // 5. travel: no teleporting, no city hopping
     const { data: fixes } = await db
