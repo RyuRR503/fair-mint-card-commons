@@ -125,6 +125,42 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         </Panel>
       </Section>
 
+      <Section title={tr("Cooldowns", "冷却规则")}>
+        <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
+          <table className="w-full min-w-[420px] text-left text-sm">
+            <thead>
+              <tr className="label-caps border-b border-border text-[10px] text-muted-foreground">
+                <th className="px-6 py-4">{tr("Rarity", "稀有度")}</th>
+                <th className="px-6 py-4">{tr("Tokens", "代币")}</th>
+                <th className="px-6 py-4">{tr("Point cooldown", "点位冷却")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(["common", "rare", "epic", "legendary"] as Rarity[]).map((r) => {
+                const tokens = TOKENS.filter((t) => t.rarity === r && !t.eventOnly);
+                const eventOnly = TOKENS.find((t) => t.rarity === r && t.eventOnly);
+                return (
+                  <tr key={r} className="border-b border-border/60 last:border-0">
+                    <td className="px-6 py-3 font-medium">{RARITY_LABEL[r]}</td>
+                    <td className="px-6 py-3 text-muted-foreground">
+                      {tokens.map((t) => t.symbol).join(", ")}
+                      {eventOnly && <span className="ml-1 text-[11px]">({eventOnly.symbol} event only)</span>}
+                    </td>
+                    <td className="px-6 py-3 font-mono text-xs">{COOLDOWN_MIN[r]} min</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </Panel>
+        <p className="mt-4 text-sm text-muted-foreground">
+          {tr(
+            `Wallet caps: ${RULES.perWalletPerDay} catches per day, ${RULES.walletCooldownMin} minutes between catches, and the same signal cannot be caught twice within 24 hours.`,
+            `钱包限制：每天 ${RULES.perWalletPerDay} 次，两次捕捉间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复捕捉。`,
+          )}
+        </p>
+      </Section>
+
       <Section title={tr("Token list", "代币列表")}>
         <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
           <table className="w-full min-w-[560px] text-left text-sm">
