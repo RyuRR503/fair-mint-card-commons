@@ -13,7 +13,7 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    // pre-bundle maplibre so dev serves one chunk instead of hundreds of raw modules
-    optimizeDeps: { include: ["maplibre-gl"] },
+    // maplibre ships its own web worker; pre-bundling it breaks the worker URL in dev
+    optimizeDeps: { exclude: ["maplibre-gl"] },
   },
 });
