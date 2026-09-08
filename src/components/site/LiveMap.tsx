@@ -3,12 +3,8 @@ import { ClientOnly } from "@tanstack/react-router";
 import type { MapPin } from "./WorldMap";
 import type { MapPoint } from "./GeoMap.client";
 
-const load = () => import("./GeoMap.client");
-const GeoMap = lazy(load);
+const GeoMap = lazy(() => import("./GeoMap.client"));
 
-// start pulling the map engine down as soon as this module is evaluated in the
-// browser, instead of waiting for hydration to mount the lazy boundary
-if (typeof window !== "undefined") void load();
 
 type Props = {
   pins: MapPin[];
