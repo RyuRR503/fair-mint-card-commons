@@ -68,15 +68,39 @@ export function TokenChip({
           boxShadow: `0 0 ${size * 0.3}px ${hue}`,
         }}
       />
-      <span
-        className="relative mt-[6%] font-mono font-semibold leading-none text-foreground"
-        style={{
-          fontSize: size * (glyph.length > 1 ? 0.28 : 0.38),
-          letterSpacing: "0.02em",
-        }}
-      >
-        {glyph}
-      </span>
+      {path ? (
+        <svg
+          viewBox="0 0 24 24"
+          role="img"
+          aria-hidden="true"
+          className="relative mt-[6%]"
+          style={{ width: size * 0.5, height: size * 0.5, fill: markColor }}
+        >
+          <path d={path} />
+        </svg>
+      ) : word ? (
+        <span
+          className="relative mt-[6%] font-semibold leading-none"
+          style={{
+            color: markColor,
+            fontSize: size * (0.62 / word.length),
+            letterSpacing: "0.04em",
+          }}
+        >
+          {word}
+        </span>
+      ) : (
+        <span
+          className="relative mt-[6%] font-mono font-semibold leading-none text-foreground"
+          style={{
+            fontSize: size * (glyph.length > 1 ? 0.28 : 0.38),
+            letterSpacing: "0.02em",
+          }}
+        >
+          {glyph}
+        </span>
+      )}
+
     </span>
   );
 }
