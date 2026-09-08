@@ -105,6 +105,11 @@ export default function GeoMap({
       center: center ?? [113.5, 32.5],
       zoom: zoom ?? 3.4,
       attributionControl: { compact: true },
+      // first paint matters more than polish: skip tile cross-fades, cap the
+      // zoom range so fewer tile levels are fetched, and never refetch expiry
+      maxZoom: 16,
+      fadeDuration: 0,
+      refreshExpiredTiles: false,
     });
     m.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
     m.addControl(new maplibregl.ScaleControl({ unit: "metric" }), "bottom-left");
