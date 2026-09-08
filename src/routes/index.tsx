@@ -348,8 +348,8 @@ function Home() {
         </Panel>
         <p className="mt-4 text-sm text-muted-foreground">
           {t(
-            `${TOTAL_SPAWNS} signals across ${TOTAL_CITIES} cities, refilled every day at 00:00 UTC. A signal only appears if the vault can pay it — `,
-            `${TOTAL_CITIES} 座城市共 ${TOTAL_SPAWNS} 个信号，每天 UTC 00:00 刷新。只有金库付得起，信号才会出现——`,
+            `${TOTAL_SPAWNS} permanent drops across ${TOTAL_CITIES} cities. Catch one and it goes on cooldown, then respawns by itself — the map is never empty. A signal only appears if the vault can pay it — `,
+            `${TOTAL_CITIES} 座城市共 ${TOTAL_SPAWNS} 个固定掉落点。被捡走后进入冷却，时间一到自动复活，地图永远不会空。只有金库付得起，信号才会出现——`,
           )}
           <Link to="/proof" className="text-primary underline underline-offset-4">
             {t("count the vault yourself", "自己去数金库")}

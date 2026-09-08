@@ -7,6 +7,9 @@ const RANK: Record<Rarity, number> = { common: 0, rare: 1, epic: 2, legendary: 3
 
 const today = () => new Date().toISOString().slice(0, 10);
 
+/** A drop is live when it has never been caught or its cooldown has expired. */
+export const OPEN_FILTER = () => `respawn_at.is.null,respawn_at.lte.${new Date().toISOString()}`;
+
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
@@ -24,9 +27,8 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
   const { data, error } = await supabaseAdmin
     .from("spawns")
     .select("symbol, rarity, places!inner(city)")
-    .eq("day", day)
-    .is("claimed_by", null)
-    .limit(3000);
+    .or(OPEN_FILTER())
+    .limit(4000);
   if (error) throw new Error(error.message);
 
   type Row = { symbol: string; rarity: string | null; places: { city: string } };
@@ -74,14 +76,12 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
 /** Every individual signal, fetched by the browser once the map is on screen. */
 export const getMapPoints = createServerFn({ method: "GET" }).handler(async () => {
   const supabaseAdmin = await admin();
-  const day = today();
 
   const { data, error } = await supabaseAdmin
     .from("spawns")
-    .select("id, symbol, amount, rarity, expires_at, places!inner(name, city, lat, lng)")
-    .eq("day", day)
-    .is("claimed_by", null)
-    .limit(3000);
+    .select("id, symbol, amount, rarity, respawn_at, places!inner(name, city, lat, lng)")
+    .or(OPEN_FILTER())
+    .limit(4000);
   if (error) throw new Error(error.message);
 
   type Row = {
@@ -89,7 +89,6 @@ export const getMapPoints = createServerFn({ method: "GET" }).handler(async () =
     symbol: string;
     amount: number | string;
     rarity: string | null;
-    expires_at: string;
     places: { name: string; city: string; lat: number; lng: number };
   };
 
@@ -100,7 +99,7 @@ export const getMapPoints = createServerFn({ method: "GET" }).handler(async () =
     rarity: (r.rarity ?? "common") as Rarity,
     place: r.places.name,
     cityKey: r.places.city,
-    expiresAt: r.expires_at,
+    expiresAt: null as string | null,
     lat: r.places.lat,
     lng: r.places.lng,
   }));
