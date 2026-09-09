@@ -30,6 +30,8 @@ type VaultRow = {
   symbol: string;
   balance: number;
   drops: number;
+  targetDrops: number;
+  needsRefill: boolean;
   onChain: boolean;
 };
 type Claim = {
@@ -145,7 +147,13 @@ function Proof() {
         </p>
       </Section>
 
-      <Section title={t("What the vault holds right now", "金库当前持仓")}>
+      <Section
+        title={t("What the vault holds right now", "金库当前持仓")}
+        lead={t(
+          "Each token has one drop size that applies at every pin, and a stock target of payable drops. When a token falls under its target, refilling it becomes profitable and anyone can do it.",
+          "每只股票在所有点位上的单次领取数量是统一的，并各自设定了一个「可支付次数」的库存目标。低于目标时补货变得有利可图，任何人都可以来补。",
+        )}
+      >
         <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
           <table className="w-full min-w-[520px] text-left text-sm">
             <thead>
@@ -153,6 +161,8 @@ function Proof() {
                 <th className="px-6 py-4">{t("Token", "代币")}</th>
                 <th className="px-6 py-4">{t("Balance", "余额")}</th>
                 <th className="px-6 py-4">{t("Signals it covers", "可支撑信号数")}</th>
+                <th className="px-6 py-4">{t("Target", "目标库存")}</th>
+                <th className="px-6 py-4">{t("Status", "状态")}</th>
               </tr>
             </thead>
             <tbody>
@@ -166,11 +176,17 @@ function Proof() {
                   </td>
                   <td className="px-6 py-4 font-mono text-xs">{r.balance.toFixed(4)}{r.onChain ? "" : " *"}</td>
                   <td className="px-6 py-4 font-mono text-xs">{r.drops}</td>
+                  <td className="px-6 py-4 font-mono text-xs">{r.targetDrops}</td>
+                  <td className="px-6 py-4 text-xs">
+                    {r.needsRefill
+                      ? t("Refill open", "待补货")
+                      : t("Stocked", "库存充足")}
+                  </td>
                 </tr>
               ))}
               {!rows && (
                 <tr>
-                  <td colSpan={3} className="px-6 py-8 text-center text-sm text-muted-foreground">
+                  <td colSpan={5} className="px-6 py-8 text-center text-sm text-muted-foreground">
                     {t("Reading the chain…", "正在读取链上数据…")}
                   </td>
                 </tr>
