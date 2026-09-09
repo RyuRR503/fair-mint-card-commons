@@ -254,6 +254,14 @@
   font-weight: 600;
 }
 
+/* Chinese never survives uppercase + wide tracking: relax it automatically. */
+html[lang^="zh"] .label-caps {
+  text-transform: none;
+  letter-spacing: 0.06em;
+  font-family: inherit;
+}
+
+
 @utility readout {
   font-family: var(--font-mono);
   font-size: 0.75rem;
