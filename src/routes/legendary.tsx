@@ -14,12 +14,12 @@ export const Route = createFileRoute("/legendary")({
       {
         name: "description",
         content:
-          "Every day a full SPCXON share sits at one spot for one hour. Announced 24 hours ahead. Be within 25 metres and find the code.",
+          "Every day a full SPCXON share sits at one spot for 120 minutes. Announced 24 hours ahead. Be within 25 metres and find the code.",
       },
       { property: "og:title", content: "CATCH legendary drop" },
       {
         property: "og:description",
-        content: "One whole share. One hour. One winner. Bring shoes.",
+        content: "One whole share. One place. One winner. Every day. Bring shoes.",
       },
     ],
   }),
@@ -80,10 +80,11 @@ function Legendary() {
     <>
       <Section
         eyebrow={t("the legendary", "传奇掉落")}
-        title={t("One whole share. One hour. One winner.", "一整股。一小时。一个赢家。")}
+        title={t("One whole share. One place. One winner.", "一整股。一个地点。一个赢家。")}
         lead={t(
-          "Fragments are the everyday loot. Once a month, a full share sits at exactly one spot on earth for sixty minutes.",
-          "碎片是日常掉落。每天一次，一整股会在某个确切地点停留六十分钟。",
+          "Fragments are the everyday loot. Every single day, one full SPCXON share sits at exactly one spot for 120 minutes.",
+          "碎片是日常掉落。而每一天，都有一整股 SPCXON 停在某个确切地点，开放 120 分钟。",
+
         )}
         className="mt-10"
       />

@@ -14,18 +14,21 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CATCH — hunt tokenized stock fragments on BNB Chain" },
+      { title: "CATCH — catch the fun, catch real-world stock fragments" },
       {
         name: "description",
         content:
-          "CATCH turns the map into a market. Walk to a real coordinate, catch the signal, and a tokenized stock fragment settles into your wallet on BNB Smart Chain.",
+          "CATCH turns the city into a market. Walk to a real place, catch the signal, and a tokenized US stock fragment settles into your wallet on BNB Smart Chain.",
       },
-      { property: "og:title", content: "CATCH — the map is the market" },
+      { property: "og:title", content: "CATCH — catch the fun, catch the market" },
       {
         property: "og:description",
         content:
-          "Tokenized stock fragments appear at real coordinates worldwide. Get in range, catch, and the fragment is transferred out of a public vault on BNB Smart Chain.",
+          "Tokenized US stock fragments sit at real places across 30 cities. Get in range, catch, and the fragment is transferred out of a public vault on BNB Smart Chain.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+
     ],
   }),
   loader: () => getMapSummary(),
@@ -91,8 +94,9 @@ function Home() {
               </div>
             </div>
             <span className="glass-panel hidden rounded-full px-4 py-2 text-xs text-muted-foreground md:block">
-              {t("Next legendary drop", "下一次传奇掉落")}
-              <span className="readout ml-2 text-primary">02:14:55</span>
+              {t("Legendary drop", "传奇掉落")}
+              <span className="readout ml-2 text-primary">{t("DAILY · 24H NOTICE", "每天一次 · 提前 24 小时公布")}</span>
+
             </span>
           </div>
 
@@ -100,7 +104,10 @@ function Home() {
             <div>
               <div className="flex items-center gap-4">
                 <span className="h-0.5 w-12 bg-primary" />
-                <span className="label-caps text-xs text-primary">Reality treasure hunt</span>
+                <span className="label-caps text-xs text-primary">
+                  {t("Catch the fun · real-world stock fragments", "抓住乐趣 · 真实世界的美股碎片")}
+                </span>
+
               </div>
 
               <h1 className="mt-5 text-[2.75rem] leading-[1.2] sm:text-[3.75rem]">
@@ -149,15 +156,15 @@ function Home() {
               <div className="viewfinder absolute inset-8 flex items-center justify-center">
                 <div className="panel w-full rotate-3 rounded-2xl p-8 transition-transform duration-500 hover:rotate-0">
                   <div className="mb-10 flex items-start justify-between">
-                    <TokenChip symbol="FXION" size={48} />
+                    <TokenChip symbol="NVDAON" size={48} />
                     <span className="readout text-[11px]">FRAG #8842</span>
                   </div>
                   <p className="label-caps text-[10px] text-muted-foreground">Stock fragment</p>
-                  <p className="mt-2 text-3xl font-bold">Starbucks Corp.</p>
+                  <p className="mt-2 text-3xl font-bold">NVIDIA Corp.</p>
                   <div className="mt-8 flex items-end justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">{t("Fragment", "碎片")}</p>
-                      <p className="readout mt-1 text-xl text-primary">0.020 FXION</p>
+                      <p className="readout mt-1 text-xl text-primary">0.013 NVDAON</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-muted-foreground">{t("Location", "坐标")}</p>
@@ -215,8 +222,9 @@ function Home() {
               n: "02 / PLACE",
               h: t("Real coordinates.", "真实坐标。"),
               p: t(
-                "Signals appear in front of the actual stores and offices of the companies behind them. An Apple Store drops Apple. A GameStop drops GameStop.",
-                "信号出现在这些公司真实的门店和办公室门口。苹果店掉苹果，GameStop 掉 GameStop。",
+                "Signals sit in front of places that actually match the asset. An Apple Store drops AAPLON, an internet café drops NVDAON, a Tesla supercharger drops TSLAON.",
+                "信号停在与资产真正匹配的场所门口：Apple 直营店掉 AAPLON，网吧掉 NVDAON，特斯拉超充站掉 TSLAON。",
+
               ),
             },
             {
@@ -365,8 +373,9 @@ function Home() {
           <div className="max-w-xl">
             <p className="text-base leading-relaxed text-muted-foreground">
               {t(
-                "Every day a whole SPCXON share sits at one spot for one hour, announced 24 hours ahead with a live countdown. Be there, be within 25 metres, and read the code physically posted at the spot. No code, no prize — which is exactly what makes spoofing useless.",
-                "每天一次，一整股 SPCXON 会在某个地点停留一小时，提前 24 小时公布并附实时倒计时。到场、进入 25 米范围，并读取现场张贴的验证码。没有码就没有奖——这正是伪造定位毫无意义的原因。",
+                "Every day a whole SPCXON share sits at one spot for 120 minutes, announced 24 hours ahead with a live countdown. Be there, be within 25 metres, and read the code physically posted at the spot. No code, no prize — which is exactly what makes spoofing useless.",
+                "每天一次，一整股 SPCXON 会在某个地点停留 120 分钟，提前 24 小时公布并附实时倒计时。到场、进入 25 米范围，并读取现场张贴的验证码。没有码就没有奖——这正是伪造定位毫无意义的原因。",
+
               )}
             </p>
             <Link
@@ -396,8 +405,9 @@ function Home() {
           </div>
           <p className="mt-6 text-sm text-muted-foreground">
             {t(
-              `Every token maps to a real chain of stores you can walk into. Fragments are paid out of the vault on ${CHAIN.short}.`,
-              `每一枚代币都对应一个你能真的走进去的连锁门店。碎片从 ${CHAIN.short} 上的金库里发出。`,
+              `Every token maps to a kind of place you can actually walk into — bank branch, internet café, computer mall, phone shop, supercharger, Apple Store, science museum. Fragments are paid out of the vault on ${CHAIN.short}.`,
+              `每一枚代币都对应一类你真的能走进去的场所——银行网点、网吧、电脑城、手机店、超充站、Apple 直营店、科技馆。碎片从 ${CHAIN.short} 上的金库发出。`,
+
             )}
           </p>
         </Panel>

@@ -97,10 +97,14 @@ const CHAPTERS: {
         ],
       },
       {
-        s: "next",
-        h: ["Per-city midnight", "按城市重置"],
-        p: ["Signals should refill at your midnight, not UTC's.", "信号应该按你所在城市的午夜刷新，而不是 UTC 的午夜。"],
+        s: "live",
+        h: ["Points that respawn by themselves", "点位自动复活"],
+        p: [
+          "Signals are tied to real venues and sleep on a cooldown after a catch instead of being regenerated at some faraway midnight.",
+          "信号绑定真实场所，被抓走后按冷却休眠、时间一到自己醒来，而不是等某个遥远时区的午夜重置。",
+        ],
       },
+
       {
         s: "next",
         h: ["More languages", "更多语言"],
@@ -146,29 +150,32 @@ const CHAPTERS: {
     items: [
       {
         s: "building",
-        h: ["Fee split contract", "手续费分账合约"],
+        h: ["Trading tax into the nine districts", "交易税进入九个区"],
         p: [
-          "Immutable on-chain split: one share to the treasury that buys stock tokens for the vault, the other buys and burns $CATCH. The ratio is not adjustable by keys.",
-          "链上不可变分账：一部分进国库、用于为金库买入股票代币，另一部分回购并销毁 $CATCH。比例无法用私钥改动。",
+          "Incoming BNB pays a 10% operating fee, and the rest is split evenly across the nine district buckets. The ratio lives in the contract, not in a key.",
+          "进来的 BNB 先扣 10% 运营费，剩下的平均分进九个区的补货池。比例写在合约里，不靠私钥调。",
         ],
       },
       {
-        s: "dark",
-        h: ["Multi-chain sponsor deposits", "多链赞助入金"],
-        p: ["Built, merged and switched off. A per-spot deposit address, priced by router quote. Nothing bridges.", "已写好、已合并、暂时关闭。每个点位一个入金地址，按路由报价计价，不做跨链桥。"],
+        s: "building",
+        h: ["Refill nobody has to run", "无需许可的补货"],
+        p: [
+          "Anyone can sell the right stock token into its district at the oracle price plus a small premium and take the BNB. That is the whole restock mechanism — no bot of ours, no treasury wallet.",
+          "任何人都可以按预言机报价加一点溢价，把对应的股票代币卖进它所属的区，换走 BNB。补货机制就这一条——没有我们的机器人，也没有国库钱包。",
+        ],
       },
       {
         s: "next",
-        h: ["The shop", "商店"],
-        p: [
-          "$CATCH buys memory, identity, constraint and the world. Never a catch. Half of every purchase is burned on the way through.",
-          "$CATCH 可以买记忆、身份、约束和地图扩展，但永远买不到一次领取。每笔消费的一半直接销毁。",
-        ],
+        h: ["Sponsor dashboard", "赞助方后台"],
+        p: ["Self-serve spots, budgets, and a live visit ledger.", "自助选点、自助预算、实时到店流水。"],
       },
       {
         s: "open",
-        h: ["Gasless approvals", "免 Gas 授权"],
-        p: ["$CATCH has no permit(), so a fresh wallet with zero BNB cannot spend it yet.", "$CATCH 还没有 permit()，所以零 BNB 的新钱包暂时无法花它。"],
+        h: ["Catching with an empty wallet", "空钱包也能领"],
+        p: [
+          "The voucher can be relayed by anyone, so we want a public relayer so a wallet with zero BNB still gets paid.",
+          "凭证可以由任何人代为提交，所以我们想做一个公开的代提交服务，让零 BNB 的钱包也能拿到奖励。",
+        ],
       },
     ],
   },
@@ -178,24 +185,31 @@ const CHAPTERS: {
     items: [
       {
         s: "building",
-        h: ["The keeper", "自动补给机器人"],
+        h: ["Venues that match the asset", "场所与资产对得上"],
         p: [
-          "Hourly top-ups from the treasury through a swapper contract, simulated first, capped per run, logged publicly.",
-          "每小时从国库经兑换合约补货：先模拟、每轮限额、全程公开记录。",
+          "Bank branches, internet cafés, computer malls, phone shops, superchargers, Apple Stores, science museums — pulled from real map data, not invented.",
+          "银行网点、网吧、电脑城、手机店、超充站、Apple 直营店、科技馆——全部来自真实地图数据，不是编出来的。",
         ],
       },
       {
         s: "next",
-        h: ["Sponsor dashboard", "赞助方后台"],
-        p: ["Self-serve spots, budgets, and a live visit ledger.", "自助选点、自助预算、实时到店流水。"],
+        h: ["Public payout ledger", "公开发放流水"],
+        p: [
+          "Every catch, every voucher, every transfer, readable on chain and mirrored on the proof page.",
+          "每一次领取、每一张凭证、每一笔转账，链上可查，并同步在储备证明页。",
+        ],
       },
       {
-        s: "next",
-        h: ["Decentralising the treasury key", "国库私钥去中心化"],
-        p: ["The split is already trustless. The wallet that feeds it is not, yet.", "分账已经无需信任，给它供货的钱包还没有。"],
+        s: "open",
+        h: ["The signing key", "签名密钥"],
+        p: [
+          "The pool has no admin exit, but one key still decides who gets a voucher. Reducing that trust is the open problem.",
+          "奖池没有管理员提现出口，但依然由一把密钥决定谁能拿到凭证。如何进一步削弱这份信任，是尚未解决的问题。",
+        ],
       },
     ],
   },
+
 ];
 
 function Roadmap() {

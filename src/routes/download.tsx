@@ -5,14 +5,17 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/download")({
   head: () => ({
     meta: [
-      { title: "Get the app — Android APK and iOS web app" },
+      { title: "Get CATCH — web app today, Android and iOS next" },
       {
         name: "description",
         content:
-          "Install CATCH on Android for real motion sensors and background GPS, or add the web app to your iOS home screen.",
+          "Catch stock fragments straight from the browser today. The Android build adds real motion sensors and background GPS; iOS installs from Safari as a home-screen app.",
       },
       { property: "og:title", content: "Get CATCH" },
-      { property: "og:description", content: "Android APK now, App Store next, iOS web app today." },
+      { property: "og:description", content: "Web app today, Android APK in testing, App Store next." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+
     ],
   }),
   component: Download,
@@ -38,16 +41,17 @@ function Download() {
             <h3 className="text-lg">{t("Android", "安卓")}</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               {t(
-                "Direct APK. Allow install from unknown sources, then open it. Updates in-app.",
-                "直接安装 APK：允许未知来源安装后打开即可，之后在应用内更新。",
+                "The CATCH Android build is in testing: real motion sensors, background GPS, in-app updates. Until the APK is out, the web app has the full catch flow.",
+                "CATCH 安卓客户端正在测试：真实运动传感器、后台定位、应用内更新。APK 发布之前，网页版已经具备完整的捕捉流程。",
               )}
             </p>
-            <a
-              href="https://expo.dev/artifacts/eas/touchgrass-bsc.apk"
+            <Link
+              to="/app"
               className="label-caps mt-5 inline-block rounded-md bg-primary px-6 py-3 text-xs text-primary-foreground shadow-[var(--shadow-glossy)]"
             >
-              {t("Download APK", "下载 APK")}
-            </a>
+              {t("APK soon — open the web app", "APK 即将发布 · 先用网页版")}
+            </Link>
+
           </Panel>
           <Panel>
             <h3 className="text-lg">iOS</h3>

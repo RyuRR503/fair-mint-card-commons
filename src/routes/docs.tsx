@@ -71,24 +71,28 @@ function Docs() {
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "The vault never mints. It holds BEP-20 stock tokens and releases them against an EIP-712 voucher signed by the claim key. Nonces are burned on use, deadlines are enforced, and the owner can pause and rotate the signer.",
-              "金库永不增发。它持有 BEP-20 股票代币，仅凭领取私钥签发的 EIP-712 凭证放款。nonce 用后即废、deadline 强制生效，管理员可以暂停合约并轮换签名地址。",
+              "The vault never mints. Each of the nine districts holds one BEP-20 stock token, and stock only leaves against an EIP-712 voucher signed by the claim key. Nonces are burned on use, deadlines are enforced, and anyone may relay a voucher — the stock still goes to the address inside it. There is no admin exit from the map pool; the only map parameter an operator can touch is the signer address.",
+              "金库永不增发。九个区各持有一种 BEP-20 股票代币，只有凭领取私钥签发的 EIP-712 凭证才能取出。nonce 用后即废、deadline 强制生效，任何人都可以代为提交凭证，代币仍然只会转给凭证里写明的地址。地图奖池没有管理员提现出口，运营方唯一能改的地图参数就是签名地址。",
             )}
           </p>
           <Code>{`// EIP-712 domain
-name: "CatchVault"  version: "1"
-chainId: ${CHAIN.id}       verifyingContract: <vault>
+name: "MapCityVault"  version: "1"
+chainId: ${CHAIN.id}        verifyingContract: <vault>
 
-struct Voucher {
-  address to; address token; uint256 amount;
-  bytes32 spawnId; uint256 nonce; uint256 deadline;
-}
+GameVoucher(
+  address to, uint8 district, uint256 amount,
+  bytes32 spawnId, uint256 nonce, uint256 deadline
+)
 
-function claim(Voucher v, bytes signature) external;
-function used(uint256 nonce) external view returns (bool);
-function setSigner(address newSigner) external onlyOwner;
-function pause() / unpause() external onlyOwner;
-function sweep(address token, uint256 amount) external onlyOwner;`}</Code>
+function claimGameVoucher(
+  address to, uint8 district, uint256 amount,
+  bytes32 spawnId, uint256 nonce, uint256 deadline,
+  bytes signature
+) external;                       // anyone may relay
+function gameNonceUsed(uint256 nonce) external view returns (bool);
+function gamePool(uint8 district) external view returns (uint256);
+function setGameSigner(address signer) external;  // guardian only`}</Code>
+
         </Panel>
       </Section>
 
