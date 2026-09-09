@@ -354,7 +354,7 @@ export const claimDrop = createServerFn({ method: "POST" })
       device_id: data.deviceId,
       spawn_id: spawn.id,
       symbol: spawn.symbol,
-      amount: spawn.amount,
+      amount: payout,
       city: spawn.cityName,
       place: spawn.place,
       lat: data.lat,
