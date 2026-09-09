@@ -70,7 +70,10 @@ export function CatchMark({ className = "" }: { className?: string }) {
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const t = useT();
+  const { lang } = useLang();
   const NAV = useNav();
+  const navText = lang === "zh" ? "text-[13px]" : "text-[10px]";
+
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 px-3 py-3 backdrop-blur-xl sm:px-5">
