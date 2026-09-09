@@ -272,8 +272,59 @@ export const claimDrop = createServerFn({ method: "POST" })
 
     const mode: "demo" | "live" = liveMode() ? "live" : "demo";
     const token = TOKEN_BY_SYMBOL[spawn.symbol]!;
-    const nonce = `0x${crypto.randomUUID().replace(/-/g, "")}${Math.floor(Math.random() * 1e9).toString(16)}`;
+    const contract = vaultAddress();
+    const tokenAddress = tokenAddressFor(spawn.symbol, token.address);
+
+    // uint256 nonce, unique per voucher and burned on use by the contract
+    const nonceBytes = crypto.getRandomValues(new Uint8Array(31));
+    const nonce = BigInt(
+      "0x" + [...nonceBytes].map((b) => b.toString(16).padStart(2, "0")).join(""),
+    ).toString();
     const deadline = Math.floor(now / 1000) + RULES.voucherTtlMin * 60;
+
+    const { keccak256, toHex, parseUnits } = await import("viem");
+    const spawnIdHash = keccak256(toHex(spawn.id));
+    const amountWei = parseUnits(spawn.amount.toString(), token.decimals).toString();
+
+    const voucher = {
+      to: data.address,
+      token: tokenAddress,
+      amount: amountWei,
+      spawnId: spawnIdHash,
+      nonce,
+      deadline,
+    };
+
+    let signature: string | null = null;
+    if (mode === "live") {
+      try {
+        const { privateKeyToAccount } = await import("viem/accounts");
+        const raw = process.env["CLAIM_SIGNER_KEY"]!;
+        const account = privateKeyToAccount(
+          (raw.startsWith("0x") ? raw : `0x${raw}`) as `0x${string}`,
+        );
+        signature = await account.signTypedData({
+          domain: {
+            name: EIP712_NAME,
+            version: EIP712_VERSION,
+            chainId: CHAIN.id,
+            verifyingContract: contract as `0x${string}`,
+          },
+          types: VOUCHER_TYPES as unknown as Record<string, { name: string; type: string }[]>,
+          primaryType: "Voucher",
+          message: {
+            to: voucher.to as `0x${string}`,
+            token: voucher.token as `0x${string}`,
+            amount: BigInt(voucher.amount),
+            spawnId: voucher.spawnId,
+            nonce: BigInt(voucher.nonce),
+            deadline: BigInt(voucher.deadline),
+          },
+        });
+      } catch (e) {
+        return fail("The claim server could not sign your voucher. Nothing was spent.");
+      }
+    }
 
     await db.from("catches").insert({
       wallet,
@@ -287,6 +338,11 @@ export const claimDrop = createServerFn({ method: "POST" })
       lng: data.lng,
       accuracy: data.accuracy,
       mode,
+      nonce,
+      deadline,
+      signature,
+      token_address: tokenAddress,
+      amount_wei: amountWei,
     });
 
     // the drop goes on cooldown and respawns by itself
@@ -304,19 +360,34 @@ export const claimDrop = createServerFn({ method: "POST" })
       ok: true,
       mode,
       spawn,
-      voucher: {
-        to: data.address,
-        token: token.address,
-        amount: BigInt(Math.round(spawn.amount * 1e6)).toString() + "000000000000",
-        spawnId: spawn.id,
-        nonce,
-        deadline,
-      },
-      signature: null,
-      contract: process.env["VAULT_ADDRESS"] ?? VAULT_ADDRESS,
+      voucher,
+      signature,
+      contract,
       chainId: CHAIN.id,
     };
   });
+
+/* ------------------------------------------------- settlement bookkeeping */
+
+export const recordClaimTx = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        nonce: z.string().min(1),
+        txHash: z.string().regex(/^0x[a-fA-F0-9]{64}$/),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    const db = await admin();
+    await db
+      .from("catches")
+      .update({ tx_hash: data.txHash, settled_at: new Date().toISOString() })
+      .eq("nonce", data.nonce)
+      .is("tx_hash", null);
+    return { ok: true as const };
+  });
+
 
 /* ------------------------------------------------------------- claim feed */
 
