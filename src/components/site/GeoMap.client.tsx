@@ -24,6 +24,8 @@ type Props = {
   pins: MapPin[];
   points?: MapPoint[];
   me?: { lat: number; lng: number } | null;
+  /** Catch radius around the player, drawn as a ring on the map. */
+  meRadiusM?: number;
   onSelect?: (key: string) => void;
   selected?: string | null;
   center?: [number, number];
@@ -81,6 +83,7 @@ export default function GeoMap({
   pins,
   points = [],
   me,
+  meRadiusM,
   onSelect,
   selected,
   center,
@@ -315,17 +318,66 @@ export default function GeoMap({
     }
   }, [pins, selected, onSelect]);
 
-  // own position
+  // own position: a pulsing dot plus the catch radius drawn to scale
   useEffect(() => {
     const m = map.current;
     if (!m || !me) return;
     const el = document.createElement("div");
     el.className = "catch-me";
+    el.title = tRef.current("You are here", "你在这里");
     const mk = new maplibregl.Marker({ element: el }).setLngLat([me.lng, me.lat]).addTo(m);
+
+    const radius = meRadiusM ?? 0;
+    const SRC = "me-range";
+    const ring = () => {
+      const steps = 64;
+      const latR = radius / 111320;
+      const lngR = radius / (111320 * Math.cos((me.lat * Math.PI) / 180) || 1);
+      const coords: [number, number][] = [];
+      for (let i = 0; i <= steps; i++) {
+        const a = (i / steps) * Math.PI * 2;
+        coords.push([me.lng + lngR * Math.cos(a), me.lat + latR * Math.sin(a)]);
+      }
+      return {
+        type: "Feature" as const,
+        properties: {},
+        geometry: { type: "Polygon" as const, coordinates: [coords] },
+      };
+    };
+
+    const draw = () => {
+      if (radius <= 0) return;
+      const data = ring();
+      const existing = m.getSource(SRC) as maplibregl.GeoJSONSource | undefined;
+      if (existing) {
+        existing.setData(data);
+        return;
+      }
+      m.addSource(SRC, { type: "geojson", data });
+      m.addLayer({
+        id: "me-range-fill",
+        type: "fill",
+        source: SRC,
+        paint: { "fill-color": "#22d3a5", "fill-opacity": 0.1 },
+      });
+      m.addLayer({
+        id: "me-range-line",
+        type: "line",
+        source: SRC,
+        paint: { "line-color": "#22d3a5", "line-width": 1.5, "line-opacity": 0.6 },
+      });
+    };
+
+    if (ready.current) draw();
+    else m.once("load", draw);
+
     return () => {
       mk.remove();
+      if (m.getLayer("me-range-fill")) m.removeLayer("me-range-fill");
+      if (m.getLayer("me-range-line")) m.removeLayer("me-range-line");
+      if (m.getSource(SRC)) m.removeSource(SRC);
     };
-  }, [me]);
+  }, [me, meRadiusM]);
 
   // camera
   useEffect(() => {

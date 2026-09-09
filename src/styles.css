@@ -486,6 +486,19 @@
   background: var(--accent);
   border: 2px solid var(--card);
   box-shadow: 0 0 18px var(--accent);
+  animation: catch-me-pulse 1.8s ease-out infinite;
+}
+
+@keyframes catch-me-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 55%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 14px color-mix(in oklab, var(--accent) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 0%, transparent);
+  }
 }
 
 /* store signal popup */

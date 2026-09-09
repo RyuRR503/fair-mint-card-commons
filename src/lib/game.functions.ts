@@ -22,7 +22,9 @@ function toSpawn(row: SpawnRow): Spawn {
   return {
     id: row.id,
     symbol: row.symbol,
-    amount: Number(row.amount),
+    // The token's fragment is the one payout rule; the stored per-pin number is
+    // only a fallback for a symbol we no longer carry.
+    amount: TOKEN_BY_SYMBOL[row.symbol]?.fragment ?? Number(row.amount),
     rarity: row.rarity as Rarity,
     city: row.places.city,
     cityName: city?.name ?? row.places.city,
