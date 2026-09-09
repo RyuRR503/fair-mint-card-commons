@@ -60,6 +60,8 @@ export const RULES = {
   perDropPerDay: 24,
   walletCooldownMin: 120,
   dropCooldownMin: 10,
+  /** Whole-site payout ceiling per rolling hour, priced in USD (like Grass). */
+  hourlyUsdCap: 500,
   voucherTtlMin: 15,
   minFixSamples: 4,
   minFixSeconds: 20,
@@ -102,6 +104,30 @@ function liveMode() {
   );
 }
 
+
+/** Latest USD price from a Chainlink feed on BSC (8 decimals), or null. */
+async function feedPriceUsd(feed: string): Promise<number | null> {
+  try {
+    const res = await fetch(CHAIN.rpc, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "eth_call",
+        params: [{ to: feed, data: "0xfeaf968c" }, "latest"],
+      }),
+    });
+    const json = (await res.json()) as { result?: string };
+    if (!json.result || json.result === "0x") return null;
+    // latestRoundData(): (roundId, answer, startedAt, updatedAt, answeredInRound)
+    const answer = BigInt("0x" + json.result.slice(66, 130));
+    if (answer <= 0n) return null;
+    return Number(answer) / 1e8;
+  } catch {
+    return null;
+  }
+}
 
 /* ----------------------------------------------------------------- spawns */
 
@@ -250,6 +276,39 @@ export const claimDrop = createServerFn({ method: "POST" })
       );
 
     // the drop's own cooldown is authoritative and was checked above (respawn_at)
+
+    // 4b. whole-site hourly payout ceiling, priced in USD (Grass-style)
+    const hourAgo = new Date(now - 3600e3).toISOString();
+    const { data: hourCatches } = await db
+      .from("catches")
+      .select("symbol, amount")
+      .gte("created_at", hourAgo);
+    const hourlyToken = TOKEN_BY_SYMBOL[spawn.symbol]!;
+    const symbols = new Set((hourCatches ?? []).map((c) => c.symbol));
+    symbols.add(hourlyToken.symbol);
+    const prices = new Map<string, number>();
+    await Promise.all(
+      [...symbols].map(async (sym) => {
+        const t = TOKEN_BY_SYMBOL[sym];
+        if (!t) return;
+        const p = await feedPriceUsd(t.feed);
+        if (p != null) prices.set(sym, p);
+      }),
+    );
+    if (prices.has(hourlyToken.symbol)) {
+      let spentUsd = 0;
+      let unknown = false;
+      for (const c of hourCatches ?? []) {
+        const p = prices.get(c.symbol);
+        if (p == null) unknown = true;
+        else spentUsd += Number(c.amount) * p;
+      }
+      const thisUsd = hourlyToken.fragment * prices.get(hourlyToken.symbol)!;
+      if (!unknown && spentUsd + thisUsd > RULES.hourlyUsdCap)
+        return fail(
+          "This hour's prize budget is used up. New budget unlocks within the hour — try again soon.",
+        );
+    }
 
     // 5. travel: no teleporting, no city hopping
     const { data: fixes } = await db
