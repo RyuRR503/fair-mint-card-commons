@@ -382,7 +382,7 @@ export const claimDrop = createServerFn({ method: "POST" })
     return {
       ok: true,
       mode,
-      spawn,
+      spawn: { ...spawn, amount: payout },
       voucher,
       signature,
       contract,
@@ -473,14 +473,18 @@ export const getVault = createServerFn({ method: "GET" }).handler(async () => {
       const address = tokenAddressFor(t.symbol, t.address);
       const onChain = await balanceOf(address);
       // Demo reserve so the page is never empty before the vault is funded.
-      const balance = onChain ?? t.fragment * (t.rarity === "legendary" ? 1 : 25);
+      const balance = onChain ?? t.fragment * t.targetDrops;
+      const drops = Math.floor(balance / t.fragment);
       return {
         symbol: t.symbol,
         address,
         balance,
-
         fragment: t.fragment,
-        drops: Math.floor(balance / t.fragment),
+        drops,
+        targetDrops: t.targetDrops,
+        // How much of this token still has to be bought to hit the target.
+        deficit: Math.max(0, (t.targetDrops - drops) * t.fragment),
+        needsRefill: drops < t.targetDrops,
         rarity: t.rarity,
         onChain: onChain != null,
       };
@@ -495,6 +499,8 @@ export const getVault = createServerFn({ method: "GET" }).handler(async () => {
     treasuryBnb: live ? 0 : 12.4,
     balances,
     payableDrops: balances.reduce((n, b) => n + b.drops, 0),
+    targetDrops: balances.reduce((n, b) => n + b.targetDrops, 0),
+    refillNeeded: balances.filter((b) => b.needsRefill).map((b) => b.symbol),
     checkedAt: new Date().toISOString(),
   };
 });
