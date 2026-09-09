@@ -326,9 +326,7 @@ function Home() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-muted-foreground">
-                    {tk.rarity === "legendary"
-                      ? t("Event spot, once a day", "活动地点，每天一次")
-                      : t(`Any ${tk.name} door`, `任意 ${tk.name} 门店`)}
+                    {t(tk.venue, tk.venueZh)}
                   </td>
                   <td className="px-6 py-4">
                     <span
