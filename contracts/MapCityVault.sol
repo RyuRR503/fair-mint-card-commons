@@ -4022,65 +4022,28 @@ abstract contract VaultBaseV2 is VaultBase {
 }
 
 /**
- * WallStreetCity - Wall Street City land deeds (BSC, 9 stock districts).
- * Buy empty plots with project tokens (burned). Flip/list burn 15% spread.
- * District stock dividends from tax BNB via keeper.
- * On transfer/flip, unclaimed stock is paid to the previous owner first.
+ * MapCityVault - walk-to-store map game vault (BSC, 9 stock districts).
+ *
+ * Flap Vault V2 framework (BeaconProxy + Guardian + VaultPortal), no land deeds,
+ * no NFT, no dividends. Project tax BNB flows in, is split across 9 district BNB
+ * buckets, and anyone may permissionlessly sell the district's tokenized equity to
+ * the vault at Chainlink * Flap NAV * 1.02. 100% of every refill becomes map reward
+ * inventory, redeemable only through a signed walk-to-store voucher.
  */
-contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, ReentrancyGuardUpgradeable, VaultBaseV2 {
+contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, VaultBaseV2 {
     using SafeERC20 for IERC20;
-    using Strings for uint256;
 
-    address public constant BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;
-
-    /// @dev Primary sale: 500_000 project tokens (18 decimals).
-    uint256 public constant plotPrice = 500_000 ether;
-
-    uint16 public constant SALE_TAX_BPS = 1500;
     uint16 public constant BPS_DENOM = 10000;
-    /// @dev 10% of inbound BNB routed to opsTreasury (same idea as DynamicBackstopVault).
+    /// @dev 10% of inbound BNB routed to opsTreasury (Flap vault convention).
     uint16 public constant OPS_FEE_BPS = 1000;
-
-    uint16 public constant FLIP_PREMIUM_BPS = 13000;
-    uint16 public constant FLIP_SELLER_BPS = 11500;
-    uint32 public constant FLIP_COOLDOWN = 30 minutes;
-
-    /// @dev Lifetime primary (genesis) mint cap per wallet. Flip/transfer does not free the slot.
-    uint256 public constant MAX_PRIMARY_PLOTS_PER_WALLET = 5;
-    /// @dev Max plots per primary-buy tx (blocks buyMany vacuum).
-    uint256 public constant MAX_MINT_PER_TX = 1;
-    /// @dev Global cooldown: at most one primary mint across all wallets every 30 seconds.
-    uint32 public constant GLOBAL_MINT_COOLDOWN = 30 seconds;
 
     uint8 public constant DISTRICT_COUNT = 9;
     /// @dev Keeper quote premium vs Chainlink fair value (102% = 1.02x), Flap Stocks Vault style.
     uint256 public constant KEEPER_QUOTE_BPS = 10200;
-    /// @dev Max Chainlink feed staleness (Flap uses ~24h + buffer).
     uint256 public constant MAX_PRICE_STALENESS = 25 hours;
-    /// @dev Cap Flap Stocks registry NAV multiplier (1e18 scale).
     uint256 public constant MAX_NAV_MULTIPLIER = 1.1e18;
-    /// @dev BSC BNB/USD Chainlink feed (Flap RWAVault).
     address public constant BNB_USD_FEED = 0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE;
-    /// @dev Flap Stocks registry on BSC (getMultiplier).
     address public constant FLAP_STOCKS_REGISTRY = 0x5418f7e8fF90354DB0eCD48c8b710219244Eb3C5;
-
-    uint256 public gridSize;
-    uint256 public totalPlots;
-    /// @dev District cell size = ceil(gridSize / 3).
-    uint256 public districtStep;
-    IERC20 public projectToken;
-    IFlapPortal public flapPortal;
-    /// @dev Deployer; may setToken once after the project token is launched.
-    address public owner;
-    /// @dev Receives 10% ops fee; Guardian may update via setOpsTreasury.
-    address public opsTreasury;
-    /// @dev Cumulative ops fee paid in wei.
-    uint256 public totalOpsBnbPaid;
-
-    // ---------------- dividend accounting (DiamondVault-style) ----------------
-
-    /// @dev Accrual scale (DiamondVault ACC_PRECISION).
-    uint256 public constant ACC_PRECISION = 1e30;
 
     /// @dev District 0..8: Flap tokenized equity + Chainlink USD feed.
     address private constant ASSET_NVDA = 0xA9eE28C80f960B889dFbd1902055218cBa016F75;
@@ -4102,76 +4065,30 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
     address private constant ASSET_AMD  = 0x75Fd4cF6f8392E41E70391D60c90C0D5211603a1;
     address private constant FEED_AMD   = 0x4442f488fba0b27D970b68b761336224d6d30492;
 
-    /// @dev Per-district BNB bucket for keeper stock buys.
-    uint256[DISTRICT_COUNT] public pendingBnb;
-    /// @dev Accrued stock per plot, scaled by ACC_PRECISION.
-    uint256[DISTRICT_COUNT] public accPerPlot;
-    /// @dev Accrued project-token per plot, scaled by ACC_PRECISION (unused).
-    uint256[DISTRICT_COUNT] public accTokenPerPlot;
-    uint256[DISTRICT_COUNT] public soldInDistrict;
-    uint256[DISTRICT_COUNT] public totalStockDistributed;
-    uint256[DISTRICT_COUNT] public totalStockClaimed;
-    uint256[DISTRICT_COUNT] public totalTokenDistributed;
-    uint256[DISTRICT_COUNT] public totalTokenClaimed;
-
-    struct PlotState {
-        uint64 mintedAt;
-        uint64 acquiredAt;       // last ownership change (flip cooldown start)
-        uint128 accrued;         // unclaimed stock amount (district stock, 18 decimals)
-        uint256 rewardDebt;      // accPerPlot snapshot at buy/claim (scaled)
-        uint256 rewardDebtToken; // accTokenPerPlot snapshot at buy/claim (scaled)
-        }
-
-    mapping(uint256 => PlotState) private _plots;
-    mapping(uint256 => uint256) public listingPrice;
-    /// @dev Last flip/sale base for premium; at least plotPrice.
-    mapping(uint256 => uint256) public flipPrice;
-    /// @dev Plots owned per district per address 鈥?used to ban self-deal sellStockToVault.
-    mapping(uint8 => mapping(address => uint256)) public plotsOwnedInDistrict;
-    /// @dev Cumulative primary mints per wallet (not current balance).
-    mapping(address => uint256) public primaryMintCount;
-    /// @dev Timestamp of last primary mint globally (0 = never).
-    uint64 public lastGlobalPrimaryMintAt;
-
-    uint256 public soldPlots;
-    /// @dev BNB waiting for first plot sales before district split.
-    uint256 public bufferedBnb;
-    uint256 public totalBurned;
-    /// @dev Gross tax BNB received (before ops fee).
+    IERC20 public projectToken;
+    IFlapPortal public flapPortal;
+    /// @dev Vault owner (Flap creator). Cannot move map inventory.
+    address public owner;
+    /// @dev Receives the 10% ops fee on inbound BNB.
+    address public opsTreasury;
+    uint256 public totalOpsBnbPaid;
     uint256 public totalTaxReceived;
-    uint256 public totalSaleTax;
 
-    // ---------------- map game (walk-to-store claim) ----------------
+    /// @dev Per-district BNB bucket funding permissionless refills.
+    uint256[DISTRICT_COUNT] public pendingBnb;
+    /// @dev Unclaimed map reward inventory per district (stock units, 18 decimals).
+    uint256[DISTRICT_COUNT] public gamePool;
+    uint256[DISTRICT_COUNT] public totalGameFunded;
+    uint256[DISTRICT_COUNT] public totalGamePaid;
 
-    /// @dev Fixed share of every permissionless refill routed to the map reward pool.
-    ///      Immutable by design: no admin can raise, lower or redirect it.
-    uint16 public constant GAME_BPS = 1000; // 10%
     /// @dev EIP-712 typehash for a walk-to-store voucher.
     bytes32 public constant GAME_VOUCHER_TYPEHASH = keccak256(
         "GameVoucher(address to,uint8 district,uint256 amount,bytes32 spawnId,uint256 nonce,uint256 deadline)"
     );
-
     /// @dev Signer allowed to authorize map claims. The only mutable game parameter.
     address public gameSigner;
-    /// @dev Unclaimed map reward inventory per district (stock units, 18 decimals).
-    uint256[DISTRICT_COUNT] public gamePool;
-    /// @dev Cumulative map rewards funded / paid per district.
-    uint256[DISTRICT_COUNT] public totalGameFunded;
-    uint256[DISTRICT_COUNT] public totalGamePaid;
-    /// @dev Consumed voucher nonces.
     mapping(uint256 => bool) public gameNonceUsed;
 
-    event PlotBought(address indexed buyer, uint256 indexed plotId, uint256 amountPaid);
-    event RewardClaimed(
-        address indexed owner, uint256 indexed plotId, address stock, uint256 stockPaid, uint256 tokenPaid
-    );
-    event PlotListed(address indexed seller, uint256 indexed plotId, uint256 price);
-    event ListingCancelled(address indexed seller, uint256 indexed plotId);
-    event PlotFlipped(
-        address indexed seller, address indexed buyer, uint256 indexed plotId, uint256 price, uint256 tax, bool viaListing
-    );
-    event PlotTransferred(address indexed from, address indexed to, uint256 indexed plotId);
-    event TokensBurned(address indexed from, uint256 amount);
     event TreasuryFunded(address indexed from, uint256 amount);
     event OpsFeePaid(address indexed to, uint256 feeWei, uint256 vaultNetWei);
     event OpsFeeSkipped(address indexed to, uint256 feeWei);
@@ -4188,50 +4105,88 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         address indexed to, uint8 indexed district, bytes32 indexed spawnId, address stock, uint256 amount, uint256 nonce
     );
 
-    error InvalidPlot();
     error WrongPayment();
-    error NotPlotOwner();
-    error NothingToClaim();
     error RewardPayFailed();
-    error BadConstructorArgs();
-    error NotListed();
-    error ZeroPrice();
-    error SelfTransfer();
-    error BadTokenStatus();
-    error ZeroSpotPrice();
-    error NoPool();
-    error EmptyReserves();
     error BadDistrict();
     error StalePriceFeed();
     error BadFeedAnswer();
     error InsufficientDistrictBnb();
-    error NoPlotsInDistrict();
-    error FlipCooldown();
+    error ZeroSpotPrice();
     error NotOwnerOrGuardian();
     error NotGuardian();
     error TokenNotSet();
     error TokenAlreadySet();
     error ZeroToken();
     error ZeroOwner();
-    error EmergencyReserve();
     error ZeroAddress();
-    /// @dev sellStockToVault caller owns 鈮? plot in the target district (self-deal drain).
-    error SellerOwnsDistrictPlot();
-    /// @dev flipBuy execution price exceeded caller maxPrice (slippage).
-    error PriceExceedsMax();
-    /// @dev Wallet already minted MAX_PRIMARY_PLOTS_PER_WALLET primary plots.
-    error MintCapExceeded();
-    /// @dev buyMany / batch size exceeds MAX_MINT_PER_TX.
-    error MintBatchTooLarge();
-    /// @dev Global primary mint attempted before GLOBAL_MINT_COOLDOWN elapsed.
-    error GlobalMintCooldownActive();
+    error EmergencyReserve();
+    error BadTokenStatus();
+    error NoPool();
+    error EmptyReserves();
+    error NothingToClaim();
     error GameSignerUnset();
     error BadGameSignature();
     error GameVoucherExpired();
     error GameNonceUsed();
     error GamePoolEmpty();
 
-    /// @dev Flap tokenized equity for district 0..8 on BSC.
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    /// @notice Initialize a BeaconProxy (called by factory / manual proxy initData).
+    function initialize(address owner_, address taxToken_, address opsTreasury_) external initializer {
+        __ReentrancyGuard_init();
+        flapPortal = IFlapPortal(_getPortal());
+        owner = owner_ == address(0) ? msg.sender : owner_;
+        opsTreasury = opsTreasury_;
+        if (taxToken_ != address(0)) {
+            projectToken = IERC20(taxToken_);
+            emit ProjectTokenSet(taxToken_);
+        }
+    }
+
+    // ---------------- roles ----------------
+
+    function _requireOwnerOrGuardian() private view {
+        if (msg.sender != owner && msg.sender != _getGuardian()) revert NotOwnerOrGuardian();
+    }
+
+    function _requireGuardian() private view {
+        if (msg.sender != _getGuardian()) revert NotGuardian();
+    }
+
+    function _requireToken() private view {
+        if (address(projectToken) == address(0)) revert TokenNotSet();
+    }
+
+    /// @notice Owner or Guardian: bind the project / tax token once after token launch.
+    function setToken(address token) external {
+        _requireOwnerOrGuardian();
+        if (token == address(0)) revert ZeroToken();
+        if (address(projectToken) != address(0)) revert TokenAlreadySet();
+        projectToken = IERC20(token);
+        emit ProjectTokenSet(token);
+    }
+
+    function setOpsTreasury(address to) external {
+        _requireOwnerOrGuardian();
+        address prev = opsTreasury;
+        opsTreasury = to;
+        emit OpsTreasuryUpdated(prev, to);
+    }
+
+    function transferOwnership(address next) external {
+        _requireOwnerOrGuardian();
+        if (next == address(0)) revert ZeroOwner();
+        address prev = owner;
+        owner = next;
+        emit OwnershipTransferred(prev, next);
+    }
+
+    // ---------------- districts ----------------
+
     function _districtAsset(uint256 district) private pure returns (address) {
         if (district == 0) return ASSET_NVDA;
         if (district == 1) return ASSET_AAPL;
@@ -4244,7 +4199,6 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         return ASSET_AMD; // 8
     }
 
-    /// @dev Chainlink USD feed for district 0..8.
     function _districtFeed(uint256 district) private pure returns (address) {
         if (district == 0) return FEED_NVDA;
         if (district == 1) return FEED_AAPL;
@@ -4257,100 +4211,36 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         return FEED_AMD; // 8
     }
 
-    /// @dev District map uses ASSET_* / FEED_* below.
-    /// @dev 0 NVDA, 1 AAPL, 2 TSLA, 3 MSFT, 4 GOOG,
-    ///      5 SPCX (SpaceX), 6 FXI, 7 MU, 8 AMD.
-    ///
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
-
-    /// @notice Initialize a BeaconProxy (called by factory / manual proxy initData).
-    /// @param owner_ Vault owner (Flap `creator`). address(0) => msg.sender.
-    /// @param taxToken_ Predicted project/tax token from VaultPortal (may be unset until launch).
-    /// @param opsTreasury_ Ops fee recipient (10% inbound BNB). address(0) allowed (fee skipped).
-    function initialize(address owner_, address taxToken_, address opsTreasury_) external initializer {
-        __ERC721_init("Wall Street City", "WSC");
-        __ReentrancyGuard_init();
-
-        uint256 gridSize_ = 24;
-        gridSize = gridSize_;
-        totalPlots = gridSize_ * gridSize_;
-        districtStep = (gridSize_ + 2) / 3;
-        flapPortal = IFlapPortal(_getPortal());
-        owner = owner_ == address(0) ? msg.sender : owner_;
-        opsTreasury = opsTreasury_;
-        if (taxToken_ != address(0)) {
-            projectToken = IERC20(taxToken_);
-            emit ProjectTokenSet(taxToken_);
-        }
-    }
-
-    function _requireOwnerOrGuardian() private view {
-        if (msg.sender != owner && msg.sender != _getGuardian()) revert NotOwnerOrGuardian();
-    }
-
-    /// @notice Owner or Guardian: bind the project / tax token once after token launch.
-    function setToken(address token) external {
-        _requireOwnerOrGuardian();
-        if (token == address(0)) revert ZeroToken();
-        if (address(projectToken) != address(0)) revert TokenAlreadySet();
-        projectToken = IERC20(token);
-        emit ProjectTokenSet(token);
-    }
-
-    function _requireToken() private view {
-        if (address(projectToken) == address(0)) revert TokenNotSet();
-    }
-
-    // ---------------- districts ----------------
-
-    /// @dev District 0..8 from plot grid: row*3+col using districtStep cells.
-    function districtOf(uint256 plotId) public view returns (uint8) {
-        if (plotId >= totalPlots) revert InvalidPlot();
-        uint256 x = plotId % gridSize;
-        uint256 y = plotId / gridSize;
-        uint256 col = x / districtStep;
-        uint256 row = y / districtStep;
-        if (col > 2) col = 2;
-        if (row > 2) row = 2;
-        return uint8(row * 3 + col);
-    }
-
-    /// @dev District stock/feed + bucket and distribution counters.
-    function districtInfo(uint8 district)
-        external
-        view
-        returns (
-            address stock,
-            address feed,
-            uint256 sold,
-            uint256 bnbBucket,
-            uint256 stockDistributed,
-            uint256 stockClaimed,
-            uint256 tokenDistributed,
-            uint256 tokenClaimed
-        )
-    {
-        if (district >= DISTRICT_COUNT) revert BadDistrict();
-        stock = _districtAsset(district);
-        feed = _districtFeed(district);
-        sold = soldInDistrict[district];
-        bnbBucket = pendingBnb[district];
-        stockDistributed = totalStockDistributed[district];
-        stockClaimed = totalStockClaimed[district];
-        tokenDistributed = totalTokenDistributed[district];
-        tokenClaimed = totalTokenClaimed[district];
-    }
-
     function districtAsset(uint8 district) external pure returns (address) {
         if (district >= DISTRICT_COUNT) revert BadDistrict();
         return _districtAsset(district);
     }
 
-    /// @notice Tax/ops BNB in; 10% ops fee, 90% split into pendingBnb by sold plots.
-    /// @dev Portal direct sends are ignored (same pattern as DynamicBackstopVault).
+    /// @notice Map pool status for the UI / proof-of-reserves page.
+    function gameDistrictInfo(uint8 district)
+        external
+        view
+        returns (address stock, address feed, uint256 bnbBucket, uint256 pool, uint256 funded, uint256 paid)
+    {
+        if (district >= DISTRICT_COUNT) revert BadDistrict();
+        stock = _districtAsset(district);
+        feed = _districtFeed(district);
+        bnbBucket = pendingBnb[district];
+        pool = gamePool[district];
+        funded = totalGameFunded[district];
+        paid = totalGamePaid[district];
+    }
+
+    /// @notice BNB reserved for refills (never withdrawable by owner or guardian).
+    function outstandingRewards() public view returns (uint256 totalPending) {
+        for (uint256 d = 0; d < DISTRICT_COUNT; d++) {
+            totalPending += pendingBnb[d];
+        }
+    }
+
+    // ---------------- tax inflow ----------------
+
+    /// @notice Tax/ops BNB in; 10% ops fee, 90% split evenly across the 9 district buckets.
     receive() external payable {
         if (msg.value == 0) return;
         if (msg.sender == address(flapPortal)) return;
@@ -4359,14 +4249,19 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         uint256 vaultNet = _routeOpsFee(msg.value);
         if (vaultNet == 0) return;
 
-        _distributeToPlots(vaultNet);
+        uint256 each = vaultNet / DISTRICT_COUNT;
+        uint256 assigned;
+        for (uint256 d = 0; d < DISTRICT_COUNT; d++) {
+            pendingBnb[d] += each;
+            assigned += each;
+        }
+        if (vaultNet > assigned) pendingBnb[0] += vaultNet - assigned;
+
         emit TreasuryFunded(msg.sender, vaultNet);
     }
 
-    /// @dev Route OPS_FEE_BPS of inbound BNB to opsTreasury; return vault net for dividends.
-    /// @dev If opsTreasury is address(0), skip fee and keep full gross for dividends.
-    /// @dev If the opsTreasury BNB transfer fails, degrade: do not revert 鈥?keep full gross
-    ///      for dividend buckets so tax inflow cannot be frozen by a bad ops address.
+    /// @dev Route OPS_FEE_BPS of inbound BNB to opsTreasury; return vault net.
+    ///      A failing ops transfer degrades gracefully instead of freezing tax inflow.
     function _routeOpsFee(uint256 grossWei) private returns (uint256 vaultNetWei) {
         vaultNetWei = grossWei;
         if (grossWei == 0 || opsTreasury == address(0)) return vaultNetWei;
@@ -4385,103 +4280,26 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         emit OpsFeePaid(opsTreasury, feeWei, vaultNetWei);
     }
 
-    /// @notice Owner or Guardian: update ops treasury.
-    function setOpsTreasury(address to) external {
-        _requireOwnerOrGuardian();
-        address prev = opsTreasury;
-        opsTreasury = to;
-        emit OpsTreasuryUpdated(prev, to);
-    }
+    // ---------------- permissionless refill ----------------
 
-    /// @notice Owner or Guardian: transfer contract ownership (Guardian backup if owner key is lost).
-    function transferOwnership(address next) external {
-        _requireOwnerOrGuardian();
-        if (next == address(0)) revert ZeroOwner();
-        address prev = owner;
-        owner = next;
-        emit OwnershipTransferred(prev, next);
-    }
-
-    function _requireGuardian() private view {
-        if (msg.sender != _getGuardian()) revert NotGuardian();
-    }
-
-    /// @notice Guardian-only rescue for excess native BNB (cannot touch dividend buckets).
-    /// @dev Reserved = sum of pendingBnb + bufferedBnb (outstandingRewards).
-    function emergencyWithdrawNative(address to, uint256 amount) external nonReentrant {
-        _requireGuardian();
-        if (to == address(0)) revert ZeroAddress();
-        if (amount == 0) revert WrongPayment();
-        uint256 reserved = outstandingRewards();
-        if (address(this).balance < reserved + amount) revert EmergencyReserve();
-        (bool ok, ) = to.call{value: amount}("");
-        if (!ok) revert RewardPayFailed();
-        emit EmergencyWithdraw(msg.sender, to, address(0), amount);
-    }
-
-    /// @notice Guardian-only rescue for ERC20. District stock cannot go below unclaimed accrual.
-    function emergencyWithdrawToken(address token, address to, uint256 amount) external nonReentrant {
-        _requireGuardian();
-        if (to == address(0) || token == address(0)) revert ZeroAddress();
-        if (amount == 0) revert WrongPayment();
-
-        for (uint256 d = 0; d < DISTRICT_COUNT; d++) {
-            if (token != _districtAsset(d)) continue;
-            uint256 unclaimed = totalStockDistributed[d] - totalStockClaimed[d] + gamePool[d];
-            uint256 bal = IERC20(token).balanceOf(address(this));
-            if (bal < unclaimed + amount) revert EmergencyReserve();
-            break;
-        }
-
-        IERC20(token).safeTransfer(to, amount);
-        emit EmergencyWithdraw(msg.sender, to, token, amount);
-    }
-
-    /// @dev Split amount (+ buffer) across 9 district pendingBnb buckets by sold share.
-    function _distributeToPlots(uint256 amount) private {
-        if (soldPlots == 0) {
-            bufferedBnb += amount;
-            return;
-        }
-        uint256 total = amount + bufferedBnb;
-        if (total == 0) return;
-        uint256 assigned;
-        for (uint256 d = 0; d < DISTRICT_COUNT; d++) {
-            uint256 sold = soldInDistrict[d];
-            if (sold == 0) continue;
-            uint256 share = (total * sold) / soldPlots;
-            pendingBnb[d] += share;
-            assigned += share;
-        }
-        bufferedBnb = total - assigned;
-    }
-
-    // ---------------- keeper: sell stock for district BNB ----------------
-
-    /// @dev Fair BNB for stockAmount via Chainlink + NAV multiplier + 1.02x premium.
+    /// @notice Quote BNB paid for selling `stockAmount` of a district asset to the vault.
     function quoteStockForBnb(uint8 district, uint256 stockAmount) public view returns (uint256 bnbWei) {
         if (district >= DISTRICT_COUNT) revert BadDistrict();
-        if (stockAmount == 0) return 0;
-
+        uint256 bnbUsd = _readFeed(BNB_USD_FEED); // 1e18
+        if (bnbUsd == 0) revert ZeroSpotPrice();
         uint256 stockUsd = _readFeed(_districtFeed(district)); // 1e18
-        uint256 bnbUsd = _readFeed(BNB_USD_FEED);               // 1e18
         uint256 multiplier = _navMultiplier(_districtAsset(district));
 
-        // stockAmount (1e18) -> USD -> BNB, then * 1.02
         bnbWei = (stockAmount * stockUsd) / 1e18;
         bnbWei = (bnbWei * multiplier) / 1e18;
         bnbWei = (bnbWei * 1e18) / bnbUsd;
         bnbWei = (bnbWei * KEEPER_QUOTE_BPS) / BPS_DENOM;
     }
 
-    /// @notice Keeper sells district stock to vault; pays from pendingBnb.
-    /// @dev Accrues stock to plots; owners claim later.
-    ///      Callers who own any plot in `district` are banned (blocks self-deal drain).
+    /// @notice Anyone may sell district stock to the vault for BNB from that district's bucket.
+    /// @dev 100% of the incoming stock becomes map reward inventory. No admin path can move it.
     function sellStockToVault(uint8 district, uint256 stockAmount) external nonReentrant {
         if (district >= DISTRICT_COUNT) revert BadDistrict();
-        if (plotsOwnedInDistrict[district][msg.sender] != 0) revert SellerOwnsDistrictPlot();
-        uint256 sold = soldInDistrict[district];
-        if (sold == 0) revert NoPlotsInDistrict();
         if (stockAmount == 0) revert WrongPayment();
 
         uint256 bnbOwed = quoteStockForBnb(district, stockAmount);
@@ -4489,21 +4307,11 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         if (bnbOwed > pendingBnb[district]) revert InsufficientDistrictBnb();
 
         IERC20(_districtAsset(district)).safeTransferFrom(msg.sender, address(this), stockAmount);
-
         pendingBnb[district] -= bnbOwed;
 
-        // Route a fixed share of every permissionless refill into the map reward pool.
-        uint256 gameCut = (stockAmount * GAME_BPS) / BPS_DENOM;
-        uint256 plotCut = stockAmount - gameCut;
-        if (gameCut != 0) {
-            gamePool[district] += gameCut;
-            totalGameFunded[district] += gameCut;
-            emit GamePoolFunded(district, gameCut);
-        }
-        if (plotCut != 0) {
-            accPerPlot[district] += (plotCut * ACC_PRECISION) / sold;
-            totalStockDistributed[district] += plotCut;
-        }
+        gamePool[district] += stockAmount;
+        totalGameFunded[district] += stockAmount;
+        emit GamePoolFunded(district, stockAmount);
 
         (bool ok, ) = msg.sender.call{value: bnbOwed}("");
         if (!ok) revert RewardPayFailed();
@@ -4511,7 +4319,6 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         emit StockSoldToVault(msg.sender, district, _districtAsset(district), stockAmount, bnbOwed);
     }
 
-    /// @dev Read Chainlink answer as 1e18 USD.
     function _readFeed(address feed) private view returns (uint256 price1e18) {
         (, int256 answer,, uint256 updatedAt,) = IAggregatorV3(feed).latestRoundData();
         if (answer <= 0) revert BadFeedAnswer();
@@ -4520,7 +4327,6 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         price1e18 = uint256(answer) * (10 ** (18 - uint256(dec)));
     }
 
-    /// @dev Flap NAV multiplier in [1e18, MAX_NAV_MULTIPLIER]; else 1e18.
     function _navMultiplier(address asset) private view returns (uint256) {
         if (block.chainid != 56) return 1e18;
         try IFlapStocksRegistry(FLAP_STOCKS_REGISTRY).getMultiplier(asset) returns (uint256 m) {
@@ -4539,221 +4345,9 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         revert UnsupportedChain(c);
     }
 
-    // ---------------- Portal / pricing ----------------
+    // ---------------- map game claim ----------------
 
-    /// @dev Token status + pool for UI (internal market vs DEX).
-    function marketMeta() external view returns (uint8 status, address pool) {
-        _requireToken();
-        IFlapPortal.TokenStateV8Safe memory s = flapPortal.getTokenV8Safe(address(projectToken));
-        return (s.status, s.pool);
-    }
-
-    /// @dev Project token price in BNB wei (Portal internal or Pancake reserves).
-    function tokenPriceBnbWei() public view returns (uint256 priceWeiPerToken) {
-        _requireToken();
-        IFlapPortal.TokenStateV8Safe memory s = flapPortal.getTokenV8Safe(address(projectToken));
-        if (s.status != 1 && s.status != 4) revert BadTokenStatus();
-        if (s.status == 1) {
-            if (s.price == 0) revert ZeroSpotPrice();
-            return s.price;
-        }
-        if (s.pool == address(0)) revert NoPool();
-        address wbnb = _wbnb();
-        (uint112 r0, uint112 r1,) = IPancakePair(s.pool).getReserves();
-        address t0 = IPancakePair(s.pool).token0();
-        (uint256 reserveBnb, uint256 reserveTok) = t0 == wbnb
-            ? (uint256(r0), uint256(r1))
-            : (uint256(r1), uint256(r0));
-        if (reserveBnb == 0 || reserveTok == 0) revert EmptyReserves();
-        uint8 tokDec = IERC20Metadata(address(projectToken)).decimals();
-        priceWeiPerToken = (reserveBnb * (10 ** uint256(tokDec))) / reserveTok;
-        if (priceWeiPerToken == 0) revert ZeroSpotPrice();
-    }
-
-    /// @dev BNB value of one primary plot purchase (500_000 tokens).
-    function plotPriceBnb() public view returns (uint256 bnbWei) {
-        _requireToken();
-        uint8 tokDec = IERC20Metadata(address(projectToken)).decimals();
-        bnbWei = plotPrice * tokenPriceBnbWei() / (10 ** uint256(tokDec));
-    }
-
-    /// @notice Buy empty plot; burns plotPrice tokens (approve first).
-    /// @dev Subject to wallet cap, global 30s rate limit, and MAX_MINT_PER_TX.
-    function buyWithToken(uint256 plotId) external nonReentrant {
-        _enforceAndRecordPrimaryMint(1);
-        _burnPayment(plotPrice);
-        _buyOne(plotId);
-        emit PlotBought(msg.sender, plotId, plotPrice);
-    }
-
-    function buy(uint256 plotId) external nonReentrant {
-        _enforceAndRecordPrimaryMint(1);
-        _burnPayment(plotPrice);
-        _buyOne(plotId);
-        emit PlotBought(msg.sender, plotId, plotPrice);
-    }
-
-    function buyManyWithToken(uint256[] calldata plotIds) external nonReentrant {
-        uint256 n = plotIds.length;
-        if (n == 0) revert WrongPayment();
-        _enforceAndRecordPrimaryMint(n);
-        _burnPayment(plotPrice * n);
-        for (uint256 i = 0; i < n; i++) {
-            _buyOne(plotIds[i]);
-            emit PlotBought(msg.sender, plotIds[i], plotPrice);
-        }
-    }
-
-    /// @dev Earliest timestamp any wallet may primary-mint again under the global rate limit
-    ///      (0 if ready / never minted globally).
-    function nextGlobalPrimaryMintAt() public view returns (uint256) {
-        uint64 last = lastGlobalPrimaryMintAt;
-        if (last == 0) return 0;
-        uint256 unlock = uint256(last) + GLOBAL_MINT_COOLDOWN;
-        return block.timestamp >= unlock ? 0 : unlock;
-    }
-
-    /// @dev Cap + per-tx + global rate limit for genesis buys only (not flip/secondary).
-    function _enforceAndRecordPrimaryMint(uint256 n) private {
-        if (n > MAX_MINT_PER_TX) revert MintBatchTooLarge();
-        uint256 minted = primaryMintCount[msg.sender];
-        if (minted + n > MAX_PRIMARY_PLOTS_PER_WALLET) revert MintCapExceeded();
-        uint64 lastGlobal = lastGlobalPrimaryMintAt;
-        if (lastGlobal != 0 && block.timestamp < uint256(lastGlobal) + GLOBAL_MINT_COOLDOWN) {
-            revert GlobalMintCooldownActive();
-        }
-        primaryMintCount[msg.sender] = minted + n;
-        lastGlobalPrimaryMintAt = uint64(block.timestamp);
-    }
-
-    function _burnPayment(uint256 amount) private {
-        _requireToken();
-        projectToken.safeTransferFrom(msg.sender, BURN_ADDRESS, amount);
-        totalBurned += amount;
-        emit TokensBurned(msg.sender, amount);
-    }
-
-    function _buyOne(uint256 plotId) private {
-        if (plotId >= totalPlots) revert InvalidPlot();
-        uint8 d = districtOf(plotId);
-        // Snapshot rewardDebt at purchase.
-        _plots[plotId] = PlotState({
-            mintedAt: uint64(block.timestamp),
-            acquiredAt: uint64(block.timestamp),
-            accrued: 0,
-            rewardDebt: accPerPlot[d],
-            rewardDebtToken: accTokenPerPlot[d]
-        });
-        flipPrice[plotId] = plotPrice;
-        soldPlots += 1;
-        soldInDistrict[d] += 1;
-        _safeMint(msg.sender, plotId);
-    }
-
-    function list(uint256 plotId, uint256 price) external nonReentrant {
-        if (ownerOf(plotId) != msg.sender) revert NotPlotOwner();
-        if (price == 0) revert ZeroPrice();
-        listingPrice[plotId] = price;
-        emit PlotListed(msg.sender, plotId, price);
-    }
-
-    function cancelList(uint256 plotId) external nonReentrant {
-        if (ownerOf(plotId) != msg.sender) revert NotPlotOwner();
-        if (listingPrice[plotId] == 0) revert NotListed();
-        listingPrice[plotId] = 0;
-        emit ListingCancelled(msg.sender, plotId);
-    }
-
-    /// @dev Flip cost = max(base, plotPrice) * 130%; listing may undercut.
-    function flipQuote(uint256 plotId)
-        public
-        view
-        returns (uint256 price, uint256 sellerProceeds, bool viaListing, uint256 flipAvailableAt)
-    {
-        uint256 base = flipPrice[plotId];
-        if (base < plotPrice) base = plotPrice;
-        uint256 flipCost = (base * FLIP_PREMIUM_BPS) / BPS_DENOM;
-        uint256 ask = listingPrice[plotId];
-        viaListing = ask != 0 && ask <= flipCost;
-        if (viaListing) {
-            price = ask;
-            sellerProceeds = (price * (BPS_DENOM - SALE_TAX_BPS)) / BPS_DENOM;
-            flipAvailableAt = 0; // listing buys ignore flip cooldown
-        } else {
-            price = flipCost;
-            sellerProceeds = (base * FLIP_SELLER_BPS) / BPS_DENOM;
-            uint256 unlockAt = uint256(_plots[plotId].acquiredAt) + FLIP_COOLDOWN;
-            flipAvailableAt = block.timestamp >= unlockAt ? 0 : unlockAt;
-        }
-    }
-
-    /// @notice Force-buy or take listing; burns flip spread (approve first).
-    /// @param maxPrice Slippage cap: revert if execution price > maxPrice.
-    function flipBuy(uint256 plotId, uint256 maxPrice) external nonReentrant {
-        _requireToken();
-        address seller = ownerOf(plotId);
-        if (seller == msg.sender) revert SelfTransfer();
-
-        (uint256 price, uint256 sellerProceeds, bool viaListing, uint256 flipAvailableAt) = flipQuote(plotId);
-        if (price > maxPrice) revert PriceExceedsMax();
-        if (!viaListing && flipAvailableAt != 0) revert FlipCooldown();
-
-        listingPrice[plotId] = 0;
-        _transfer(seller, msg.sender, plotId);
-        flipPrice[plotId] = price;
-
-        uint256 fee = price - sellerProceeds;
-        projectToken.safeTransferFrom(msg.sender, seller, sellerProceeds);
-        if (fee > 0) {
-            projectToken.safeTransferFrom(msg.sender, BURN_ADDRESS, fee);
-            totalSaleTax += fee;
-            emit TokensBurned(msg.sender, fee);
-        }
-
-        emit PlotFlipped(seller, msg.sender, plotId, price, fee, viaListing);
-    }
-
-    function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
-        address from = _ownerOf(tokenId);
-        if (from != address(0) && to != address(0) && from == to) revert SelfTransfer();
-        if (listingPrice[tokenId] != 0) {
-            listingPrice[tokenId] = 0;
-            if (from != address(0)) {
-                emit ListingCancelled(from, tokenId);
-            }
-        }
-        // Issue2 fix: pay unclaimed district stock to the previous owner BEFORE the deed moves.
-        // Applies to flipBuy, listing takes, and normal ERC721 transfers.
-        if (from != address(0) && to != address(0) && from != to) {
-            _payoutPendingStock(tokenId, from);
-        }
-        // Track per-district ownership for sellStockToVault self-deal ban.
-        if (tokenId < totalPlots) {
-            uint8 d = districtOf(tokenId);
-            if (from != address(0)) {
-                plotsOwnedInDistrict[d][from] -= 1;
-            }
-            if (to != address(0)) {
-                plotsOwnedInDistrict[d][to] += 1;
-            }
-        }
-        address prev = super._update(to, tokenId, auth);
-        if (to != address(0)) {
-            _plots[tokenId].acquiredAt = uint64(block.timestamp);
-        }
-        if (from != address(0) && to != address(0) && from != to) {
-            emit PlotTransferred(from, to, tokenId);
-        }
-        return prev;
-    }
-
-    // ---------------- map game: voucher claim ----------------
-
-    /// @notice Owner or Guardian: rotate the voucher signer. The ONLY mutable game parameter.
-    /// @dev There is no pause switch, no adjustable refill share, no payout ceiling and no
-    ///      game-pool withdrawal. Once funded, map inventory can leave the contract only
-    ///      through `claimGameVoucher`.
-    /// @param signer_ New voucher signer (address(0) disables claims entirely).
+    /// @notice Owner or Guardian: rotate the voucher signer (only mutable game parameter).
     function setGameSigner(address signer_) external {
         _requireOwnerOrGuardian();
         address prev = gameSigner;
@@ -4761,12 +4355,11 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         emit GameSignerUpdated(prev, signer_);
     }
 
-    /// @dev EIP-712 domain separator, computed live so it stays correct behind a proxy.
     function gameDomainSeparator() public view returns (bytes32) {
         return keccak256(
             abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                keccak256(bytes("WallStreetCity")),
+                keccak256(bytes("MapCityVault")),
                 keccak256(bytes("1")),
                 block.chainid,
                 address(this)
@@ -4774,7 +4367,6 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         );
     }
 
-    /// @notice Digest a walk-to-store voucher for off-chain signing / verification.
     function gameVoucherDigest(
         address to,
         uint8 district,
@@ -4839,284 +4431,116 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         return signer;
     }
 
-    /// @notice Map pool status for the UI / proof-of-reserves page.
-    function gameDistrictInfo(uint8 district)
-        external
-        view
-        returns (address stock, uint256 pool, uint256 funded, uint256 paid)
-    {
-        if (district >= DISTRICT_COUNT) revert BadDistrict();
-        stock = _districtAsset(district);
-        pool = gamePool[district];
-        funded = totalGameFunded[district];
-        paid = totalGamePaid[district];
+    // ---------------- guardian rescue ----------------
+
+    /// @notice Guardian-only rescue for excess native BNB (cannot touch refill buckets).
+    function emergencyWithdrawNative(address to, uint256 amount) external nonReentrant {
+        _requireGuardian();
+        if (to == address(0)) revert ZeroAddress();
+        if (amount == 0) revert WrongPayment();
+        uint256 reserved = outstandingRewards();
+        if (address(this).balance < reserved + amount) revert EmergencyReserve();
+        (bool ok, ) = to.call{value: amount}("");
+        if (!ok) revert RewardPayFailed();
+        emit EmergencyWithdraw(msg.sender, to, address(0), amount);
     }
 
-    function claim(uint256 plotId) external nonReentrant {
-        _claimOne(plotId);
-    }
+    /// @notice Guardian-only rescue for stray ERC20. Map inventory can never be withdrawn.
+    function emergencyWithdrawToken(address token, address to, uint256 amount) external nonReentrant {
+        _requireGuardian();
+        if (to == address(0) || token == address(0)) revert ZeroAddress();
+        if (amount == 0) revert WrongPayment();
 
-    function claimMany(uint256[] calldata plotIds) external nonReentrant {
-        for (uint256 i = 0; i < plotIds.length; i++) {
-            _claimOne(plotIds[i]);
-        }
-    }
-
-    function _claimOne(uint256 plotId) private {
-        if (ownerOf(plotId) != msg.sender) revert NotPlotOwner();
-        uint256 stockOwed = _payoutPendingStock(plotId, msg.sender);
-        if (stockOwed == 0) revert NothingToClaim();
-    }
-
-    /// @dev Pays pending district stock for `plotId` to `recipient` and zeros the plot accrual.
-    ///      Returns the stock amount paid (0 if nothing pending). Does not check NFT ownership.
-    function _payoutPendingStock(uint256 plotId, address recipient) private returns (uint256 stockOwed) {
-        PlotState storage p = _plots[plotId];
-        if (p.mintedAt == 0) return 0;
-
-        uint8 d = districtOf(plotId);
-        stockOwed = uint256(p.accrued) + (accPerPlot[d] - p.rewardDebt) / ACC_PRECISION;
-        if (stockOwed == 0) {
-            // Keep debts aligned even when nothing is owed.
-            p.rewardDebt = accPerPlot[d];
-            p.rewardDebtToken = accTokenPerPlot[d];
-            return 0;
-        }
-
-        p.accrued = 0;
-        p.rewardDebt = accPerPlot[d];
-        p.rewardDebtToken = accTokenPerPlot[d];
-
-        totalStockClaimed[d] += stockOwed;
-        IERC20(_districtAsset(d)).safeTransfer(recipient, stockOwed);
-        emit RewardClaimed(recipient, plotId, _districtAsset(d), stockOwed, 0);
-    }
-
-    function pendingReward(uint256 plotId) public view returns (uint256) {
-        PlotState storage p = _plots[plotId];
-        if (p.mintedAt == 0) return 0;
-        uint8 d = districtOf(plotId);
-        return uint256(p.accrued) + (accPerPlot[d] - p.rewardDebt) / ACC_PRECISION;
-    }
-
-    /// @dev Always 0; kept for ABI/storage compatibility (no token dividends).
-    function pendingTokenReward(uint256 plotId) public view returns (uint256) {
-      PlotState storage p = _plots[plotId];
-      if (p.mintedAt == 0) return 0;
-      uint8 d = districtOf(plotId);
-      return (accTokenPerPlot[d] - p.rewardDebtToken) / ACC_PRECISION;
-  }
-
-    function plotInfo(uint256 plotId)
-        external
-        view
-        returns (address plotOwner, uint256 x, uint256 y, uint256 mintedAt, uint256 pending, uint256 pendingToken)
-    {
-        if (plotId >= totalPlots) revert InvalidPlot();
-        plotOwner = _ownerOf(plotId);
-        x = plotId % gridSize;
-        y = plotId / gridSize;
-        mintedAt = _plots[plotId].mintedAt;
-        pending = pendingReward(plotId);
-        pendingToken = pendingTokenReward(plotId);
-    }
-
-    /// @dev Batch plot owners, stock pendings, listing/flip prices, acquiredAts.
-    ///      tokenPendings are unused (always 0).
-    function plotsInfo(uint256 offset, uint256 limit)
-        external
-        view
-        returns (
-            address[] memory owners,
-            uint256[] memory pendings,
-            uint256[] memory tokenPendings,
-            uint256[] memory prices,
-            uint256[] memory flipPrices,
-            uint256[] memory acquiredAts
-        )
-    {
-        uint256 end = offset + limit;
-        if (end > totalPlots) end = totalPlots;
-        uint256 n = end > offset ? end - offset : 0;
-        owners = new address[](n);
-        pendings = new uint256[](n);
-        tokenPendings = new uint256[](n);
-        prices = new uint256[](n);
-        flipPrices = new uint256[](n);
-        acquiredAts = new uint256[](n);
-        for (uint256 i = 0; i < n; i++) {
-            uint256 plotId = offset + i;
-            owners[i] = _ownerOf(plotId);
-            pendings[i] = pendingReward(plotId);
-            tokenPendings[i] = pendingTokenReward(plotId);
-            prices[i] = listingPrice[plotId];
-            flipPrices[i] = flipPrice[plotId];
-            acquiredAts[i] = _plots[plotId].acquiredAt;
-        }
-    }
-
-    /// @dev Vault BNB balance (reward reserve).
-    function rewardReserve() public view returns (uint256) {
-        return address(this).balance;
-    }
-
-    /// @dev Sum of pendingBnb buckets + bufferedBnb (owed to future stock accrual).
-    function outstandingRewards() public view returns (uint256 totalPending) {
         for (uint256 d = 0; d < DISTRICT_COUNT; d++) {
-            totalPending += pendingBnb[d];
+            if (token != _districtAsset(d)) continue;
+            uint256 bal = IERC20(token).balanceOf(address(this));
+            if (bal < gamePool[d] + amount) revert EmergencyReserve();
+            break;
         }
-        totalPending += bufferedBnb;
+
+        IERC20(token).safeTransfer(to, amount);
+        emit EmergencyWithdraw(msg.sender, to, token, amount);
     }
 
-    /// @dev Reserve vs outstanding BNB buckets; solvent if reserve >= outstanding.
-    function treasuryStatus()
-        external
-        view
-        returns (uint256 reserve, uint256 outstanding, bool solvent)
-    {
-        reserve = rewardReserve();
-        outstanding = outstandingRewards();
-        solvent = reserve >= outstanding;
+    // ---------------- Portal / pricing (UI) ----------------
+
+    function marketMeta() external view returns (uint8 status, address pool) {
+        _requireToken();
+        IFlapPortal.TokenStateV8Safe memory s = flapPortal.getTokenV8Safe(address(projectToken));
+        return (s.status, s.pool);
     }
 
-    /// @dev Vault BNB balance valued via Chainlink BNB/USD (1e18).
-    function reserveUsd() external view returns (uint256 usd1e18) {
-        uint256 bal = address(this).balance;
-        if (bal == 0) return 0;
-        uint256 bnbUsd = _readFeed(BNB_USD_FEED);
-        usd1e18 = (bal * bnbUsd) / 1e18;
-    }
-
-    /// @dev Stock amount valued via district Chainlink feed (1e18 USD).
-    function stockValueUsd(uint8 district, uint256 stockAmount) external view returns (uint256 usd1e18) {
-        if (district >= DISTRICT_COUNT) revert BadDistrict();
-        if (stockAmount == 0) return 0;
-        uint256 stockUsd = _readFeed(_districtFeed(district));
-        usd1e18 = (stockAmount * stockUsd) / 1e18;
-    }
-
-    /// @dev BNB + held stock balances valued in USD (1e18).
-    function totalAssetsUsd() external view returns (uint256 usd1e18) {
-        uint256 bal = address(this).balance;
-        if (bal > 0) {
-            usd1e18 = (bal * _readFeed(BNB_USD_FEED)) / 1e18;
+    function tokenPriceBnbWei() public view returns (uint256 priceWeiPerToken) {
+        _requireToken();
+        IFlapPortal.TokenStateV8Safe memory s = flapPortal.getTokenV8Safe(address(projectToken));
+        if (s.status != 1 && s.status != 4) revert BadTokenStatus();
+        if (s.status == 1) {
+            if (s.price == 0) revert ZeroSpotPrice();
+            return s.price;
         }
-        for (uint256 d = 0; d < DISTRICT_COUNT; d++) {
-            address stock = _districtAsset(d);
-            if (stock == address(0)) continue;
-            uint256 stockBal = IERC20(stock).balanceOf(address(this));
-            if (stockBal == 0) continue;
-            usd1e18 += (stockBal * _readFeed(_districtFeed(d))) / 1e18;
-        }
+        if (s.pool == address(0)) revert NoPool();
+        address wbnb = _wbnb();
+        (uint112 r0, uint112 r1,) = IPancakePair(s.pool).getReserves();
+        address t0 = IPancakePair(s.pool).token0();
+        (uint256 reserveBnb, uint256 reserveTok) = t0 == wbnb
+            ? (uint256(r0), uint256(r1))
+            : (uint256(r1), uint256(r0));
+        if (reserveBnb == 0 || reserveTok == 0) revert EmptyReserves();
+        uint8 tokDec = IERC20Metadata(address(projectToken)).decimals();
+        priceWeiPerToken = (reserveBnb * (10 ** uint256(tokDec))) / reserveTok;
+        if (priceWeiPerToken == 0) revert ZeroSpotPrice();
     }
 
-    // ---------------- Flap VaultBaseV2 ----------------
-
-    /// @dev Project / tax token address for Flap host.
-    function taxToken() external view returns (address) {
-        return address(projectToken);
-    }
+    // ---------------- Flap metadata ----------------
 
     function description() public view override returns (string memory) {
-        return string(
-            abi.encodePacked(
-                "Wall Street City: 9 stock districts, all-token land; ",
-                "tax BNB 10% ops + 90% equal-per-plot stock dividends; ",
-                "15% flip spread burned; soldPlots=",
-                soldPlots.toString(),
-                " opsPaidWei=",
-                totalOpsBnbPaid.toString()
-            )
-        );
+        return
+            "Map City: project tax BNB funds 9 district buckets. Anyone can sell the district's "
+            "tokenized equity to the vault at Chainlink x Flap NAV x 1.02 for BNB, and 100% of that "
+            "stock becomes walk-to-store map rewards. Rewards leave only via a signed player voucher.";
     }
 
     function vaultUISchema() public pure override returns (VaultUISchema_1 memory schema) {
-        schema.vaultType = "WallStreetCity";
+        schema.vaultType = "MapCityVault";
         schema.description =
-            "Wall Street City land vault. Buy/flip with project token (flip spread burned); claim stock dividends; keeper sells stock for district BNB.";
+            "Walk-to-store map rewards funded by permissionless refills. No NFT, no dividends, no admin payout path.";
+        schema.methods = new VaultMethodSchema_1[](2);
 
-        schema.methods = new VaultMethodSchema_1[](4);
-
-        schema.methods[0].name = "buyWithToken";
+        schema.methods[0].name = "sellStockToVault";
         schema.methods[0].description =
-            "Buy an empty plot; burns 500000 project tokens. Max 5/wallet, 1/tx, 30s global rate limit.";
+            "Permissionless refill: sell district stock to the vault for BNB. 100% funds the map reward pool.";
         schema.methods[0].isWriteMethod = true;
-        schema.methods[0].inputs = new FieldDescriptor_1[](1);
-        schema.methods[0].inputs[0] = FieldDescriptor_1("plotId", "uint256", "Plot id", 0);
-        schema.methods[0].approvals = new ApproveAction_1[](1);
-        schema.methods[0].approvals[0] = ApproveAction_1("taxToken", "plotPrice");
+        schema.methods[0].inputs = new FieldDescriptor_1[](2);
+        schema.methods[0].inputs[0] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
+        schema.methods[0].inputs[1] = FieldDescriptor_1("stockAmount", "uint256", "Stock amount (1e18)", 18);
 
-        schema.methods[1].name = "flipBuy";
+        schema.methods[1].name = "claimGameVoucher";
         schema.methods[1].description =
-            "Force-buy or take a listing with project tokens. Pass maxPrice as slippage cap.";
+            "Redeem a signed walk-to-store voucher. Anyone may relay; the reward always goes to `to`.";
         schema.methods[1].isWriteMethod = true;
-        schema.methods[1].inputs = new FieldDescriptor_1[](2);
-        schema.methods[1].inputs[0] = FieldDescriptor_1("plotId", "uint256", "Plot id", 0);
-        schema.methods[1].inputs[1] = FieldDescriptor_1("maxPrice", "uint256", "Max acceptable price (slippage)", 18);
-        schema.methods[1].approvals = new ApproveAction_1[](1);
-        schema.methods[1].approvals[0] = ApproveAction_1("taxToken", "price");
-
-        schema.methods[2].name = "claim";
-        schema.methods[2].description = "Claim stock dividends for one plot. Transfers/flips auto-pay unclaimed stock to the previous owner first.";
-        schema.methods[2].isWriteMethod = true;
-        schema.methods[2].inputs = new FieldDescriptor_1[](1);
-        schema.methods[2].inputs[0] = FieldDescriptor_1("plotId", "uint256", "Plot id", 0);
-
-        schema.methods[3].name = "sellStockToVault";
-        schema.methods[3].description =
-            "Keeper only: sell district stock for BNB. Reverts if caller owns any plot in that district.";
-        schema.methods[3].isWriteMethod = true;
-        schema.methods[3].inputs = new FieldDescriptor_1[](2);
-        schema.methods[3].inputs[0] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
-        schema.methods[3].inputs[1] = FieldDescriptor_1("stockAmount", "uint256", "Stock amount (1e18)", 18);
-    }
-
-    function tokenURI(uint256 plotId) public view override returns (string memory) {
-        _requireOwned(plotId);
-        uint256 x = plotId % gridSize;
-        uint256 y = plotId / gridSize;
-        uint256 d = districtOf(plotId);
-        return string(
-            abi.encodePacked(
-                "data:application/json;utf8,",
-                '{"name":"Wall Street Plot #', plotId.toString(),
-                '","description":"One block of Wall Street City. Stock dividends stay with the deed.",',
-                '"attributes":[{"trait_type":"x","value":', x.toString(),
-                '},{"trait_type":"y","value":', y.toString(),
-                '},{"trait_type":"district","value":', d.toString(), "}]}"
-            )
-        );
+        schema.methods[1].inputs = new FieldDescriptor_1[](7);
+        schema.methods[1].inputs[0] = FieldDescriptor_1("to", "address", "Player wallet", 0);
+        schema.methods[1].inputs[1] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
+        schema.methods[1].inputs[2] = FieldDescriptor_1("amount", "uint256", "Reward amount (1e18)", 18);
+        schema.methods[1].inputs[3] = FieldDescriptor_1("spawnId", "bytes32", "Map spawn id", 0);
+        schema.methods[1].inputs[4] = FieldDescriptor_1("nonce", "uint256", "Voucher nonce", 0);
+        schema.methods[1].inputs[5] = FieldDescriptor_1("deadline", "uint256", "Voucher deadline (unix)", 0);
+        schema.methods[1].inputs[6] = FieldDescriptor_1("signature", "bytes", "Server EIP-712 signature", 0);
     }
 
     /// @dev Reserved for future upgrades (OZ storage gap).
-    ///      Reduced by 2 for primaryMintCount + lastGlobalPrimaryMintAt.
-    uint256[37] private __gap;
+    uint256[40] private __gap;
 }
 
-// src/WallStreetCityBeacon.sol
-
-/// @title WallStreetCityBeaconFactory
-/// @notice FreeCoinVaultBeaconFactory-style Flap factory: Factory owns the beacon.
-/// @dev Remix: deploy ONLY `WallStreetCityBeaconFactory(devAddress)` — constructor
-///      internally `new`s the implementation + `UpgradeableBeacon(impl, address(this))`.
-///      Upgrade authority is Guardian-only via `upgradeVaultImplementation` (zero exceptions:
-///      no deployer EOA / multisig / separate beacon owner). Dual gate on `newVault`:
-///        A) msg.sender == VaultPortal
-///        B) creator    == devAddress (immutable whitelist)
-contract WallStreetCityBeaconFactory is VaultFactoryBaseV2 {
-    /// @notice Only this creator may launch via Portal (immutable at deploy).
+/// @title MapCityBeaconFactory
+/// @notice Flap-style beacon factory: the factory owns the beacon, Guardian upgrades it.
+contract MapCityBeaconFactory is VaultFactoryBaseV2 {
     address public immutable devAddress;
-    /// @notice UpgradeableBeacon owned by this factory (never an external initialOwner).
     address public immutable beacon;
 
     address[] public allVaults;
 
-    event VaultCreated(
-        address indexed vault,
-        address indexed taxToken,
-        address indexed creator,
-        address opsWallet
-    );
+    event VaultCreated(address indexed vault, address indexed taxToken, address indexed creator, address opsWallet);
     event VaultImplementationUpgraded(address indexed previousImplementation, address indexed newImplementation);
     event VaultUpgradesLocked(address indexed beacon);
 
@@ -5124,19 +4548,14 @@ contract WallStreetCityBeaconFactory is VaultFactoryBaseV2 {
     error ZeroDev();
     error OnlyGuardian();
 
-    /// @param _devAddress Whitelisted Flap creator (must match Portal-injected creator).
     constructor(address _devAddress) {
         if (_devAddress == address(0)) revert ZeroDev();
         devAddress = _devAddress;
 
-        WallStreetCityUpgradeable impl = new WallStreetCityUpgradeable();
-        // OZ v5 requires initialOwner; factory itself is the only beacon owner.
+        MapCityVaultUpgradeable impl = new MapCityVaultUpgradeable();
         beacon = address(new UpgradeableBeacon(address(impl), address(this)));
     }
 
-    /// @param taxToken  Predicted tax token from VaultPortal (may not exist yet).
-    /// @param creator   Launch creator from Portal — must equal `devAddress`.
-    /// @param vaultData abi.encode(address opsWallet); 0 / empty => opsWallet = creator.
     function newVault(
         address taxToken,
         address, /* quoteToken */
@@ -5159,16 +4578,13 @@ contract WallStreetCityBeaconFactory is VaultFactoryBaseV2 {
         vault = address(
             new BeaconProxy(
                 beacon,
-                abi.encodeCall(
-                    WallStreetCityUpgradeable.initialize, (creator, taxToken, opsWallet)
-                )
+                abi.encodeCall(MapCityVaultUpgradeable.initialize, (creator, taxToken, opsWallet))
             )
         );
         allVaults.push(vault);
         emit VaultCreated(vault, taxToken, creator, opsWallet);
     }
 
-    /// @notice Guardian-only: upgrade the shared beacon implementation for all proxies.
     function upgradeVaultImplementation(address newImplementation) external {
         if (msg.sender != _getGuardian()) revert OnlyGuardian();
         address prev = UpgradeableBeacon(beacon).implementation();
@@ -5176,24 +4592,22 @@ contract WallStreetCityBeaconFactory is VaultFactoryBaseV2 {
         emit VaultImplementationUpgraded(prev, newImplementation);
     }
 
-    /// @notice Guardian-only: permanently renounce beacon ownership (irreversible).
     function lockVaultUpgrades() external {
         if (msg.sender != _getGuardian()) revert OnlyGuardian();
         UpgradeableBeacon(beacon).renounceOwnership();
         emit VaultUpgradesLocked(beacon);
     }
 
-    /// @notice True once `lockVaultUpgrades` renounced beacon ownership to address(0).
     function isVaultUpgradesLocked() external view returns (bool locked) {
         locked = UpgradeableBeacon(beacon).owner() == address(0);
     }
 
-    function isQuoteTokenSupported(address quoteToken) external pure override returns (bool supported) {
-        supported = quoteToken == address(0);
-    }
-
     function vaultCount() external view returns (uint256) {
         return allVaults.length;
+    }
+
+    function isQuoteTokenSupported(address quoteToken) external pure override returns (bool supported) {
+        supported = quoteToken == address(0);
     }
 
     function beaconImplementation() external view returns (address) {
@@ -5207,14 +4621,14 @@ contract WallStreetCityBeaconFactory is VaultFactoryBaseV2 {
         returns (bool success, string memory reason)
     {
         if (data.quoteToken != address(0)) {
-            return (false, "WallStreetCity supports native BNB quote only.");
+            return (false, "MapCityVault supports native BNB quote only.");
         }
         return (true, "");
     }
 
     function vaultDataSchema() public pure override returns (VaultDataSchema memory schema) {
         schema.description =
-            "Beacon-proxied WallStreetCity land vault (24x24). "
+            "Beacon-proxied Map City reward vault. "
             "Factory owns the beacon; upgrades are Guardian-only. "
             "Address-gated launch: only whitelisted creator may launch. "
             "opsWallet receives 10% of inbound tax BNB (0 => creator).";
