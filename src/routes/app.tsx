@@ -297,6 +297,7 @@ function AppMap() {
             pins={pins}
             points={points}
             me={fix ? { lat: fix.lat, lng: fix.lng } : null}
+            meRadiusM={radius}
             selected={selected}
             {...(fix ? { center: [fix.lng, fix.lat] as [number, number], zoom: 13 } : {})}
 
