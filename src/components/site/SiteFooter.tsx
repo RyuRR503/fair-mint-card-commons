@@ -25,14 +25,15 @@ export function SiteFooter() {
           </div>
 
           <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm sm:grid-cols-3">
-            <FooterLink to="/how-it-works">{t("How it works", "玩法")}</FooterLink>
-            <FooterLink to="/legendary">{t("Legendary", "传奇掉落")}</FooterLink>
-            <FooterLink to="/proof">{t("Proof of reserves", "储备证明")}</FooterLink>
+            <FooterLink to="/app">{t("Map & catch", "抓取地图")}</FooterLink>
+            <FooterLink to="/how-it-works">{t("How it works", "玩法说明")}</FooterLink>
+            <FooterLink to="/legendary">{t("Legendary", "每日传奇")}</FooterLink>
+            <FooterLink to="/proof">{t("Proof of reserves", "金库储备")}</FooterLink>
             <FooterLink to="/sponsor">{t("Sponsor a spot", "品牌合作")}</FooterLink>
-            <FooterLink to="/roadmap">{t("Roadmap", "路线图")}</FooterLink>
-            <FooterLink to="/docs">{t("Docs", "文档")}</FooterLink>
+            <FooterLink to="/roadmap">{t("Roadmap", "开发计划")}</FooterLink>
             <FooterLink to="/download">{t("Get the app", "下载 App")}</FooterLink>
-            <FooterLink to="/app">{t("Open the map", "打开地图")}</FooterLink>
+            <FooterLink to="/docs">{t("Docs", "开发文档")}</FooterLink>
+
             <a
               href="https://x.com/catchonchain"
               target="_blank"

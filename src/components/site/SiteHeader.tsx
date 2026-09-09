@@ -7,15 +7,17 @@ function useNav() {
   const t = useT();
   return [
     { to: "/", label: t("Home", "首页") },
-    { to: "/how-it-works", label: t("How it works", "玩法") },
-    { to: "/legendary", label: t("Legendary", "传奇") },
+    { to: "/app", label: t("Map & catch", "抓取地图") },
+    { to: "/how-it-works", label: t("How it works", "玩法说明") },
+    { to: "/legendary", label: t("Legendary", "每日传奇") },
+    { to: "/proof", label: t("Proof", "金库储备") },
     { to: "/sponsor", label: t("Sponsor", "品牌合作") },
-    { to: "/proof", label: t("Proof", "储备证明") },
-    { to: "/roadmap", label: t("Roadmap", "路线图") },
-    { to: "/download", label: t("Get the app", "下载") },
-    { to: "/docs", label: t("Docs", "文档") },
+    { to: "/roadmap", label: t("Roadmap", "开发计划") },
+    { to: "/download", label: t("Get the app", "下载 App") },
+    { to: "/docs", label: t("Docs", "开发文档") },
   ] as const;
 }
+
 
 export function LangToggle({ className = "" }: { className?: string }) {
   const { lang, setLang } = useLang();
@@ -68,7 +70,10 @@ export function CatchMark({ className = "" }: { className?: string }) {
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const t = useT();
+  const { lang } = useLang();
   const NAV = useNav();
+  const navText = lang === "zh" ? "text-[13px]" : "text-[10px]";
+
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 px-3 py-3 backdrop-blur-xl sm:px-5">
@@ -85,21 +90,23 @@ export function SiteHeader() {
               to={item.to}
               activeOptions={{ exact: item.to === "/" }}
               activeProps={{ className: "!text-primary bg-primary/10" }}
-              className="label-caps rounded-md px-2.5 py-2 text-[10px] text-muted-foreground transition-colors hover:text-foreground"
+              className={`label-caps rounded-md px-2.5 py-2 ${navText} text-muted-foreground transition-colors hover:text-foreground`}
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
+
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
           <LangToggle className="hidden sm:flex" />
           <Link
             to="/app"
-            className="label-caps rounded-md bg-primary px-4 py-2.5 text-[10px] text-primary-foreground halation transition-all duration-300 hover:shadow-[var(--shadow-glossy)]"
+            className={`label-caps rounded-md bg-primary px-4 py-2.5 ${navText} text-primary-foreground halation transition-all duration-300 hover:shadow-[var(--shadow-glossy)]`}
           >
-            {t("Start hunting", "开始捕捉")}
+            {t("Start hunting", "开始抓取")}
           </Link>
+
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
@@ -120,7 +127,7 @@ export function SiteHeader() {
               onClick={() => setOpen(false)}
               activeOptions={{ exact: item.to === "/" }}
               activeProps={{ className: "!text-primary bg-primary/10" }}
-              className="label-caps rounded-md px-4 py-3 text-[11px] text-muted-foreground"
+              className={`label-caps rounded-md px-4 py-3 ${lang === "zh" ? "text-[14px]" : "text-[11px]"} text-muted-foreground`}
             >
               {item.label}
             </Link>
