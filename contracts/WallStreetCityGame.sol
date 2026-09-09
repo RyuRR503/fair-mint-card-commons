@@ -4843,13 +4843,11 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
     function gameDistrictInfo(uint8 district)
         external
         view
-        returns (address stock, uint256 pool, uint256 dailyCap, uint256 spentToday, uint256 funded, uint256 paid)
+        returns (address stock, uint256 pool, uint256 funded, uint256 paid)
     {
         if (district >= DISTRICT_COUNT) revert BadDistrict();
         stock = _districtAsset(district);
         pool = gamePool[district];
-        dailyCap = gameDailyCap[district];
-        spentToday = gameDaySpentAt[district] == block.timestamp / 1 days ? gameDaySpent[district] : 0;
         funded = totalGameFunded[district];
         paid = totalGamePaid[district];
     }
