@@ -433,7 +433,7 @@ export const getClaims = createServerFn({ method: "GET" })
 /* ---------------------------------------------------------------- reserves */
 
 export const getVault = createServerFn({ method: "GET" }).handler(async () => {
-  const vault = process.env["VAULT_ADDRESS"] ?? VAULT_ADDRESS;
+  const vault = vaultAddress();
   const rpc = CHAIN.rpc;
   const live = liveMode();
 
@@ -467,13 +467,15 @@ export const getVault = createServerFn({ method: "GET" }).handler(async () => {
 
   const balances = await Promise.all(
     TOKENS.map(async (t) => {
-      const onChain = await balanceOf(t.address);
+      const address = tokenAddressFor(t.symbol, t.address);
+      const onChain = await balanceOf(address);
       // Demo reserve so the page is never empty before the vault is funded.
       const balance = onChain ?? t.fragment * (t.rarity === "legendary" ? 1 : 25);
       return {
         symbol: t.symbol,
-        address: t.address,
+        address,
         balance,
+
         fragment: t.fragment,
         drops: Math.floor(balance / t.fragment),
         rarity: t.rarity,
