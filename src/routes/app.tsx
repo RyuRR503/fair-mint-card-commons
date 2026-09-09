@@ -7,7 +7,7 @@ import { type MapPin } from "@/components/site/WorldMap";
 import { LiveMap } from "@/components/site/LiveMap";
 import type { MapPoint } from "@/components/site/GeoMap.client";
 
-import { claimDrop, getSpawns, RULES } from "@/lib/game.functions";
+import { claimDrop, getSpawns, recordClaimTx, RULES } from "@/lib/game.functions";
 import { catchRadius, formatDistance, haversine } from "@/lib/geo";
 import { CHAIN, RARITY_LABEL, rarityVar } from "@/lib/tokens";
 import type { Rarity } from "@/lib/tokens";
@@ -66,6 +66,8 @@ function AppMap() {
   const { lang } = useLang();
   const fetchSpawns = useServerFn(getSpawns);
   const claim = useServerFn(claimDrop);
+  const recordTx = useServerFn(recordClaimTx);
+
 
   const [spawns, setSpawns] = useState<Spawn[]>([]);
   const [fix, setFix] = useState<Fix | null>(null);
