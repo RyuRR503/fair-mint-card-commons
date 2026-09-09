@@ -277,6 +277,39 @@ export const claimDrop = createServerFn({ method: "POST" })
 
     // the drop's own cooldown is authoritative and was checked above (respawn_at)
 
+    // 4b. whole-site hourly payout ceiling, priced in USD (Grass-style)
+    const hourAgo = new Date(now - 3600e3).toISOString();
+    const { data: hourCatches } = await db
+      .from("catches")
+      .select("symbol, amount")
+      .gte("created_at", hourAgo);
+    const hourlyToken = TOKEN_BY_SYMBOL[spawn.symbol]!;
+    const symbols = new Set((hourCatches ?? []).map((c) => c.symbol));
+    symbols.add(hourlyToken.symbol);
+    const prices = new Map<string, number>();
+    await Promise.all(
+      [...symbols].map(async (sym) => {
+        const t = TOKEN_BY_SYMBOL[sym];
+        if (!t) return;
+        const p = await feedPriceUsd(t.feed);
+        if (p != null) prices.set(sym, p);
+      }),
+    );
+    if (prices.has(hourlyToken.symbol)) {
+      let spentUsd = 0;
+      let unknown = false;
+      for (const c of hourCatches ?? []) {
+        const p = prices.get(c.symbol);
+        if (p == null) unknown = true;
+        else spentUsd += Number(c.amount) * p;
+      }
+      const thisUsd = hourlyToken.fragment * prices.get(hourlyToken.symbol)!;
+      if (!unknown && spentUsd + thisUsd > RULES.hourlyUsdCap)
+        return fail(
+          "This hour's prize budget is used up. New budget unlocks within the hour — try again soon.",
+        );
+    }
+
     // 5. travel: no teleporting, no city hopping
     const { data: fixes } = await db
       .from("position_log")
