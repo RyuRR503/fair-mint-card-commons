@@ -102,10 +102,11 @@ export function SiteHeader() {
           <LangToggle className="hidden sm:flex" />
           <Link
             to="/app"
-            className="label-caps rounded-md bg-primary px-4 py-2.5 text-[10px] text-primary-foreground halation transition-all duration-300 hover:shadow-[var(--shadow-glossy)]"
+            className={`label-caps rounded-md bg-primary px-4 py-2.5 ${navText} text-primary-foreground halation transition-all duration-300 hover:shadow-[var(--shadow-glossy)]`}
           >
-            {t("Start hunting", "开始捕捉")}
+            {t("Start hunting", "开始抓取")}
           </Link>
+
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
