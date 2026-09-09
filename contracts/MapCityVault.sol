@@ -4605,4 +4605,40 @@ contract MapCityBeaconFactory is VaultFactoryBaseV2 {
     function vaultCount() external view returns (uint256) {
         return allVaults.length;
     }
+
+    function isQuoteTokenSupported(address quoteToken) external pure override returns (bool supported) {
+        supported = quoteToken == address(0);
+    }
+
+    function beaconImplementation() external view returns (address) {
+        return UpgradeableBeacon(beacon).implementation();
+    }
+
+    function _validateBeforeLaunch(IVaultFactoryValidationV2.LaunchValidationDataV1 memory data)
+        internal
+        pure
+        override
+        returns (bool success, string memory reason)
+    {
+        if (data.quoteToken != address(0)) {
+            return (false, "MapCityVault supports native BNB quote only.");
+        }
+        return (true, "");
+    }
+
+    function vaultDataSchema() public pure override returns (VaultDataSchema memory schema) {
+        schema.description =
+            "Beacon-proxied Map City reward vault. "
+            "Factory owns the beacon; upgrades are Guardian-only. "
+            "Address-gated launch: only whitelisted creator may launch. "
+            "opsWallet receives 10% of inbound tax BNB (0 => creator).";
+        schema.fields = new FieldDescriptor_0[](1);
+        schema.fields[0] = FieldDescriptor_0(
+            "opsWallet",
+            "address",
+            "Ops treasury (10% tax BNB). Use 0 to default to creator.",
+            0
+        );
+        schema.isArray = false;
+    }
 }
