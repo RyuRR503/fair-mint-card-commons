@@ -4143,27 +4143,18 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
 
     // ---------------- map game (walk-to-store claim) ----------------
 
-    /// @dev Max share of each keeper refill that may be routed to the map reward pool.
-    uint16 public constant MAX_GAME_BPS = 3000;
+    /// @dev Fixed share of every permissionless refill routed to the map reward pool.
+    ///      Immutable by design: no admin can raise, lower or redirect it.
+    uint16 public constant GAME_BPS = 1000; // 10%
     /// @dev EIP-712 typehash for a walk-to-store voucher.
     bytes32 public constant GAME_VOUCHER_TYPEHASH = keccak256(
         "GameVoucher(address to,uint8 district,uint256 amount,bytes32 spawnId,uint256 nonce,uint256 deadline)"
     );
 
-    /// @dev Share (bps) of every keeper refill routed to the map reward pool instead of plot holders.
-    uint16 public gameBps;
-    /// @dev Signer allowed to authorize map claims (server / multisig-controlled key).
+    /// @dev Signer allowed to authorize map claims. The only mutable game parameter.
     address public gameSigner;
-    /// @dev Map claims halted when true.
-    bool public gamePaused;
     /// @dev Unclaimed map reward inventory per district (stock units, 18 decimals).
     uint256[DISTRICT_COUNT] public gamePool;
-    /// @dev Max stock units payable per district per UTC day (0 = district disabled).
-    uint256[DISTRICT_COUNT] public gameDailyCap;
-    /// @dev Stock units already paid in `gameDaySpentAt` day, per district.
-    uint256[DISTRICT_COUNT] public gameDaySpent;
-    /// @dev UTC day index of the counters above, per district.
-    uint256[DISTRICT_COUNT] public gameDaySpentAt;
     /// @dev Cumulative map rewards funded / paid per district.
     uint256[DISTRICT_COUNT] public totalGameFunded;
     uint256[DISTRICT_COUNT] public totalGamePaid;
@@ -4191,8 +4182,7 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
     event StockSoldToVault(
         address indexed keeper, uint8 indexed district, address stock, uint256 stockAmount, uint256 bnbPaid
     );
-    event GameConfigUpdated(uint16 gameBps, address indexed signer, bool paused);
-    event GameDailyCapUpdated(uint8 indexed district, uint256 cap);
+    event GameSignerUpdated(address indexed prev, address indexed next);
     event GamePoolFunded(uint8 indexed district, uint256 amount);
     event GameRewardClaimed(
         address indexed to, uint8 indexed district, bytes32 indexed spawnId, address stock, uint256 amount, uint256 nonce
@@ -4235,14 +4225,11 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
     error MintBatchTooLarge();
     /// @dev Global primary mint attempted before GLOBAL_MINT_COOLDOWN elapsed.
     error GlobalMintCooldownActive();
-    error GamePaused();
     error GameSignerUnset();
     error BadGameSignature();
     error GameVoucherExpired();
     error GameNonceUsed();
-    error GameCapExceeded();
     error GamePoolEmpty();
-    error BadGameBps();
 
     /// @dev Flap tokenized equity for district 0..8 on BSC.
     function _districtAsset(uint256 district) private pure returns (address) {
@@ -4506,7 +4493,7 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         pendingBnb[district] -= bnbOwed;
 
         // Route a fixed share of every permissionless refill into the map reward pool.
-        uint256 gameCut = (stockAmount * gameBps) / BPS_DENOM;
+        uint256 gameCut = (stockAmount * GAME_BPS) / BPS_DENOM;
         uint256 plotCut = stockAmount - gameCut;
         if (gameCut != 0) {
             gamePool[district] += gameCut;
@@ -4762,25 +4749,16 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
 
     // ---------------- map game: voucher claim ----------------
 
-    /// @notice Owner or Guardian: configure the map reward pool.
-    /// @param bps_ Share of each keeper refill routed to the map pool (max MAX_GAME_BPS).
-    /// @param signer_ Voucher signer (address(0) disables claims).
-    /// @param paused_ Halt map claims.
-    function setGameConfig(uint16 bps_, address signer_, bool paused_) external {
+    /// @notice Owner or Guardian: rotate the voucher signer. The ONLY mutable game parameter.
+    /// @dev There is no pause switch, no adjustable refill share, no payout ceiling and no
+    ///      game-pool withdrawal. Once funded, map inventory can leave the contract only
+    ///      through `claimGameVoucher`.
+    /// @param signer_ New voucher signer (address(0) disables claims entirely).
+    function setGameSigner(address signer_) external {
         _requireOwnerOrGuardian();
-        if (bps_ > MAX_GAME_BPS) revert BadGameBps();
-        gameBps = bps_;
+        address prev = gameSigner;
         gameSigner = signer_;
-        gamePaused = paused_;
-        emit GameConfigUpdated(bps_, signer_, paused_);
-    }
-
-    /// @notice Owner or Guardian: per-district daily payout ceiling (stock units, 18 decimals).
-    function setGameDailyCap(uint8 district, uint256 cap) external {
-        _requireOwnerOrGuardian();
-        if (district >= DISTRICT_COUNT) revert BadDistrict();
-        gameDailyCap[district] = cap;
-        emit GameDailyCapUpdated(district, cap);
+        emit GameSignerUpdated(prev, signer_);
     }
 
     /// @dev EIP-712 domain separator, computed live so it stays correct behind a proxy.
@@ -4820,7 +4798,6 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         uint256 deadline,
         bytes calldata signature
     ) external nonReentrant {
-        if (gamePaused) revert GamePaused();
         if (gameSigner == address(0)) revert GameSignerUnset();
         if (district >= DISTRICT_COUNT) revert BadDistrict();
         if (to == address(0)) revert ZeroAddress();
@@ -4833,16 +4810,7 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
 
         if (amount > gamePool[district]) revert GamePoolEmpty();
 
-        uint256 today = block.timestamp / 1 days;
-        if (gameDaySpentAt[district] != today) {
-            gameDaySpentAt[district] = today;
-            gameDaySpent[district] = 0;
-        }
-        uint256 spent = gameDaySpent[district] + amount;
-        if (spent > gameDailyCap[district]) revert GameCapExceeded();
-
         gameNonceUsed[nonce] = true;
-        gameDaySpent[district] = spent;
         gamePool[district] -= amount;
         totalGamePaid[district] += amount;
 
@@ -4875,13 +4843,11 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
     function gameDistrictInfo(uint8 district)
         external
         view
-        returns (address stock, uint256 pool, uint256 dailyCap, uint256 spentToday, uint256 funded, uint256 paid)
+        returns (address stock, uint256 pool, uint256 funded, uint256 paid)
     {
         if (district >= DISTRICT_COUNT) revert BadDistrict();
         stock = _districtAsset(district);
         pool = gamePool[district];
-        dailyCap = gameDailyCap[district];
-        spentToday = gameDaySpentAt[district] == block.timestamp / 1 days ? gameDaySpent[district] : 0;
         funded = totalGameFunded[district];
         paid = totalGamePaid[district];
     }
