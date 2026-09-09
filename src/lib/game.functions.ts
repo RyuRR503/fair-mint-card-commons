@@ -105,6 +105,30 @@ function liveMode() {
 }
 
 
+/** Latest USD price from a Chainlink feed on BSC (8 decimals), or null. */
+async function feedPriceUsd(feed: string): Promise<number | null> {
+  try {
+    const res = await fetch(CHAIN.rpc, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "eth_call",
+        params: [{ to: feed, data: "0xfeaf968c" }, "latest"],
+      }),
+    });
+    const json = (await res.json()) as { result?: string };
+    if (!json.result || json.result === "0x") return null;
+    // latestRoundData(): (roundId, answer, startedAt, updatedAt, answeredInRound)
+    const answer = BigInt("0x" + json.result.slice(66, 130));
+    if (answer <= 0n) return null;
+    return Number(answer) / 1e8;
+  } catch {
+    return null;
+  }
+}
+
 /* ----------------------------------------------------------------- spawns */
 
 export const getSpawns = createServerFn({ method: "GET" })
