@@ -14,7 +14,7 @@ export const Route = createFileRoute("/legendary")({
       {
         name: "description",
         content:
-          "Every day a full BILION share sits at one spot for one hour. Announced 24 hours ahead. Be within 25 metres and find the code.",
+          "Every day a full SPCXON share sits at one spot for one hour. Announced 24 hours ahead. Be within 25 metres and find the code.",
       },
       { property: "og:title", content: "CATCH legendary drop" },
       {
