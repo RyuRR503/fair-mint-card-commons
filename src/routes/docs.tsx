@@ -174,12 +174,13 @@ POST early-access    { email, kind, city?, company? }`}</Code>
 
       <Section title={tr("Token list", "代币列表")}>
         <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
-          <table className="w-full min-w-[560px] text-left text-sm">
+          <table className="w-full min-w-[680px] text-left text-sm">
             <thead>
               <tr className="label-caps border-b border-border text-[10px] text-muted-foreground">
                 <th className="px-6 py-4">{tr("Symbol", "代码")}</th>
                 <th className="px-6 py-4">{tr("Address", "合约地址")}</th>
                 <th className="px-6 py-4">{tr("Fragment", "碎片大小")}</th>
+                <th className="px-6 py-4">{tr("Target stock", "目标库存")}</th>
               </tr>
             </thead>
             <tbody>
@@ -188,6 +189,7 @@ POST early-access    { email, kind, city?, company? }`}</Code>
                   <td className="px-6 py-3 label-caps text-xs">{t.symbol}</td>
                   <td className="px-6 py-3 font-mono text-[11px] break-all">{t.address}</td>
                   <td className="px-6 py-3 font-mono text-xs">{t.fragment}</td>
+                  <td className="px-6 py-3 font-mono text-xs">{t.targetDrops} {tr("catches", "次")}</td>
                 </tr>
               ))}
             </tbody>
