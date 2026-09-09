@@ -3,6 +3,8 @@ import { z } from "zod";
 import { cityByKey, type Spawn } from "./spawns";
 import { TOKEN_BY_SYMBOL, TOKENS, VAULT_ADDRESS, CHAIN, type Rarity } from "./tokens";
 import { catchRadius, haversine, MAX_ACCURACY_M } from "./geo";
+import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES } from "./vault";
+
 
 type SpawnRow = {
   id: string;
@@ -75,13 +77,31 @@ async function admin() {
   return supabaseAdmin;
 }
 
+const ZERO = "0x0000000000000000000000000000000000000000";
+
+/** Deployed vault, or the placeholder while the contract is not live yet. */
+function vaultAddress() {
+  const v = process.env["VAULT_ADDRESS"];
+  return v && v !== ZERO ? v : VAULT_ADDRESS;
+}
+
+/**
+ * Token address for a symbol. An env override (TOKEN_SBUXON=0x…) wins, so the
+ * nine contract addresses can be filled in without a code change.
+ */
+function tokenAddressFor(symbol: string, fallback: string) {
+  const v = process.env[`TOKEN_${symbol}`];
+  return v && v !== ZERO ? v : fallback;
+}
+
 function liveMode() {
   return (
     !!process.env["CLAIM_SIGNER_KEY"] &&
-    !!process.env["VAULT_ADDRESS"] &&
-    process.env["VAULT_ADDRESS"] !== VAULT_ADDRESS
+    vaultAddress() !== ZERO &&
+    vaultAddress() !== VAULT_ADDRESS
   );
 }
+
 
 /* ----------------------------------------------------------------- spawns */
 
