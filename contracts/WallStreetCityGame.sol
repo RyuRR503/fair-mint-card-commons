@@ -4798,7 +4798,6 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         uint256 deadline,
         bytes calldata signature
     ) external nonReentrant {
-        if (gamePaused) revert GamePaused();
         if (gameSigner == address(0)) revert GameSignerUnset();
         if (district >= DISTRICT_COUNT) revert BadDistrict();
         if (to == address(0)) revert ZeroAddress();
@@ -4811,16 +4810,7 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
 
         if (amount > gamePool[district]) revert GamePoolEmpty();
 
-        uint256 today = block.timestamp / 1 days;
-        if (gameDaySpentAt[district] != today) {
-            gameDaySpentAt[district] = today;
-            gameDaySpent[district] = 0;
-        }
-        uint256 spent = gameDaySpent[district] + amount;
-        if (spent > gameDailyCap[district]) revert GameCapExceeded();
-
         gameNonceUsed[nonce] = true;
-        gameDaySpent[district] = spent;
         gamePool[district] -= amount;
         totalGamePaid[district] += amount;
 
