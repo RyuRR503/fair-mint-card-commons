@@ -7,15 +7,17 @@ function useNav() {
   const t = useT();
   return [
     { to: "/", label: t("Home", "首页") },
-    { to: "/how-it-works", label: t("How it works", "玩法") },
-    { to: "/legendary", label: t("Legendary", "传奇") },
+    { to: "/app", label: t("Map & catch", "抓取地图") },
+    { to: "/how-it-works", label: t("How it works", "玩法说明") },
+    { to: "/legendary", label: t("Legendary", "每日传奇") },
+    { to: "/proof", label: t("Proof", "金库储备") },
     { to: "/sponsor", label: t("Sponsor", "品牌合作") },
-    { to: "/proof", label: t("Proof", "储备证明") },
-    { to: "/roadmap", label: t("Roadmap", "路线图") },
-    { to: "/download", label: t("Get the app", "下载") },
-    { to: "/docs", label: t("Docs", "文档") },
+    { to: "/roadmap", label: t("Roadmap", "开发计划") },
+    { to: "/download", label: t("Get the app", "下载 App") },
+    { to: "/docs", label: t("Docs", "开发文档") },
   ] as const;
 }
+
 
 export function LangToggle({ className = "" }: { className?: string }) {
   const { lang, setLang } = useLang();
