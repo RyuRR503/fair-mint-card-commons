@@ -4749,25 +4749,16 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
 
     // ---------------- map game: voucher claim ----------------
 
-    /// @notice Owner or Guardian: configure the map reward pool.
-    /// @param bps_ Share of each keeper refill routed to the map pool (max MAX_GAME_BPS).
-    /// @param signer_ Voucher signer (address(0) disables claims).
-    /// @param paused_ Halt map claims.
-    function setGameConfig(uint16 bps_, address signer_, bool paused_) external {
+    /// @notice Owner or Guardian: rotate the voucher signer. The ONLY mutable game parameter.
+    /// @dev There is no pause switch, no adjustable refill share, no payout ceiling and no
+    ///      game-pool withdrawal. Once funded, map inventory can leave the contract only
+    ///      through `claimGameVoucher`.
+    /// @param signer_ New voucher signer (address(0) disables claims entirely).
+    function setGameSigner(address signer_) external {
         _requireOwnerOrGuardian();
-        if (bps_ > MAX_GAME_BPS) revert BadGameBps();
-        gameBps = bps_;
+        address prev = gameSigner;
         gameSigner = signer_;
-        gamePaused = paused_;
-        emit GameConfigUpdated(bps_, signer_, paused_);
-    }
-
-    /// @notice Owner or Guardian: per-district daily payout ceiling (stock units, 18 decimals).
-    function setGameDailyCap(uint8 district, uint256 cap) external {
-        _requireOwnerOrGuardian();
-        if (district >= DISTRICT_COUNT) revert BadDistrict();
-        gameDailyCap[district] = cap;
-        emit GameDailyCapUpdated(district, cap);
+        emit GameSignerUpdated(prev, signer_);
     }
 
     /// @dev EIP-712 domain separator, computed live so it stays correct behind a proxy.
