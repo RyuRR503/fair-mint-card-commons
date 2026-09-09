@@ -105,7 +105,7 @@ export const getMapPoints = createServerFn({ method: "GET" }).handler(async () =
   return rows.map((r) => ({
     id: r.id,
     symbol: r.symbol,
-    amount: Number(r.amount),
+    amount: TOKEN_BY_SYMBOL[r.symbol]?.fragment ?? Number(r.amount),
     rarity: (r.rarity ?? "common") as Rarity,
     place: r.places.name,
     cityKey: r.places.city,

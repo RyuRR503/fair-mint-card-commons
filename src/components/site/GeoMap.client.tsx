@@ -24,6 +24,8 @@ type Props = {
   pins: MapPin[];
   points?: MapPoint[];
   me?: { lat: number; lng: number } | null;
+  /** Catch radius around the player, drawn as a ring on the map. */
+  meRadiusM?: number;
   onSelect?: (key: string) => void;
   selected?: string | null;
   center?: [number, number];
