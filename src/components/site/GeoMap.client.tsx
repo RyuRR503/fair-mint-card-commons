@@ -83,6 +83,7 @@ export default function GeoMap({
   pins,
   points = [],
   me,
+  meRadiusM,
   onSelect,
   selected,
   center,
