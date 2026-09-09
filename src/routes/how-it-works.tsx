@@ -158,6 +158,53 @@ function HowItWorks() {
         </div>
       </Section>
 
+      <Section title={t("What each catch pays", "每次捕捉能拿多少")}>
+        <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
+          <table className="w-full min-w-[520px] text-left text-sm">
+            <thead>
+              <tr className="label-caps border-b border-border text-[10px] text-muted-foreground">
+                <th className="px-6 py-4">{t("Token", "代币")}</th>
+                <th className="px-6 py-4">{t("Where you catch it", "捕捉地点")}</th>
+                <th className="px-6 py-4">{t("Per catch", "单次数量")}</th>
+                <th className="px-6 py-4">{t("Vault target", "目标库存")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {TOKENS.map((tk) => (
+                <tr key={tk.symbol} className="border-b border-border/60 last:border-0">
+                  <td className="px-6 py-3 label-caps text-xs">{tk.symbol}</td>
+                  <td className="px-6 py-3 text-muted-foreground">{t(tk.venue, tk.venueZh)}</td>
+                  <td className="px-6 py-3 font-mono text-xs">{tk.fragment} {tk.symbol}</td>
+                  <td className="px-6 py-3 font-mono text-xs">
+                    {tk.targetDrops} {t("catches", "次")}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Panel>
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <Panel>
+            <h3 className="label-caps text-[11px] text-primary">{t("Same token, same amount", "同一代币，数量统一")}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {t(
+                "The fragment size belongs to the token, not the pin. Every Apple store pays the same AAPLON fragment, every internet café pays the same NVDAON fragment — worth roughly $3 a catch at current prices, about $150 for the legendary SPCXON.",
+                "碎片大小由代币决定，与点位无关。每家 Apple 店发同样的 AAPLON，每家网吧发同样的 NVDAON——按现价约 $3 一次，传奇 SPCXON 约 $150。",
+              )}
+            </p>
+          </Panel>
+          <Panel>
+            <h3 className="label-caps text-[11px] text-primary">{t("Refill is automatic", "自动补货")}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {t(
+                "Trading tax flows into the vault as BNB, split evenly across the nine districts. Anyone can then sell stock tokens into a district at the Chainlink price plus the Flap NAV multiplier and a small premium, and walk away with BNB. No keeper, no cron — the market restocks the map.",
+                "交易税以 BNB 形式流入金库，平均分配到九个区。任何人都可以按 Chainlink 报价 × Flap NAV 系数加少量溢价，把股票代币卖给对应区并拿走 BNB。没有 keeper、没有定时任务——由市场自动补满地图。",
+              )}
+            </p>
+          </Panel>
+        </div>
+      </Section>
+
       <Section title={t("Cooldowns & daily caps", "冷却与每日上限")}>
         <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
           <table className="w-full min-w-[420px] text-left text-sm">
