@@ -15,8 +15,10 @@ export type StockToken = {
   /** Chainlink USD price feed on BSC. Required for on-chain vault pricing. */
   feed: string;
   decimals: number;
-  /** Fragment size handed out per catch. */
+  /** Fragment size handed out per catch. One drop rule everywhere. */
   fragment: number;
+  /** How many payable drops the vault should keep in stock for this token. */
+  targetDrops: number;
   rarity: Rarity;
   /** Brand color used for the 3D chip. */
   color: string;
@@ -81,6 +83,7 @@ export const TOKENS: StockToken[] = [
     feed: "0x7D48744FB285b884dF1Ee8005f04B62FF1404a98",
     decimals: 18,
     fragment: 0.02,
+    targetDrops: 25,
     rarity: "common",
     color: "#1B4F9C",
     color2: "#0C2E5E",
@@ -98,6 +101,7 @@ export const TOKENS: StockToken[] = [
     feed: "0xea5c2Cbb5cD57daC24E26180b19a929F3E9699B8",
     decimals: 18,
     fragment: 0.006,
+    targetDrops: 25,
     rarity: "common",
     color: "#76B900",
     color2: "#3F6300",
@@ -115,6 +119,7 @@ export const TOKENS: StockToken[] = [
     feed: "0x4442f488fba0b27D970b68b761336224d6d30492",
     decimals: 18,
     fragment: 0.002,
+    targetDrops: 25,
     rarity: "common",
     color: "#ED1C24",
     color2: "#8E0B10",
@@ -132,6 +137,7 @@ export const TOKENS: StockToken[] = [
     feed: "0x75F4285d8e8687A9b5bd7b36A26D672A8C4C1c7a",
     decimals: 18,
     fragment: 0.001,
+    targetDrops: 25,
     rarity: "common",
     color: "#0057B8",
     color2: "#003370",
@@ -149,6 +155,7 @@ export const TOKENS: StockToken[] = [
     feed: "0xEEA2ae9c074E87596A85ABE698B2Afebc9B57893",
     decimals: 18,
     fragment: 0.004,
+    targetDrops: 25,
     rarity: "rare",
     color: "#E82127",
     color2: "#8E0B10",
@@ -166,6 +173,7 @@ export const TOKENS: StockToken[] = [
     feed: "0x5D209cE1fBABeAA8E6f9De4514A74FFB4b34560F",
     decimals: 18,
     fragment: 0.003,
+    targetDrops: 25,
     rarity: "rare",
     color: "#0078D4",
     color2: "#004E8C",
@@ -183,6 +191,7 @@ export const TOKENS: StockToken[] = [
     feed: "0xeDA73F8acb669274B15A977Cb0cdA57a84F18c2a",
     decimals: 18,
     fragment: 0.006,
+    targetDrops: 25,
     rarity: "rare",
     color: "#4285F4",
     color2: "#1A56B0",
@@ -200,6 +209,7 @@ export const TOKENS: StockToken[] = [
     feed: "0xb7Ed5bE7977d61E83534230f3256C021e0fae0B6",
     decimals: 18,
     fragment: 0.008,
+    targetDrops: 25,
     rarity: "epic",
     color: "#4B4B4F",
     color2: "#131315",
@@ -217,6 +227,7 @@ export const TOKENS: StockToken[] = [
     feed: "0x5Bd3a7c076011800900e52689C0ed46ef931e3e6",
     decimals: 18,
     fragment: 0.05,
+    targetDrops: 2,
     rarity: "legendary",
     color: "#4FA3D9",
     color2: "#00223A",
