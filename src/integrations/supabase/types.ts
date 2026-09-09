@@ -18,48 +18,66 @@ export type Database = {
         Row: {
           accuracy: number
           amount: number
+          amount_wei: string | null
           city: string
           created_at: string
+          deadline: number | null
           device_id: string | null
           id: string
           lat: number
           lng: number
           mode: string
+          nonce: string | null
           place: string
+          settled_at: string | null
+          signature: string | null
           spawn_id: string
           symbol: string
+          token_address: string | null
           tx_hash: string | null
           wallet: string
         }
         Insert: {
           accuracy: number
           amount: number
+          amount_wei?: string | null
           city: string
           created_at?: string
+          deadline?: number | null
           device_id?: string | null
           id?: string
           lat: number
           lng: number
           mode?: string
+          nonce?: string | null
           place: string
+          settled_at?: string | null
+          signature?: string | null
           spawn_id: string
           symbol: string
+          token_address?: string | null
           tx_hash?: string | null
           wallet: string
         }
         Update: {
           accuracy?: number
           amount?: number
+          amount_wei?: string | null
           city?: string
           created_at?: string
+          deadline?: number | null
           device_id?: string | null
           id?: string
           lat?: number
           lng?: number
           mode?: string
+          nonce?: string | null
           place?: string
+          settled_at?: string | null
+          signature?: string | null
           spawn_id?: string
           symbol?: string
+          token_address?: string | null
           tx_hash?: string | null
           wallet?: string
         }

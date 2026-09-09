@@ -40,6 +40,12 @@ export const CHAIN = {
 /** Vault holding the fragments. Set once the contract is deployed. */
 export const VAULT_ADDRESS = "0x0000000000000000000000000000000000000000";
 
+/** Treasury that buys fragments and refills the vault. */
+export const TREASURY_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+
 const PLACEHOLDER = "0x0000000000000000000000000000000000000000";
 
 /** Minutes a drop stays on cooldown after someone catches it, by rarity. */

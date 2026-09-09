@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Section, Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
 import { getVault, getClaims } from "@/lib/game.functions";
-import { CHAIN, VAULT_ADDRESS } from "@/lib/tokens";
+import { CHAIN, TREASURY_ADDRESS, VAULT_ADDRESS, ZERO_ADDRESS } from "@/lib/tokens";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/proof")({
@@ -107,22 +107,29 @@ function Proof() {
             {
               h: t("Treasury", "国库"),
               d: t("Receives fees, buys stock tokens, tops the vault back up.", "收取手续费、买入股票代币、给金库补货。"),
-              a: "0xdE852DF21C3628270e9B938B5215B7C78e9A8dc4",
+              a: TREASURY_ADDRESS,
             },
           ].map((c) => (
             <Panel key={String(c.h)}>
               <h3 className="label-caps text-xs text-muted-foreground">{c.h}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{c.d}</p>
-              <a
-                href={`${CHAIN.explorer}/address/${c.a}`}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="mt-3 block break-all font-mono text-xs text-primary underline underline-offset-4"
-              >
-                {c.a}
-              </a>
+              {c.a === ZERO_ADDRESS ? (
+                <p className="mt-3 font-mono text-xs text-muted-foreground">
+                  {t("Not deployed yet", "尚未部署")}
+                </p>
+              ) : (
+                <a
+                  href={`${CHAIN.explorer}/address/${c.a}`}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="mt-3 block break-all font-mono text-xs text-primary underline underline-offset-4"
+                >
+                  {c.a}
+                </a>
+              )}
             </Panel>
           ))}
+
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
           {t(
