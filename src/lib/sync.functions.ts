@@ -135,10 +135,9 @@ export const importCityPlaces = createServerFn({ method: "POST" })
         const tags = el.tags ?? {};
         const symbol = symbolFor(tags);
         const lat = el.lat ?? el.center?.lat;
-        const lng = el.lon ?? el.center?.lng ?? el.center?.lat;
         const lngVal = el.lon ?? el.center?.lon;
         if (!symbol || lat == null || lngVal == null) return null;
-        void lng;
+
         const token = TOKEN_BY_SYMBOL[symbol]!;
         return {
           osm_type: el.type,
