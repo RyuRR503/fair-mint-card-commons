@@ -60,6 +60,8 @@ export const RULES = {
   perDropPerDay: 24,
   walletCooldownMin: 120,
   dropCooldownMin: 10,
+  /** Whole-site payout ceiling per rolling hour, priced in USD (like Grass). */
+  hourlyUsdCap: 500,
   voucherTtlMin: 15,
   minFixSamples: 4,
   minFixSeconds: 20,
