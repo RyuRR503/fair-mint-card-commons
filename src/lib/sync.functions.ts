@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { CN_CITIES, CITY_BY_KEY } from "@/lib/cities";
-import { SYMBOL_BY_WIKIDATA, TOKEN_BY_SYMBOL, MAP_TOKENS, COOLDOWN_MIN } from "@/lib/tokens";
+import { TOKEN_BY_SYMBOL, MAP_TOKENS, COOLDOWN_MIN } from "@/lib/tokens";
 
 const OVERPASS = [
   "https://overpass-api.de/api/interpreter",
@@ -29,7 +29,7 @@ async function overpass(query: string): Promise<OverpassEl[]> {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          "User-Agent": "CatchOnChain/1.0 (real-store map importer; contact via catch.app)",
+          "User-Agent": "CatchOnChain/1.0 (real-venue map importer; contact via catch.app)",
         },
         body: `data=${encodeURIComponent(query)}`,
       });
@@ -46,26 +46,62 @@ async function overpass(query: string): Promise<OverpassEl[]> {
   throw new Error(`Overpass unreachable: ${lastError}`);
 }
 
-/** name/brand fallback matchers, for brands with no reliable wikidata tag */
-const NAME_MATCHERS = MAP_TOKENS.filter((t) => t.brands.length).map((t) => ({
-  symbol: t.symbol,
-  re: new RegExp(t.brands.join("|"), "i"),
-}));
+const TESLA = /tesla|特斯拉/i;
+const APPLE = /apple/i;
+const ANDROID = /华为|huawei|小米|xiaomi|oppo|vivo|荣耀|honor|一加|oneplus|realme|魅族|meizu/i;
+const SCIENCE = /科技馆|科学馆|科学技术馆|天文|航天|planetarium|science|technology/i;
 
+/**
+ * Map a real-world place to the stock it belongs to. GPUs live in internet
+ * cafés, memory in phone shops, chips in computer malls, and so on.
+ */
 function symbolFor(tags: Record<string, string>): string | null {
-  const byWiki = SYMBOL_BY_WIKIDATA[tags["brand:wikidata"] ?? ""];
-  if (byWiki) return byWiki;
-  const text = [tags["brand"], tags["brand:en"], tags["brand:zh"], tags["name"], tags["name:en"], tags["name:zh"]]
+  const text = [
+    tags["brand"],
+    tags["brand:en"],
+    tags["brand:zh"],
+    tags["name"],
+    tags["name:en"],
+    tags["name:zh"],
+    tags["operator"],
+  ]
     .filter(Boolean)
     .join(" | ");
-  if (!text) return null;
-  for (const m of NAME_MATCHERS) if (m.re.test(text)) return m.symbol;
+  const shop = tags["shop"];
+  const amenity = tags["amenity"];
+
+  if (amenity === "charging_station" || shop === "car") {
+    return TESLA.test(text) ? "TSLAON" : null;
+  }
+  if (tags["tourism"] === "museum" || amenity === "planetarium") {
+    const isSpace =
+      amenity === "planetarium" ||
+      tags["museum"] === "science" ||
+      tags["museum"] === "technology" ||
+      SCIENCE.test(text);
+    return isSpace ? "SPCXON" : null;
+  }
+  if (
+    APPLE.test(text) &&
+    (tags["brand:wikidata"] === "Q421253" ||
+      shop === "mobile_phone" ||
+      shop === "computer" ||
+      shop === "electronics")
+  ) {
+    return "AAPLON";
+  }
+  if (shop === "mobile_phone") return ANDROID.test(text) ? "GOOGLON" : "MUON";
+  if (amenity === "internet_cafe" || tags["leisure"] === "adult_gaming_centre") return "NVDAON";
+  if (shop === "computer" || shop === "electronics") return "AMDON";
+  if (shop === "video_games" || shop === "stationery") return "MSFTON";
+  if (amenity === "bank") return "FXION";
   return null;
 }
 
 /**
- * Pull real store locations for one city out of OpenStreetMap and store them.
- * Matched on brand:wikidata first, then on brand/name for local chains.
+ * Pull real venues for one city out of OpenStreetMap and store them.
+ * Banks, internet cafés, computer malls, phone shops, Tesla chargers,
+ * gaming/office counters, Android flagships, Apple stores and science museums.
  */
 export const importCityPlaces = createServerFn({ method: "POST" })
   .inputValidator((d: { token: string; city: string }) => d)
@@ -74,16 +110,24 @@ export const importCityPlaces = createServerFn({ method: "POST" })
     const city = CITY_BY_KEY[data.city];
     if (!city) throw new Error(`Unknown city: ${data.city}`);
 
-    const ids = Object.keys(SYMBOL_BY_WIKIDATA).join("|");
-    const namePattern = MAP_TOKENS.flatMap((t) => t.brands).join("|");
     const area = `(around:${city.radius},${city.lat},${city.lng})`;
-    const query = `[out:json][timeout:180];
-(
-  nwr["brand:wikidata"~"^(${ids})$"]${area};
-  nwr["brand"~"${namePattern}",i]${area};
-  nwr["name"~"${namePattern}",i]${area};
-);
-out center 3000;`;
+    const filters = [
+      'nwr["amenity"="bank"]',
+      'nwr["amenity"="internet_cafe"]',
+      'nwr["leisure"="adult_gaming_centre"]',
+      'nwr["shop"="computer"]',
+      'nwr["shop"="electronics"]',
+      'nwr["shop"="mobile_phone"]',
+      'nwr["shop"="video_games"]',
+      'nwr["shop"="stationery"]',
+      'nwr["amenity"="charging_station"]',
+      'nwr["tourism"="museum"]',
+      'nwr["amenity"="planetarium"]',
+      'nwr["brand"~"Apple",i]',
+    ]
+      .map((f) => `  ${f}${area};`)
+      .join("\n");
+    const query = `[out:json][timeout:180];\n(\n${filters}\n);\nout center 4000;`;
 
     const elements = await overpass(query);
     const rows = elements
@@ -91,19 +135,20 @@ out center 3000;`;
         const tags = el.tags ?? {};
         const symbol = symbolFor(tags);
         const lat = el.lat ?? el.center?.lat;
-        const lng = el.lon ?? el.center?.lon;
-        if (!symbol || lat == null || lng == null) return null;
+        const lngVal = el.lon ?? el.center?.lon;
+        if (!symbol || lat == null || lngVal == null) return null;
+
         const token = TOKEN_BY_SYMBOL[symbol]!;
         return {
           osm_type: el.type,
           osm_id: el.id,
           symbol,
-          brand: tags["brand"] ?? tags["brand:en"] ?? token.name,
-          name: tags["name"] ?? tags["name:zh"] ?? tags["brand"] ?? token.nameZh,
+          brand: tags["brand"] ?? tags["brand:zh"] ?? tags["brand:en"] ?? token.name,
+          name: tags["name"] ?? tags["name:zh"] ?? tags["brand"] ?? token.venueZh,
           city: city.key,
           country: city.country,
           lat,
-          lng,
+          lng: lngVal,
         };
       })
       .filter((r): r is NonNullable<typeof r> => r !== null);
@@ -119,10 +164,10 @@ out center 3000;`;
   });
 
 /** How many permanent drops each token gets per city, by rarity. */
-const PER_CITY: Record<string, number> = { common: 14, rare: 7, epic: 3, legendary: 1 };
+const PER_CITY: Record<string, number> = { common: 12, rare: 6, epic: 3, legendary: 1 };
 
 /**
- * Seed the permanent drop points. Each drop lives on one real store forever;
+ * Seed the permanent drop points. Each drop lives on one real venue forever;
  * catching it puts it on cooldown and it comes back by itself.
  */
 export const seedSpawns = createServerFn({ method: "POST" })

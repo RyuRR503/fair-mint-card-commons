@@ -8,10 +8,8 @@ export type StockToken = {
   /** The kind of real place in China this stock is caught at. */
   venue: string;
   venueZh: string;
-  /** OpenStreetMap brand:wikidata ids used to find the real stores. */
-  wikidata: string[];
-  /** Fallback OSM name/brand regex when the brand has no clean wikidata tag. */
-  brands: string[];
+  /** OpenStreetMap tag filters used to find those real places. */
+  osm: string[];
   /** BEP-20 address on BNB Smart Chain (chainId 56). */
   address: string;
   /** Chainlink USD price feed on BSC. Required for on-chain vault pricing. */
@@ -67,18 +65,18 @@ export const COOLDOWN_MIN: Record<Rarity, number> = {
 /**
  * Nine tokenised stocks. Every one of them is a live BEP-20 on BNB Smart Chain
  * with a working Chainlink USD feed and a Flap NAV multiplier, so the vault can
- * price them fully on-chain. Each is tied to a kind of place you can walk to in
- * China; rarity follows how many of those places actually exist.
+ * price them fully on-chain. Each one is tied to the kind of real place in
+ * China that matches the company: chips at computer malls, memory at phone
+ * shops, GPUs at internet cafés, and so on.
  */
 export const TOKENS: StockToken[] = [
   {
     symbol: "FXION",
     name: "China Large-Cap ETF",
     nameZh: "中国大盘 ETF",
-    venue: "Coffee shops on every corner",
-    venueZh: "街角咖啡店",
-    wikidata: ["Q37158"],
-    brands: ["星巴克", "Starbucks"],
+    venue: "Bank branches and brokerage offices",
+    venueZh: "银行网点、证券营业部",
+    osm: ['amenity=bank'],
     address: "0x9b8E987e6fEc8Cf1380C4dcA7071e2C7853AEEA1",
     feed: "0x7D48744FB285b884dF1Ee8005f04B62FF1404a98",
     decimals: 18,
@@ -90,13 +88,29 @@ export const TOKENS: StockToken[] = [
     ink: "light",
   },
   {
+    symbol: "NVDAON",
+    name: "NVIDIA",
+    nameZh: "英伟达",
+    venue: "Internet cafés and esports lounges",
+    venueZh: "网吧、电竞馆",
+    osm: ["amenity=internet_cafe", "leisure=adult_gaming_centre"],
+    address: "0xA9eE28C80f960B889dFbd1902055218cBa016F75",
+    feed: "0xea5c2Cbb5cD57daC24E26180b19a929F3E9699B8",
+    decimals: 18,
+    fragment: 0.006,
+    rarity: "common",
+    color: "#76B900",
+    color2: "#3F6300",
+    glyph: "NVDA",
+    ink: "dark",
+  },
+  {
     symbol: "AMDON",
     name: "AMD",
     nameZh: "超微半导体",
-    venue: "Fast-food counters and their self-order screens",
-    venueZh: "快餐店自助点单屏",
-    wikidata: ["Q38076"],
-    brands: ["麦当劳", "McDonald"],
+    venue: "Computer malls and PC-build shops",
+    venueZh: "电脑城、装机与数码店",
+    osm: ["shop=computer", "shop=electronics"],
     address: "0x75Fd4cF6f8392E41E70391D60c90C0D5211603a1",
     feed: "0x4442f488fba0b27D970b68b761336224d6d30492",
     decimals: 18,
@@ -111,10 +125,9 @@ export const TOKENS: StockToken[] = [
     symbol: "MUON",
     name: "Micron",
     nameZh: "美光科技",
-    venue: "Warehouse grocers and parcel points",
-    venueZh: "仓储超市与快递驿站",
-    wikidata: ["Q1359568"],
-    brands: ["盒马", "Hema", "菜鸟", "Cainiao", "天猫"],
+    venue: "Phone shops and repair counters",
+    venueZh: "手机店、数码维修点",
+    osm: ["shop=mobile_phone"],
     address: "0xcdf2f3e0fa43C47A6662a91C9E4a7C5f69762699",
     feed: "0x75F4285d8e8687A9b5bd7b36A26D672A8C4C1c7a",
     decimals: 18,
@@ -126,49 +139,12 @@ export const TOKENS: StockToken[] = [
     ink: "light",
   },
   {
-    symbol: "NVDAON",
-    name: "NVIDIA",
-    nameZh: "英伟达",
-    venue: "EV showrooms — the compute inside the car",
-    venueZh: "智能电动车展厅",
-    wikidata: ["Q24905510"],
-    brands: ["蔚来", "NIO"],
-    address: "0xA9eE28C80f960B889dFbd1902055218cBa016F75",
-    feed: "0xea5c2Cbb5cD57daC24E26180b19a929F3E9699B8",
-    decimals: 18,
-    fragment: 0.006,
-    rarity: "rare",
-    color: "#76B900",
-    color2: "#3F6300",
-    glyph: "NVDA",
-    ink: "dark",
-  },
-  {
-    symbol: "MSFTON",
-    name: "Microsoft",
-    nameZh: "微软",
-    venue: "Flagship retail floors",
-    venueZh: "品牌旗舰零售店",
-    wikidata: ["Q483915"],
-    brands: ["耐克", "Nike"],
-    address: "0x6Bfe75D1ad432050eA973C3A3DcD88F02e2444C3",
-    feed: "0x5D209cE1fBABeAA8E6f9De4514A74FFB4b34560F",
-    decimals: 18,
-    fragment: 0.003,
-    rarity: "rare",
-    color: "#0078D4",
-    color2: "#004E8C",
-    glyph: "MSFT",
-    ink: "light",
-  },
-  {
     symbol: "TSLAON",
     name: "Tesla",
     nameZh: "特斯拉",
     venue: "Superchargers and experience centres",
-    venueZh: "超级充电站与体验中心",
-    wikidata: ["Q478214"],
-    brands: ["特斯拉", "Tesla"],
+    venueZh: "特斯拉超充站、体验中心",
+    osm: ["amenity=charging_station (Tesla)", "shop=car (Tesla)"],
     address: "0x2494b603319d4D9F9715c9f4496d9E0364B59d93",
     feed: "0xEEA2ae9c074E87596A85ABE698B2Afebc9B57893",
     decimals: 18,
@@ -180,13 +156,46 @@ export const TOKENS: StockToken[] = [
     ink: "light",
   },
   {
+    symbol: "MSFTON",
+    name: "Microsoft",
+    nameZh: "微软",
+    venue: "Office and gaming retail counters",
+    venueZh: "办公/电脑连锁店、Xbox 体验点",
+    osm: ["shop=video_games", "shop=stationery"],
+    address: "0x6Bfe75D1ad432050eA973C3A3DcD88F02e2444C3",
+    feed: "0x5D209cE1fBABeAA8E6f9De4514A74FFB4b34560F",
+    decimals: 18,
+    fragment: 0.003,
+    rarity: "rare",
+    color: "#0078D4",
+    color2: "#004E8C",
+    glyph: "MSFT",
+    ink: "light",
+  },
+  {
+    symbol: "GOOGLON",
+    name: "Alphabet",
+    nameZh: "谷歌母公司",
+    venue: "Android flagship stores and tech parks",
+    venueZh: "安卓旗舰体验店、科技园区",
+    osm: ["shop=mobile_phone (Huawei/Xiaomi/OPPO/vivo/Honor)"],
+    address: "0x091FC7778e6932d4009B087B191D1EE3bac5729A",
+    feed: "0xeDA73F8acb669274B15A977Cb0cdA57a84F18c2a",
+    decimals: 18,
+    fragment: 0.006,
+    rarity: "rare",
+    color: "#4285F4",
+    color2: "#1A56B0",
+    glyph: "GOOGL",
+    ink: "light",
+  },
+  {
     symbol: "AAPLON",
     name: "Apple",
     nameZh: "苹果",
     venue: "Apple stores and authorised resellers",
-    venueZh: "苹果直营与授权店",
-    wikidata: ["Q421253"],
-    brands: ["Apple Store", "苹果"],
+    venueZh: "Apple 官方直营与授权店",
+    osm: ["brand=Apple"],
     address: "0x390a684EF9cADE28A7AD0DFa61AB1Eb3842618c4",
     feed: "0xb7Ed5bE7977d61E83534230f3256C021e0fae0B6",
     decimals: 18,
@@ -198,31 +207,12 @@ export const TOKENS: StockToken[] = [
     ink: "light",
   },
   {
-    symbol: "GOOGLON",
-    name: "Alphabet",
-    nameZh: "谷歌母公司",
-    venue: "Members-only megastores",
-    venueZh: "会员制大卖场",
-    wikidata: ["Q715583"],
-    brands: ["开市客", "Costco"],
-    address: "0x091FC7778e6932d4009B087B191D1EE3bac5729A",
-    feed: "0xeDA73F8acb669274B15A977Cb0cdA57a84F18c2a",
-    decimals: 18,
-    fragment: 0.008,
-    rarity: "epic",
-    color: "#4285F4",
-    color2: "#1A56B0",
-    glyph: "GOOGL",
-    ink: "light",
-  },
-  {
     symbol: "SPCXON",
     name: "SpaceX",
     nameZh: "太空探索",
-    venue: "Science and space museums — event only",
-    venueZh: "科技馆与天文馆（限定活动）",
-    wikidata: [],
-    brands: [],
+    venue: "Science, space and planetarium venues — event only",
+    venueZh: "科技馆、天文馆、航天主题场馆（限定活动）",
+    osm: ["tourism=museum (science)", "amenity=planetarium"],
     address: "0xd0a58BC9D88D3FF48C0294Cb7e45937d0E41A928",
     feed: "0x5Bd3a7c076011800900e52689C0ed46ef931e3e6",
     decimals: 18,
@@ -235,11 +225,6 @@ export const TOKENS: StockToken[] = [
     eventOnly: true,
   },
 ];
-
-/** Wikidata brand id -> token symbol, for the OSM importer. */
-export const SYMBOL_BY_WIKIDATA: Record<string, string> = Object.fromEntries(
-  TOKENS.flatMap((t) => t.wikidata.map((w) => [w, t.symbol])),
-);
 
 export const TOKEN_BY_SYMBOL: Record<string, StockToken> = Object.fromEntries(
   TOKENS.map((t) => [t.symbol, t]),
