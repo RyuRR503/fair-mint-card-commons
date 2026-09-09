@@ -4143,27 +4143,18 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
 
     // ---------------- map game (walk-to-store claim) ----------------
 
-    /// @dev Max share of each keeper refill that may be routed to the map reward pool.
-    uint16 public constant MAX_GAME_BPS = 3000;
+    /// @dev Fixed share of every permissionless refill routed to the map reward pool.
+    ///      Immutable by design: no admin can raise, lower or redirect it.
+    uint16 public constant GAME_BPS = 1000; // 10%
     /// @dev EIP-712 typehash for a walk-to-store voucher.
     bytes32 public constant GAME_VOUCHER_TYPEHASH = keccak256(
         "GameVoucher(address to,uint8 district,uint256 amount,bytes32 spawnId,uint256 nonce,uint256 deadline)"
     );
 
-    /// @dev Share (bps) of every keeper refill routed to the map reward pool instead of plot holders.
-    uint16 public gameBps;
-    /// @dev Signer allowed to authorize map claims (server / multisig-controlled key).
+    /// @dev Signer allowed to authorize map claims. The only mutable game parameter.
     address public gameSigner;
-    /// @dev Map claims halted when true.
-    bool public gamePaused;
     /// @dev Unclaimed map reward inventory per district (stock units, 18 decimals).
     uint256[DISTRICT_COUNT] public gamePool;
-    /// @dev Max stock units payable per district per UTC day (0 = district disabled).
-    uint256[DISTRICT_COUNT] public gameDailyCap;
-    /// @dev Stock units already paid in `gameDaySpentAt` day, per district.
-    uint256[DISTRICT_COUNT] public gameDaySpent;
-    /// @dev UTC day index of the counters above, per district.
-    uint256[DISTRICT_COUNT] public gameDaySpentAt;
     /// @dev Cumulative map rewards funded / paid per district.
     uint256[DISTRICT_COUNT] public totalGameFunded;
     uint256[DISTRICT_COUNT] public totalGamePaid;
