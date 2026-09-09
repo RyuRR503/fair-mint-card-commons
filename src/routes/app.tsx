@@ -226,20 +226,58 @@ function AppMap() {
       if (!res.ok) {
         setNoteOk(false);
         setNote(res.error);
+      } else if (res.mode === "live" && res.signature) {
+        setNote(t("Confirm the transfer in your wallet…", "请在钱包里确认这笔转账…"));
+        setNoteOk(true);
+        try {
+          const { encodeFunctionData } = await import("viem");
+          const { VAULT_ABI } = await import("@/lib/vault");
+          const dataHex = encodeFunctionData({
+            abi: VAULT_ABI,
+            functionName: "claim",
+            args: [
+              {
+                to: res.voucher.to as `0x${string}`,
+                token: res.voucher.token as `0x${string}`,
+                amount: BigInt(res.voucher.amount),
+                spawnId: res.voucher.spawnId as `0x${string}`,
+                nonce: BigInt(res.voucher.nonce),
+                deadline: BigInt(res.voucher.deadline),
+              },
+              res.signature as `0x${string}`,
+            ],
+          });
+          const txHash: string = await (window as any).ethereum.request({
+            method: "eth_sendTransaction",
+            params: [{ from: wallet, to: res.contract, data: dataHex }],
+          });
+          await recordTx({ data: { nonce: res.voucher.nonce, txHash } });
+          setNoteOk(true);
+          setNote(
+            t(
+              `Caught ${active.amount} ${active.symbol}. Transfer sent: ${txHash.slice(0, 10)}…`,
+              `已抓到 ${active.amount} ${active.symbol}，转账已发出：${txHash.slice(0, 10)}…`,
+            ),
+          );
+        } catch {
+          setNoteOk(false);
+          setNote(
+            t(
+              "The catch is recorded, but the wallet did not send the transfer. Your voucher stays valid for 15 minutes.",
+              "领取已记录，但钱包没有发出转账。你的凭证 15 分钟内仍然有效。",
+            ),
+          );
+        }
       } else {
         setNoteOk(true);
         setNote(
-          res.mode === "live"
-            ? t(
-                `Caught ${active.amount} ${active.symbol}. Confirm the transfer in your wallet.`,
-                `已抓到 ${active.amount} ${active.symbol}，请在钱包里确认这笔转账。`,
-              )
-            : t(
-                `Caught ${active.amount} ${active.symbol}. The vault contract is not deployed yet, so this catch is recorded and will be settled on ${CHAIN.short} at launch.`,
-                `已抓到 ${active.amount} ${active.symbol}。金库合约尚未部署，这次领取已记录，上线时会在 ${CHAIN.short} 上结算。`,
-              ),
+          t(
+            `Caught ${active.amount} ${active.symbol}. The vault contract is not deployed yet, so this catch is recorded and will be settled on ${CHAIN.short} at launch.`,
+            `已抓到 ${active.amount} ${active.symbol}。金库合约尚未部署，这次领取已记录，上线时会在 ${CHAIN.short} 上结算。`,
+          ),
         );
       }
+
     } catch {
       setNoteOk(false);
       setNote(t("The claim server did not answer. Try again.", "领取服务没有响应，请重试。"));
