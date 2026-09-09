@@ -19,6 +19,7 @@ import { Route as ProofRouteImport } from './routes/proof'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as SponsorRouteImport } from './routes/sponsor'
 import { Route as ApiPublicSyncRouteImport } from './routes/api/public/sync'
+import { Route as ApiPublicTmpImportRouteImport } from './routes/api/public/tmp-import'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +71,11 @@ const ApiPublicSyncRoute = ApiPublicSyncRouteImport.update({
   path: '/api/public/sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTmpImportRoute = ApiPublicTmpImportRouteImport.update({
+  id: '/api/public/tmp-import',
+  path: '/api/public/tmp-import',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/roadmap': typeof RoadmapRoute
   '/sponsor': typeof SponsorRoute
   '/api/public/sync': typeof ApiPublicSyncRoute
+  '/api/public/tmp-import': typeof ApiPublicTmpImportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/roadmap': typeof RoadmapRoute
   '/sponsor': typeof SponsorRoute
   '/api/public/sync': typeof ApiPublicSyncRoute
+  '/api/public/tmp-import': typeof ApiPublicTmpImportRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/roadmap': typeof RoadmapRoute
   '/sponsor': typeof SponsorRoute
   '/api/public/sync': typeof ApiPublicSyncRoute
+  '/api/public/tmp-import': typeof ApiPublicTmpImportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/sponsor'
     | '/api/public/sync'
+    | '/api/public/tmp-import'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/sponsor'
     | '/api/public/sync'
+    | '/api/public/tmp-import'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/sponsor'
     | '/api/public/sync'
+    | '/api/public/tmp-import'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +170,7 @@ export interface RootRouteChildren {
   RoadmapRoute: typeof RoadmapRoute
   SponsorRoute: typeof SponsorRoute
   ApiPublicSyncRoute: typeof ApiPublicSyncRoute
+  ApiPublicTmpImportRoute: typeof ApiPublicTmpImportRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/tmp-import': {
+      id: '/api/public/tmp-import'
+      path: '/api/public/tmp-import'
+      fullPath: '/api/public/tmp-import'
+      preLoaderRoute: typeof ApiPublicTmpImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -246,6 +266,7 @@ const rootRouteChildren: RootRouteChildren = {
   RoadmapRoute: RoadmapRoute,
   SponsorRoute: SponsorRoute,
   ApiPublicSyncRoute: ApiPublicSyncRoute,
+  ApiPublicTmpImportRoute: ApiPublicTmpImportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
