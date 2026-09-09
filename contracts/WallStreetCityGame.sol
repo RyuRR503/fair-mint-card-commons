@@ -4182,8 +4182,7 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
     event StockSoldToVault(
         address indexed keeper, uint8 indexed district, address stock, uint256 stockAmount, uint256 bnbPaid
     );
-    event GameConfigUpdated(uint16 gameBps, address indexed signer, bool paused);
-    event GameDailyCapUpdated(uint8 indexed district, uint256 cap);
+    event GameSignerUpdated(address indexed prev, address indexed next);
     event GamePoolFunded(uint8 indexed district, uint256 amount);
     event GameRewardClaimed(
         address indexed to, uint8 indexed district, bytes32 indexed spawnId, address stock, uint256 amount, uint256 nonce
@@ -4226,14 +4225,12 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
     error MintBatchTooLarge();
     /// @dev Global primary mint attempted before GLOBAL_MINT_COOLDOWN elapsed.
     error GlobalMintCooldownActive();
-    error GamePaused();
+    error GameSignerUnsetErr();
     error GameSignerUnset();
     error BadGameSignature();
     error GameVoucherExpired();
     error GameNonceUsed();
-    error GameCapExceeded();
-    error GamePoolEmpty();
-    error BadGameBps();
+    error GamePoolEmptyErr();
 
     /// @dev Flap tokenized equity for district 0..8 on BSC.
     function _districtAsset(uint256 district) private pure returns (address) {
@@ -4497,7 +4494,7 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
         pendingBnb[district] -= bnbOwed;
 
         // Route a fixed share of every permissionless refill into the map reward pool.
-        uint256 gameCut = (stockAmount * gameBps) / BPS_DENOM;
+        uint256 gameCut = (stockAmount * GAME_BPS) / BPS_DENOM;
         uint256 plotCut = stockAmount - gameCut;
         if (gameCut != 0) {
             gamePool[district] += gameCut;
