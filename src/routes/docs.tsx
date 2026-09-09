@@ -155,20 +155,32 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         </Panel>
         <p className="mt-4 text-sm text-muted-foreground">
           {tr(
-            `Wallet caps: ${RULES.perWalletPerDay} catches per day, ${RULES.walletCooldownMin} minutes between catches, and the same signal cannot be caught twice within 24 hours.`,
-            `钱包限制：每天 ${RULES.perWalletPerDay} 次，两次捕捉间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复捕捉。`,
+            `Wallet caps: ${RULES.perWalletPerDay} catches per day, ${RULES.walletCooldownMin} minutes between catches, and the same signal cannot be caught twice within 24 hours. Site-wide, payouts are capped at $${RULES.hourlyUsdCap} per rolling hour, valued at live Chainlink quotes — when the budget is spent, claims pause until the window refills.`,
+            `钱包限制：每天 ${RULES.perWalletPerDay} 次，两次捕捉间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复捕捉。全站层面，每个滚动小时的发放总额封顶 $${RULES.hourlyUsdCap}（按 Chainlink 实时报价折算）——预算用完即暂停，窗口滚动后自动恢复。`,
           )}
         </p>
       </Section>
 
+      <Section title={tr("Payouts and restocking", "发放与补货")}>
+        <Panel className="mt-6">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {tr(
+              "Every token has one fixed fragment size — the same amount at every pin on the map. The vault aims to keep 25 payable catches per token in stock (2 for the legendary SPCXON). Trading tax arrives as BNB, 10% goes to operations, and the rest is split evenly across the nine districts. Restocking is permissionless: anyone can sell a district's stock token to the vault at the Chainlink price × Flap NAV multiplier × a 2% premium and receive BNB. Every token bought this way goes 100% into the map prize pool — the only way out is a signed claim.",
+              "每种代币的碎片大小固定，地图上所有同类点位数量一致。金库为每种代币维持 25 次可领取库存（传奇 SPCXON 为 2 次）。交易税以 BNB 流入，10% 归运营，其余平均分到九个区。补货无需许可：任何人都可以按 Chainlink 报价 × Flap NAV 系数 × 2% 溢价把该区股票代币卖给金库并获得 BNB。买入的代币 100% 进入地图奖池——唯一出口是签名领取。",
+            )}
+          </p>
+        </Panel>
+      </Section>
+
       <Section title={tr("Token list", "代币列表")}>
         <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
-          <table className="w-full min-w-[560px] text-left text-sm">
+          <table className="w-full min-w-[680px] text-left text-sm">
             <thead>
               <tr className="label-caps border-b border-border text-[10px] text-muted-foreground">
                 <th className="px-6 py-4">{tr("Symbol", "代码")}</th>
                 <th className="px-6 py-4">{tr("Address", "合约地址")}</th>
                 <th className="px-6 py-4">{tr("Fragment", "碎片大小")}</th>
+                <th className="px-6 py-4">{tr("Target stock", "目标库存")}</th>
               </tr>
             </thead>
             <tbody>
@@ -177,6 +189,7 @@ POST early-access    { email, kind, city?, company? }`}</Code>
                   <td className="px-6 py-3 label-caps text-xs">{t.symbol}</td>
                   <td className="px-6 py-3 font-mono text-[11px] break-all">{t.address}</td>
                   <td className="px-6 py-3 font-mono text-xs">{t.fragment}</td>
+                  <td className="px-6 py-3 font-mono text-xs">{t.targetDrops} {tr("catches", "次")}</td>
                 </tr>
               ))}
             </tbody>
