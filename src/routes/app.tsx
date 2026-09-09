@@ -236,18 +236,17 @@ function AppMap() {
           const { VAULT_ABI } = await import("@/lib/vault");
           const dataHex = encodeFunctionData({
             abi: VAULT_ABI,
-            functionName: "claim",
+            functionName: "claimGameVoucher",
             args: [
-              {
-                to: res.voucher.to as `0x${string}`,
-                token: res.voucher.token as `0x${string}`,
-                amount: BigInt(res.voucher.amount),
-                spawnId: res.voucher.spawnId as `0x${string}`,
-                nonce: BigInt(res.voucher.nonce),
-                deadline: BigInt(res.voucher.deadline),
-              },
+              res.voucher.to as `0x${string}`,
+              res.voucher.district,
+              BigInt(res.voucher.amount),
+              res.voucher.spawnId as `0x${string}`,
+              BigInt(res.voucher.nonce),
+              BigInt(res.voucher.deadline),
               res.signature as `0x${string}`,
             ],
+
           });
           const txHash: string = await (window as any).ethereum.request({
             method: "eth_sendTransaction",

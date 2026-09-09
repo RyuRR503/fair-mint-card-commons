@@ -50,6 +50,23 @@ export const TREASURY_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
+/**
+ * District index each token occupies inside MapCityVault. The order is fixed by
+ * the contract (assetOf(district)) and must never be reshuffled here.
+ */
+export const DISTRICT_BY_SYMBOL: Record<string, number> = {
+  NVDAON: 0,
+  AAPLON: 1,
+  TSLAON: 2,
+  MSFTON: 3,
+  GOOGLON: 4,
+  SPCXON: 5,
+  FXION: 6,
+  MUON: 7,
+  AMDON: 8,
+};
+
+
 /** BNB/USD Chainlink feed on BSC, used by the vault for quoting. */
 export const BNB_USD_FEED = "0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE";
 

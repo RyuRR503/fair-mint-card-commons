@@ -1,6 +1,6 @@
 /**
  * CATCH backdrop — "Daylight Field": warm paper, a faint survey grid and a few
- * quiet grass-green markers. Pure atmosphere; it must never compete with
+ * quiet signal-green markers. Pure atmosphere; it must never compete with
  * content, and it must never look like a dark HUD.
  */
 const MARKERS = [

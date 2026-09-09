@@ -1,9 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { cityByKey, type Spawn } from "./spawns";
-import { TOKEN_BY_SYMBOL, TOKENS, VAULT_ADDRESS, CHAIN, type Rarity } from "./tokens";
+import { TOKEN_BY_SYMBOL, TOKENS, VAULT_ADDRESS, CHAIN, DISTRICT_BY_SYMBOL, type Rarity } from "./tokens";
 import { catchRadius, haversine, MAX_ACCURACY_M } from "./geo";
-import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES } from "./vault";
+import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES, VOUCHER_PRIMARY_TYPE } from "./vault";
+
 
 
 type SpawnRow = {
@@ -62,7 +63,7 @@ export const RULES = {
   perDropPerDay: 24,
   walletCooldownMin: 120,
   dropCooldownMin: 10,
-  /** Whole-site payout ceiling per rolling hour, priced in USD (like Grass). */
+  /** Whole-site payout ceiling per rolling hour, priced in USD. */
   hourlyUsdCap: 500,
   voucherTtlMin: 15,
   minFixSamples: 4,
@@ -90,7 +91,7 @@ function vaultAddress() {
 }
 
 /**
- * Token address for a symbol. An env override (TOKEN_SBUXON=0x…) wins, so the
+ * Token address for a symbol. An env override (TOKEN_AAPLON=0x…) wins, so the
  * nine contract addresses can be filled in without a code change.
  */
 function tokenAddressFor(symbol: string, fallback: string) {
@@ -183,7 +184,7 @@ type Success = {
   spawn: Spawn;
   voucher: {
     to: string;
-    token: string;
+    district: number;
     amount: string;
     spawnId: string;
     nonce: string;
@@ -372,7 +373,7 @@ export const claimDrop = createServerFn({ method: "POST" })
 
     const voucher = {
       to: data.address,
-      token: tokenAddress,
+      district: DISTRICT_BY_SYMBOL[token.symbol] ?? 0,
       amount: amountWei,
       spawnId: spawnIdHash,
       nonce,
@@ -395,10 +396,10 @@ export const claimDrop = createServerFn({ method: "POST" })
             verifyingContract: contract as `0x${string}`,
           },
           types: VOUCHER_TYPES as unknown as Record<string, { name: string; type: string }[]>,
-          primaryType: "Voucher",
+          primaryType: VOUCHER_PRIMARY_TYPE,
           message: {
             to: voucher.to as `0x${string}`,
-            token: voucher.token as `0x${string}`,
+            district: voucher.district,
             amount: BigInt(voucher.amount),
             spawnId: voucher.spawnId,
             nonce: BigInt(voucher.nonce),
@@ -409,6 +410,7 @@ export const claimDrop = createServerFn({ method: "POST" })
         return fail("The claim server could not sign your voucher. Nothing was spent.");
       }
     }
+
 
     await db.from("catches").insert({
       wallet,

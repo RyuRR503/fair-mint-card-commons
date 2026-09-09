@@ -64,18 +64,19 @@ function HowItWorks() {
       n: "05",
       h: t("It signs a voucher.", "服务器签发凭证。"),
       p: t(
-        `to, token, amount, spawnId, nonce, deadline — valid for ${RULES.voucherTtlMin} minutes. Signed with the claim key using EIP-712, so a voucher for one vault is worthless on another.`,
-        `to、token、amount、spawnId、nonce、deadline——有效期 ${RULES.voucherTtlMin} 分钟。使用 EIP-712 以签名密钥签发，因此一个金库的凭证在别处无效。`,
+        `to, district, amount, spawnId, nonce, deadline — valid for ${RULES.voucherTtlMin} minutes. Signed with the claim key using EIP-712, so a voucher for one vault is worthless on another.`,
+        `to、district、amount、spawnId、nonce、deadline——有效期 ${RULES.voucherTtlMin} 分钟。使用 EIP-712 以签名密钥签发，因此一个金库的凭证在别处无效。`,
       ),
     },
     {
       n: "06",
-      h: t("Your wallet calls claim().", "你的钱包调用 claim()。"),
+      h: t("The voucher is redeemed on chain.", "凭证在链上兑现。"),
       p: t(
-        "The vault verifies the signature, burns the nonce, and transfers the fragment to you. Nothing is minted — every fragment was bought and deposited before it appeared.",
-        "金库验证签名、作废 nonce，然后把碎片转给你。不增发——每一份碎片都是在出现之前就已买入并存入的。",
+        "The vault verifies the signature, burns the nonce, and transfers the fragment to the address written in the voucher. Anyone may relay it, so it can reach you even with an empty gas tank. Nothing is minted — every fragment was bought into the pool before it appeared.",
+        "金库验证签名、作废 nonce，然后把碎片转给凭证里写明的地址。任何人都可以代为提交，所以钱包里没有 gas 也拿得到。不增发——每一份碎片都是先被买进奖池，然后才出现在地图上的。",
       ),
     },
+
   ];
 
   const ANTICHEAT: [string, string][] = [
@@ -261,20 +262,21 @@ function HowItWorks() {
 
       <Section title={t("The voucher", "凭证结构")}>
         <Panel className="mt-6">
-          <pre className="overflow-x-auto font-mono text-xs leading-relaxed text-foreground/80">{`Voucher {
+          <pre className="overflow-x-auto font-mono text-xs leading-relaxed text-foreground/80">{`GameVoucher {
   address to;       // your wallet
-  address token;    // e.g. AAPL on ${CHAIN.short}
-  uint256 amount;   // 0.011 AAPL = 11000000000000000 (18 decimals)
+  uint8   district; // 0-8, e.g. the AAPLON district on ${CHAIN.short}
+  uint256 amount;   // 0.011 AAPLON = 11000000000000000 (18 decimals)
   bytes32 spawnId;  // keccak256("shanghai-0")
   uint256 nonce;    // unique, burned on use
   uint256 deadline; // unix seconds
 }`}</pre>
           <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
             {t(
-              "The chain never trusts the app. It trusts one key, and that key only signs after the physical checks pass. If the key leaks, the owner rotates it with setSigner and pauses the vault.",
-              "链上从不信任 App，只信任一把密钥，而这把密钥只有在所有物理校验通过后才会签名。密钥一旦泄露，管理员可用 setSigner 轮换并暂停金库。",
+              "The chain never trusts the app. It trusts one key, and that key only signs after the physical checks pass. If the key leaks it is rotated with setGameSigner — and even then the map pool has no admin exit: stock can only ever leave to the address inside a signed voucher.",
+              "链上从不信任 App，只信任一把密钥，而这把密钥只有在所有物理校验通过后才会签名。密钥一旦泄露可用 setGameSigner 轮换——即便如此，地图奖池也没有管理员提现出口：代币只能转给签名凭证里写明的那个地址。",
             )}
           </p>
+
         </Panel>
       </Section>
 
