@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Section, Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
 import { getVault, getClaims } from "@/lib/game.functions";
-import { CHAIN, VAULT_ADDRESS } from "@/lib/tokens";
+import { CHAIN, TREASURY_ADDRESS, VAULT_ADDRESS, ZERO_ADDRESS } from "@/lib/tokens";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/proof")({
