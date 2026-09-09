@@ -121,8 +121,8 @@ function HowItWorks() {
     [
       t("Caps", "上限"),
       t(
-        `${RULES.perWalletPerDay} catches per wallet per day, and the same wallet cannot take the same signal twice within 24 hours.`,
-        `每个钱包每天 ${RULES.perWalletPerDay} 次，且同一钱包 24 小时内不能重复捕捉同一个信号。`,
+        `${RULES.perWalletPerDay} catches per wallet per day, and the same wallet cannot take the same signal twice within 24 hours. The whole site also has a rolling hourly budget of $${RULES.hourlyUsdCap} (priced at live Chainlink quotes) — once it is spent, catches pause until the next hour.`,
+        `每个钱包每天 ${RULES.perWalletPerDay} 次，且同一钱包 24 小时内不能重复捕捉同一个信号。全站还有每小时 $${RULES.hourlyUsdCap} 的滚动发放预算（按 Chainlink 实时报价折算）——用完即暂停，下一小时自动恢复。`,
       ),
     ],
     [
