@@ -13,14 +13,18 @@ type Props = {
 
 /** Brands whose real mark is near-black; drawn light on the dark chip. */
 const MARK_COLOR: Record<string, string> = {
-  NKEON: "#F5F5F5",
   AAPLON: "#F5F5F5",
 };
 
-/** Brands with no clean vector mark available: use their wordmark instead. */
+/** Tokens with no clean vector mark available: use their ticker instead. */
 const WORDMARK: Record<string, string> = {
-  NIOON: "NIO",
-  COSTON: "COSTCO",
+  FXION: "FXI",
+  AMDON: "AMD",
+  MUON: "MU",
+  NVDAON: "NVDA",
+  MSFTON: "MSFT",
+  GOOGLON: "GOOGL",
+  SPCXON: "SPCX",
 };
 
 /**

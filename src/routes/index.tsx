@@ -149,7 +149,7 @@ function Home() {
               <div className="viewfinder absolute inset-8 flex items-center justify-center">
                 <div className="panel w-full rotate-3 rounded-2xl p-8 transition-transform duration-500 hover:rotate-0">
                   <div className="mb-10 flex items-start justify-between">
-                    <TokenChip symbol="SBUXON" size={48} />
+                    <TokenChip symbol="FXION" size={48} />
                     <span className="readout text-[11px]">FRAG #8842</span>
                   </div>
                   <p className="label-caps text-[10px] text-muted-foreground">Stock fragment</p>
@@ -157,7 +157,7 @@ function Home() {
                   <div className="mt-8 flex items-end justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">{t("Fragment", "碎片")}</p>
-                      <p className="readout mt-1 text-xl text-primary">0.010 SBUXON</p>
+                      <p className="readout mt-1 text-xl text-primary">0.020 FXION</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-muted-foreground">{t("Location", "坐标")}</p>
@@ -207,8 +207,8 @@ function Home() {
               n: "01 / REAL",
               h: t("Real assets.", "真实资产。"),
               p: t(
-                `Not points and not a picture of a stock. Tokenized shares as BEP-20s on ${CHAIN.name} — BABAON, AAPLON, TSLAON — sitting in your own wallet.`,
-                `不是积分，也不是股票截图。而是 ${CHAIN.name} 上的 BEP-20 代币化股票——BABAON、AAPLON、TSLAON——直接放在你自己的钱包里。`,
+                `Not points and not a picture of a stock. Tokenized shares as BEP-20s on ${CHAIN.name} — NVDAON, AAPLON, TSLAON — sitting in your own wallet.`,
+                `不是积分，也不是股票截图。而是 ${CHAIN.name} 上的 BEP-20 代币化股票——NVDAON、AAPLON、TSLAON——直接放在你自己的钱包里。`,
               ),
             },
             {
@@ -367,8 +367,8 @@ function Home() {
           <div className="max-w-xl">
             <p className="text-base leading-relaxed text-muted-foreground">
               {t(
-                "Every day a whole BILION share sits at one spot for one hour, announced 24 hours ahead with a live countdown. Be there, be within 25 metres, and read the code physically posted at the spot. No code, no prize — which is exactly what makes spoofing useless.",
-                "每天一次，一整股 BILION 会在某个地点停留一小时，提前 24 小时公布并附实时倒计时。到场、进入 25 米范围，并读取现场张贴的验证码。没有码就没有奖——这正是伪造定位毫无意义的原因。",
+                "Every day a whole SPCXON share sits at one spot for one hour, announced 24 hours ahead with a live countdown. Be there, be within 25 metres, and read the code physically posted at the spot. No code, no prize — which is exactly what makes spoofing useless.",
+                "每天一次，一整股 SPCXON 会在某个地点停留一小时，提前 24 小时公布并附实时倒计时。到场、进入 25 米范围，并读取现场张贴的验证码。没有码就没有奖——这正是伪造定位毫无意义的原因。",
               )}
             </p>
             <Link
@@ -378,7 +378,7 @@ function Home() {
               {t("See the countdown", "查看倒计时")}
             </Link>
           </div>
-          <TokenChip symbol="BILION" size={140} float />
+          <TokenChip symbol="SPCXON" size={140} float />
         </Panel>
       </Section>
 
