@@ -73,11 +73,18 @@ export const Route = createFileRoute("/api/public/tmp-import")({
           if (error) return new Response(`places: ${error.message}`, { status: 500 });
         }
 
-        const { data: stored, error: readErr } = await supabaseAdmin
-          .from("places")
-          .select("id,osm_type,osm_id,symbol")
-          .limit(20000);
-        if (readErr) return new Response(`read: ${readErr.message}`, { status: 500 });
+        const stored: { id: string; osm_type: string; osm_id: number; symbol: string }[] = [];
+        for (let from = 0; ; from += 1000) {
+          const { data, error } = await supabaseAdmin
+            .from("places")
+            .select("id,osm_type,osm_id,symbol")
+            .order("id", { ascending: true })
+            .range(from, from + 999);
+          if (error) return new Response(`read: ${error.message}`, { status: 500 });
+          stored.push(...(data ?? []));
+          if (!data || data.length < 1000) break;
+        }
+
 
         const spawnRows = (stored ?? [])
           .filter((p) => spawnKeys.has(`${p.osm_type}/${p.osm_id}`))
