@@ -90,12 +90,13 @@ export function SiteHeader() {
               to={item.to}
               activeOptions={{ exact: item.to === "/" }}
               activeProps={{ className: "!text-primary bg-primary/10" }}
-              className="label-caps rounded-md px-2.5 py-2 text-[10px] text-muted-foreground transition-colors hover:text-foreground"
+              className={`label-caps rounded-md px-2.5 py-2 ${navText} text-muted-foreground transition-colors hover:text-foreground`}
             >
               {item.label}
             </Link>
           ))}
         </nav>
+
 
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
           <LangToggle className="hidden sm:flex" />
