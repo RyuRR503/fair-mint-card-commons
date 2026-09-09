@@ -304,7 +304,10 @@ export const claimDrop = createServerFn({ method: "POST" })
 
     const { keccak256, toHex, parseUnits } = await import("viem");
     const spawnIdHash = keccak256(toHex(spawn.id));
-    const amountWei = parseUnits(spawn.amount.toString(), token.decimals).toString();
+    // One drop rule per token, everywhere on the map: the token's fragment size
+    // is authoritative, never a per-pin number.
+    const payout = token.fragment;
+    const amountWei = parseUnits(payout.toString(), token.decimals).toString();
 
     const voucher = {
       to: data.address,
