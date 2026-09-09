@@ -4225,12 +4225,11 @@ contract WallStreetCityUpgradeable is Initializable, ERC721Upgradeable, Reentran
     error MintBatchTooLarge();
     /// @dev Global primary mint attempted before GLOBAL_MINT_COOLDOWN elapsed.
     error GlobalMintCooldownActive();
-    error GameSignerUnsetErr();
     error GameSignerUnset();
     error BadGameSignature();
     error GameVoucherExpired();
     error GameNonceUsed();
-    error GamePoolEmptyErr();
+    error GamePoolEmpty();
 
     /// @dev Flap tokenized equity for district 0..8 on BSC.
     function _districtAsset(uint256 district) private pure returns (address) {
