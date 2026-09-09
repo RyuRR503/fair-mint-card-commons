@@ -127,7 +127,7 @@ export function SiteHeader() {
               onClick={() => setOpen(false)}
               activeOptions={{ exact: item.to === "/" }}
               activeProps={{ className: "!text-primary bg-primary/10" }}
-              className="label-caps rounded-md px-4 py-3 text-[11px] text-muted-foreground"
+              className={`label-caps rounded-md px-4 py-3 ${lang === "zh" ? "text-[14px]" : "text-[11px]"} text-muted-foreground`}
             >
               {item.label}
             </Link>
