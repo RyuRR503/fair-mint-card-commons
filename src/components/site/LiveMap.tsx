@@ -10,6 +10,7 @@ type Props = {
   pins: MapPin[];
   points?: MapPoint[];
   me?: { lat: number; lng: number } | null;
+  meRadiusM?: number;
   onSelect?: (key: string) => void;
   selected?: string | null;
   center?: [number, number];
