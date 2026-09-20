@@ -30,53 +30,52 @@ function HowItWorks() {
   const STEPS = [
     {
       n: "01",
-      h: t("Connect a wallet, enable location.", "连接钱包，开启定位。"),
+      h: t("Connect a wallet and open the radar.", "连接钱包，打开雷达。"),
       p: t(
-        "The app watches your GPS and draws every signal around you. Nothing is sent anywhere yet.",
-        "App 会读取你的定位并绘制周围所有信号。此时什么都不会上传。",
+        "The app reads your GPS once and draws every catchable signal around you — Apple stores, banks, internet cafés, phone shops, science museums. Nothing is sent anywhere yet.",
+        "App 读取一次定位，把周围所有可捕捉信号画出来：Apple 店、银行、网吧、手机店、科技馆。此时什么都不会上传。",
       ),
     },
     {
       n: "02",
-      h: t("Close the distance until the button unlocks.", "走近，直到按钮解锁。"),
+      h: t("Walk up to the pin until it lights up.", "走到点位附近，等它亮起。"),
       p: t(
-        `Close enough is ${RULES.baseRadiusM} m plus half the error your phone reports — ${RULES.baseRadiusM + 5} m on a clean fix, ${RULES.maxRadiusM} m at the accuracy ceiling. A downtown fix is routinely twenty to fifty metres out, and a flat radius only ever refused people who were actually standing there.`,
-        `判定范围是 ${RULES.baseRadiusM} 米加上你手机上报误差的一半——定位干净时约 ${RULES.baseRadiusM + 5} 米，精度最差时 ${RULES.maxRadiusM} 米。市中心的定位常常偏差二三十米，固定半径只会误伤真的站在那里的人。`,
+        `You are standing outside the Apple store on Shanghai Nanjing East Road. The app draws a circle around the pin. If your phone reports a clean fix, the circle is about ${RULES.baseRadiusM + 5} m. In a crowded downtown it can stretch to ${RULES.maxRadiusM} m — the radius grows with your own error so a real visitor does not get rejected.`,
+        `你站在上海南京东路 Apple 店门口，App 会在点位周围画一个圈。定位干净时圈约 ${RULES.baseRadiusM + 5} 米；市中心拥挤地段会放宽到 ${RULES.maxRadiusM} 米——半径随你的定位误差自动放大，真的到场的人不会被误伤。`,
       ),
     },
     {
       n: "03",
-      h: t("The app sends your fix and its GPS log.", "App 上传定位与轨迹日志。"),
+      h: t("Hold still for a few seconds.", "原地停留几秒。"),
       p: t(
-        `Not just one position: at least ${RULES.minFixSamples} readings over ${RULES.minFixSeconds} seconds, plus motion from the accelerometer.`,
-        `不只是一个坐标：至少 ${RULES.minFixSeconds} 秒内的 ${RULES.minFixSamples} 次采样，外加加速度计的运动数据。`,
+        `The app records at least ${RULES.minFixSamples} readings over ${RULES.minFixSeconds} seconds and reads your accelerometer. A real hand holding a real phone shakes; a mocked location sits perfectly still. That is how it tells the difference.`,
+        `App 会在 ${RULES.minFixSeconds} 秒内记录至少 ${RULES.minFixSamples} 次定位，并读取加速度计。真实的手握着真实的手机会微微抖动；模拟定位纹丝不动。这就是区分方式。`,
       ),
     },
     {
       n: "04",
-      h: t("The server re-checks everything.", "服务器重新校验一切。"),
+      h: t("The server runs the checks.", "服务器运行校验。"),
       p: t(
-        "Distance, accuracy, jitter, travel since your last catch, device clock against the timezone, and the daily caps. A rejected claim costs you nothing.",
-        "距离、精度、抖动、距上次捕捉的移动速度、设备时钟与时区是否吻合，以及每日上限。被拒绝不会有任何损失。",
+        "It measures distance, accuracy, jitter, and whether your travel since the last catch is physically possible. It also checks the site-wide hourly budget and your daily cap. If anything fails, you see a plain reason and pay zero gas.",
+        "服务器会计算距离、精度、抖动，以及距上次捕捉的移动是否 physically 可能；同时检查全站每小时预算和你的每日上限。任何一项失败都会给出一句人话原因，不花 gas。",
       ),
     },
     {
       n: "05",
-      h: t("It signs a voucher.", "服务器签发凭证。"),
+      h: t("You get a 15-minute voucher.", "你得到一张 15 分钟有效期的凭证。"),
       p: t(
-        `to, district, amount, spawnId, nonce, deadline — valid for ${RULES.voucherTtlMin} minutes. Signed with the claim key using EIP-712, so a voucher for one vault is worthless on another.`,
-        `to、district、amount、spawnId、nonce、deadline——有效期 ${RULES.voucherTtlMin} 分钟。使用 EIP-712 以签名密钥签发，因此一个金库的凭证在别处无效。`,
+        `The voucher says: "send 0.011 AAPLON to this wallet, for this spawn, this one time." It is signed with EIP-712 and only works on the CATCH vault. A screenshot of the QR code is useless — the nonce is burned the first time it is used.`,
+        `凭证内容类似："把 0.011 AAPLON 发给这个钱包，对应这个点位，只能用一次。" 它用 EIP-712 签名，只在 CATCH 金库有效。截图或二维码都无用——nonce 第一次使用就被烧掉。`,
       ),
     },
     {
       n: "06",
-      h: t("The voucher is redeemed on chain.", "凭证在链上兑现。"),
+      h: t("The chain pays you.", "链上直接打款。"),
       p: t(
-        "The vault verifies the signature, burns the nonce, and transfers the fragment to the address written in the voucher. Anyone may relay it, so it can reach you even with an empty gas tank. Nothing is minted — every fragment was bought into the pool before it appeared.",
-        "金库验证签名、作废 nonce，然后把碎片转给凭证里写明的地址。任何人都可以代为提交，所以钱包里没有 gas 也拿得到。不增发——每一份碎片都是先被买进奖池，然后才出现在地图上的。",
+        "The vault checks the signature, marks the nonce as spent, and transfers the fragment to your wallet. You do not need BNB in your wallet — anyone can submit the voucher for you. Every token already sits in the prize pool; nothing is minted on the spot.",
+        "金库验证签名、标记 nonce 已用，然后把碎片转到你的钱包。你钱包里可以没有 BNB——任何人都能替你代交凭证。代币已经在奖池里，不会现场增发。",
       ),
     },
-
   ];
 
   const ANTICHEAT: [string, string][] = [
