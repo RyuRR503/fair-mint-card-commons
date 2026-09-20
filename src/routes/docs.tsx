@@ -220,6 +220,26 @@ POST early-access    { email, kind, city?, company? }`}</Code>
             `钱包限制：每天 ${RULES.perWalletPerDay} 次，两次捕捉间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复捕捉。全站层面，每个滚动小时的发放总额封顶 $${RULES.hourlyUsdCap}（按 Chainlink 实时报价折算）——预算用完即暂停，窗口滚动后自动恢复。`,
           )}
         </p>
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <Panel>
+            <h3 className="label-caps text-[11px] text-primary">{tr("A day of catching", "一天能抓多少")}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {tr(
+                `Imagine you are in Shanghai. At 9:00 you catch a bank drop (FXION, 20-minute cooldown). At 11:00 you catch an internet café (NVDAON). At 14:00 you hit a Tesla charger (TSLAON, 45-minute cooldown). By 18:00 you have used ${RULES.perWalletPerDay} of your ${RULES.perWalletPerDay} daily catches. The same Apple store cannot be used again until tomorrow, but other Apple stores are still live.`,
+                `假设你在上海。9:00 抓了一个银行网点（FXION，20 分钟冷却）；11:00 抓了一个网吧（NVDAON）；14:00 抓了一个特斯拉超充站（TSLAON，45 分钟冷却）。到 18:00 你已经用完当天 ${RULES.perWalletPerDay} 次机会。同一个 Apple 店明天才能再抓，但别的 Apple 店仍然有效。`,
+              )}
+            </p>
+          </Panel>
+          <Panel>
+            <h3 className="label-caps text-[11px] text-primary">{tr("Why the rolling hour cap", "为什么有每小时滚动上限")}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {tr(
+                `The site pays out at most $${RULES.hourlyUsdCap} worth of fragments every rolling hour. If the first ${RULES.perWalletPerDay} people in Beijing each claim $3 in a 10-minute window, the remaining 50 minutes pause until the hour rolls forward. This protects the prize pool from bursts, not from normal use.`,
+                `全站每小时滚动发放不超过 $${RULES.hourlyUsdCap}。如果北京前 ${RULES.perWalletPerDay} 个人在 10 分钟内各领走约 $3，剩下 50 分钟会暂停发放，直到滚动窗口推进。这是防突发，不是防正常玩家。`,
+              )}
+            </p>
+          </Panel>
+        </div>
       </Section>
 
       <Section title={tr("Payouts and restocking", "发放与补货")}>
