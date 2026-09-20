@@ -14,7 +14,7 @@ export const Route = createFileRoute("/legendary")({
       {
         name: "description",
         content:
-          "Every day a full SPCXON share sits at one spot for 120 minutes. Announced 24 hours ahead. Be within 25 metres and find the code.",
+          "Every day a full SPCXON share sits at one spot for 120 minutes. Announced 24 hours ahead. Be within 25 metres to win.",
       },
       { property: "og:title", content: "CATCH legendary drop" },
       {
@@ -161,10 +161,10 @@ function Legendary() {
               ),
             ],
             [
-              t("A physical code", "现场验证码"),
+              t("Stricter GPS check", "更严格的定位校验"),
               t(
-                "A code is posted at the spot when the hour starts. You type it in. No code, no share — which is why spoofing a legendary is pointless.",
-                "整点时验证码会张贴在现场，你需要手动输入。没有码就没有股票——所以伪造定位毫无意义。",
+                "No code to type. Your location is verified on the spot with tighter accuracy limits than a normal catch.",
+                "不需要输入任何验证码。到场后由系统校验定位，精度要求比普通抓取更严格。",
               ),
             ],
             [

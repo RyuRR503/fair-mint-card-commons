@@ -373,9 +373,8 @@ function Home() {
           <div className="max-w-xl">
             <p className="text-base leading-relaxed text-muted-foreground">
               {t(
-                "Every day a whole SPCXON share sits at one spot for 120 minutes, announced 24 hours ahead with a live countdown. Be there, be within 25 metres, and read the code physically posted at the spot. No code, no prize — which is exactly what makes spoofing useless.",
-                "每天一次，一整股 SPCXON 会在某个地点停留 120 分钟，提前 24 小时公布并附实时倒计时。到场、进入 25 米范围，并读取现场张贴的验证码。没有码就没有奖——这正是伪造定位毫无意义的原因。",
-
+                "Every day a whole SPCXON share sits at one spot for 120 minutes, announced 24 hours ahead with a live countdown. Be there, be within 25 metres, and the strict location check does the rest — first valid claim takes the share.",
+                "每天一次，一整股 SPCXON 会在某个地点停留 120 分钟，提前 24 小时公布并附实时倒计时。到场并进入 25 米范围，系统会做更严格的定位校验——第一个通过校验的人拿走整股。",
               )}
             </p>
             <Link
