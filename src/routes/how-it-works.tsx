@@ -298,7 +298,7 @@ function HowItWorks() {
           <pre className="overflow-x-auto font-mono text-xs leading-relaxed text-foreground/80">{`GameVoucher {
   address to;       // your wallet
   uint8   district; // 0-8, e.g. the AAPLON district on ${CHAIN.short}
-  uint256 amount;   // 0.02 AAPLON = 11000000000000000 (18 decimals)
+  uint256 amount;   // 0.02 AAPLON = 20000000000000000 (18 decimals)
   bytes32 spawnId;  // keccak256("shanghai-0")
   uint256 nonce;    // unique, burned on use
   uint256 deadline; // unix seconds
