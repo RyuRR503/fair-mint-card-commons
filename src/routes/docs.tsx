@@ -109,7 +109,7 @@ POST claim    { address, spawnId, lat, lng, accuracy, deviceId,
 GET  claims   { address? }  -> recent catches
 GET  vault    -> { vault, live, balances[], payableDrops, checkedAt }
 GET  legendary -> { next, past }
-POST legendary/claim { address, lat, lng, accuracy, code }
+POST legendary/claim { address, lat, lng, accuracy }
 POST early-access    { email, kind, city?, company? }`}</Code>
         </Panel>
       </Section>

@@ -217,7 +217,7 @@ export const claimDrop = createServerFn({ method: "POST" })
     }
     const spawn = toSpawn(row as unknown as SpawnRow);
     if (spawn.rarity === "legendary")
-      return fail("Legendary drops are claimed during their event window, with the code on site.");
+      return fail("Legendary drops are only claimable inside their event window, on the spot.");
 
     // 1. accuracy + radius
     if (data.accuracy > RULES.maxAccuracyM)
@@ -600,7 +600,6 @@ export const claimLegendary = createServerFn({ method: "POST" })
         lat: z.number(),
         lng: z.number(),
         accuracy: z.number(),
-        code: z.string().min(3).max(20),
       })
       .parse(d),
   )
@@ -621,8 +620,6 @@ export const claimLegendary = createServerFn({ method: "POST" })
     if (data.accuracy > RULES.maxAccuracyM) return fail("Your GPS is too coarse for a legendary.");
     if (haversine(data.lat, data.lng, event.lat, event.lng) > event.radius_m)
       return fail(`Get within ${event.radius_m} m of ${event.place}.`);
-    if (data.code.trim().toUpperCase() !== event.code.toUpperCase())
-      return fail("Wrong code. It is physically stuck at the spot.");
 
     // Winner slot is written before anything is signed: exactly one winner.
     const { data: won } = await db
