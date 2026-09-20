@@ -186,6 +186,39 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         </Panel>
       </Section>
 
+      <Section title={tr("How rarity works", "稀有度是怎么划分的")}>
+        <Panel className="mt-6">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {tr(
+              "Rarity is not the number of pins on the map — it is a property of the token. A token's rarity decides how long its points sleep after a catch, how often you see it, and roughly how big each fragment is. FXION (banks) is common, so there are many banks, they respawn in 20 minutes, and each catch is a larger fragment of a stable asset. AAPLON (Apple stores) is epic, so there are fewer Apple stores, they respawn in 90 minutes, and each catch is a smaller but higher-priced slice. SPCXON is legendary and only appears during the daily legendary event.",
+              "稀有度不是地图上有几个点，而是代币本身的属性。一种代币的稀有度决定它的点位冷却多久、出现得多频繁、单次碎片大概多少。FXION（银行）是 common，所以银行很多、20 分钟复活、单次碎片数量大但单价稳；AAPLON（Apple 店）是 epic，所以 Apple 店更少、90 分钟复活、单次碎片数量小但单价更高。SPCXON 是 legendary，只在每日传奇活动出现。",
+            )}
+          </p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <p className="label-caps text-[10px] text-muted-foreground">{tr("Common", "普通")}</p>
+              <p className="mt-1 text-sm font-medium">{tr("FXION · NVDAON · AMDON · MUON", "FXION · NVDAON · AMDON · MUON")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("20 min cooldown · many venues · larger fragments", "20 分钟冷却 · 门店多 · 单次数量大")}</p>
+            </div>
+            <div>
+              <p className="label-caps text-[10px] text-muted-foreground">{tr("Rare", "稀有")}</p>
+              <p className="mt-1 text-sm font-medium">{tr("TSLAON · MSFTON · GOOGLON", "TSLAON · MSFTON · GOOGLON")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("45 min cooldown · medium density", "45 分钟冷却 · 密度中等")}</p>
+            </div>
+            <div>
+              <p className="label-caps text-[10px] text-muted-foreground">{tr("Epic", "史诗")}</p>
+              <p className="mt-1 text-sm font-medium">{tr("AAPLON", "AAPLON")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("90 min cooldown · fewer stores · smaller but higher-value fragments", "90 分钟冷却 · 门店少 · 单次数量小但单价更高")}</p>
+            </div>
+            <div>
+              <p className="label-caps text-[10px] text-muted-foreground">{tr("Legendary", "传奇")}</p>
+              <p className="mt-1 text-sm font-medium">{tr("SPCXON", "SPCXON")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("120 min cooldown · event only · one whole share", "120 分钟冷却 · 仅活动出现 · 整股发放")}</p>
+            </div>
+          </div>
+        </Panel>
+      </Section>
+
       <Section title={tr("Cooldowns", "冷却规则")}>
         <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
           <table className="w-full min-w-[420px] text-left text-sm">
