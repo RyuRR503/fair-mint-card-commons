@@ -205,6 +205,39 @@ function HowItWorks() {
         </div>
       </Section>
 
+      <Section title={t("Where the pins live", "这些店都在哪儿")}>
+        <Panel className="mt-6">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {t(
+              "The map covers 30 Chinese cities with 1,378 permanent drops pinned to 1,443 real OpenStreetMap venues. Beijing has 96 drops, Shanghai 102, Shenzhen 86, and Chengdu 85. A weekend in Guangzhou could take you from a bank (FXION) near Haizhu Square to a computer shop (AMDON) in Tianhe, then a phone repair market (MUON) in Dongshan — all within the same wallet day.",
+              "地图覆盖 30 座中国城市，1378 个永久掉落点对应 1443 个 OpenStreetMap 真实门店。北京 96 个，上海 102 个，深圳 86 个，成都 85 个。一个广州周末可以从海珠广场附近的银行（FXION）开始，走到天河的电脑城（AMDON），再去东山的手机维修市场（MUON）—— 全在一天钱包上限之内。",
+            )}
+          </p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <p className="label-caps text-[10px] text-muted-foreground">{t("FXION — banks", "FXION — 银行")}</p>
+              <p className="mt-1 font-display text-2xl">511</p>
+              <p className="text-xs text-muted-foreground">{t("drops, the most common", "点位，数量最多")}</p>
+            </div>
+            <div>
+              <p className="label-caps text-[10px] text-muted-foreground">{t("NVDAON — internet cafés", "NVDAON — 网吧/电竞")}</p>
+              <p className="mt-1 font-display text-2xl">105</p>
+              <p className="text-xs text-muted-foreground">{t("drops, mostly downtown", "点位，多在市中心")}</p>
+            </div>
+            <div>
+              <p className="label-caps text-[10px] text-muted-foreground">{t("TSLAON — superchargers", "TSLAON — 超充站")}</p>
+              <p className="mt-1 font-display text-2xl">36</p>
+              <p className="text-xs text-muted-foreground">{t("drops, lower density", "点位，密度最低")}</p>
+            </div>
+            <div>
+              <p className="label-caps text-[10px] text-muted-foreground">{t("AAPLON — Apple stores", "AAPLON — Apple 店")}</p>
+              <p className="mt-1 font-display text-2xl">64</p>
+              <p className="text-xs text-muted-foreground">{t("drops, higher per-catch value", "点位，单次价值更高")}</p>
+            </div>
+          </div>
+        </Panel>
+      </Section>
+
       <Section title={t("Cooldowns & daily caps", "冷却与每日上限")}>
         <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
           <table className="w-full min-w-[420px] text-left text-sm">
