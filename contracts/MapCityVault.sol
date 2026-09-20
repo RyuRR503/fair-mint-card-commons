@@ -4170,8 +4170,9 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         emit ProjectTokenSet(token);
     }
 
+    /// @notice Guardian-only: rotate the ops treasury (owner has no say).
     function setOpsTreasury(address to) external {
-        _requireOwnerOrGuardian();
+        _requireGuardian();
         address prev = opsTreasury;
         opsTreasury = to;
         emit OpsTreasuryUpdated(prev, to);
