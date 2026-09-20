@@ -170,8 +170,8 @@ function Legendary() {
             [
               t("First valid claim wins", "首个有效领取者获胜"),
               t(
-                "The winner slot is locked the instant a valid claim lands. Everybody else gets a consolation fragment.",
-                "第一笔有效领取到达时锁定获胜名额，其他人获得安慰碎片。",
+                "The winner slot is locked the instant a valid claim lands. Everyone else keeps exploring the map for the next drop.",
+                "第一笔有效领取到达时锁定获胜名额，其他人可以继续探索地图，等待下一场活动。",
               ),
             ],
           ].map(([h, p]) => (
