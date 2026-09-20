@@ -269,7 +269,7 @@ POST early-access    { email, kind, city?, company? }`}</Code>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {tr(
                 `The site pays out at most $${RULES.hourlyUsdCap} worth of fragments every rolling hour. If the first ${RULES.perWalletPerDay} people in Beijing each claim $5 in a 10-minute window, the remaining 50 minutes pause until the hour rolls forward. This protects the prize pool from bursts, not from normal use.`,
-                `全站每小时滚动发放不超过 $${RULES.hourlyUsdCap}。如果北京前 ${RULES.perWalletPerDay} 个人在 10 分钟内各领走约 $3，剩下 50 分钟会暂停发放，直到滚动窗口推进。这是防突发，不是防正常玩家。`,
+                `全站每小时滚动发放不超过 $${RULES.hourlyUsdCap}。如果北京前 ${RULES.perWalletPerDay} 个人在 10 分钟内各领走约 $5，剩下 50 分钟会暂停发放，直到滚动窗口推进。这是防突发，不是防正常玩家。`,
               )}
             </p>
           </Panel>
