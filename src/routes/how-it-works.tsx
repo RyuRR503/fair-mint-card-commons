@@ -188,10 +188,11 @@ function HowItWorks() {
             <h3 className="label-caps text-[11px] text-primary">{t("Same token, same amount", "同一代币，数量统一")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "The fragment size belongs to the token, not the pin. Every Apple store pays the same AAPLON fragment, every internet café pays the same NVDAON fragment — worth roughly $3 a catch at current prices, about $150 for the legendary SPCXON.",
-                "碎片大小由代币决定，与点位无关。每家 Apple 店发同样的 AAPLON，每家网吧发同样的 NVDAON——按现价约 $3 一次，传奇 SPCXON 约 $150。",
+                "The fragment size belongs to the token, not the pin. Every Apple store pays the same AAPLON fragment, every internet café pays the same NVDAON fragment. Value follows rarity: about $2 a catch for common, $3.5 for rare, $5.5 for epic, and one whole share (about $150) for the legendary SPCXON.",
+                "碎片大小由代币决定，与点位无关。每家 Apple 店发同样的 AAPLON，每家网吧发同样的 NVDAON。价值按稀有度递增：普通约 $2 一次，稀有约 $3.5，史诗约 $5.5，传奇 SPCXON 是 1 整股（约 $150）。",
               )}
             </p>
+
           </Panel>
           <Panel>
             <h3 className="label-caps text-[11px] text-primary">{t("Refill is automatic", "自动补货")}</h3>
