@@ -4348,9 +4348,10 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
 
     // ---------------- map game claim ----------------
 
-    /// @notice Owner or Guardian: rotate the voucher signer (only mutable game parameter).
+    /// @notice Guardian-only: rotate the voucher signer. The owner can never touch the signer,
+    ///         so the owner has no path — direct or indirect — to the map reward inventory.
     function setGameSigner(address signer_) external {
-        _requireOwnerOrGuardian();
+        _requireGuardian();
         address prev = gameSigner;
         gameSigner = signer_;
         emit GameSignerUpdated(prev, signer_);
