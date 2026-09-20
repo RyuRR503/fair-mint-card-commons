@@ -135,8 +135,8 @@ function gamePool(uint8 district) external view returns (uint256);
               <h3 className="label-caps text-[11px] text-primary">{tr("A concrete example", "一个具体例子")}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {tr(
-                  "You stand in front of the Apple store on Shanghai Nanjing East Road. The server checks your GPS, signs a voucher for 0.011 AAPLON, and gives it a 15-minute deadline. You submit it to the contract. The contract checks the signature against the game signer, makes sure the nonce has never been used, and transfers 0.011 AAPLON to your wallet. The server cannot take the money back, and the voucher cannot be reused tomorrow.",
-                  "你站在上海南京东路 Apple 店门口。服务器校验 GPS 后，签发一张 0.011 AAPLON 的凭证，有效期 15 分钟。你把凭证提交给合约，合约用 gameSigner 验签、确认 nonce 没被用过，然后把 0.011 AAPLON 转到你的钱包。服务器拿不回这笔钱，这张凭证明天也不能再用。",
+                  "You stand in front of the Apple store on Shanghai Nanjing East Road. The server checks your GPS, signs a voucher for 0.02 AAPLON, and gives it a 15-minute deadline. You submit it to the contract. The contract checks the signature against the game signer, makes sure the nonce has never been used, and transfers 0.02 AAPLON to your wallet. The server cannot take the money back, and the voucher cannot be reused tomorrow.",
+                  "你站在上海南京东路 Apple 店门口。服务器校验 GPS 后，签发一张 0.02 AAPLON 的凭证，有效期 15 分钟。你把凭证提交给合约，合约用 gameSigner 验签、确认 nonce 没被用过，然后把 0.02 AAPLON 转到你的钱包。服务器拿不回这笔钱，这张凭证明天也不能再用。",
                 )}
               </p>
             </Panel>
@@ -268,7 +268,7 @@ POST early-access    { email, kind, city?, company? }`}</Code>
             <h3 className="label-caps text-[11px] text-primary">{tr("Why the rolling hour cap", "为什么有每小时滚动上限")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {tr(
-                `The site pays out at most $${RULES.hourlyUsdCap} worth of fragments every rolling hour. If the first ${RULES.perWalletPerDay} people in Beijing each claim $3 in a 10-minute window, the remaining 50 minutes pause until the hour rolls forward. This protects the prize pool from bursts, not from normal use.`,
+                `The site pays out at most $${RULES.hourlyUsdCap} worth of fragments every rolling hour. If the first ${RULES.perWalletPerDay} people in Beijing each claim $5 in a 10-minute window, the remaining 50 minutes pause until the hour rolls forward. This protects the prize pool from bursts, not from normal use.`,
                 `全站每小时滚动发放不超过 $${RULES.hourlyUsdCap}。如果北京前 ${RULES.perWalletPerDay} 个人在 10 分钟内各领走约 $3，剩下 50 分钟会暂停发放，直到滚动窗口推进。这是防突发，不是防正常玩家。`,
               )}
             </p>
