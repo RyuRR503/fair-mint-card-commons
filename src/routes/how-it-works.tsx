@@ -57,7 +57,7 @@ function HowItWorks() {
       h: t("The server runs the checks.", "服务器运行校验。"),
       p: t(
         "It measures distance, accuracy, jitter, and whether your travel since the last catch is physically possible. It also checks the site-wide hourly budget and your daily cap. If anything fails, you see a plain reason and pay zero gas.",
-        "服务器会计算距离、精度、抖动，以及距上次捕捉的移动是否 physically 可能；同时检查全站每小时预算和你的每日上限。任何一项失败都会给出一句人话原因，不花 gas。",
+        "服务器会计算距离、精度、抖动，以及距上次捕捉的移动在现实里是否可能（比如一小时内在两座城市出现会被拒绝）；同时检查全站每小时预算和你的每日上限。任何一项失败都会给出一句人话原因，不花 gas。",
       ),
     },
     {
