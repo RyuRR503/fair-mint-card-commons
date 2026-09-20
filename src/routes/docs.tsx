@@ -129,8 +129,27 @@ function claimGameVoucher(
 ) external;                       // anyone may relay
 function gameNonceUsed(uint256 nonce) external view returns (bool);
 function gamePool(uint8 district) external view returns (uint256);
-function setGameSigner(address signer) external;  // guardian only`}</Code>
-
+          function setGameSigner(address signer) external;  // guardian only`}</Code>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <Panel>
+              <h3 className="label-caps text-[11px] text-primary">{tr("A concrete example", "一个具体例子")}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {tr(
+                  "You stand in front of the Apple store on Shanghai Nanjing East Road. The server checks your GPS, signs a voucher for 0.011 AAPLON, and gives it a 15-minute deadline. You submit it to the contract. The contract checks the signature against the game signer, makes sure the nonce has never been used, and transfers 0.011 AAPLON to your wallet. The server cannot take the money back, and the voucher cannot be reused tomorrow.",
+                  "你站在上海南京东路 Apple 店门口。服务器校验 GPS 后，签发一张 0.011 AAPLON 的凭证，有效期 15 分钟。你把凭证提交给合约，合约用 gameSigner 验签、确认 nonce 没被用过，然后把 0.011 AAPLON 转到你的钱包。服务器拿不回这笔钱，这张凭证明天也不能再用。",
+                )}
+              </p>
+            </Panel>
+            <Panel>
+              <h3 className="label-caps text-[11px] text-primary">{tr("What happens if the server is wrong?", "如果服务器错了会怎样？")}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {tr(
+                  "A bad GPS fix or a cheater will be rejected before any voucher is signed. If a voucher is somehow signed incorrectly, the contract still enforces the rules: the nonce is burned, the deadline expires, and the amount is taken from the map pool, not from other users' balances. No central party can mint or claw back tokens.",
+                  "定位不准或作弊会在签发凭证前被拒绝。即使签出一张错误凭证，合约仍会执行规则：nonce 被作废、deadline 到期、金额从地图奖池支出，不动其他用户余额。没有任何中央方能增发或回收代币。",
+                )}
+              </p>
+            </Panel>
+          </div>
         </Panel>
       </Section>
 
