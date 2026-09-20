@@ -135,8 +135,8 @@ function gamePool(uint8 district) external view returns (uint256);
               <h3 className="label-caps text-[11px] text-primary">{tr("A concrete example", "一个具体例子")}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {tr(
-                  "You stand in front of the Apple store on Shanghai Nanjing East Road. The server checks your GPS, signs a voucher for 0.011 AAPLON, and gives it a 15-minute deadline. You submit it to the contract. The contract checks the signature against the game signer, makes sure the nonce has never been used, and transfers 0.011 AAPLON to your wallet. The server cannot take the money back, and the voucher cannot be reused tomorrow.",
-                  "你站在上海南京东路 Apple 店门口。服务器校验 GPS 后，签发一张 0.011 AAPLON 的凭证，有效期 15 分钟。你把凭证提交给合约，合约用 gameSigner 验签、确认 nonce 没被用过，然后把 0.011 AAPLON 转到你的钱包。服务器拿不回这笔钱，这张凭证明天也不能再用。",
+                  "You stand in front of the Apple store on Shanghai Nanjing East Road. The server checks your GPS, signs a voucher for 0.02 AAPLON, and gives it a 15-minute deadline. You submit it to the contract. The contract checks the signature against the game signer, makes sure the nonce has never been used, and transfers 0.02 AAPLON to your wallet. The server cannot take the money back, and the voucher cannot be reused tomorrow.",
+                  "你站在上海南京东路 Apple 店门口。服务器校验 GPS 后，签发一张 0.02 AAPLON 的凭证，有效期 15 分钟。你把凭证提交给合约，合约用 gameSigner 验签、确认 nonce 没被用过，然后把 0.02 AAPLON 转到你的钱包。服务器拿不回这笔钱，这张凭证明天也不能再用。",
                 )}
               </p>
             </Panel>
@@ -190,32 +190,33 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "Rarity is not the number of pins on the map — it is a property of the token. A token's rarity decides how long its points sleep after a catch, how often you see it, and roughly how big each fragment is. FXION (banks) is common, so there are many banks, they respawn in 20 minutes, and each catch is a larger fragment of a stable asset. AAPLON (Apple stores) is epic, so there are fewer Apple stores, they respawn in 90 minutes, and each catch is a smaller but higher-priced slice. SPCXON is legendary and only appears during the daily legendary event.",
-              "稀有度不是地图上有几个点，而是代币本身的属性。一种代币的稀有度决定它的点位冷却多久、出现得多频繁、单次碎片大概多少。FXION（银行）是 common，所以银行很多、20 分钟复活、单次碎片数量大但单价稳；AAPLON（Apple 店）是 epic，所以 Apple 店更少、90 分钟复活、单次碎片数量小但单价更高。SPCXON 是 legendary，只在每日传奇活动出现。",
+              "Rarity is a property of the token, not the number of pins. It decides three things: how long a point sleeps after a catch, how dense its venues are, and how much a single catch is worth. Value rises with rarity — a common catch is worth about $2, a rare one about $3.5, an epic one about $5.5, and the legendary SPCXON pays one whole share (about $150). FXION (banks) is common: banks are everywhere, they respawn in 20 minutes, and each catch is a modest slice. AAPLON (Apple stores) is epic: fewer doors, 90 minutes of cooldown, and a catch worth almost three times a common one.",
+              "稀有度是代币本身的属性，不是地图上点位的数量。它决定三件事：点位冷却多久、门店密度多大、以及单次抓取值多少钱。价值随稀有度递增——普通约 $2，稀有约 $3.5，史诗约 $5.5，传奇 SPCXON 是 1 整股（约 $150）。FXION（银行）是普通：网点到处都是、20 分钟复活、单次价值较小；AAPLON（Apple 店）是史诗：门店少、90 分钟冷却、单次价值差不多是普通的三倍。",
             )}
           </p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Common", "普通")}</p>
               <p className="mt-1 text-sm font-medium">{tr("FXION · NVDAON · AMDON · MUON", "FXION · NVDAON · AMDON · MUON")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{tr("20 min cooldown · many venues · larger fragments", "20 分钟冷却 · 门店多 · 单次数量大")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("20 min cooldown · many venues · ~$2 a catch", "20 分钟冷却 · 门店多 · 单次约 $2")}</p>
             </div>
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Rare", "稀有")}</p>
               <p className="mt-1 text-sm font-medium">{tr("TSLAON · MSFTON · GOOGLON", "TSLAON · MSFTON · GOOGLON")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{tr("45 min cooldown · medium density", "45 分钟冷却 · 密度中等")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("45 min cooldown · medium density · ~$3.5 a catch", "45 分钟冷却 · 密度中等 · 单次约 $3.5")}</p>
             </div>
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Epic", "史诗")}</p>
               <p className="mt-1 text-sm font-medium">{tr("AAPLON", "AAPLON")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{tr("90 min cooldown · fewer stores · smaller but higher-value fragments", "90 分钟冷却 · 门店少 · 单次数量小但单价更高")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("90 min cooldown · fewer stores · ~$5.5 a catch", "90 分钟冷却 · 门店少 · 单次约 $5.5")}</p>
             </div>
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Legendary", "传奇")}</p>
               <p className="mt-1 text-sm font-medium">{tr("SPCXON", "SPCXON")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{tr("120 min cooldown · event only · one whole share", "120 分钟冷却 · 仅活动出现 · 整股发放")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("120 min cooldown · event only · one whole share (~$150)", "120 分钟冷却 · 仅活动出现 · 1 整股（约 $150）")}</p>
             </div>
           </div>
+
         </Panel>
       </Section>
 
@@ -267,8 +268,8 @@ POST early-access    { email, kind, city?, company? }`}</Code>
             <h3 className="label-caps text-[11px] text-primary">{tr("Why the rolling hour cap", "为什么有每小时滚动上限")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {tr(
-                `The site pays out at most $${RULES.hourlyUsdCap} worth of fragments every rolling hour. If the first ${RULES.perWalletPerDay} people in Beijing each claim $3 in a 10-minute window, the remaining 50 minutes pause until the hour rolls forward. This protects the prize pool from bursts, not from normal use.`,
-                `全站每小时滚动发放不超过 $${RULES.hourlyUsdCap}。如果北京前 ${RULES.perWalletPerDay} 个人在 10 分钟内各领走约 $3，剩下 50 分钟会暂停发放，直到滚动窗口推进。这是防突发，不是防正常玩家。`,
+                `The site pays out at most $${RULES.hourlyUsdCap} worth of fragments every rolling hour. If the first ${RULES.perWalletPerDay} people in Beijing each claim $5 in a 10-minute window, the remaining 50 minutes pause until the hour rolls forward. This protects the prize pool from bursts, not from normal use.`,
+                `全站每小时滚动发放不超过 $${RULES.hourlyUsdCap}。如果北京前 ${RULES.perWalletPerDay} 个人在 10 分钟内各领走约 $5，剩下 50 分钟会暂停发放，直到滚动窗口推进。这是防突发，不是防正常玩家。`,
               )}
             </p>
           </Panel>
