@@ -30,6 +30,10 @@ function Code({ children }: { children: string }) {
 
 function Docs() {
   const tr = useT();
+  const totalSpawns = 1378;
+  const totalPlaces = 1443;
+  const totalCities = 30;
+
   return (
     <>
       <Section
@@ -41,6 +45,40 @@ function Docs() {
         )}
         className="mt-10"
       />
+
+      <Section title={tr("Coverage", "覆盖范围")}>
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <Panel>
+            <p className="label-caps text-[10px] text-muted-foreground">{tr("Cities", "城市")}</p>
+            <p className="mt-2 font-display text-4xl">{totalCities}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {tr("From Beijing and Shanghai to Kunming and Harbin.", "从北京、上海，到昆明、哈尔滨。")}
+            </p>
+          </Panel>
+          <Panel>
+            <p className="label-caps text-[10px] text-muted-foreground">{tr("Real venues", "真实门店")}</p>
+            <p className="mt-2 font-display text-4xl">{totalPlaces.toLocaleString()}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {tr("Apple stores, banks, internet cafés, phone shops, science museums and more.", "Apple 店、银行、网吧、手机店、科技馆等真实地点。")}
+            </p>
+          </Panel>
+          <Panel>
+            <p className="label-caps text-[10px] text-muted-foreground">{tr("Permanent drops", "永久掉落点")}</p>
+            <p className="mt-2 font-display text-4xl">{totalSpawns.toLocaleString()}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {tr("Each one sleeps after a catch and respawns automatically.", "每个点位被捡走后会进入冷却，时间一到自动复活。")}
+            </p>
+          </Panel>
+        </div>
+        <Panel className="mt-6">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {tr(
+              "Think of it like a nationwide scavenger hunt with 1,378 fixed coordinates. Beijing has 96 drops, Shanghai 102, Shenzhen 86, and Chengdu 85. Smaller cities still have dozens: a 24-hour trip can cover banks in Beijing, internet cafés in Chengdu, and Tesla chargers in Shenzhen. The numbers are not decoration — they come from OpenStreetMap and are written into the database as real latitude and longitude.",
+              "可以理解为一场覆盖全国 1378 个固定坐标的寻宝。北京有 96 个掉落点，上海 102 个，深圳 86 个，成都 85 个；小一些的城市也有几十个：24 小时内你可以在北京的银行、成都的网吧、深圳的超充站之间切换。这些数字不是装饰，全部来自 OpenStreetMap，以真实经纬度写进数据库。",
+            )}
+          </p>
+        </Panel>
+      </Section>
 
       <Section title={tr("Chain and addresses", "链与地址")}>
         <Panel className="mt-6">
@@ -91,8 +129,27 @@ function claimGameVoucher(
 ) external;                       // anyone may relay
 function gameNonceUsed(uint256 nonce) external view returns (bool);
 function gamePool(uint8 district) external view returns (uint256);
-function setGameSigner(address signer) external;  // guardian only`}</Code>
-
+          function setGameSigner(address signer) external;  // guardian only`}</Code>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <Panel>
+              <h3 className="label-caps text-[11px] text-primary">{tr("A concrete example", "一个具体例子")}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {tr(
+                  "You stand in front of the Apple store on Shanghai Nanjing East Road. The server checks your GPS, signs a voucher for 0.011 AAPLON, and gives it a 15-minute deadline. You submit it to the contract. The contract checks the signature against the game signer, makes sure the nonce has never been used, and transfers 0.011 AAPLON to your wallet. The server cannot take the money back, and the voucher cannot be reused tomorrow.",
+                  "你站在上海南京东路 Apple 店门口。服务器校验 GPS 后，签发一张 0.011 AAPLON 的凭证，有效期 15 分钟。你把凭证提交给合约，合约用 gameSigner 验签、确认 nonce 没被用过，然后把 0.011 AAPLON 转到你的钱包。服务器拿不回这笔钱，这张凭证明天也不能再用。",
+                )}
+              </p>
+            </Panel>
+            <Panel>
+              <h3 className="label-caps text-[11px] text-primary">{tr("What happens if the server is wrong?", "如果服务器错了会怎样？")}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {tr(
+                  "A bad GPS fix or a cheater will be rejected before any voucher is signed. If a voucher is somehow signed incorrectly, the contract still enforces the rules: the nonce is burned, the deadline expires, and the amount is taken from the map pool, not from other users' balances. No central party can mint or claw back tokens.",
+                  "定位不准或作弊会在签发凭证前被拒绝。即使签出一张错误凭证，合约仍会执行规则：nonce 被作废、deadline 到期、金额从地图奖池支出，不动其他用户余额。没有任何中央方能增发或回收代币。",
+                )}
+              </p>
+            </Panel>
+          </div>
         </Panel>
       </Section>
 
@@ -163,6 +220,26 @@ POST early-access    { email, kind, city?, company? }`}</Code>
             `钱包限制：每天 ${RULES.perWalletPerDay} 次，两次捕捉间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复捕捉。全站层面，每个滚动小时的发放总额封顶 $${RULES.hourlyUsdCap}（按 Chainlink 实时报价折算）——预算用完即暂停，窗口滚动后自动恢复。`,
           )}
         </p>
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <Panel>
+            <h3 className="label-caps text-[11px] text-primary">{tr("A day of catching", "一天能抓多少")}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {tr(
+                `Imagine you are in Shanghai. At 9:00 you catch a bank drop (FXION, 20-minute cooldown). At 11:00 you catch an internet café (NVDAON). At 14:00 you hit a Tesla charger (TSLAON, 45-minute cooldown). By 18:00 you have used ${RULES.perWalletPerDay} of your ${RULES.perWalletPerDay} daily catches. The same Apple store cannot be used again until tomorrow, but other Apple stores are still live.`,
+                `假设你在上海。9:00 抓了一个银行网点（FXION，20 分钟冷却）；11:00 抓了一个网吧（NVDAON）；14:00 抓了一个特斯拉超充站（TSLAON，45 分钟冷却）。到 18:00 你已经用完当天 ${RULES.perWalletPerDay} 次机会。同一个 Apple 店明天才能再抓，但别的 Apple 店仍然有效。`,
+              )}
+            </p>
+          </Panel>
+          <Panel>
+            <h3 className="label-caps text-[11px] text-primary">{tr("Why the rolling hour cap", "为什么有每小时滚动上限")}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {tr(
+                `The site pays out at most $${RULES.hourlyUsdCap} worth of fragments every rolling hour. If the first ${RULES.perWalletPerDay} people in Beijing each claim $3 in a 10-minute window, the remaining 50 minutes pause until the hour rolls forward. This protects the prize pool from bursts, not from normal use.`,
+                `全站每小时滚动发放不超过 $${RULES.hourlyUsdCap}。如果北京前 ${RULES.perWalletPerDay} 个人在 10 分钟内各领走约 $3，剩下 50 分钟会暂停发放，直到滚动窗口推进。这是防突发，不是防正常玩家。`,
+              )}
+            </p>
+          </Panel>
+        </div>
       </Section>
 
       <Section title={tr("Payouts and restocking", "发放与补货")}>
