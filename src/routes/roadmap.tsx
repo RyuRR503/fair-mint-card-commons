@@ -203,8 +203,8 @@ const CHAPTERS: {
         s: "open",
         h: ["The signing key", "签名密钥"],
         p: [
-          "The pool has no admin exit, but one key still decides who gets a voucher. Reducing that trust is the open problem.",
-          "奖池没有管理员提现出口，但依然由一把密钥决定谁能拿到凭证。如何进一步削弱这份信任，是尚未解决的问题。",
+          "The vault owner keeps full control and can withdraw the pool; one key also decides who gets a voucher. Reducing that trust is the open problem.",
+          "金库 owner 保留全部权限，可以提走奖池；同时由一把密钥决定谁能拿到凭证。如何进一步削弱这份信任，是尚未解决的问题。",
         ],
       },
     ],

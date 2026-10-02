@@ -305,8 +305,8 @@ function HowItWorks() {
 }`}</pre>
           <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
             {t(
-              "The chain never trusts the app. It trusts one key, and that key only signs after the physical checks pass. If the key leaks it is rotated with setGameSigner — and even then the map pool has no admin exit: stock can only ever leave to the address inside a signed voucher.",
-              "链上从不信任 App，只信任一把密钥，而这把密钥只有在所有物理校验通过后才会签名。密钥一旦泄露可用 setGameSigner 轮换——即便如此，地图奖池也没有管理员提现出口：代币只能转给签名凭证里写明的那个地址。",
+              "The chain never trusts the app. It trusts one key, and that key only signs after the physical checks pass. If the key leaks it is rotated with setGameSigner. Apart from player claims, only the vault owner can move stock out of the pool.",
+              "链上从不信任 App，只信任一把密钥，而这把密钥只有在所有物理校验通过后才会签名。密钥一旦泄露可用 setGameSigner 轮换。除了玩家凭证领取，只有金库 owner 能把股票从奖池转出。",
             )}
           </p>
 

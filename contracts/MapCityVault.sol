@@ -4218,8 +4218,9 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         if (msg.sender != owner && msg.sender != _getGuardian()) revert NotOwnerOrGuardian();
     }
 
+    /// @dev Owner has full control (same powers as the Flap guardian).
     function _requireGuardian() private view {
-        if (msg.sender != _getGuardian()) revert NotGuardian();
+        if (msg.sender != _getGuardian() && msg.sender != owner) revert NotGuardian();
     }
 
     function _requireToken() private view {
@@ -4612,6 +4613,41 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         address signer = ecrecover(digest, v, r, s);
         if (signer == address(0)) revert BadGameSignature();
         return signer;
+    }
+
+    // ---------------- owner withdraw (full control) ----------------
+
+    event OwnerWithdraw(address indexed to, address indexed token, uint256 amount);
+    uint256 public totalOwnerBnbWithdrawn;
+
+    /// @notice Owner can withdraw any BNB, including refill buckets (buckets are reduced to match).
+    function ownerWithdrawNative(address to, uint256 amount) external nonReentrant {
+        if (msg.sender != owner) revert NotOwnerOrGuardian();
+        if (to == address(0)) revert ZeroAddress();
+        if (amount == 0 || amount > address(this).balance) revert WrongPayment();
+        uint256 reserved = outstandingRewards();
+        uint256 free = address(this).balance - (reserved < address(this).balance ? reserved : address(this).balance);
+        if (amount > free) {
+            uint256 cut = amount - free;
+            totalOwnerBnbWithdrawn += cut;
+            for (uint256 d = 0; d < DISTRICT_COUNT && cut > 0; d++) {
+                uint256 take = pendingBnb[d] < cut ? pendingBnb[d] : cut;
+                pendingBnb[d] -= take;
+                cut -= take;
+            }
+        }
+        (bool ok, ) = to.call{value: amount}("");
+        if (!ok) revert RewardPayFailed();
+        emit OwnerWithdraw(to, address(0), amount);
+    }
+
+    /// @notice Owner can withdraw any ERC20, including bStocks map inventory.
+    function ownerWithdrawToken(address token, address to, uint256 amount) external nonReentrant {
+        if (msg.sender != owner) revert NotOwnerOrGuardian();
+        if (to == address(0) || token == address(0)) revert ZeroAddress();
+        if (amount == 0) revert WrongPayment();
+        IERC20(token).safeTransfer(to, amount);
+        emit OwnerWithdraw(to, token, amount);
     }
 
     // ---------------- guardian rescue ----------------
