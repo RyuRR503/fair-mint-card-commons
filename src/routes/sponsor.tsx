@@ -80,9 +80,9 @@ function Sponsor() {
             <li>{t("· A token left the vault and landed in their wallet, publicly, on-chain.", "· 一枚代币从金库转出、公开落入他们的钱包。")}</li>
           </ul>
           <div className="flex gap-3">
-            <TokenChip symbol="AAPLON" size={72} float />
-            <TokenChip symbol="NVDAON" size={72} float delay={0.7} />
-            <TokenChip symbol="TSLAON" size={72} float delay={1.4} />
+            <TokenChip symbol="AAPLB" size={72} float />
+            <TokenChip symbol="NVDAB" size={72} float delay={0.7} />
+            <TokenChip symbol="TSLAB" size={72} float delay={1.4} />
 
           </div>
         </Panel>

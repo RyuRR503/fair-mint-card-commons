@@ -122,7 +122,7 @@ function Home() {
               <div className="viewfinder absolute inset-6 flex items-center justify-center">
                 <div className="panel w-full rotate-3 rounded-2xl p-7 transition-transform duration-700 [transition-timing-function:var(--ease-cine)] hover:rotate-0 hover:scale-[1.02]">
                   <div className="mb-8 flex items-start justify-between">
-                    <TokenChip symbol="NVDAON" size={48} />
+                    <TokenChip symbol="NVDAB" size={48} />
                     <span className="readout text-[11px]">FRAG #8842</span>
                   </div>
                   <p className="label-caps text-[10px] text-muted-foreground">Stock fragment</p>
@@ -130,7 +130,7 @@ function Home() {
                   <div className="mt-7 flex items-end justify-between gap-4">
                     <div>
                       <p className="text-xs text-muted-foreground">{t("Fragment", "碎片")}</p>
-                      <p className="readout mt-1 text-lg text-primary">0.0085 NVDAON</p>
+                      <p className="readout mt-1 text-lg text-primary">0.0085 NVDAB</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-muted-foreground">{t("Location", "坐标")}</p>
@@ -209,16 +209,16 @@ function Home() {
               n: "01 / REAL",
               h: t("Real assets.", "真实资产。"),
               p: t(
-                `Not points and not a picture of a stock. Tokenized shares as BEP-20s on ${CHAIN.name} — NVDAON, AAPLON, TSLAON — sitting in your own wallet.`,
-                `不是积分，也不是股票截图。而是 ${CHAIN.name} 上的 BEP-20 代币化股票——NVDAON、AAPLON、TSLAON——直接放在你自己的钱包里。`,
+                `Not points and not a picture of a stock. Tokenized shares as BEP-20s on ${CHAIN.name} — NVDAB, AAPLB, TSLAB — sitting in your own wallet.`,
+                `不是积分，也不是股票截图。而是 ${CHAIN.name} 上的 BEP-20 代币化股票——NVDAB、AAPLB、TSLAB——直接放在你自己的钱包里。`,
               ),
             },
             {
               n: "02 / PLACE",
               h: t("Real coordinates.", "真实坐标。"),
               p: t(
-                "Signals sit in front of places that actually match the asset. An Apple Store drops AAPLON, an internet café drops NVDAON, a Tesla supercharger drops TSLAON.",
-                "信号停在与资产真正匹配的场所门口：Apple 直营店掉 AAPLON，网吧掉 NVDAON，特斯拉超充站掉 TSLAON。",
+                "Signals sit in front of places that actually match the asset. An Apple Store drops AAPLB, an internet café drops NVDAB, a Tesla supercharger drops TSLAB.",
+                "信号停在与资产真正匹配的场所门口：Apple 直营店掉 AAPLB，网吧掉 NVDAB，特斯拉超充站掉 TSLAB。",
 
               ),
             },
@@ -368,8 +368,8 @@ function Home() {
           <div className="max-w-xl">
             <p className="text-base leading-relaxed text-muted-foreground">
               {t(
-                "Every day a whole SPCXON share sits at one spot for 120 minutes, announced 24 hours ahead with a live countdown. Be there, be within 25 metres, and the strict location check does the rest — first valid claim takes the share.",
-                "每天一次，一整股 SPCXON 会在某个地点停留 120 分钟，提前 24 小时公布并附实时倒计时。到场并进入 25 米范围，系统会做更严格的定位校验——第一个通过校验的人拿走整股。",
+                "Every day a whole SPCXB share sits at one spot for 120 minutes, announced 24 hours ahead with a live countdown. Be there, be within 25 metres, and the strict location check does the rest — first valid claim takes the share.",
+                "每天一次，一整股 SPCXB 会在某个地点停留 120 分钟，提前 24 小时公布并附实时倒计时。到场并进入 25 米范围，系统会做更严格的定位校验——第一个通过校验的人拿走整股。",
               )}
             </p>
             <Link
@@ -379,7 +379,7 @@ function Home() {
               {t("See the countdown", "查看倒计时")}
             </Link>
           </div>
-          <TokenChip symbol="SPCXON" size={140} float />
+          <TokenChip symbol="SPCXB" size={140} float />
         </Panel>
       </Section>
 

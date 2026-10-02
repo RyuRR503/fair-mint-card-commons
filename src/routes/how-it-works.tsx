@@ -64,8 +64,8 @@ function HowItWorks() {
       n: "05",
       h: t("You get a 15-minute voucher.", "你得到一张 15 分钟有效期的凭证。"),
       p: t(
-        `The voucher says: "send 0.02 AAPLON to this wallet, for this spawn, this one time." It is signed with EIP-712 and only works on the CATCH vault. A screenshot of the QR code is useless — the nonce is burned the first time it is used.`,
-        `凭证内容类似："把 0.02 AAPLON 发给这个钱包，对应这个点位，只能用一次。" 它用 EIP-712 签名，只在 CATCH 金库有效。截图或二维码都无用——nonce 第一次使用就被烧掉。`,
+        `The voucher says: "send 0.02 AAPLB to this wallet, for this spawn, this one time." It is signed with EIP-712 and only works on the CATCH vault. A screenshot of the QR code is useless — the nonce is burned the first time it is used.`,
+        `凭证内容类似："把 0.02 AAPLB 发给这个钱包，对应这个点位，只能用一次。" 它用 EIP-712 签名，只在 CATCH 金库有效。截图或二维码都无用——nonce 第一次使用就被烧掉。`,
       ),
     },
     {
@@ -188,8 +188,8 @@ function HowItWorks() {
             <h3 className="label-caps text-[11px] text-primary">{t("Same token, same amount", "同一代币，数量统一")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "The fragment size belongs to the token, not the pin. Every Apple store pays the same AAPLON fragment, every internet café pays the same NVDAON fragment. Value follows rarity: about $2 a catch for common, $3.5 for rare, $5.5 for epic, and one whole share (about $150) for the legendary SPCXON.",
-                "碎片大小由代币决定，与点位无关。每家 Apple 店发同样的 AAPLON，每家网吧发同样的 NVDAON。价值按稀有度递增：普通约 $2 一次，稀有约 $3.5，史诗约 $5.5，传奇 SPCXON 是 1 整股（约 $150）。",
+                "The fragment size belongs to the token, not the pin. Every Apple store pays the same AAPLB fragment, every internet café pays the same NVDAB fragment. Value follows rarity: about $2 a catch for common, $3.5 for rare, $5.5 for epic, and one whole share (about $150) for the legendary SPCXB.",
+                "碎片大小由代币决定，与点位无关。每家 Apple 店发同样的 AAPLB，每家网吧发同样的 NVDAB。价值按稀有度递增：普通约 $2 一次，稀有约 $3.5，史诗约 $5.5，传奇 SPCXB 是 1 整股（约 $150）。",
               )}
             </p>
 
@@ -198,8 +198,8 @@ function HowItWorks() {
             <h3 className="label-caps text-[11px] text-primary">{t("Refill is automatic", "自动补货")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "Trading tax flows into the vault as BNB, split evenly across the nine districts. Anyone can then sell stock tokens into a district at the Chainlink price plus the Flap NAV multiplier and a small premium, and walk away with BNB. No keeper, no cron — the market restocks the map.",
-                "交易税以 BNB 形式流入金库，平均分配到九个区。任何人都可以按 Chainlink 报价 × Flap NAV 系数加少量溢价，把股票代币卖给对应区并拿走 BNB。没有 keeper、没有定时任务——由市场自动补满地图。",
+                "Trading tax flows into the vault as BNB, split evenly across the nine districts. The vault then swaps each district's BNB into its bStocks token on PancakeSwap — anyone can press the button, and the contract refuses any swap more than 3% worse than the Chainlink price, so nobody can front-run it. Anyone holding bStocks can also sell them to the vault at the Chainlink price plus 2%.",
+                "交易税以 BNB 形式流入金库，平均分配到九个区。随后金库会在 PancakeSwap 上把每个区的 BNB 自动换成对应的 bStocks 股票代币——谁都可以按这个按钮，而且只要成交价比 Chainlink 报价差超过 3%，合约就直接拒绝，没人能抢跑套利。手里有 bStocks 的人也可以按 Chainlink 报价加 2% 直接卖给金库。",
               )}
             </p>
           </Panel>
@@ -210,28 +210,28 @@ function HowItWorks() {
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {t(
-              "The map covers 30 Chinese cities with 1,378 permanent drops pinned to 1,443 real OpenStreetMap venues. Beijing has 96 drops, Shanghai 102, Shenzhen 86, and Chengdu 85. A weekend in Guangzhou could take you from a bank (FXION) near Haizhu Square to a brokerage (SPYB) in Tianhe, then a phone repair market (MUON) in Dongshan — all within the same wallet day.",
-              "地图覆盖 30 座中国城市，1378 个永久掉落点对应 1443 个 OpenStreetMap 真实门店。北京 96 个，上海 102 个，深圳 86 个，成都 85 个。一个广州周末可以从海珠广场附近的银行（FXION）开始，走到天河的证券营业部（SPYB），再去东山的手机维修市场（MUON）—— 全在一天钱包上限之内。",
+              "The map covers 30 Chinese cities with 1,378 permanent drops pinned to 1,443 real OpenStreetMap venues. Beijing has 96 drops, Shanghai 102, Shenzhen 86, and Chengdu 85. A weekend in Guangzhou could take you from a bank (QQQB) near Haizhu Square to a brokerage (SPYB) in Tianhe, then a phone repair market (MUB) in Dongshan — all within the same wallet day.",
+              "地图覆盖 30 座中国城市，1378 个永久掉落点对应 1443 个 OpenStreetMap 真实门店。北京 96 个，上海 102 个，深圳 86 个，成都 85 个。一个广州周末可以从海珠广场附近的银行（QQQB）开始，走到天河的证券营业部（SPYB），再去东山的手机维修市场（MUB）—— 全在一天钱包上限之内。",
             )}
           </p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <p className="label-caps text-[10px] text-muted-foreground">{t("FXION — banks", "FXION — 银行")}</p>
+              <p className="label-caps text-[10px] text-muted-foreground">{t("QQQB — banks", "QQQB — 银行")}</p>
               <p className="mt-1 font-display text-2xl">511</p>
               <p className="text-xs text-muted-foreground">{t("drops, the most common", "点位，数量最多")}</p>
             </div>
             <div>
-              <p className="label-caps text-[10px] text-muted-foreground">{t("NVDAON — internet cafés", "NVDAON — 网吧/电竞")}</p>
+              <p className="label-caps text-[10px] text-muted-foreground">{t("NVDAB — internet cafés", "NVDAB — 网吧/电竞")}</p>
               <p className="mt-1 font-display text-2xl">105</p>
               <p className="text-xs text-muted-foreground">{t("drops, mostly downtown", "点位，多在市中心")}</p>
             </div>
             <div>
-              <p className="label-caps text-[10px] text-muted-foreground">{t("TSLAON — superchargers", "TSLAON — 超充站")}</p>
+              <p className="label-caps text-[10px] text-muted-foreground">{t("TSLAB — superchargers", "TSLAB — 超充站")}</p>
               <p className="mt-1 font-display text-2xl">36</p>
               <p className="text-xs text-muted-foreground">{t("drops, lower density", "点位，密度最低")}</p>
             </div>
             <div>
-              <p className="label-caps text-[10px] text-muted-foreground">{t("AAPLON — Apple stores", "AAPLON — Apple 店")}</p>
+              <p className="label-caps text-[10px] text-muted-foreground">{t("AAPLB — Apple stores", "AAPLB — Apple 店")}</p>
               <p className="mt-1 font-display text-2xl">64</p>
               <p className="text-xs text-muted-foreground">{t("drops, higher per-catch value", "点位，单次价值更高")}</p>
             </div>
@@ -297,8 +297,8 @@ function HowItWorks() {
         <Panel className="mt-6">
           <pre className="overflow-x-auto font-mono text-xs leading-relaxed text-foreground/80">{`GameVoucher {
   address to;       // your wallet
-  uint8   district; // 0-8, e.g. the AAPLON district on ${CHAIN.short}
-  uint256 amount;   // 0.02 AAPLON = 20000000000000000 (18 decimals)
+  uint8   district; // 0-8, e.g. the AAPLB district on ${CHAIN.short}
+  uint256 amount;   // 0.02 AAPLB = 20000000000000000 (18 decimals)
   bytes32 spawnId;  // keccak256("shanghai-0")
   uint256 nonce;    // unique, burned on use
   uint256 deadline; // unix seconds

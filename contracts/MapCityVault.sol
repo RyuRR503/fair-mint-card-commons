@@ -4021,14 +4021,40 @@ abstract contract VaultBaseV2 is VaultBase {
     function vaultUISchema() public pure virtual returns (VaultUISchema_1 memory schema);
 }
 
+/// @dev PancakeSwap V3 SwapRouter (BSC 0x1b81D678ffb9C0263b24A97847620C99d213eB14).
+interface IPancakeV3SwapRouter {
+    struct ExactInputParams {
+        bytes path;
+        address recipient;
+        uint256 deadline;
+        uint256 amountIn;
+        uint256 amountOutMinimum;
+    }
+
+    function exactInput(ExactInputParams calldata params) external payable returns (uint256 amountOut);
+}
+
+/// @dev PancakeSwap V2 Router (BSC 0x10ED43C718714eb63d5aA57B78B54704E256024E).
+interface IPancakeV2Router {
+    function swapExactETHForTokensSupportingFeeOnTransferTokens(
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external payable;
+}
+
 /**
- * MapCityVault - walk-to-store map game vault (BSC, 9 stock districts).
+ * MapCityVault - CATCH walk-to-store map game vault (BSC, 9 bStocks districts).
  *
- * Flap Vault V2 framework (BeaconProxy + Guardian + VaultPortal), no land deeds,
- * no NFT, no dividends. Project tax BNB flows in, is split across 9 district BNB
- * buckets, and anyone may permissionlessly sell the district's tokenized equity to
- * the vault at Chainlink * Flap NAV * 1.02. 100% of every refill becomes map reward
- * inventory, redeemable only through a signed walk-to-store voucher.
+ * Flap Vault V2 framework (BeaconProxy + Guardian + VaultPortal). Project tax BNB flows in,
+ * 10% goes to ops, 90% is split across 9 district BNB buckets. Buckets are turned into
+ * bStocks either (a) automatically through PancakeSwap V3/V2 (refillViaSwap, oracle-guarded)
+ * or (b) by anyone selling bStocks to the vault (sellStockToVault). Every bStock the vault
+ * holds is map reward inventory and leaves only through a signed walk-to-store voucher.
+ *
+ * Inventory is the vault's live token balance (not a counter), so rebasing / balance-adjusting
+ * bStocks can never desync the books.
  */
 contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, VaultBaseV2 {
     using SafeERC20 for IERC20;
@@ -4036,34 +4062,32 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
     uint16 public constant BPS_DENOM = 10000;
     /// @dev 10% of inbound BNB routed to opsTreasury (Flap vault convention).
     uint16 public constant OPS_FEE_BPS = 1000;
-
     uint8 public constant DISTRICT_COUNT = 9;
-    /// @dev Keeper quote premium vs Chainlink fair value (102% = 1.02x), Flap Stocks Vault style.
+    /// @dev Premium paid to manual sellers vs Chainlink fair value (102%).
     uint256 public constant KEEPER_QUOTE_BPS = 10200;
-    uint256 public constant MAX_PRICE_STALENESS = 25 hours;
-    uint256 public constant MAX_NAV_MULTIPLIER = 1.1e18;
+    /// @dev Equity feeds pause over weekends / holidays.
+    uint256 public constant MAX_PRICE_STALENESS = 96 hours;
+    uint256 public constant MAX_SLIPPAGE_CAP_BPS = 1000;
     address public constant BNB_USD_FEED = 0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE;
-    address public constant FLAP_STOCKS_REGISTRY = 0x5418f7e8fF90354DB0eCD48c8b710219244Eb3C5;
+    address public constant V3_ROUTER = 0x1b81D678ffb9C0263b24A97847620C99d213eB14;
+    address public constant V2_ROUTER = 0x10ED43C718714eb63d5aA57B78B54704E256024E;
+    address private constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+    address private constant USDT = 0x55d398326f99059fF775485246999027B3197955;
 
-    /// @dev District 0..8: Flap tokenized equity + Chainlink USD feed.
-    address private constant ASSET_NVDA = 0xA9eE28C80f960B889dFbd1902055218cBa016F75;
-    address private constant FEED_NVDA  = 0xea5c2Cbb5cD57daC24E26180b19a929F3E9699B8;
-    address private constant ASSET_AAPL = 0x390a684EF9cADE28A7AD0DFa61AB1Eb3842618c4;
-    address private constant FEED_AAPL  = 0xb7Ed5bE7977d61E83534230f3256C021e0fae0B6;
-    address private constant ASSET_TSLA = 0x2494b603319d4D9F9715c9f4496d9E0364B59d93;
-    address private constant FEED_TSLA  = 0xEEA2ae9c074E87596A85ABE698B2Afebc9B57893;
-    address private constant ASSET_MSFT = 0x6Bfe75D1ad432050eA973C3A3DcD88F02e2444C3;
-    address private constant FEED_MSFT  = 0x5D209cE1fBABeAA8E6f9De4514A74FFB4b34560F;
-    address private constant ASSET_GOOG = 0x091FC7778e6932d4009B087B191D1EE3bac5729A;
-    address private constant FEED_GOOG  = 0xeDA73F8acb669274B15A977Cb0cdA57a84F18c2a;
-    address private constant ASSET_SPCX = 0xd0a58BC9D88D3FF48C0294Cb7e45937d0E41A928;
-    address private constant FEED_SPCX  = 0x5Bd3a7c076011800900e52689C0ed46ef931e3e6;
-    address private constant ASSET_FXI  = 0x9b8E987e6fEc8Cf1380C4dcA7071e2C7853AEEA1;
-    address private constant FEED_FXI   = 0x7D48744FB285b884dF1Ee8005f04B62FF1404a98;
+    uint8 public constant ROUTE_NONE = 0;
+    uint8 public constant ROUTE_V3 = 1;
+    uint8 public constant ROUTE_V2 = 2;
+
+    /// @dev District 0..8: bStocks BEP-20 (18 decimals). Order is fixed forever.
+    address private constant ASSET_NVDA = 0x02Fca66C1D1aFB4E2A7884261eB00F63598a7436;
+    address private constant ASSET_AAPL = 0x431a3BEE82E2ca41e49895CbECE5bB0F76A89b7A;
+    address private constant ASSET_TSLA = 0x5b1910eAaD6450E50f816082Aa078C41F10C292f;
+    address private constant ASSET_MSFT = 0x80106cb3EAD06659A5ad19DF39D9b4733863B9b0;
+    address private constant ASSET_GOOG = 0x3F53De71c126BdaBAe20f9cD64848d317f6C3238;
+    address private constant ASSET_SPCX = 0xbe9D156892E55e7154BcD3cB0FEA677F9D3103E1;
+    address private constant ASSET_QQQ  = 0x205812CdBed920aFf76C6580abD681a46D11efc7;
     address private constant ASSET_MU   = 0xcdf2f3e0fa43C47A6662a91C9E4a7C5f69762699;
-    address private constant FEED_MU    = 0x75F4285d8e8687A9b5bd7b36A26D672A8C4C1c7a;
-    address private constant ASSET_AMD  = 0x75Fd4cF6f8392E41E70391D60c90C0D5211603a1;
-    address private constant FEED_AMD   = 0x4442f488fba0b27D970b68b761336224d6d30492;
+    address private constant ASSET_SPY  = 0x7138b48df7D98D7e3cc221BfE7192D0a178182D8;
 
     IERC20 public projectToken;
     IFlapPortal public flapPortal;
@@ -4074,18 +4098,24 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
     uint256 public totalOpsBnbPaid;
     uint256 public totalTaxReceived;
 
-    /// @dev Per-district BNB bucket funding permissionless refills.
+    /// @dev Per-district BNB bucket funding refills.
     uint256[DISTRICT_COUNT] public pendingBnb;
-    /// @dev Unclaimed map reward inventory per district (stock units, 18 decimals).
-    uint256[DISTRICT_COUNT] public gamePool;
     uint256[DISTRICT_COUNT] public totalGameFunded;
     uint256[DISTRICT_COUNT] public totalGamePaid;
+    uint256[DISTRICT_COUNT] public totalBnbSpent;
 
-    /// @dev EIP-712 typehash for a walk-to-store voucher.
+    /// @dev Chainlink USD feed per district (0 = no feed: swap refill is keeper-only).
+    address[DISTRICT_COUNT] public districtFeed;
+    uint8[DISTRICT_COUNT] public routeKind;
+    bytes[DISTRICT_COUNT] private _v3Path;
+    address[][DISTRICT_COUNT] private _v2Path;
+
+    uint256 public maxSlippageBps;
+    uint256 public maxSwapBnb;
+
     bytes32 public constant GAME_VOUCHER_TYPEHASH = keccak256(
         "GameVoucher(address to,uint8 district,uint256 amount,bytes32 spawnId,uint256 nonce,uint256 deadline)"
     );
-    /// @dev Signer allowed to authorize map claims. The only mutable game parameter.
     address public gameSigner;
     mapping(uint256 => bool) public gameNonceUsed;
 
@@ -4099,6 +4129,12 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
     event StockSoldToVault(
         address indexed keeper, uint8 indexed district, address stock, uint256 stockAmount, uint256 bnbPaid
     );
+    event SwapRefill(
+        address indexed caller, uint8 indexed district, uint8 route, uint256 bnbIn, uint256 stockOut, uint256 minOut
+    );
+    event RouteUpdated(uint8 indexed district, uint8 kind);
+    event FeedUpdated(uint8 indexed district, address feed);
+    event SwapParamsUpdated(uint256 maxSlippageBps, uint256 maxSwapBnb);
     event GameSignerUpdated(address indexed prev, address indexed next);
     event GamePoolFunded(uint8 indexed district, uint256 amount);
     event GameRewardClaimed(
@@ -4129,13 +4165,20 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
     error GameVoucherExpired();
     error GameNonceUsed();
     error GamePoolEmpty();
+    error NoFeed();
+    error NoRoute();
+    error BadRoute();
+    error SwapTooLarge();
+    error SlippageExceeded();
+    error BadParams();
+    error KeeperOnly();
+    error DistrictAsset();
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
 
-    /// @notice Initialize a BeaconProxy (called by factory / manual proxy initData).
     function initialize(address owner_, address taxToken_, address opsTreasury_) external initializer {
         __ReentrancyGuard_init();
         flapPortal = IFlapPortal(_getPortal());
@@ -4145,6 +4188,28 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
             projectToken = IERC20(taxToken_);
             emit ProjectTokenSet(taxToken_);
         }
+        maxSlippageBps = 300;
+        maxSwapBnb = 2 ether;
+
+        // Chainlink USD feeds (BSC). QQQ / SPY have none on BSC yet -> keeper-only until set.
+        districtFeed[0] = 0xea5c2Cbb5cD57daC24E26180b19a929F3E9699B8; // NVDA
+        districtFeed[1] = 0xb7Ed5bE7977d61E83534230f3256C021e0fae0B6; // AAPL
+        districtFeed[2] = 0xEEA2ae9c074E87596A85ABE698B2Afebc9B57893; // TSLA
+        districtFeed[3] = 0x5D209cE1fBABeAA8E6f9De4514A74FFB4b34560F; // MSFT
+        districtFeed[4] = 0xeDA73F8acb669274B15A977Cb0cdA57a84F18c2a; // GOOGL
+        districtFeed[5] = 0x5Bd3a7c076011800900e52689C0ed46ef931e3e6; // SPCX
+        districtFeed[7] = 0x75F4285d8e8687A9b5bd7b36A26D672A8C4C1c7a; // MU
+
+        // Best PancakeSwap V3 routes measured on BSC mainnet.
+        _setV3(0, abi.encodePacked(WBNB, uint24(2500), ASSET_NVDA));
+        _setV3(1, abi.encodePacked(WBNB, uint24(2500), ASSET_AAPL));
+        _setV3(2, abi.encodePacked(WBNB, uint24(2500), ASSET_TSLA));
+        _setV3(3, abi.encodePacked(WBNB, uint24(100), USDT, uint24(2500), ASSET_MSFT));
+        _setV3(4, abi.encodePacked(WBNB, uint24(100), USDT, uint24(500), ASSET_GOOG));
+        _setV3(5, abi.encodePacked(WBNB, uint24(2500), ASSET_SPCX));
+        _setV3(6, abi.encodePacked(WBNB, uint24(500), ASSET_QQQ));
+        _setV3(7, abi.encodePacked(WBNB, uint24(100), USDT, uint24(2500), ASSET_MU));
+        _setV3(8, abi.encodePacked(WBNB, uint24(100), USDT, uint24(100), ASSET_SPY));
     }
 
     // ---------------- roles ----------------
@@ -4161,7 +4226,6 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         if (address(projectToken) == address(0)) revert TokenNotSet();
     }
 
-    /// @notice Owner or Guardian: bind the project / tax token once after token launch.
     function setToken(address token) external {
         _requireOwnerOrGuardian();
         if (token == address(0)) revert ZeroToken();
@@ -4170,7 +4234,6 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         emit ProjectTokenSet(token);
     }
 
-    /// @notice Guardian-only: rotate the ops treasury (owner has no say).
     function setOpsTreasury(address to) external {
         _requireGuardian();
         address prev = opsTreasury;
@@ -4195,21 +4258,16 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         if (district == 3) return ASSET_MSFT;
         if (district == 4) return ASSET_GOOG;
         if (district == 5) return ASSET_SPCX;
-        if (district == 6) return ASSET_FXI;
+        if (district == 6) return ASSET_QQQ;
         if (district == 7) return ASSET_MU;
-        return ASSET_AMD; // 8
+        return ASSET_SPY; // 8
     }
 
-    function _districtFeed(uint256 district) private pure returns (address) {
-        if (district == 0) return FEED_NVDA;
-        if (district == 1) return FEED_AAPL;
-        if (district == 2) return FEED_TSLA;
-        if (district == 3) return FEED_MSFT;
-        if (district == 4) return FEED_GOOG;
-        if (district == 5) return FEED_SPCX;
-        if (district == 6) return FEED_FXI;
-        if (district == 7) return FEED_MU;
-        return FEED_AMD; // 8
+    function _isDistrictAsset(address token) private pure returns (bool) {
+        for (uint256 d = 0; d < DISTRICT_COUNT; d++) {
+            if (token == _districtAsset(d)) return true;
+        }
+        return false;
     }
 
     function districtAsset(uint8 district) external pure returns (address) {
@@ -4217,7 +4275,12 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         return _districtAsset(district);
     }
 
-    /// @notice Map pool status for the UI / proof-of-reserves page.
+    /// @notice Live map inventory of a district = the vault's actual token balance (rebase-safe).
+    function gamePool(uint256 district) public view returns (uint256) {
+        if (district >= DISTRICT_COUNT) revert BadDistrict();
+        return IERC20(_districtAsset(district)).balanceOf(address(this));
+    }
+
     function gameDistrictInfo(uint8 district)
         external
         view
@@ -4225,11 +4288,20 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
     {
         if (district >= DISTRICT_COUNT) revert BadDistrict();
         stock = _districtAsset(district);
-        feed = _districtFeed(district);
+        feed = districtFeed[district];
         bnbBucket = pendingBnb[district];
-        pool = gamePool[district];
+        pool = gamePool(district);
         funded = totalGameFunded[district];
         paid = totalGamePaid[district];
+    }
+
+    function districtRoute(uint8 district)
+        external
+        view
+        returns (uint8 kind, bytes memory v3Path, address[] memory v2Path)
+    {
+        if (district >= DISTRICT_COUNT) revert BadDistrict();
+        return (routeKind[district], _v3Path[district], _v2Path[district]);
     }
 
     /// @notice BNB reserved for refills (never withdrawable by owner or guardian).
@@ -4239,30 +4311,80 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         }
     }
 
+    // ---------------- route / feed config (owner or guardian) ----------------
+
+    function _setV3(uint8 d, bytes memory path) private {
+        // path = WBNB | (fee | token)*  -> 20 + 23*n bytes, n >= 1
+        if (path.length < 43 || (path.length - 20) % 23 != 0) revert BadRoute();
+        address first;
+        address last;
+        assembly {
+            first := shr(96, mload(add(path, 32)))
+            last := shr(96, mload(add(add(path, 32), sub(mload(path), 20))))
+        }
+        if (first != WBNB || last != _districtAsset(d)) revert BadRoute();
+        _v3Path[d] = path;
+        delete _v2Path[d];
+        routeKind[d] = ROUTE_V3;
+        emit RouteUpdated(d, ROUTE_V3);
+    }
+
+    function setV3Route(uint8 district, bytes calldata path) external {
+        _requireOwnerOrGuardian();
+        if (district >= DISTRICT_COUNT) revert BadDistrict();
+        _setV3(district, path);
+    }
+
+    function setV2Route(uint8 district, address[] calldata path) external {
+        _requireOwnerOrGuardian();
+        if (district >= DISTRICT_COUNT) revert BadDistrict();
+        if (path.length < 2 || path[0] != WBNB || path[path.length - 1] != _districtAsset(district)) {
+            revert BadRoute();
+        }
+        _v2Path[district] = path;
+        delete _v3Path[district];
+        routeKind[district] = ROUTE_V2;
+        emit RouteUpdated(district, ROUTE_V2);
+    }
+
+    function setDistrictFeed(uint8 district, address feed) external {
+        _requireOwnerOrGuardian();
+        if (district >= DISTRICT_COUNT) revert BadDistrict();
+        if (feed != address(0)) _readFeed(feed); // must be live
+        districtFeed[district] = feed;
+        emit FeedUpdated(district, feed);
+    }
+
+    function setSwapParams(uint256 slippageBps, uint256 maxBnb) external {
+        _requireOwnerOrGuardian();
+        if (slippageBps == 0 || slippageBps > MAX_SLIPPAGE_CAP_BPS || maxBnb == 0) revert BadParams();
+        maxSlippageBps = slippageBps;
+        maxSwapBnb = maxBnb;
+        emit SwapParamsUpdated(slippageBps, maxBnb);
+    }
+
     // ---------------- tax inflow ----------------
 
-    /// @notice Tax/ops BNB in; 10% ops fee, 90% split evenly across the 9 district buckets.
     receive() external payable {
         if (msg.value == 0) return;
         if (msg.sender == address(flapPortal)) return;
+        // Router refunds / WBNB unwraps never count as tax.
+        if (msg.sender == V3_ROUTER || msg.sender == V2_ROUTER || msg.sender == WBNB) return;
 
         totalTaxReceived += msg.value;
         uint256 vaultNet = _routeOpsFee(msg.value);
         if (vaultNet == 0) return;
 
         uint256 each = vaultNet / DISTRICT_COUNT;
-        uint256 assigned;
         for (uint256 d = 0; d < DISTRICT_COUNT; d++) {
             pendingBnb[d] += each;
-            assigned += each;
         }
+        uint256 assigned = each * DISTRICT_COUNT;
         if (vaultNet > assigned) pendingBnb[0] += vaultNet - assigned;
 
         emit TreasuryFunded(msg.sender, vaultNet);
     }
 
-    /// @dev Route OPS_FEE_BPS of inbound BNB to opsTreasury; return vault net.
-    ///      A failing ops transfer degrades gracefully instead of freezing tax inflow.
     function _routeOpsFee(uint256 grossWei) private returns (uint256 vaultNetWei) {
         vaultNetWei = grossWei;
         if (grossWei == 0 || opsTreasury == address(0)) return vaultNetWei;
@@ -4270,7 +4392,7 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         uint256 feeWei = (grossWei * OPS_FEE_BPS) / BPS_DENOM;
         if (feeWei == 0) return vaultNetWei;
 
-        (bool ok, ) = opsTreasury.call{value: feeWei}("");
+        (bool ok, ) = opsTreasury.call{value: feeWei, gas: 50000}("");
         if (!ok) {
             emit OpsFeeSkipped(opsTreasury, feeWei);
             return grossWei;
@@ -4281,43 +4403,114 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         emit OpsFeePaid(opsTreasury, feeWei, vaultNetWei);
     }
 
-    // ---------------- permissionless refill ----------------
+    // ---------------- refill path A: PancakeSwap ----------------
 
-    /// @notice Quote BNB paid for selling `stockAmount` of a district asset to the vault.
+    /// @notice Fair stock out for `bnbIn` at Chainlink prices (18 decimals).
+    function fairStockOut(uint8 district, uint256 bnbIn) public view returns (uint256) {
+        if (district >= DISTRICT_COUNT) revert BadDistrict();
+        address feed = districtFeed[district];
+        if (feed == address(0)) revert NoFeed();
+        uint256 bnbUsd = _readFeed(BNB_USD_FEED);
+        uint256 stockUsd = _readFeed(feed);
+        return (bnbIn * bnbUsd) / stockUsd;
+    }
+
+    /// @notice Turn a district's BNB bucket into bStocks via PancakeSwap.
+    /// @dev With a feed: permissionless, minOut >= fair * (1 - maxSlippage) (sandwich-proof).
+    ///      Without a feed: only owner / guardian / opsTreasury, with an explicit minOut.
+    ///      Every received token is map inventory.
+    function refillViaSwap(uint8 district, uint256 bnbIn, uint256 callerMinOut)
+        external
+        nonReentrant
+        returns (uint256 received)
+    {
+        if (district >= DISTRICT_COUNT) revert BadDistrict();
+        if (bnbIn == 0) revert WrongPayment();
+        if (bnbIn > maxSwapBnb) revert SwapTooLarge();
+        if (bnbIn > pendingBnb[district]) revert InsufficientDistrictBnb();
+        uint8 kind = routeKind[district];
+        if (kind == ROUTE_NONE) revert NoRoute();
+
+        uint256 minOut = callerMinOut;
+        if (districtFeed[district] != address(0)) {
+            uint256 oracleMin = (fairStockOut(district, bnbIn) * (BPS_DENOM - maxSlippageBps)) / BPS_DENOM;
+            if (oracleMin > minOut) minOut = oracleMin;
+        } else {
+            if (msg.sender != owner && msg.sender != _getGuardian() && msg.sender != opsTreasury) {
+                revert KeeperOnly();
+            }
+            if (minOut == 0) revert SlippageExceeded();
+        }
+
+        pendingBnb[district] -= bnbIn;
+        totalBnbSpent[district] += bnbIn;
+
+        IERC20 stock = IERC20(_districtAsset(district));
+        uint256 before = stock.balanceOf(address(this));
+        uint256 bnbBefore = address(this).balance;
+
+        if (kind == ROUTE_V3) {
+            IPancakeV3SwapRouter(V3_ROUTER).exactInput{value: bnbIn}(
+                IPancakeV3SwapRouter.ExactInputParams({
+                    path: _v3Path[district],
+                    recipient: address(this),
+                    deadline: block.timestamp,
+                    amountIn: bnbIn,
+                    amountOutMinimum: minOut
+                })
+            );
+        } else {
+            IPancakeV2Router(V2_ROUTER).swapExactETHForTokensSupportingFeeOnTransferTokens{value: bnbIn}(
+                minOut, _v2Path[district], address(this), block.timestamp
+            );
+        }
+
+        // Router must consume exactly bnbIn.
+        if (bnbBefore - address(this).balance != bnbIn) revert BadRoute();
+        received = stock.balanceOf(address(this)) - before;
+        if (received < minOut || received == 0) revert SlippageExceeded();
+
+        totalGameFunded[district] += received;
+        emit GamePoolFunded(district, received);
+        emit SwapRefill(msg.sender, district, kind, bnbIn, received, minOut);
+    }
+
+    // ---------------- refill path B: anyone sells bStocks ----------------
+
     function quoteStockForBnb(uint8 district, uint256 stockAmount) public view returns (uint256 bnbWei) {
         if (district >= DISTRICT_COUNT) revert BadDistrict();
-        uint256 bnbUsd = _readFeed(BNB_USD_FEED); // 1e18
+        address feed = districtFeed[district];
+        if (feed == address(0)) revert NoFeed();
+        uint256 bnbUsd = _readFeed(BNB_USD_FEED);
         if (bnbUsd == 0) revert ZeroSpotPrice();
-        uint256 stockUsd = _readFeed(_districtFeed(district)); // 1e18
-        uint256 multiplier = _navMultiplier(_districtAsset(district));
-
-        bnbWei = (stockAmount * stockUsd) / 1e18;
-        bnbWei = (bnbWei * multiplier) / 1e18;
-        bnbWei = (bnbWei * 1e18) / bnbUsd;
+        uint256 stockUsd = _readFeed(feed);
+        bnbWei = (stockAmount * stockUsd) / bnbUsd;
         bnbWei = (bnbWei * KEEPER_QUOTE_BPS) / BPS_DENOM;
     }
 
-    /// @notice Anyone may sell district stock to the vault for BNB from that district's bucket.
-    /// @dev 100% of the incoming stock becomes map reward inventory. No admin path can move it.
     function sellStockToVault(uint8 district, uint256 stockAmount) external nonReentrant {
         if (district >= DISTRICT_COUNT) revert BadDistrict();
         if (stockAmount == 0) revert WrongPayment();
 
-        uint256 bnbOwed = quoteStockForBnb(district, stockAmount);
+        IERC20 stock = IERC20(_districtAsset(district));
+        uint256 before = stock.balanceOf(address(this));
+        stock.safeTransferFrom(msg.sender, address(this), stockAmount);
+        uint256 received = stock.balanceOf(address(this)) - before;
+        if (received == 0) revert WrongPayment();
+
+        uint256 bnbOwed = quoteStockForBnb(district, received);
         if (bnbOwed == 0) revert ZeroSpotPrice();
         if (bnbOwed > pendingBnb[district]) revert InsufficientDistrictBnb();
-
-        IERC20(_districtAsset(district)).safeTransferFrom(msg.sender, address(this), stockAmount);
         pendingBnb[district] -= bnbOwed;
+        totalBnbSpent[district] += bnbOwed;
 
-        gamePool[district] += stockAmount;
-        totalGameFunded[district] += stockAmount;
-        emit GamePoolFunded(district, stockAmount);
+        totalGameFunded[district] += received;
+        emit GamePoolFunded(district, received);
 
         (bool ok, ) = msg.sender.call{value: bnbOwed}("");
         if (!ok) revert RewardPayFailed();
 
-        emit StockSoldToVault(msg.sender, district, _districtAsset(district), stockAmount, bnbOwed);
+        emit StockSoldToVault(msg.sender, district, address(stock), received, bnbOwed);
     }
 
     function _readFeed(address feed) private view returns (uint256 price1e18) {
@@ -4328,28 +4521,8 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         price1e18 = uint256(answer) * (10 ** (18 - uint256(dec)));
     }
 
-    function _navMultiplier(address asset) private view returns (uint256) {
-        if (block.chainid != 56) return 1e18;
-        try IFlapStocksRegistry(FLAP_STOCKS_REGISTRY).getMultiplier(asset) returns (uint256 m) {
-            if (m < 1e18) return 1e18;
-            if (m > MAX_NAV_MULTIPLIER) return MAX_NAV_MULTIPLIER;
-            return m;
-        } catch {
-            return 1e18;
-        }
-    }
-
-    function _wbnb() private view returns (address) {
-        uint256 c = block.chainid;
-        if (c == 56) return 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
-        if (c == 97) return 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd;
-        revert UnsupportedChain(c);
-    }
-
     // ---------------- map game claim ----------------
 
-    /// @notice Guardian-only: rotate the voucher signer. The owner can never touch the signer,
-    ///         so the owner has no path — direct or indirect — to the map reward inventory.
     function setGameSigner(address signer_) external {
         _requireGuardian();
         address prev = gameSigner;
@@ -4382,7 +4555,6 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         return keccak256(abi.encodePacked("\x19\x01", gameDomainSeparator(), structHash));
     }
 
-    /// @notice Redeem a signed walk-to-store voucher. Anyone may relay; stock always goes to `to`.
     function claimGameVoucher(
         address to,
         uint8 district,
@@ -4402,10 +4574,9 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         bytes32 digest = gameVoucherDigest(to, district, amount, spawnId, nonce, deadline);
         if (_recoverSigner(digest, signature) != gameSigner) revert BadGameSignature();
 
-        if (amount > gamePool[district]) revert GamePoolEmpty();
+        if (amount > gamePool(district)) revert GamePoolEmpty();
 
         gameNonceUsed[nonce] = true;
-        gamePool[district] -= amount;
         totalGamePaid[district] += amount;
 
         address stock = _districtAsset(district);
@@ -4413,7 +4584,6 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         emit GameRewardClaimed(to, district, spawnId, stock, amount, nonce);
     }
 
-    /// @dev ECDSA recovery with low-s / valid-v enforcement (no malleable signatures).
     function _recoverSigner(bytes32 digest, bytes calldata signature) private pure returns (address) {
         if (signature.length != 65) revert BadGameSignature();
         bytes32 r;
@@ -4435,7 +4605,6 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
 
     // ---------------- guardian rescue ----------------
 
-    /// @notice Guardian-only rescue for excess native BNB (cannot touch refill buckets).
     function emergencyWithdrawNative(address to, uint256 amount) external nonReentrant {
         _requireGuardian();
         if (to == address(0)) revert ZeroAddress();
@@ -4447,19 +4616,12 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         emit EmergencyWithdraw(msg.sender, to, address(0), amount);
     }
 
-    /// @notice Guardian-only rescue for stray ERC20. Map inventory can never be withdrawn.
+    /// @notice Guardian-only rescue for stray ERC20. bStocks map inventory can never be withdrawn.
     function emergencyWithdrawToken(address token, address to, uint256 amount) external nonReentrant {
         _requireGuardian();
         if (to == address(0) || token == address(0)) revert ZeroAddress();
         if (amount == 0) revert WrongPayment();
-
-        for (uint256 d = 0; d < DISTRICT_COUNT; d++) {
-            if (token != _districtAsset(d)) continue;
-            uint256 bal = IERC20(token).balanceOf(address(this));
-            if (bal < gamePool[d] + amount) revert EmergencyReserve();
-            break;
-        }
-
+        if (_isDistrictAsset(token)) revert DistrictAsset();
         IERC20(token).safeTransfer(to, amount);
         emit EmergencyWithdraw(msg.sender, to, token, amount);
     }
@@ -4481,10 +4643,9 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
             return s.price;
         }
         if (s.pool == address(0)) revert NoPool();
-        address wbnb = _wbnb();
         (uint112 r0, uint112 r1,) = IPancakePair(s.pool).getReserves();
         address t0 = IPancakePair(s.pool).token0();
-        (uint256 reserveBnb, uint256 reserveTok) = t0 == wbnb
+        (uint256 reserveBnb, uint256 reserveTok) = t0 == WBNB
             ? (uint256(r0), uint256(r1))
             : (uint256(r1), uint256(r0));
         if (reserveBnb == 0 || reserveTok == 0) revert EmptyReserves();
@@ -4497,41 +4658,46 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
 
     function description() public view override returns (string memory) {
         return
-            "Map City: project tax BNB funds 9 district buckets. Anyone can sell the district's "
-            "tokenized equity to the vault at Chainlink x Flap NAV x 1.02 for BNB, and 100% of that "
-            "stock becomes walk-to-store map rewards. Rewards leave only via a signed player voucher.";
+            "CATCH Map City: project tax BNB funds 9 bStocks district buckets. Buckets are swapped into "
+            "bStocks on PancakeSwap (Chainlink-guarded) or bought from anyone at Chainlink x 1.02. "
+            "Every bStock held is walk-to-store map reward and leaves only via a signed player voucher.";
     }
 
     function vaultUISchema() public pure override returns (VaultUISchema_1 memory schema) {
         schema.vaultType = "MapCityVault";
         schema.description =
-            "Walk-to-store map rewards funded by permissionless refills. No NFT, no dividends, no admin payout path.";
-        schema.methods = new VaultMethodSchema_1[](2);
+            "Walk-to-store bStocks map rewards. Permissionless PancakeSwap refill, no admin payout path.";
+        schema.methods = new VaultMethodSchema_1[](3);
 
-        schema.methods[0].name = "sellStockToVault";
-        schema.methods[0].description =
-            "Permissionless refill: sell district stock to the vault for BNB. 100% funds the map reward pool.";
+        schema.methods[0].name = "refillViaSwap";
+        schema.methods[0].description = "Swap a district BNB bucket into bStocks on PancakeSwap (oracle-guarded).";
         schema.methods[0].isWriteMethod = true;
-        schema.methods[0].inputs = new FieldDescriptor_1[](2);
+        schema.methods[0].inputs = new FieldDescriptor_1[](3);
         schema.methods[0].inputs[0] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
-        schema.methods[0].inputs[1] = FieldDescriptor_1("stockAmount", "uint256", "Stock amount (1e18)", 18);
+        schema.methods[0].inputs[1] = FieldDescriptor_1("bnbIn", "uint256", "BNB from bucket", 18);
+        schema.methods[0].inputs[2] = FieldDescriptor_1("callerMinOut", "uint256", "Extra min out (0 ok)", 18);
 
-        schema.methods[1].name = "claimGameVoucher";
-        schema.methods[1].description =
-            "Redeem a signed walk-to-store voucher. Anyone may relay; the reward always goes to `to`.";
+        schema.methods[1].name = "sellStockToVault";
+        schema.methods[1].description = "Sell district bStocks to the vault for BNB at Chainlink x 1.02.";
         schema.methods[1].isWriteMethod = true;
-        schema.methods[1].inputs = new FieldDescriptor_1[](7);
-        schema.methods[1].inputs[0] = FieldDescriptor_1("to", "address", "Player wallet", 0);
-        schema.methods[1].inputs[1] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
-        schema.methods[1].inputs[2] = FieldDescriptor_1("amount", "uint256", "Reward amount (1e18)", 18);
-        schema.methods[1].inputs[3] = FieldDescriptor_1("spawnId", "bytes32", "Map spawn id", 0);
-        schema.methods[1].inputs[4] = FieldDescriptor_1("nonce", "uint256", "Voucher nonce", 0);
-        schema.methods[1].inputs[5] = FieldDescriptor_1("deadline", "uint256", "Voucher deadline (unix)", 0);
-        schema.methods[1].inputs[6] = FieldDescriptor_1("signature", "bytes", "Server EIP-712 signature", 0);
+        schema.methods[1].inputs = new FieldDescriptor_1[](2);
+        schema.methods[1].inputs[0] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
+        schema.methods[1].inputs[1] = FieldDescriptor_1("stockAmount", "uint256", "Stock amount (1e18)", 18);
+
+        schema.methods[2].name = "claimGameVoucher";
+        schema.methods[2].description = "Redeem a signed walk-to-store voucher. Reward always goes to `to`.";
+        schema.methods[2].isWriteMethod = true;
+        schema.methods[2].inputs = new FieldDescriptor_1[](7);
+        schema.methods[2].inputs[0] = FieldDescriptor_1("to", "address", "Player wallet", 0);
+        schema.methods[2].inputs[1] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
+        schema.methods[2].inputs[2] = FieldDescriptor_1("amount", "uint256", "Reward amount (1e18)", 18);
+        schema.methods[2].inputs[3] = FieldDescriptor_1("spawnId", "bytes32", "Map spawn id", 0);
+        schema.methods[2].inputs[4] = FieldDescriptor_1("nonce", "uint256", "Voucher nonce", 0);
+        schema.methods[2].inputs[5] = FieldDescriptor_1("deadline", "uint256", "Voucher deadline (unix)", 0);
+        schema.methods[2].inputs[6] = FieldDescriptor_1("signature", "bytes", "Server EIP-712 signature", 0);
     }
 
-    /// @dev Reserved for future upgrades (OZ storage gap).
-    uint256[40] private __gap;
+    uint256[30] private __gap;
 }
 
 /// @title MapCityBeaconFactory
