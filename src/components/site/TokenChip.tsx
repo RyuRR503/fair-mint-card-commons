@@ -19,7 +19,7 @@ const MARK_COLOR: Record<string, string> = {
 /** Tokens with no clean vector mark available: use their ticker instead. */
 const WORDMARK: Record<string, string> = {
   FXION: "FXI",
-  AMDON: "AMD",
+  SPYB: "SPY",
   MUON: "MU",
   NVDAON: "NVDA",
   MSFTON: "MSFT",

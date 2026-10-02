@@ -197,7 +197,7 @@ POST early-access    { email, kind, city?, company? }`}</Code>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Common", "普通")}</p>
-              <p className="mt-1 text-sm font-medium">{tr("FXION · NVDAON · AMDON · MUON", "FXION · NVDAON · AMDON · MUON")}</p>
+              <p className="mt-1 text-sm font-medium">{tr("FXION · NVDAON · SPYB · MUON", "FXION · NVDAON · SPYB · MUON")}</p>
               <p className="mt-1 text-xs text-muted-foreground">{tr("20 min cooldown · many venues · ~$2 a catch", "20 分钟冷却 · 门店多 · 单次约 $2")}</p>
             </div>
             <div>
