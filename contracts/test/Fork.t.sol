@@ -3,6 +3,7 @@ pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
 import "../src/MapCityVault.sol";
+import "../src/TwapUsdFeed.sol";
 
 interface IQuoter {
     function quoteExactInput(bytes memory path, uint256 amountIn)
@@ -26,6 +27,12 @@ contract ForkBase is Test {
     address signer;
     address constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
     address constant USDT = 0x55d398326f99059fF775485246999027B3197955;
+    TwapUsdFeed qqqFeed;
+    TwapUsdFeed spyFeed;
+    address constant QQQ_POOL = 0x47BC06722295AC316A569EEF87aC32FAA455F441; // WBNB/QQQB 0.05%
+    address constant SPY_POOL = 0x7aA6d92Fc369A8C1EDc631A3aAc44eFB0808ddbF; // USDT/SPYB 0.01%
+    address constant BNB_USD = 0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE;
+    address constant USDT_USD = 0xB97Ad0E74fa7d920791E90258A6E2085088b4320;
     IQuoter quoter = IQuoter(0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997);
     string[9] names = ["NVDAB","AAPLB","TSLAB","MSFTB","GOOGLB","SPCXB","QQQB","MUB","SPYB"];
 
@@ -41,6 +48,13 @@ contract ForkBase is Test {
         signer = vm.addr(signerPk);
         vm.prank(guardian);
         vault.setGameSigner(signer);
+        // QQQB / SPYB: no Chainlink feed on BSC -> 30-min PancakeSwap TWAP ruler.
+        qqqFeed = new TwapUsdFeed(QQQ_POOL, vault.districtAsset(6), BNB_USD, 1800, "QQQB / USD (TWAP)");
+        spyFeed = new TwapUsdFeed(SPY_POOL, vault.districtAsset(8), USDT_USD, 1800, "SPYB / USD (TWAP)");
+        vm.startPrank(owner_);
+        vault.setDistrictFeed(6, address(qqqFeed));
+        vault.setDistrictFeed(8, address(spyFeed));
+        vm.stopPrank();
     }
 
     function fund(uint256 amt) internal {
@@ -253,6 +267,8 @@ contract Adversarial is ForkBase {
 
     function test_no_feed_district_is_keeper_only() public {
         fund(10 ether);
+        vm.prank(owner_);
+        vault.setDistrictFeed(8, address(0)); // feed removed -> falls back to keeper-only
         vm.expectRevert(MapCityVaultUpgradeable.KeeperOnly.selector);
         vault.refillViaSwap(8, 0.1 ether, 1);
         vm.prank(owner_);
@@ -359,6 +375,100 @@ contract Adversarial is ForkBase {
         vm.prank(guardian);
         vault.setOpsTreasury(address(g));
         fund(1 ether);
+        assertLedger();
+    }
+}
+
+/// Every district must be swappable by a random stranger, with 10% slippage room.
+contract AutoSwap is ForkBase {
+    address stranger = address(0x5742);
+
+    function test_default_slippage_is_10pct() public view {
+        assertEq(vault.maxSlippageBps(), 1000);
+        for (uint8 d = 0; d < 9; d++) assertTrue(vault.districtFeed(d) != address(0), "every district has a ruler");
+    }
+
+    function test_twap_feeds_match_pool_and_chainlink() public {
+        (, int256 q,,,) = qqqFeed.latestRoundData();
+        (, int256 s,,,) = spyFeed.latestRoundData();
+        emit log_named_int("QQQB TWAP USD (8dp)", q);
+        emit log_named_int("SPYB TWAP USD (8dp)", s);
+        // spot from the vault's own route vs the TWAP ruler: within 3%
+        for (uint8 i = 0; i < 2; i++) {
+            uint8 d = i == 0 ? 6 : 8;
+            (, bytes memory p,) = vault.districtRoute(d);
+            (uint256 spotOut,,,) = quoter.quoteExactInput(p, 0.01 ether);
+            uint256 fair = vault.fairStockOut(d, 0.01 ether);
+            emit log_named_uint(string.concat(names[d], " spot/twap bps"), spotOut * 10000 / fair);
+            assertApproxEqRel(spotOut, fair, 0.03e18);
+        }
+    }
+
+    function test_stranger_refills_all_9_at_max_chunk() public {
+        fund(30 ether);
+        for (uint8 d = 0; d < 9; d++) {
+            uint256 chunk = d == 7 ? 1 ether : 2 ether; // MUB pool is shallow
+            vm.prank(stranger);
+            uint256 got = vault.refillViaSwap(d, chunk, 0);
+            assertGt(got, 0);
+            emit log_named_uint(string.concat(names[d], " got/fair bps"), got * 10000 / vault.fairStockOut(d, chunk));
+        }
+        assertLedger();
+    }
+
+    function test_drain_buckets_in_chunks_until_empty() public {
+        fund(20 ether); // ~2 BNB per district
+        for (uint8 d = 0; d < 9; d++) {
+            uint256 chunk = d == 7 ? 0.3 ether : 0.5 ether;
+            while (vault.pendingBnb(d) > 0) {
+                uint256 amt = vault.pendingBnb(d) < chunk ? vault.pendingBnb(d) : chunk;
+                vm.prank(stranger);
+                vault.refillViaSwap(d, amt, 0);
+            }
+            assertEq(vault.pendingBnb(d), 0);
+            assertGt(vault.gamePool(d), 0);
+        }
+        assertLedger();
+    }
+
+    function _pump(uint8 d, uint256 bnb) internal {
+        address whale = address(0xFA7);
+        vm.deal(whale, bnb);
+        (, bytes memory p,) = vault.districtRoute(d);
+        vm.prank(whale);
+        IPancakeV3SwapRouter(0x1b81D678ffb9C0263b24A97847620C99d213eB14).exactInput{value: bnb}(
+            IPancakeV3SwapRouter.ExactInputParams(p, whale, block.timestamp, bnb, 0));
+    }
+
+    function test_twap_ignores_same_block_pump_QQQ_SPY() public {
+        fund(10 ether);
+        for (uint8 i = 0; i < 2; i++) {
+            uint8 d = i == 0 ? 6 : 8;
+            uint256 fairBefore = vault.fairStockOut(d, 1 ether);
+            _pump(d, 300 ether);
+            assertEq(vault.fairStockOut(d, 1 ether), fairBefore, "TWAP unchanged by pump");
+            uint256 pend = vault.pendingBnb(d);
+            vm.prank(stranger);
+            try vault.refillViaSwap(d, 0.5 ether, 0) returns (uint256 got) {
+                // pump too small to push spot >10%: vault still got >= 90% of fair
+                assertGe(got, vault.fairStockOut(d, 0.5 ether) * 9000 / 10000);
+                emit log_named_uint(string.concat(names[d], " post-pump got/fair bps"), got * 10000 / vault.fairStockOut(d, 0.5 ether));
+            } catch {
+                assertEq(vault.pendingBnb(d), pend, "bucket untouched");
+                emit log(string.concat(names[d], " pump blocked, bucket untouched"));
+            }
+        }
+    }
+
+    function test_after_market_recovers_refill_works_again() public {
+        fund(10 ether);
+        // 2 hours later everything still swappable (feed fresh, TWAP fresh)
+        vm.warp(block.timestamp + 2 hours);
+        vm.roll(block.number + 2400);
+        for (uint8 d = 0; d < 9; d++) {
+            vm.prank(stranger);
+            vault.refillViaSwap(d, 0.2 ether, 0);
+        }
         assertLedger();
     }
 }

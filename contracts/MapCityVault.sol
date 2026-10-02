@@ -4188,10 +4188,10 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
             projectToken = IERC20(taxToken_);
             emit ProjectTokenSet(taxToken_);
         }
-        maxSlippageBps = 300;
+        maxSlippageBps = 1000; // 10% max deviation from the price ruler
         maxSwapBnb = 2 ether;
 
-        // Chainlink USD feeds (BSC). QQQ / SPY have none on BSC yet -> keeper-only until set.
+        // Chainlink USD feeds (BSC). QQQ / SPY: set to a TwapUsdFeed (PancakeSwap 30-min TWAP) after deploy.
         districtFeed[0] = 0xea5c2Cbb5cD57daC24E26180b19a929F3E9699B8; // NVDA
         districtFeed[1] = 0xb7Ed5bE7977d61E83534230f3256C021e0fae0B6; // AAPL
         districtFeed[2] = 0xEEA2ae9c074E87596A85ABE698B2Afebc9B57893; // TSLA
