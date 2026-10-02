@@ -4049,8 +4049,8 @@ interface IPancakeV2Router {
  *
  * Flap Vault V2 framework (BeaconProxy + Guardian + VaultPortal). Project tax BNB flows in,
  * 10% goes to ops, 90% is split across 9 district BNB buckets. Buckets are turned into
- * bStocks either (a) automatically through PancakeSwap V3/V2 (refillViaSwap, oracle-guarded)
- * or (b) by anyone selling bStocks to the vault (sellStockToVault). Every bStock the vault
+ * bStocks automatically through PancakeSwap V3/V2 (refillViaSwap, oracle-guarded).
+ * Every bStock the vault
  * holds is map reward inventory and leaves only through a signed walk-to-store voucher.
  *
  * Inventory is the vault's live token balance (not a counter), so rebasing / balance-adjusting
@@ -4063,8 +4063,6 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
     /// @dev 10% of inbound BNB routed to opsTreasury (Flap vault convention).
     uint16 public constant OPS_FEE_BPS = 1000;
     uint8 public constant DISTRICT_COUNT = 9;
-    /// @dev Premium paid to manual sellers vs Chainlink fair value (102%).
-    uint256 public constant KEEPER_QUOTE_BPS = 10200;
     /// @dev Equity feeds pause over weekends / holidays.
     uint256 public constant MAX_PRICE_STALENESS = 96 hours;
     uint256 public constant MAX_SLIPPAGE_CAP_BPS = 1000;
@@ -4126,9 +4124,6 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
     event OwnershipTransferred(address indexed prev, address indexed next);
     event ProjectTokenSet(address indexed token);
     event EmergencyWithdraw(address indexed guardian, address indexed to, address indexed token, uint256 amount);
-    event StockSoldToVault(
-        address indexed keeper, uint8 indexed district, address stock, uint256 stockAmount, uint256 bnbPaid
-    );
     event SwapRefill(
         address indexed caller, uint8 indexed district, uint8 route, uint256 bnbIn, uint256 stockOut, uint256 minOut
     );
@@ -4487,44 +4482,6 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         emit SwapRefill(msg.sender, district, kind, bnbIn, received, minOut);
     }
 
-    // ---------------- refill path B: anyone sells bStocks ----------------
-
-    function quoteStockForBnb(uint8 district, uint256 stockAmount) public view returns (uint256 bnbWei) {
-        if (district >= DISTRICT_COUNT) revert BadDistrict();
-        address feed = districtFeed[district];
-        if (feed == address(0)) revert NoFeed();
-        uint256 bnbUsd = _readFeed(BNB_USD_FEED);
-        if (bnbUsd == 0) revert ZeroSpotPrice();
-        uint256 stockUsd = _readFeed(feed);
-        bnbWei = (stockAmount * stockUsd) / bnbUsd;
-        bnbWei = (bnbWei * KEEPER_QUOTE_BPS) / BPS_DENOM;
-    }
-
-    function sellStockToVault(uint8 district, uint256 stockAmount) external nonReentrant {
-        if (district >= DISTRICT_COUNT) revert BadDistrict();
-        if (stockAmount == 0) revert WrongPayment();
-
-        IERC20 stock = IERC20(_districtAsset(district));
-        uint256 before = stock.balanceOf(address(this));
-        stock.safeTransferFrom(msg.sender, address(this), stockAmount);
-        uint256 received = stock.balanceOf(address(this)) - before;
-        if (received == 0) revert WrongPayment();
-
-        uint256 bnbOwed = quoteStockForBnb(district, received);
-        if (bnbOwed == 0) revert ZeroSpotPrice();
-        if (bnbOwed > pendingBnb[district]) revert InsufficientDistrictBnb();
-        pendingBnb[district] -= bnbOwed;
-        totalBnbSpent[district] += bnbOwed;
-
-        totalGameFunded[district] += received;
-        emit GamePoolFunded(district, received);
-
-        (bool ok, ) = msg.sender.call{value: bnbOwed}("");
-        if (!ok) revert RewardPayFailed();
-
-        emit StockSoldToVault(msg.sender, district, address(stock), received, bnbOwed);
-    }
-
     function _readFeed(address feed) private view returns (uint256 price1e18) {
         (, int256 answer,, uint256 updatedAt,) = IAggregatorV3(feed).latestRoundData();
         if (answer <= 0) revert BadFeedAnswer();
@@ -4714,7 +4671,7 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         schema.vaultType = "MapCityVault";
         schema.description =
             "Walk-to-store bStocks map rewards. Permissionless PancakeSwap refill, no admin payout path.";
-        schema.methods = new VaultMethodSchema_1[](3);
+        schema.methods = new VaultMethodSchema_1[](2);
 
         schema.methods[0].name = "refillViaSwap";
         schema.methods[0].description = "Swap a district BNB bucket into bStocks on PancakeSwap (oracle-guarded).";
@@ -4724,20 +4681,13 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         schema.methods[0].inputs[1] = FieldDescriptor_1("bnbIn", "uint256", "BNB from bucket", 18);
         schema.methods[0].inputs[2] = FieldDescriptor_1("callerMinOut", "uint256", "Extra min out (0 ok)", 18);
 
-        schema.methods[1].name = "sellStockToVault";
-        schema.methods[1].description = "Sell district bStocks to the vault for BNB at Chainlink x 1.02.";
+        schema.methods[1].name = "claimGameVoucher";
+        schema.methods[1].description = "Redeem a signed walk-to-store voucher. Reward always goes to `to`.";
         schema.methods[1].isWriteMethod = true;
-        schema.methods[1].inputs = new FieldDescriptor_1[](2);
-        schema.methods[1].inputs[0] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
-        schema.methods[1].inputs[1] = FieldDescriptor_1("stockAmount", "uint256", "Stock amount (1e18)", 18);
-
-        schema.methods[2].name = "claimGameVoucher";
-        schema.methods[2].description = "Redeem a signed walk-to-store voucher. Reward always goes to `to`.";
-        schema.methods[2].isWriteMethod = true;
-        schema.methods[2].inputs = new FieldDescriptor_1[](7);
-        schema.methods[2].inputs[0] = FieldDescriptor_1("to", "address", "Player wallet", 0);
-        schema.methods[2].inputs[1] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
-        schema.methods[2].inputs[2] = FieldDescriptor_1("amount", "uint256", "Reward amount (1e18)", 18);
+        schema.methods[1].inputs = new FieldDescriptor_1[](7);
+        schema.methods[1].inputs[0] = FieldDescriptor_1("to", "address", "Player wallet", 0);
+        schema.methods[1].inputs[1] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
+        schema.methods[1].inputs[2] = FieldDescriptor_1("amount", "uint256", "Reward amount (1e18)", 18);
         schema.methods[2].inputs[3] = FieldDescriptor_1("spawnId", "bytes32", "Map spawn id", 0);
         schema.methods[2].inputs[4] = FieldDescriptor_1("nonce", "uint256", "Voucher nonce", 0);
         schema.methods[2].inputs[5] = FieldDescriptor_1("deadline", "uint256", "Voucher deadline (unix)", 0);
