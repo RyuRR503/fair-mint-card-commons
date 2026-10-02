@@ -381,6 +381,7 @@ contract Adversarial is ForkBase {
         // owner takes all stock + all BNB
         uint256 pool = vault.gamePool(0);
         uint256 bal = address(vault).balance;
+        uint256 destBefore = dest.balance;
         vm.startPrank(owner_);
         vault.ownerWithdrawToken(t, dest, pool);
         vault.ownerWithdrawNative(dest, bal);
@@ -388,7 +389,7 @@ contract Adversarial is ForkBase {
         vault.setSwapParams(500, 1 ether);    // and swap params
         vm.stopPrank();
         assertEq(IERC20(t).balanceOf(dest), pool);
-        assertEq(dest.balance, bal);
+        assertEq(dest.balance - destBefore, bal);
         assertEq(vault.gamePool(0), 0);
         assertEq(vault.outstandingRewards(), 0);
         assertLedger();
