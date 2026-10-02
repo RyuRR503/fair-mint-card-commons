@@ -27,7 +27,7 @@ export function Section({
   index?: string;
 }) {
   return (
-    <section id={id} className={cn("mx-auto max-w-6xl px-5", hero ? "mt-14 border-b border-border pb-16 sm:mt-20 sm:pb-20" : "mt-32 sm:mt-40", className)}>
+    <section id={id} className={cn("mx-auto max-w-6xl px-5", hero ? "mt-14 border-b border-border pb-12 sm:mt-20 sm:pb-14" : "mt-24 sm:mt-32", className)}>
       <Reveal>
       {(eyebrow || index) && (
         <div className="flex items-center gap-4">
