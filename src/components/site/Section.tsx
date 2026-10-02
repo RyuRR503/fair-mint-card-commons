@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Reveal } from "./Reveal";
 
 /**
  * A section reads like a shot: an eyebrow slate, a single headline in focus,
@@ -25,6 +26,7 @@ export function Section({
 }) {
   return (
     <section id={id} className={cn("mx-auto mt-32 max-w-6xl px-5 sm:mt-40", className)}>
+      <Reveal>
       {(eyebrow || index) && (
         <div className="flex items-center gap-4">
           <span className="h-0.5 w-10 bg-primary" />
@@ -32,7 +34,7 @@ export function Section({
         </div>
       )}
       {title && (
-        <h2 className="mt-6 max-w-3xl text-balance text-[1.9rem] leading-[1.3] sm:text-[2.75rem]">
+        <h2 className="mt-6 max-w-3xl text-balance text-[2.1rem] leading-[1.15] sm:text-[3.25rem]">
           {title}
         </h2>
       )}
@@ -41,7 +43,8 @@ export function Section({
           {lead}
         </p>
       )}
-      {children}
+      </Reveal>
+      <Reveal delay={120}>{children}</Reveal>
     </section>
   );
 }

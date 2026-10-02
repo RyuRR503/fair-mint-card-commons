@@ -43,17 +43,6 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <span className="label-caps text-[10px] text-muted-foreground">{label}</span>
-      <span className={`readout text-2xl font-semibold ${accent ? "text-primary" : "text-foreground"}`}>
-        {value}
-      </span>
-    </div>
-  );
-}
-
 function Home() {
   const t = useT();
   const summary = Route.useLoaderData();
@@ -78,93 +67,70 @@ function Home() {
   return (
     <>
       {/* ---------------------------------------------------------- hero */}
-      <section className="relative overflow-hidden px-5 pb-20 pt-10 sm:pt-14">
+      <section className="relative overflow-hidden px-5 pb-16 pt-8 sm:pt-12">
         <div className="mx-auto max-w-6xl">
-          {/* live instrument strip */}
-          <div className="flex flex-wrap items-end justify-between gap-8 border-b border-border pb-8">
-            <div className="flex flex-wrap gap-10 sm:gap-14">
-              <Stat label="LIVE SIGNALS" value={String(TOTAL_SPAWNS)} accent />
-              <Stat label="CITIES" value={String(TOTAL_CITIES)} />
-              <div className="flex flex-col gap-1.5">
-                <span className="label-caps text-[10px] text-muted-foreground">NETWORK</span>
-                <span className="flex items-center gap-2 text-sm">
-                  <span className="size-2 animate-pulse rounded-full bg-primary" />
-                  {CHAIN.name}
-                </span>
-              </div>
-            </div>
-            <span className="glass-panel hidden rounded-full px-4 py-2 text-xs text-muted-foreground md:block">
-              {t("Legendary drop", "传奇掉落")}
-              <span className="readout ml-2 text-primary">{t("DAILY · 24H NOTICE", "每天一次 · 提前 24 小时公布")}</span>
-
+          <div className="reveal-focus flex items-center justify-between gap-6 border-b border-border pb-5">
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="size-2 animate-pulse rounded-full bg-primary" />
+              {CHAIN.name} · {t("Live", "运行中")}
+            </span>
+            <span className="readout hidden sm:block">
+              {t("LEGENDARY · DAILY · 24H NOTICE", "传奇 · 每天一次 · 提前 24 小时公布")}
             </span>
           </div>
 
-          <div className="reveal-focus mt-16 grid items-center gap-16 lg:grid-cols-2">
-            <div>
-              <div className="flex items-center gap-4">
-                <span className="h-0.5 w-12 bg-primary" />
-                <span className="label-caps text-xs text-primary">
-                  {t("Catch the fun · real-world stock fragments", "抓住乐趣 · 真实世界的美股碎片")}
-                </span>
-
-              </div>
-
-              <h1 className="mt-5 text-[2.75rem] leading-[1.2] sm:text-[3.75rem]">
-                {t("Walk the city.", "走到街上，")}
-                <br />
-                {t("Catch the market.", "把市场装进口袋。")}
-                <span className="font-latin mt-4 block text-lg font-medium tracking-[0.32em] text-primary sm:text-xl">
-                  CATCH ON BNB CHAIN
-                </span>
+          <div className="mt-10 grid items-end gap-12 lg:grid-cols-[1.25fr_1fr]">
+            <div className="reveal-focus min-w-0">
+              <p className="label-caps text-xs text-primary">
+                {t("Catch the fun · real-world stock fragments", "抓住乐趣 · 真实世界的美股碎片")}
+              </p>
+              <p
+                aria-hidden
+                className="font-poster mt-4 select-none text-[7rem] text-foreground sm:text-[11rem] lg:text-[13rem]"
+              >
+                CATCH<span className="text-primary">.</span>
+              </p>
+              <h1 className="mt-4 max-w-xl text-[2rem] leading-[1.2] sm:text-[2.6rem]">
+                {t("Walk the city. Catch the market.", "走到街上，把市场装进口袋。")}
               </h1>
-
-              <p className="mt-8 max-w-xl text-lg leading-[2] text-muted-foreground">
+              <p className="mt-6 max-w-lg text-base leading-[1.9] text-muted-foreground sm:text-lg">
                 {t(
                   "Tokenized stock fragments sit at real coordinates. Get in range, catch the signal, and the fragment moves out of a funded vault straight into your wallet.",
                   "代币化的股票碎片停在真实坐标上。走进范围、捕捉信号，碎片就从已注资的金库直接转进你的钱包。不增发，不预售。",
                 )}
               </p>
-
-              <div className="mt-10 flex flex-wrap items-center gap-4">
+              <div className="mt-9 flex flex-wrap items-center gap-3">
                 <Link
                   to="/app"
-                  className="halation rounded-lg bg-primary px-9 py-4 font-bold text-primary-foreground transition-transform duration-300 hover:scale-[1.03]"
+                  className="btn-arrow halation rounded-full bg-primary px-8 py-4 font-bold text-primary-foreground transition-transform duration-300 hover:scale-[1.03] active:scale-[0.98]"
                 >
-                  {t("Start hunting", "立即开始寻宝")}
+                  {t("Start hunting", "立即开始寻宝")} <span className="arrow">→</span>
                 </Link>
                 <Link
-                  to="/download"
-                  className="rounded-lg border border-border px-9 py-4 font-medium text-foreground transition-colors duration-300 hover:bg-secondary"
+                  to="/how-it-works"
+                  className="rounded-full border border-border px-8 py-4 font-medium text-foreground transition-colors duration-300 hover:border-primary/60 hover:bg-secondary"
                 >
-                  {t("Get the app", "下载 App")}
-                </Link>
-                <Link
-                  to="/docs"
-                  className="text-sm text-muted-foreground underline underline-offset-8 transition-colors hover:text-primary"
-                >
-                  {t("Docs", "文档")}
+                  {t("How it works", "玩法说明")}
                 </Link>
               </div>
             </div>
 
             {/* HUD fragment card */}
-            <div className="relative mx-auto aspect-square w-full max-w-md">
-              <div className="absolute inset-0 rounded-3xl border-[18px] border-white/5" />
-              <div className="grid-field absolute inset-6 opacity-60" />
-              <div className="map-sweep absolute inset-10 rounded-full" />
-              <div className="viewfinder absolute inset-8 flex items-center justify-center">
-                <div className="panel w-full rotate-3 rounded-2xl p-8 transition-transform duration-500 hover:rotate-0">
-                  <div className="mb-10 flex items-start justify-between">
+            <div className="relative mx-auto aspect-square w-full max-w-sm lg:max-w-md">
+              <div className="grid-field absolute inset-0 opacity-60" />
+              <div className="map-sweep absolute inset-8 rounded-full" />
+              <div className="viewfinder absolute inset-6 flex items-center justify-center">
+                <div className="panel w-full rotate-3 rounded-2xl p-7 transition-transform duration-700 [transition-timing-function:var(--ease-cine)] hover:rotate-0 hover:scale-[1.02]">
+                  <div className="mb-8 flex items-start justify-between">
                     <TokenChip symbol="NVDAON" size={48} />
                     <span className="readout text-[11px]">FRAG #8842</span>
                   </div>
                   <p className="label-caps text-[10px] text-muted-foreground">Stock fragment</p>
-                  <p className="mt-2 text-3xl font-bold">NVIDIA Corp.</p>
-                  <div className="mt-8 flex items-end justify-between">
+                  <p className="font-poster mt-2 text-5xl">NVIDIA</p>
+                  <div className="mt-7 flex items-end justify-between gap-4">
                     <div>
                       <p className="text-xs text-muted-foreground">{t("Fragment", "碎片")}</p>
-                      <p className="readout mt-1 text-xl text-primary">0.013 NVDAON</p>
+                      <p className="readout mt-1 text-lg text-primary">0.0085 NVDAON</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-muted-foreground">{t("Location", "坐标")}</p>
@@ -175,8 +141,37 @@ function Home() {
               </div>
             </div>
           </div>
+
+          {/* big numbers */}
+          <div className="mt-16 grid grid-cols-3 border-y border-border">
+            {[
+              { v: String(TOTAL_SPAWNS), l: t("Live drops", "永久掉落点") },
+              { v: String(TOTAL_CITIES), l: t("Cities", "座城市") },
+              { v: String(TOKENS.length), l: t("Stocks", "种美股代币") },
+            ].map((s, i) => (
+              <div key={s.l} className={`py-6 sm:py-8 ${i ? "border-l border-border pl-4 sm:pl-8" : ""}`}>
+                <p className={`font-poster text-5xl sm:text-7xl ${i === 0 ? "text-primary" : ""}`}>{s.v}</p>
+                <p className="mt-2 text-xs text-muted-foreground sm:text-sm">{s.l}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
+
+      {/* ------------------------------------------------------ ticker */}
+      <div className="overflow-hidden border-b border-border py-5" aria-hidden>
+        <div className="marquee-track gap-12">
+          {[...TOKENS, ...TOKENS].map((tk, i) => (
+            <span key={i} className="flex shrink-0 items-center gap-3 pr-12">
+              <TokenChip symbol={tk.symbol} size={28} />
+              <span className="font-poster text-3xl">{tk.symbol}</span>
+              <span className="text-sm text-muted-foreground">{t(tk.venue, tk.venueZh)}</span>
+              <span className="text-primary">✦</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
 
       {/* ---------------------------------------------------------- map */}
       <section className="mx-auto mt-10 max-w-6xl px-5">
@@ -289,11 +284,11 @@ function Home() {
               ),
             },
           ].map((s) => (
-            <div key={s.n} className="bg-card p-8 sm:p-10">
-              <span className="font-latin block text-6xl font-light leading-none tracking-tighter text-border">
+            <div key={s.n} className="group bg-card p-8 transition-colors duration-500 hover:bg-secondary sm:p-10">
+              <span className="font-poster outline-text block text-8xl">
                 {s.n}
               </span>
-              <h3 className="font-latin mt-6 text-xl tracking-tight">{s.h}</h3>
+              <h3 className="mt-6 text-xl transition-colors group-hover:text-primary">{s.h}</h3>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.p}</p>
             </div>
           ))}
@@ -326,7 +321,7 @@ function Home() {
             </thead>
             <tbody>
               {TOKENS.map((tk) => (
-                <tr key={tk.symbol} className="border-b border-border/60 last:border-0">
+                <tr key={tk.symbol} className="border-b border-border/60 transition-colors last:border-0 hover:bg-secondary/60">
                   <td className="px-6 py-4">
                     <span className="flex items-center gap-3">
                       <TokenChip symbol={tk.symbol} size={34} />
@@ -396,7 +391,7 @@ function Home() {
         <Panel className="mt-8">
           <div className="flex flex-wrap gap-4">
             {TOKENS.map((tk) => (
-              <span key={tk.symbol} className="flex w-16 flex-col items-center gap-2">
+              <span key={tk.symbol} className="flex w-16 flex-col items-center gap-2 transition-transform duration-500 hover:-translate-y-1.5">
                 <TokenChip symbol={tk.symbol} size={52} />
                 <span className="label-caps text-[9px] text-muted-foreground">{tk.symbol}</span>
               </span>
