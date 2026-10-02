@@ -39,7 +39,7 @@ export const VAULT_ABI = [
     type: "function",
     name: "gamePool",
     stateMutability: "view",
-    inputs: [{ name: "district", type: "uint8" }],
+    inputs: [{ name: "district", type: "uint256" }],
     outputs: [{ name: "", type: "uint256" }],
   },
   {

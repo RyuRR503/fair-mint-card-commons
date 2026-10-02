@@ -71,7 +71,7 @@ function symbolFor(tags: Record<string, string>): string | null {
   const amenity = tags["amenity"];
 
   if (amenity === "charging_station" || shop === "car") {
-    return TESLA.test(text) ? "TSLAON" : null;
+    return TESLA.test(text) ? "TSLAB" : null;
   }
   if (tags["tourism"] === "museum" || amenity === "planetarium") {
     const isSpace =
@@ -79,7 +79,7 @@ function symbolFor(tags: Record<string, string>): string | null {
       tags["museum"] === "science" ||
       tags["museum"] === "technology" ||
       SCIENCE.test(text);
-    return isSpace ? "SPCXON" : null;
+    return isSpace ? "SPCXB" : null;
   }
   if (
     APPLE.test(text) &&
@@ -88,13 +88,13 @@ function symbolFor(tags: Record<string, string>): string | null {
       shop === "computer" ||
       shop === "electronics")
   ) {
-    return "AAPLON";
+    return "AAPLB";
   }
-  if (shop === "mobile_phone") return ANDROID.test(text) ? "GOOGLON" : "MUON";
-  if (amenity === "internet_cafe" || tags["leisure"] === "adult_gaming_centre") return "NVDAON";
+  if (shop === "mobile_phone") return ANDROID.test(text) ? "GOOGLB" : "MUB";
+  if (amenity === "internet_cafe" || tags["leisure"] === "adult_gaming_centre") return "NVDAB";
   if (tags["office"] === "financial" || tags["office"] === "insurance") return "SPYB";
-  if (shop === "video_games" || shop === "stationery") return "MSFTON";
-  if (amenity === "bank") return "FXION";
+  if (shop === "video_games" || shop === "stationery") return "MSFTB";
+  if (amenity === "bank") return "QQQB";
   return null;
 }
 

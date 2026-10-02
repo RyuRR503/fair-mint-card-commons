@@ -30,8 +30,8 @@ function Code({ children }: { children: string }) {
 
 function Docs() {
   const tr = useT();
-  const totalSpawns = 1378;
-  const totalPlaces = 1443;
+  const totalSpawns = 938;
+  const totalPlaces = 7407;
   const totalCities = 30;
 
   return (
@@ -73,8 +73,8 @@ function Docs() {
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "Think of it like a nationwide scavenger hunt with 1,378 fixed coordinates. Beijing has 96 drops, Shanghai 102, Shenzhen 86, and Chengdu 85. Smaller cities still have dozens: a 24-hour trip can cover banks in Beijing, internet cafés in Chengdu, and Tesla chargers in Shenzhen. The numbers are not decoration — they come from OpenStreetMap and are written into the database as real latitude and longitude.",
-              "可以理解为一场覆盖全国 1378 个固定坐标的寻宝。北京有 96 个掉落点，上海 102 个，深圳 86 个，成都 85 个；小一些的城市也有几十个：24 小时内你可以在北京的银行、成都的网吧、深圳的超充站之间切换。这些数字不是装饰，全部来自 OpenStreetMap，以真实经纬度写进数据库。",
+              "Think of it like a nationwide scavenger hunt with 938 fixed coordinates. Beijing has 67 drops, Shanghai 63, Shenzhen 59, and Chengdu 56. Smaller cities still have dozens: a 24-hour trip can cover banks in Beijing, internet cafés in Chengdu, and Tesla chargers in Shenzhen. The numbers are not decoration — they come from OpenStreetMap and are written into the database as real latitude and longitude.",
+              "可以理解为一场覆盖全国 938 个固定坐标的寻宝。北京有 67 个掉落点，上海 63 个，深圳 59 个，成都 56 个；小一些的城市也有几十个：24 小时内你可以在北京的银行、成都的网吧、深圳的超充站之间切换。这些数字不是装饰，全部来自 OpenStreetMap，以真实经纬度写进数据库。",
             )}
           </p>
         </Panel>
@@ -128,15 +128,16 @@ function claimGameVoucher(
   bytes signature
 ) external;                       // anyone may relay
 function gameNonceUsed(uint256 nonce) external view returns (bool);
-function gamePool(uint8 district) external view returns (uint256);
+function gamePool(uint256 district) external view returns (uint256); // live balance, rebase-safe
+function refillViaSwap(uint8 district, uint256 bnbIn, uint256 callerMinOut) external returns (uint256);
           function setGameSigner(address signer) external;  // guardian only`}</Code>
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <Panel>
               <h3 className="label-caps text-[11px] text-primary">{tr("A concrete example", "一个具体例子")}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {tr(
-                  "You stand in front of the Apple store on Shanghai Nanjing East Road. The server checks your GPS, signs a voucher for 0.02 AAPLON, and gives it a 15-minute deadline. You submit it to the contract. The contract checks the signature against the game signer, makes sure the nonce has never been used, and transfers 0.02 AAPLON to your wallet. The server cannot take the money back, and the voucher cannot be reused tomorrow.",
-                  "你站在上海南京东路 Apple 店门口。服务器校验 GPS 后，签发一张 0.02 AAPLON 的凭证，有效期 15 分钟。你把凭证提交给合约，合约用 gameSigner 验签、确认 nonce 没被用过，然后把 0.02 AAPLON 转到你的钱包。服务器拿不回这笔钱，这张凭证明天也不能再用。",
+                  "You stand in front of the Apple store on Shanghai Nanjing East Road. The server checks your GPS, signs a voucher for 0.02 AAPLB, and gives it a 15-minute deadline. You submit it to the contract. The contract checks the signature against the game signer, makes sure the nonce has never been used, and transfers 0.02 AAPLB to your wallet. The server cannot take the money back, and the voucher cannot be reused tomorrow.",
+                  "你站在上海南京东路 Apple 店门口。服务器校验 GPS 后，签发一张 0.02 AAPLB 的凭证，有效期 15 分钟。你把凭证提交给合约，合约用 gameSigner 验签、确认 nonce 没被用过，然后把 0.02 AAPLB 转到你的钱包。服务器拿不回这笔钱，这张凭证明天也不能再用。",
                 )}
               </p>
             </Panel>
@@ -190,29 +191,29 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "Rarity is a property of the token, not the number of pins. It decides three things: how long a point sleeps after a catch, how dense its venues are, and how much a single catch is worth. Value rises with rarity — a common catch is worth about $2, a rare one about $3.5, an epic one about $5.5, and the legendary SPCXON pays one whole share (about $150). FXION (banks) is common: banks are everywhere, they respawn in 20 minutes, and each catch is a modest slice. AAPLON (Apple stores) is epic: fewer doors, 90 minutes of cooldown, and a catch worth almost three times a common one.",
-              "稀有度是代币本身的属性，不是地图上点位的数量。它决定三件事：点位冷却多久、门店密度多大、以及单次抓取值多少钱。价值随稀有度递增——普通约 $2，稀有约 $3.5，史诗约 $5.5，传奇 SPCXON 是 1 整股（约 $150）。FXION（银行）是普通：网点到处都是、20 分钟复活、单次价值较小；AAPLON（Apple 店）是史诗：门店少、90 分钟冷却、单次价值差不多是普通的三倍。",
+              "Rarity is a property of the token, not the number of pins. It decides three things: how long a point sleeps after a catch, how dense its venues are, and how much a single catch is worth. Value rises with rarity — a common catch is worth about $2, a rare one about $3.5, an epic one about $5.5, and the legendary SPCXB pays one whole share (about $150). QQQB (banks) is common: banks are everywhere, they respawn in 20 minutes, and each catch is a modest slice. AAPLB (Apple stores) is epic: fewer doors, 90 minutes of cooldown, and a catch worth almost three times a common one.",
+              "稀有度是代币本身的属性，不是地图上点位的数量。它决定三件事：点位冷却多久、门店密度多大、以及单次抓取值多少钱。价值随稀有度递增——普通约 $2，稀有约 $3.5，史诗约 $5.5，传奇 SPCXB 是 1 整股（约 $150）。QQQB（银行）是普通：网点到处都是、20 分钟复活、单次价值较小；AAPLB（Apple 店）是史诗：门店少、90 分钟冷却、单次价值差不多是普通的三倍。",
             )}
           </p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Common", "普通")}</p>
-              <p className="mt-1 text-sm font-medium">{tr("FXION · NVDAON · SPYB · MUON", "FXION · NVDAON · SPYB · MUON")}</p>
+              <p className="mt-1 text-sm font-medium">{tr("QQQB · NVDAB · SPYB · MUB", "QQQB · NVDAB · SPYB · MUB")}</p>
               <p className="mt-1 text-xs text-muted-foreground">{tr("20 min cooldown · many venues · ~$2 a catch", "20 分钟冷却 · 门店多 · 单次约 $2")}</p>
             </div>
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Rare", "稀有")}</p>
-              <p className="mt-1 text-sm font-medium">{tr("TSLAON · MSFTON · GOOGLON", "TSLAON · MSFTON · GOOGLON")}</p>
+              <p className="mt-1 text-sm font-medium">{tr("TSLAB · MSFTB · GOOGLB", "TSLAB · MSFTB · GOOGLB")}</p>
               <p className="mt-1 text-xs text-muted-foreground">{tr("45 min cooldown · medium density · ~$3.5 a catch", "45 分钟冷却 · 密度中等 · 单次约 $3.5")}</p>
             </div>
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Epic", "史诗")}</p>
-              <p className="mt-1 text-sm font-medium">{tr("AAPLON", "AAPLON")}</p>
+              <p className="mt-1 text-sm font-medium">{tr("AAPLB", "AAPLB")}</p>
               <p className="mt-1 text-xs text-muted-foreground">{tr("90 min cooldown · fewer stores · ~$5.5 a catch", "90 分钟冷却 · 门店少 · 单次约 $5.5")}</p>
             </div>
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Legendary", "传奇")}</p>
-              <p className="mt-1 text-sm font-medium">{tr("SPCXON", "SPCXON")}</p>
+              <p className="mt-1 text-sm font-medium">{tr("SPCXB", "SPCXB")}</p>
               <p className="mt-1 text-xs text-muted-foreground">{tr("120 min cooldown · event only · one whole share (~$150)", "120 分钟冷却 · 仅活动出现 · 1 整股（约 $150）")}</p>
             </div>
           </div>
@@ -259,8 +260,8 @@ POST early-access    { email, kind, city?, company? }`}</Code>
             <h3 className="label-caps text-[11px] text-primary">{tr("A day of catching", "一天能抓多少")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {tr(
-                `Imagine you are in Shanghai. At 9:00 you catch a bank drop (FXION, 20-minute cooldown). At 11:00 you catch an internet café (NVDAON). At 14:00 you hit a Tesla charger (TSLAON, 45-minute cooldown). By 18:00 you have used ${RULES.perWalletPerDay} of your ${RULES.perWalletPerDay} daily catches. The same Apple store cannot be used again until tomorrow, but other Apple stores are still live.`,
-                `假设你在上海。9:00 抓了一个银行网点（FXION，20 分钟冷却）；11:00 抓了一个网吧（NVDAON）；14:00 抓了一个特斯拉超充站（TSLAON，45 分钟冷却）。到 18:00 你已经用完当天 ${RULES.perWalletPerDay} 次机会。同一个 Apple 店明天才能再抓，但别的 Apple 店仍然有效。`,
+                `Imagine you are in Shanghai. At 9:00 you catch a bank drop (QQQB, 20-minute cooldown). At 11:00 you catch an internet café (NVDAB). At 14:00 you hit a Tesla charger (TSLAB, 45-minute cooldown). By 18:00 you have used ${RULES.perWalletPerDay} of your ${RULES.perWalletPerDay} daily catches. The same Apple store cannot be used again until tomorrow, but other Apple stores are still live.`,
+                `假设你在上海。9:00 抓了一个银行网点（QQQB，20 分钟冷却）；11:00 抓了一个网吧（NVDAB）；14:00 抓了一个特斯拉超充站（TSLAB，45 分钟冷却）。到 18:00 你已经用完当天 ${RULES.perWalletPerDay} 次机会。同一个 Apple 店明天才能再抓，但别的 Apple 店仍然有效。`,
               )}
             </p>
           </Panel>
@@ -280,8 +281,8 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "Every token has one fixed fragment size — the same amount at every pin on the map. The vault aims to keep 25 payable catches per token in stock (2 for the legendary SPCXON). Trading tax arrives as BNB, 10% goes to operations, and the rest is split evenly across the nine districts. Restocking is permissionless: anyone can sell a district's stock token to the vault at the Chainlink price × Flap NAV multiplier × a 2% premium and receive BNB. Every token bought this way goes 100% into the map prize pool — the only way out is a signed claim.",
-              "每种代币的碎片大小固定，地图上所有同类点位数量一致。金库为每种代币维持 25 次可领取库存（传奇 SPCXON 为 2 次）。交易税以 BNB 流入，10% 归运营，其余平均分到九个区。补货无需许可：任何人都可以按 Chainlink 报价 × Flap NAV 系数 × 2% 溢价把该区股票代币卖给金库并获得 BNB。买入的代币 100% 进入地图奖池——唯一出口是签名领取。",
+              "Every token has one fixed fragment size — the same amount at every pin on the map. The vault aims to keep 25 payable catches per token in stock (2 for the legendary SPCXB). Trading tax arrives as BNB, 10% goes to operations, and the rest is split evenly across the nine districts. Restocking has two roads: (1) refillViaSwap — anyone can trigger a PancakeSwap V3/V2 swap of a district's BNB into its bStocks token, guarded by Chainlink (max 3% worse, max 2 BNB per swap); (2) anyone can sell bStocks to the vault at Chainlink × 1.02 for BNB. Every token bought either way goes 100% into the map prize pool — the only way out is a signed claim.",
+              "每种代币的碎片大小固定，地图上所有同类点位数量一致。金库为每种代币维持 25 次可领取库存（传奇 SPCXB 为 2 次）。交易税以 BNB 流入，10% 归运营，其余平均分到九个区。补货有两条路：① refillViaSwap——任何人都能触发，金库把该区 BNB 在 PancakeSwap V3/V2 上换成 bStocks，Chainlink 把关（比报价差超过 3% 就拒绝，单笔最多 2 BNB）；② 任何人按 Chainlink × 1.02 把 bStocks 卖给金库换 BNB。两条路买入的代币都 100% 进入地图奖池——唯一出口是签名领取。",
             )}
           </p>
         </Panel>
