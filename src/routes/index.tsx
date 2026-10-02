@@ -43,17 +43,6 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <span className="label-caps text-[10px] text-muted-foreground">{label}</span>
-      <span className={`readout text-2xl font-semibold ${accent ? "text-primary" : "text-foreground"}`}>
-        {value}
-      </span>
-    </div>
-  );
-}
-
 function Home() {
   const t = useT();
   const summary = Route.useLoaderData();
@@ -295,11 +284,11 @@ function Home() {
               ),
             },
           ].map((s) => (
-            <div key={s.n} className="bg-card p-8 sm:p-10">
-              <span className="font-latin block text-6xl font-light leading-none tracking-tighter text-border">
+            <div key={s.n} className="group bg-card p-8 transition-colors duration-500 hover:bg-secondary sm:p-10">
+              <span className="font-poster outline-text block text-8xl">
                 {s.n}
               </span>
-              <h3 className="font-latin mt-6 text-xl tracking-tight">{s.h}</h3>
+              <h3 className="mt-6 text-xl transition-colors group-hover:text-primary">{s.h}</h3>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.p}</p>
             </div>
           ))}
@@ -332,7 +321,7 @@ function Home() {
             </thead>
             <tbody>
               {TOKENS.map((tk) => (
-                <tr key={tk.symbol} className="border-b border-border/60 last:border-0">
+                <tr key={tk.symbol} className="border-b border-border/60 transition-colors last:border-0 hover:bg-secondary/60">
                   <td className="px-6 py-4">
                     <span className="flex items-center gap-3">
                       <TokenChip symbol={tk.symbol} size={34} />
@@ -402,7 +391,7 @@ function Home() {
         <Panel className="mt-8">
           <div className="flex flex-wrap gap-4">
             {TOKENS.map((tk) => (
-              <span key={tk.symbol} className="flex w-16 flex-col items-center gap-2">
+              <span key={tk.symbol} className="flex w-16 flex-col items-center gap-2 transition-transform duration-500 hover:-translate-y-1.5">
                 <TokenChip symbol={tk.symbol} size={52} />
                 <span className="label-caps text-[9px] text-muted-foreground">{tk.symbol}</span>
               </span>
