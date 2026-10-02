@@ -198,8 +198,8 @@ function HowItWorks() {
             <h3 className="label-caps text-[11px] text-primary">{t("Refill is automatic", "自动补货")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "Trading tax flows into the vault as BNB, split evenly across the nine districts. The vault then swaps each district's BNB into its bStocks token on PancakeSwap — anyone can press the button, and the contract refuses any swap more than 3% worse than the Chainlink price, so nobody can front-run it. Anyone holding bStocks can also sell them to the vault at the Chainlink price plus 2%.",
-                "交易税以 BNB 形式流入金库，平均分配到九个区。随后金库会在 PancakeSwap 上把每个区的 BNB 自动换成对应的 bStocks 股票代币——谁都可以按这个按钮，而且只要成交价比 Chainlink 报价差超过 3%，合约就直接拒绝，没人能抢跑套利。手里有 bStocks 的人也可以按 Chainlink 报价加 2% 直接卖给金库。",
+                "Trading tax flows into the vault as BNB, split evenly across the nine districts. The vault then swaps each district's BNB into its bStocks token on PancakeSwap — anyone can press the button, and the contract refuses any swap more than 10% worse than the reference price (Chainlink, or a 30-minute PancakeSwap average for SPYB and QQQB), so a quick pump cannot rob it. Anyone holding bStocks can also sell them to the vault at the Chainlink price plus 2%.",
+                "交易税以 BNB 形式流入金库，平均分配到九个区。随后金库会在 PancakeSwap 上把每个区的 BNB 自动换成对应的 bStocks 股票代币——谁都可以按这个按钮，成交价比参考价差超过 10% 合约就直接拒绝（参考价用 Chainlink；SPYB、QQQB 没有 Chainlink，就用 PancakeSwap 过去 30 分钟的平均价），有人临时砸盘也占不到便宜。手里有 bStocks 的人也可以按 Chainlink 报价加 2% 直接卖给金库。",
               )}
             </p>
           </Panel>
