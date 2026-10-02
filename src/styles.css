@@ -14,10 +14,10 @@
  */
 
 @theme inline {
-  --font-display: "Bebas Neue", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bebas Neue", "ZCOOL QingKe HuangYou", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Barlow", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
   --font-latin: "Barlow", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
-  --font-poster: "Bebas Neue", "Noto Sans SC", sans-serif;
+  --font-poster: "Bebas Neue", "ZCOOL QingKe HuangYou", "Noto Sans SC", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
