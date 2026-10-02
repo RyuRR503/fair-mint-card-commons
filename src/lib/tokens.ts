@@ -134,7 +134,7 @@ export const TOKENS: StockToken[] = [
     venueZh: "证券公司、理财与金融网点",
     osm: ["office=financial", "office=insurance"],
     address: "0x7138b48df7D98D7e3cc221BfE7192D0a178182D8",
-    // No Chainlink SPY feed on BSC yet: vault refills this district via keeper-quoted PancakeSwap swaps.
+    // No Chainlink SPY feed on BSC: vault uses TwapUsdFeed (30-min PancakeSwap TWAP) as its price ruler.
     feed: "0x0000000000000000000000000000000000000000",
     decimals: 18,
     fragment: 0.0033,
