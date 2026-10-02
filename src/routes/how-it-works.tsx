@@ -136,7 +136,7 @@ function HowItWorks() {
 
   return (
     <>
-      <Section
+      <Section hero
         eyebrow={t("how it works", "玩法")}
         title={t("Close the distance. Catch. The chain does the rest.", "拉近距离，捕捉，剩下的交给链上。")}
         lead={t(

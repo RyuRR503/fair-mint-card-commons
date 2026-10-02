@@ -28,7 +28,7 @@ function Sponsor() {
   const t = useT();
   return (
     <>
-      <Section
+      <Section hero
         eyebrow={t("sponsor", "品牌合作")}
         title={t("Pay for footsteps. Not impressions.", "为脚步付费，而不是为曝光付费。")}
         lead={t(
