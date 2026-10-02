@@ -701,6 +701,7 @@ html[lang^="zh"] .label-caps {
 html[lang^="zh"] h1,
 html[lang^="zh"] h2 {
   letter-spacing: 0.01em;
+  line-height: 1.22 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
