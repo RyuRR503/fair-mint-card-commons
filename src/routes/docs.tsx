@@ -30,8 +30,8 @@ function Code({ children }: { children: string }) {
 
 function Docs() {
   const tr = useT();
-  const totalSpawns = 1378;
-  const totalPlaces = 1443;
+  const totalSpawns = 938;
+  const totalPlaces = 7407;
   const totalCities = 30;
 
   return (
@@ -73,8 +73,8 @@ function Docs() {
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "Think of it like a nationwide scavenger hunt with 1,378 fixed coordinates. Beijing has 96 drops, Shanghai 102, Shenzhen 86, and Chengdu 85. Smaller cities still have dozens: a 24-hour trip can cover banks in Beijing, internet cafés in Chengdu, and Tesla chargers in Shenzhen. The numbers are not decoration — they come from OpenStreetMap and are written into the database as real latitude and longitude.",
-              "可以理解为一场覆盖全国 1378 个固定坐标的寻宝。北京有 96 个掉落点，上海 102 个，深圳 86 个，成都 85 个；小一些的城市也有几十个：24 小时内你可以在北京的银行、成都的网吧、深圳的超充站之间切换。这些数字不是装饰，全部来自 OpenStreetMap，以真实经纬度写进数据库。",
+              "Think of it like a nationwide scavenger hunt with 938 fixed coordinates. Beijing has 67 drops, Shanghai 63, Shenzhen 59, and Chengdu 56. Smaller cities still have dozens: a 24-hour trip can cover banks in Beijing, internet cafés in Chengdu, and Tesla chargers in Shenzhen. The numbers are not decoration — they come from OpenStreetMap and are written into the database as real latitude and longitude.",
+              "可以理解为一场覆盖全国 938 个固定坐标的寻宝。北京有 67 个掉落点，上海 63 个，深圳 59 个，成都 56 个；小一些的城市也有几十个：24 小时内你可以在北京的银行、成都的网吧、深圳的超充站之间切换。这些数字不是装饰，全部来自 OpenStreetMap，以真实经纬度写进数据库。",
             )}
           </p>
         </Panel>
