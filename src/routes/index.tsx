@@ -127,7 +127,7 @@ function Home() {
                   </div>
                   <p className="label-caps text-[10px] text-muted-foreground">Stock fragment</p>
                   <p className="font-poster mt-2 text-5xl">NVIDIA</p>
-                  <div className="mt-7 flex items-end justify-between">
+                  <div className="mt-7 flex items-end justify-between gap-4">
                     <div>
                       <p className="text-xs text-muted-foreground">{t("Fragment", "碎片")}</p>
                       <p className="readout mt-1 text-lg text-primary">0.0085 NVDAON</p>
