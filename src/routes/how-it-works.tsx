@@ -150,8 +150,8 @@ function HowItWorks() {
         <div className="mt-8 grid gap-5 md:grid-cols-2">
           {STEPS.map((s) => (
             <Panel key={s.n}>
-              <span className="label-caps font-mono text-3xl text-primary">{s.n}</span>
-              <h3 className="mt-2 text-lg">{s.h}</h3>
+              <span className="font-poster block text-6xl text-primary">{s.n}</span>
+              <h3 className="mt-4 text-lg">{s.h}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.p}</p>
             </Panel>
           ))}
