@@ -14,9 +14,10 @@
  */
 
 @theme inline {
-  --font-display: "Noto Sans SC", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Noto Sans SC", "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-latin: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bebas Neue", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Barlow", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+  --font-latin: "Barlow", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+  --font-poster: "Bebas Neue", "Noto Sans SC", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
@@ -623,4 +624,82 @@ html[lang^="zh"] .label-caps {
 .catch-pop-status.is-ok {
   color: var(--color-accent);
   border-color: color-mix(in oklab, var(--color-accent) 40%, transparent);
+}
+
+
+/* ---------- award pass: poster type, reveal, marquee, micro-interactions ---------- */
+@utility font-poster {
+  font-family: var(--font-poster);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.88;
+}
+
+.reveal-up {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.9s var(--ease-cine),
+    transform 0.9s var(--ease-cine);
+}
+.reveal-up.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@utility marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 38s linear infinite;
+  &:hover {
+    animation-play-state: paused;
+  }
+}
+
+@utility outline-text {
+  color: transparent;
+  -webkit-text-stroke: 1px oklch(1 0 0 / 0.28);
+}
+
+@utility btn-arrow {
+  & .arrow {
+    display: inline-block;
+    transition: transform 0.45s var(--ease-cine);
+  }
+  &:hover .arrow {
+    transform: translateX(6px);
+  }
+}
+
+@utility lift-card {
+  transition:
+    transform 0.6s var(--ease-cine),
+    border-color 0.6s var(--ease-cine),
+    background-color 0.6s var(--ease-cine);
+  &:hover {
+    transform: translateY(-4px);
+    border-color: oklch(0.87 0.235 158 / 0.5);
+  }
+}
+
+/* Bebas has no CJK: Chinese headings fall back to Noto Sans SC at 900 */
+html[lang^="zh"] h1,
+html[lang^="zh"] h2 {
+  letter-spacing: 0.01em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-up {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .marquee-track {
+    animation: none;
+  }
 }
