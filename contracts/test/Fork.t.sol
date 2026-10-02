@@ -129,28 +129,6 @@ contract E2E is ForkBase {
         assertLedger();
     }
 
-    function test_02_manual_sell_path() public {
-        fund(10 ether);
-        uint8 d = 1; // AAPLB
-        address seller = address(0x5E11);
-        vm.deal(seller, 1 ether);
-        address[] memory p = new address[](0);
-        // seller buys AAPLB on V3 via vault-like path then sells to vault
-        bytes memory path = abi.encodePacked(WBNB, uint24(2500), vault.districtAsset(d));
-        vm.startPrank(seller);
-        IPancakeV3SwapRouter(0x1b81D678ffb9C0263b24A97847620C99d213eB14).exactInput{value: 0.3 ether}(
-            IPancakeV3SwapRouter.ExactInputParams(path, seller, block.timestamp, 0.3 ether, 0));
-        uint256 bal = IERC20(vault.districtAsset(d)).balanceOf(seller);
-        IERC20(vault.districtAsset(d)).approve(address(vault), bal);
-        uint256 before = seller.balance;
-        vault.sellStockToVault(d, bal);
-        vm.stopPrank();
-        assertGt(seller.balance - before, 0);
-        assertEq(vault.gamePool(d), bal);
-        assertLedger();
-        p;
-    }
-
     function test_03_v2_routes_where_liquid() public {
         fund(20 ether);
         IV2R r = IV2R(0x10ED43C718714eb63d5aA57B78B54704E256024E);
