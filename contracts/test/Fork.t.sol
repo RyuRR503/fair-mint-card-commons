@@ -84,7 +84,7 @@ contract ForkBase is Test {
     }
 
     function claim(address to, uint8 d, uint256 amt, uint256 nonce) internal {
-        uint256 dl = block.timestamp + 900;
+        uint256 dl = vm.getBlockTimestamp() + 900;
         bytes memory sg = sign(to, d, amt, bytes32(nonce), nonce, dl, signerPk);
         vault.claimGameVoucher(to, d, amt, bytes32(nonce), nonce, dl, sg);
     }
@@ -234,7 +234,7 @@ contract Stress is ForkBase {
                 claim(player, d, vault.gamePool(d) / 3, nonce);
                 nonce++;
             }
-            vm.warp(block.timestamp + 1 hours);
+            vm.warp(vm.getBlockTimestamp() + 1 hours);
         }
         assertLedger();
     }
