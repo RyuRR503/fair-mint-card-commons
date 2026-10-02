@@ -4323,6 +4323,14 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
             last := shr(96, mload(add(add(path, 32), sub(mload(path), 20))))
         }
         if (first != WBNB || last != _districtAsset(d)) revert BadRoute();
+        // Intermediate hops may only be WBNB or USDT (no attacker-controlled tokens/pools).
+        uint256 hops = (path.length - 20) / 23;
+        for (uint256 i = 1; i < hops; i++) {
+            address mid;
+            uint256 off = 23 * i; // token i starts at 20 + 23*(i-1) + 3
+            assembly { mid := shr(96, mload(add(add(path, 32), off))) }
+            if (mid != WBNB && mid != USDT) revert BadRoute();
+        }
         _v3Path[d] = path;
         delete _v2Path[d];
         routeKind[d] = ROUTE_V3;
@@ -4330,16 +4338,19 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
     }
 
     function setV3Route(uint8 district, bytes calldata path) external {
-        _requireOwnerOrGuardian();
+        _requireGuardian();
         if (district >= DISTRICT_COUNT) revert BadDistrict();
         _setV3(district, path);
     }
 
     function setV2Route(uint8 district, address[] calldata path) external {
-        _requireOwnerOrGuardian();
+        _requireGuardian();
         if (district >= DISTRICT_COUNT) revert BadDistrict();
         if (path.length < 2 || path[0] != WBNB || path[path.length - 1] != _districtAsset(district)) {
             revert BadRoute();
+        }
+        for (uint256 i = 1; i + 1 < path.length; i++) {
+            if (path[i] != WBNB && path[i] != USDT) revert BadRoute();
         }
         _v2Path[district] = path;
         delete _v3Path[district];
@@ -4348,7 +4359,7 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
     }
 
     function setDistrictFeed(uint8 district, address feed) external {
-        _requireOwnerOrGuardian();
+        _requireGuardian();
         if (district >= DISTRICT_COUNT) revert BadDistrict();
         if (feed != address(0)) _readFeed(feed); // must be live
         districtFeed[district] = feed;
@@ -4356,7 +4367,7 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
     }
 
     function setSwapParams(uint256 slippageBps, uint256 maxBnb) external {
-        _requireOwnerOrGuardian();
+        _requireGuardian();
         if (slippageBps == 0 || slippageBps > MAX_SLIPPAGE_CAP_BPS || maxBnb == 0) revert BadParams();
         maxSlippageBps = slippageBps;
         maxSwapBnb = maxBnb;

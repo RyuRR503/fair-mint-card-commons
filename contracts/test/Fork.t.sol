@@ -51,7 +51,7 @@ contract ForkBase is Test {
         // QQQB / SPYB: no Chainlink feed on BSC -> 30-min PancakeSwap TWAP ruler.
         qqqFeed = new TwapUsdFeed(QQQ_POOL, vault.districtAsset(6), BNB_USD, 1800, "QQQB / USD (TWAP)");
         spyFeed = new TwapUsdFeed(SPY_POOL, vault.districtAsset(8), USDT_USD, 1800, "SPYB / USD (TWAP)");
-        vm.startPrank(owner_);
+        vm.startPrank(guardian);
         vault.setDistrictFeed(6, address(qqqFeed));
         vault.setDistrictFeed(8, address(spyFeed));
         vm.stopPrank();
@@ -159,7 +159,7 @@ contract E2E is ForkBase {
             p[0] = WBNB; p[1] = vault.districtAsset(d);
             try r.getAmountsOut(0.1 ether, p) returns (uint256[] memory a) {
                 emit log_named_uint(string.concat(names[d], " V2 out/0.1BNB"), a[1]);
-                vm.prank(owner_);
+                vm.prank(guardian);
                 vault.setV2Route(d, p);
                 bool noFeed = vault.districtFeed(d) == address(0);
                 uint256 mo = noFeed ? a[1] * 97 / 100 : 0;
@@ -210,7 +210,7 @@ contract Ledger is ForkBase {
 contract Stress is ForkBase {
     function test_depth_table() public {
         fund(200 ether);
-        vm.prank(owner_);
+        vm.prank(guardian);
         vault.setSwapParams(1000, 100 ether);
         uint256[6] memory sizes = [uint256(0.1 ether), 0.5 ether, 1 ether, 2 ether, 5 ether, 10 ether];
         for (uint8 d = 0; d < 9; d++) {
@@ -258,7 +258,7 @@ contract Adversarial is ForkBase {
 
     function test_strict_slippage_reverts_cleanly() public {
         fund(10 ether);
-        vm.prank(owner_);
+        vm.prank(guardian);
         vault.setSwapParams(1, 2 ether); // 0.01%: below pool fee -> must revert
         vm.expectRevert();
         vault.refillViaSwap(0, 0.5 ether, 0);
@@ -267,7 +267,7 @@ contract Adversarial is ForkBase {
 
     function test_no_feed_district_is_keeper_only() public {
         fund(10 ether);
-        vm.prank(owner_);
+        vm.prank(guardian);
         vault.setDistrictFeed(8, address(0)); // feed removed -> falls back to keeper-only
         vm.expectRevert(MapCityVaultUpgradeable.KeeperOnly.selector);
         vault.refillViaSwap(8, 0.1 ether, 1);
@@ -304,9 +304,21 @@ contract Adversarial is ForkBase {
 
     function test_route_config_guards() public {
         address a0 = vault.districtAsset(0); address a1 = vault.districtAsset(1);
-        vm.expectRevert(MapCityVaultUpgradeable.NotOwnerOrGuardian.selector);
+        vm.expectRevert(MapCityVaultUpgradeable.NotGuardian.selector);
         vault.setV3Route(0, abi.encodePacked(WBNB, uint24(2500), a0));
-        vm.startPrank(owner_);
+        vm.prank(owner_); // owner can no longer touch routes / feeds / slippage
+        vm.expectRevert(MapCityVaultUpgradeable.NotGuardian.selector);
+        vault.setV3Route(0, abi.encodePacked(WBNB, uint24(2500), a0));
+        vm.prank(owner_);
+        vm.expectRevert(MapCityVaultUpgradeable.NotGuardian.selector);
+        vault.setDistrictFeed(0, address(0));
+        vm.startPrank(guardian);
+        vm.expectRevert(MapCityVaultUpgradeable.BadRoute.selector); // unknown middle token
+        vault.setV3Route(0, abi.encodePacked(WBNB, uint24(2500), address(0xdead), uint24(2500), a0));
+        { address[] memory bad = new address[](3); bad[0] = WBNB; bad[1] = address(0xdead); bad[2] = a0;
+          vm.expectRevert(MapCityVaultUpgradeable.BadRoute.selector);
+          vault.setV2Route(0, bad); }
+        vault.setV3Route(3, abi.encodePacked(WBNB, uint24(100), USDT, uint24(2500), vault.districtAsset(3))); // USDT hop ok
         vm.expectRevert(MapCityVaultUpgradeable.BadRoute.selector); // wrong output token
         vault.setV3Route(0, abi.encodePacked(WBNB, uint24(2500), a1));
         vm.expectRevert(MapCityVaultUpgradeable.BadRoute.selector); // not starting from WBNB
