@@ -4291,6 +4291,21 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
         paid = totalGamePaid[district];
     }
 
+    /// @notice Whole-vault totals for UI: tax received, ops paid, BNB waiting in buckets, BNB already swapped.
+    function vaultStats()
+        external
+        view
+        returns (uint256 taxReceived, uint256 opsPaid, uint256 bucketsBnb, uint256 swappedBnb, uint256 vaultBnb)
+    {
+        taxReceived = totalTaxReceived;
+        opsPaid = totalOpsBnbPaid;
+        for (uint256 d = 0; d < DISTRICT_COUNT; d++) {
+            bucketsBnb += pendingBnb[d];
+            swappedBnb += totalBnbSpent[d];
+        }
+        vaultBnb = address(this).balance;
+    }
+
     function districtRoute(uint8 district)
         external
         view
@@ -4669,29 +4684,49 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
 
     function vaultUISchema() public pure override returns (VaultUISchema_1 memory schema) {
         schema.vaultType = "MapCityVault";
-        schema.description =
-            "Walk-to-store bStocks map rewards. Permissionless PancakeSwap refill, no admin payout path.";
-        schema.methods = new VaultMethodSchema_1[](2);
+        schema.description = "CATCH map rewards: 10% ops, 90% to 9 bStock buckets";
+        schema.methods = new VaultMethodSchema_1[](4);
 
-        schema.methods[0].name = "refillViaSwap";
-        schema.methods[0].description = "Swap a district BNB bucket into bStocks on PancakeSwap (oracle-guarded).";
-        schema.methods[0].isWriteMethod = true;
-        schema.methods[0].inputs = new FieldDescriptor_1[](3);
-        schema.methods[0].inputs[0] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
-        schema.methods[0].inputs[1] = FieldDescriptor_1("bnbIn", "uint256", "BNB from bucket", 18);
-        schema.methods[0].inputs[2] = FieldDescriptor_1("callerMinOut", "uint256", "Extra min out (0 ok)", 18);
+        schema.methods[0].name = "vaultStats";
+        schema.methods[0].description = "Totals";
+        schema.methods[0].outputs = new FieldDescriptor_1[](5);
+        schema.methods[0].outputs[0] = FieldDescriptor_1("taxReceived", "uint256", "BNB in", 18);
+        schema.methods[0].outputs[1] = FieldDescriptor_1("opsPaid", "uint256", "Ops 10%", 18);
+        schema.methods[0].outputs[2] = FieldDescriptor_1("bucketsBnb", "uint256", "Buckets", 18);
+        schema.methods[0].outputs[3] = FieldDescriptor_1("swappedBnb", "uint256", "Swapped", 18);
+        schema.methods[0].outputs[4] = FieldDescriptor_1("vaultBnb", "uint256", "Balance", 18);
 
-        schema.methods[1].name = "claimGameVoucher";
-        schema.methods[1].description = "Redeem a signed walk-to-store voucher. Reward always goes to `to`.";
-        schema.methods[1].isWriteMethod = true;
-        schema.methods[1].inputs = new FieldDescriptor_1[](7);
-        schema.methods[1].inputs[0] = FieldDescriptor_1("to", "address", "Player wallet", 0);
-        schema.methods[1].inputs[1] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
-        schema.methods[1].inputs[2] = FieldDescriptor_1("amount", "uint256", "Reward amount (1e18)", 18);
-        schema.methods[2].inputs[3] = FieldDescriptor_1("spawnId", "bytes32", "Map spawn id", 0);
-        schema.methods[2].inputs[4] = FieldDescriptor_1("nonce", "uint256", "Voucher nonce", 0);
-        schema.methods[2].inputs[5] = FieldDescriptor_1("deadline", "uint256", "Voucher deadline (unix)", 0);
-        schema.methods[2].inputs[6] = FieldDescriptor_1("signature", "bytes", "Server EIP-712 signature", 0);
+        schema.methods[1].name = "gameDistrictInfo";
+        schema.methods[1].description = "0-8 NVDA AAPL TSLA MSFT GOOGL SPCX QQQ MU SPY";
+        schema.methods[1].inputs = new FieldDescriptor_1[](1);
+        schema.methods[1].inputs[0] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
+        schema.methods[1].outputs = new FieldDescriptor_1[](6);
+        schema.methods[1].outputs[0] = FieldDescriptor_1("stock", "address", "Token", 0);
+        schema.methods[1].outputs[1] = FieldDescriptor_1("feed", "address", "Feed", 0);
+        schema.methods[1].outputs[2] = FieldDescriptor_1("bnbBucket", "uint256", "Bucket BNB", 18);
+        schema.methods[1].outputs[3] = FieldDescriptor_1("pool", "uint256", "Pool", 18);
+        schema.methods[1].outputs[4] = FieldDescriptor_1("funded", "uint256", "Bought", 18);
+        schema.methods[1].outputs[5] = FieldDescriptor_1("paid", "uint256", "Paid", 18);
+
+        schema.methods[2].name = "refillViaSwap";
+        schema.methods[2].description = "Swap bucket to bStock";
+        schema.methods[2].isWriteMethod = true;
+        schema.methods[2].inputs = new FieldDescriptor_1[](3);
+        schema.methods[2].inputs[0] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
+        schema.methods[2].inputs[1] = FieldDescriptor_1("bnbIn", "uint256", "BNB", 18);
+        schema.methods[2].inputs[2] = FieldDescriptor_1("callerMinOut", "uint256", "Min out", 18);
+
+        schema.methods[3].name = "claimGameVoucher";
+        schema.methods[3].description = "Redeem voucher";
+        schema.methods[3].isWriteMethod = true;
+        schema.methods[3].inputs = new FieldDescriptor_1[](7);
+        schema.methods[3].inputs[0] = FieldDescriptor_1("to", "address", "Player", 0);
+        schema.methods[3].inputs[1] = FieldDescriptor_1("district", "uint8", "District 0-8", 0);
+        schema.methods[3].inputs[2] = FieldDescriptor_1("amount", "uint256", "Amount", 18);
+        schema.methods[3].inputs[3] = FieldDescriptor_1("spawnId", "bytes32", "Spawn", 0);
+        schema.methods[3].inputs[4] = FieldDescriptor_1("nonce", "uint256", "Nonce", 0);
+        schema.methods[3].inputs[5] = FieldDescriptor_1("deadline", "uint256", "Deadline", 0);
+        schema.methods[3].inputs[6] = FieldDescriptor_1("signature", "bytes", "Sig", 0);
     }
 
     uint256[30] private __gap;

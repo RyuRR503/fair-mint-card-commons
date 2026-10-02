@@ -30,3 +30,16 @@ contract UpgradeTest is Test {
         assertTrue(f.isVaultUpgradesLocked());
     }
 }
+
+contract SchemaTest is Test {
+    function test_schemaReadable() public {
+        vm.chainId(56);
+        MapCityVaultUpgradeable v = new MapCityVaultUpgradeable();
+        VaultUISchema_1 memory s = v.vaultUISchema();
+        assertEq(s.methods.length, 4);
+        assertEq(s.methods[0].outputs.length, 5);
+        assertEq(s.methods[3].inputs.length, 7);
+        (uint256 a,,,,) = v.vaultStats();
+        assertEq(a, 0);
+    }
+}
