@@ -36,7 +36,7 @@ function Docs() {
 
   return (
     <>
-      <Section
+      <Section hero
         eyebrow={tr("docs", "文档")}
         title={tr("The whole machine, written down.", "整台机器，全部写下来。")}
         lead={tr(

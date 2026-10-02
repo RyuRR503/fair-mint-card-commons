@@ -25,7 +25,7 @@ function Download() {
   const t = useT();
   return (
     <>
-      <Section
+      <Section hero
         eyebrow={t("get the app", "下载客户端")}
         title={t("The map fits in a pocket.", "把地图装进口袋。")}
         lead={t(

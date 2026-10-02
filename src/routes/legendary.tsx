@@ -78,7 +78,7 @@ function Legendary() {
 
   return (
     <>
-      <Section
+      <Section hero
         eyebrow={t("the legendary", "传奇掉落")}
         title={t("One whole share. One place. One winner.", "一整股。一个地点。一个赢家。")}
         lead={t(

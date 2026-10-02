@@ -88,7 +88,7 @@ function Proof() {
 
   return (
     <>
-      <Section
+      <Section hero
         eyebrow={t("proof of reserves", "储备证明")}
         title={t("Nothing is minted. Count it yourself.", "不增发。你自己数。")}
         lead={t(

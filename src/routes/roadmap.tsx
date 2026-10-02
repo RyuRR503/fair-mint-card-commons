@@ -216,7 +216,7 @@ function Roadmap() {
   const t = useT();
   return (
     <>
-      <Section
+      <Section hero
         eyebrow={t("roadmap", "路线图")}
         title={t("Where this goes next. And what is in the way.", "接下来往哪走，以及路上有什么。")}
         lead={t(

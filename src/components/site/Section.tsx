@@ -14,7 +14,9 @@ export function Section({
   className,
   id,
   index,
+  hero,
 }: {
+  hero?: boolean;
   eyebrow?: React.ReactNode;
   title?: React.ReactNode;
   lead?: React.ReactNode;
@@ -25,7 +27,7 @@ export function Section({
   index?: string;
 }) {
   return (
-    <section id={id} className={cn("mx-auto mt-32 max-w-6xl px-5 sm:mt-40", className)}>
+    <section id={id} className={cn("mx-auto max-w-6xl px-5", hero ? "mt-14 border-b border-border pb-12 sm:mt-20 sm:pb-14" : "mt-24 sm:mt-32", className)}>
       <Reveal>
       {(eyebrow || index) && (
         <div className="flex items-center gap-4">
@@ -34,7 +36,7 @@ export function Section({
         </div>
       )}
       {title && (
-        <h2 className="mt-6 max-w-3xl text-balance text-[2.1rem] leading-[1.15] sm:text-[3.25rem]">
+        <h2 className={cn("mt-6 max-w-4xl text-balance", hero ? "text-[2.6rem] leading-[1.08] sm:text-[4.5rem]" : "text-[2.1rem] leading-[1.15] sm:text-[3.25rem]")}>
           {title}
         </h2>
       )}
@@ -59,7 +61,7 @@ export function Panel({
   return (
     <div
       className={cn(
-        "plate rounded-md p-6 transition-all duration-500 sm:p-8",
+        "plate lift-card rounded-xl p-6 sm:p-8",
         className,
       )}
     >
