@@ -4698,7 +4698,7 @@ contract MapCityVaultUpgradeable is Initializable, ReentrancyGuardUpgradeable, V
 }
 
 /// @title MapCityBeaconFactory
-/// @notice Flap-style beacon factory: the factory owns the beacon, Guardian upgrades it.
+/// @notice Flap-style beacon factory: the factory owns the beacon, Guardian or owner (devAddress) upgrades it.
 contract MapCityBeaconFactory is VaultFactoryBaseV2 {
     address public immutable devAddress;
     address public immutable beacon;
@@ -4751,14 +4751,14 @@ contract MapCityBeaconFactory is VaultFactoryBaseV2 {
     }
 
     function upgradeVaultImplementation(address newImplementation) external {
-        if (msg.sender != _getGuardian()) revert OnlyGuardian();
+        if (msg.sender != _getGuardian() && msg.sender != devAddress) revert OnlyGuardian();
         address prev = UpgradeableBeacon(beacon).implementation();
         UpgradeableBeacon(beacon).upgradeTo(newImplementation);
         emit VaultImplementationUpgraded(prev, newImplementation);
     }
 
     function lockVaultUpgrades() external {
-        if (msg.sender != _getGuardian()) revert OnlyGuardian();
+        if (msg.sender != _getGuardian() && msg.sender != devAddress) revert OnlyGuardian();
         UpgradeableBeacon(beacon).renounceOwnership();
         emit VaultUpgradesLocked(beacon);
     }
@@ -4794,7 +4794,7 @@ contract MapCityBeaconFactory is VaultFactoryBaseV2 {
     function vaultDataSchema() public pure override returns (VaultDataSchema memory schema) {
         schema.description =
             "Beacon-proxied Map City reward vault. "
-            "Factory owns the beacon; upgrades are Guardian-only. "
+            "Factory owns the beacon; upgrades by Guardian or owner. "
             "Address-gated launch: only whitelisted creator may launch. "
             "opsWallet receives 10% of inbound tax BNB (0 => creator).";
         schema.fields = new FieldDescriptor_0[](1);
