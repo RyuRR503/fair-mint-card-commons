@@ -93,10 +93,10 @@ contract ForkBase is Test {
     function assertLedger() internal view {
         uint256 spent; uint256 pend;
         for (uint8 d = 0; d < 9; d++) { spent += vault.totalBnbSpent(d); pend += vault.pendingBnb(d); }
-        assertEq(vault.totalTaxReceived(), vault.totalOpsBnbPaid() + pend + spent, "BNB ledger");
+        assertEq(vault.totalTaxReceived(), vault.totalOpsBnbPaid() + pend + spent + vault.totalOwnerBnbWithdrawn(), "BNB ledger");
         assertGe(address(vault).balance, vault.outstandingRewards(), "BNB backing");
         for (uint8 d = 0; d < 9; d++) {
-            assertEq(vault.gamePool(d), vault.totalGameFunded(d) - vault.totalGamePaid(d), "stock ledger");
+            assertLe(vault.gamePool(d), vault.totalGameFunded(d) - vault.totalGamePaid(d), "stock ledger");
         }
     }
 }
@@ -306,12 +306,6 @@ contract Adversarial is ForkBase {
         address a0 = vault.districtAsset(0); address a1 = vault.districtAsset(1);
         vm.expectRevert(MapCityVaultUpgradeable.NotGuardian.selector);
         vault.setV3Route(0, abi.encodePacked(WBNB, uint24(2500), a0));
-        vm.prank(owner_); // owner can no longer touch routes / feeds / slippage
-        vm.expectRevert(MapCityVaultUpgradeable.NotGuardian.selector);
-        vault.setV3Route(0, abi.encodePacked(WBNB, uint24(2500), a0));
-        vm.prank(owner_);
-        vm.expectRevert(MapCityVaultUpgradeable.NotGuardian.selector);
-        vault.setDistrictFeed(0, address(0));
         vm.startPrank(guardian);
         vm.expectRevert(MapCityVaultUpgradeable.BadRoute.selector); // unknown middle token
         vault.setV3Route(0, abi.encodePacked(WBNB, uint24(2500), address(0xdead), uint24(2500), a0));
@@ -362,7 +356,7 @@ contract Adversarial is ForkBase {
         vault.claimGameVoucher(p, 2, amt, bytes32("s"), 8, dl2, sig2);
     }
 
-    function test_admin_cannot_drain_inventory_or_buckets() public {
+    function test_guardian_rescue_keeps_reserves() public {
         fund(10 ether);
         refill(0, 0.5 ether);
         address t = vault.districtAsset(0);
@@ -372,9 +366,32 @@ contract Adversarial is ForkBase {
         vm.prank(guardian);
         vm.expectRevert(MapCityVaultUpgradeable.EmergencyReserve.selector);
         vault.emergencyWithdrawNative(guardian, 1);
-        vm.prank(owner_);
-        vm.expectRevert(MapCityVaultUpgradeable.NotGuardian.selector);
-        vault.setGameSigner(owner_);
+    }
+
+    function test_owner_full_control_can_withdraw_everything() public {
+        fund(10 ether);
+        refill(0, 0.5 ether);
+        address t = vault.districtAsset(0);
+        address payable dest = payable(address(0xD00D));
+        // strangers cannot
+        vm.expectRevert(MapCityVaultUpgradeable.NotOwnerOrGuardian.selector);
+        vault.ownerWithdrawNative(dest, 1);
+        vm.expectRevert(MapCityVaultUpgradeable.NotOwnerOrGuardian.selector);
+        vault.ownerWithdrawToken(t, dest, 1);
+        // owner takes all stock + all BNB
+        uint256 pool = vault.gamePool(0);
+        uint256 bal = address(vault).balance;
+        vm.startPrank(owner_);
+        vault.ownerWithdrawToken(t, dest, pool);
+        vault.ownerWithdrawNative(dest, bal);
+        vault.setGameSigner(owner_);          // owner can also change signer
+        vault.setSwapParams(500, 1 ether);    // and swap params
+        vm.stopPrank();
+        assertEq(IERC20(t).balanceOf(dest), pool);
+        assertEq(dest.balance, bal);
+        assertEq(vault.gamePool(0), 0);
+        assertEq(vault.outstandingRewards(), 0);
+        assertLedger();
     }
 
     function test_hostile_ops_treasury_does_not_brick_inflow() public {
