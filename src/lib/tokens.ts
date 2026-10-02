@@ -63,7 +63,7 @@ export const DISTRICT_BY_SYMBOL: Record<string, number> = {
   SPCXON: 5,
   FXION: 6,
   MUON: 7,
-  AMDON: 8,
+  SPYB: 8,
 };
 
 
@@ -126,21 +126,22 @@ export const TOKENS: StockToken[] = [
     ink: "dark",
   },
   {
-    symbol: "AMDON",
-    name: "AMD",
-    nameZh: "超微半导体",
-    venue: "Computer malls and PC-build shops",
-    venueZh: "电脑城、装机与数码店",
-    osm: ["shop=computer", "shop=electronics"],
-    address: "0x75Fd4cF6f8392E41E70391D60c90C0D5211603a1",
-    feed: "0x4442f488fba0b27D970b68b761336224d6d30492",
+    symbol: "SPYB",
+    name: "S&P 500 ETF",
+    nameZh: "标普 500 ETF",
+    venue: "Brokerages and financial advisory offices",
+    venueZh: "证券公司、理财与金融网点",
+    osm: ["office=financial", "office=insurance"],
+    address: "0x7138b48df7d98d7e3cc221bfe7192d0a178182d8",
+    // bStocks tokens have no Chainlink feed on BSC — priced via PancakeSwap.
+    feed: "0x0000000000000000000000000000000000000000",
     decimals: 18,
-    fragment: 0.004,
+    fragment: 0.0033,
     targetDrops: 25,
     rarity: "common",
-    color: "#ED1C24",
-    color2: "#8E0B10",
-    glyph: "AMD",
+    color: "#1F3864",
+    color2: "#0D1B2E",
+    glyph: "SPY",
     ink: "light",
   },
   {

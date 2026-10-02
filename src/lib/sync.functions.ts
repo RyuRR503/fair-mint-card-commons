@@ -92,7 +92,7 @@ function symbolFor(tags: Record<string, string>): string | null {
   }
   if (shop === "mobile_phone") return ANDROID.test(text) ? "GOOGLON" : "MUON";
   if (amenity === "internet_cafe" || tags["leisure"] === "adult_gaming_centre") return "NVDAON";
-  if (shop === "computer" || shop === "electronics") return "AMDON";
+  if (tags["office"] === "financial" || tags["office"] === "insurance") return "SPYB";
   if (shop === "video_games" || shop === "stationery") return "MSFTON";
   if (amenity === "bank") return "FXION";
   return null;
@@ -117,6 +117,8 @@ export const importCityPlaces = createServerFn({ method: "POST" })
       'nwr["leisure"="adult_gaming_centre"]',
       'nwr["shop"="computer"]',
       'nwr["shop"="electronics"]',
+      'nwr["office"="financial"]',
+      'nwr["office"="insurance"]',
       'nwr["shop"="mobile_phone"]',
       'nwr["shop"="video_games"]',
       'nwr["shop"="stationery"]',
