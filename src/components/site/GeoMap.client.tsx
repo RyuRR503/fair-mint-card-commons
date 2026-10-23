@@ -358,6 +358,73 @@ export default function GeoMap({
     }
   }, [pins, selected, onSelect]);
 
+  // the next legendary drop: one gold marker, tap for the event card
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !legendary) return;
+
+    const el = document.createElement("button");
+    el.type = "button";
+    el.className = "catch-legend";
+    el.title = tRef.current("Legendary event", "传奇活动");
+    el.innerHTML =
+      `<span class="catch-legend-dot"></span>` +
+      `<span class="catch-legend-label">SPCX · ${tRef.current("legendary", "传奇")}</span>`;
+
+    const popup = new maplibregl.Popup({
+      closeButton: true,
+      closeOnClick: true,
+      offset: 14,
+      maxWidth: "280px",
+      className: "catch-popup",
+    });
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onSelectPoint?.(legendary.id);
+      m.flyTo({ center: [legendary.lng, legendary.lat], zoom: 13, duration: 1200, essential: true });
+
+      const tr = tRef.current;
+      const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&", "<": "<", ">": ">" })[c]!);
+      const start = new Date(legendary.startsAt).getTime();
+      const end = start + legendary.durationMin * 60000;
+      const now = Date.now();
+      const live = now >= start && now <= end;
+      const mins = live ? Math.max(1, Math.ceil((end - now) / 60000)) : Math.max(1, Math.ceil((start - now) / 60000));
+      const status = live
+        ? { cls: "is-on", text: tr(`Live now · open for about ${mins} more min`, `正在进行 · 剩余约 ${mins} 分钟`) }
+        : {
+            cls: "is-far",
+            text: tr(
+              `Opens in about ${mins >= 60 ? `${Math.floor(mins / 60)}h ${mins % 60}m` : `${mins}m`}`,
+              `约 ${mins >= 60 ? `${Math.floor(mins / 60)} 小时 ${mins % 60} 分` : `${mins} 分钟`}后开始`,
+            ),
+          };
+      popup
+        .setLngLat([legendary.lng, legendary.lat])
+        .setHTML(
+          `<div class="catch-pop" style="--pin:${rarityVar("legendary")}">
+            <div class="catch-pop-top">
+              <span class="catch-pop-sym">SPCXB</span>
+              <span class="catch-pop-rar">${esc(tr(RARITY_LABEL.legendary, "传说"))}</span>
+            </div>
+            <div class="catch-pop-amt">1 <span>SPCXB</span></div>
+            <div class="catch-pop-place">${esc(legendary.place)} · ${esc(legendary.city)}</div>
+            <div class="catch-pop-time">${esc(new Date(legendary.startsAt).toLocaleString())}</div>
+            <div class="catch-pop-status ${status.cls}">${esc(status.text)}</div>
+            <div class="catch-pop-hint">${esc(tr("Timed event only — it has no permanent store pins. Rules on the legendary page.", "传奇为限时活动，无常驻点位，规则见「传奇活动」页。"))}</div>
+          </div>`,
+        )
+        .addTo(m);
+    });
+
+    const mk = new maplibregl.Marker({ element: el, anchor: "center" })
+      .setLngLat([legendary.lng, legendary.lat])
+      .addTo(m);
+    return () => {
+      mk.remove();
+    };
+  }, [legendary, onSelectPoint]);
+
   // own position: a pulsing dot plus the catch radius drawn to scale
   useEffect(() => {
     const m = map.current;
