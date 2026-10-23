@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
-import { ArrowUpRight } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowDown, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
 import cityGold from "@/assets/catch-city-gold.jpg";
-import { CitySignals } from "@/components/site/CitySignals";
 import { CityMarketScene } from "@/components/site/CityMarketScene";
 import { CatchLettering } from "@/components/site/CatchLettering";
 import { Section, Panel } from "@/components/site/Section";
@@ -52,6 +51,7 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const t = useT();
+  const [motionPaused, setMotionPaused] = useState(false);
   const summary = Route.useLoaderData();
   const points = useMapPoints();
   const TOTAL_SPAWNS = summary.totalSpawns;
@@ -72,23 +72,22 @@ function Home() {
   );
 
   return (
-    <div className="home-continuum">
+    <div className="home-continuum" data-motion-paused={motionPaused}>
       {/* ---------------------------------------------------------- hero */}
       <div className="city-scroll-stage" aria-hidden="true">
         <div className="city-scroll-backdrop">
         <div className="city-depth city-depth--far" data-city-depth="far" aria-hidden="true">
           <img src={cityGold} alt="" width={1920} height={1024} fetchPriority="high" className="city-cover size-full object-cover object-[64%_center] sm:object-center" />
         </div>
-        <div aria-hidden className="city-hero-shade absolute inset-0 -z-10" />
-        <CitySignals />
-        <CityMarketScene />
+        <div aria-hidden className="city-hero-shade absolute inset-0" />
+        <CityMarketScene paused={motionPaused} />
         </div>
       </div>
       <section className="agent-hero relative overflow-hidden px-5 pb-6 pt-6 sm:pt-8">
         <div className="mx-auto max-w-6xl">
-          <div className="reveal-focus flex items-center justify-between gap-6 border-b border-border pb-5">
+          <div className="hero-topline flex items-center justify-between gap-6 border-b border-border pb-5">
             <span className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="size-2 animate-pulse rounded-full bg-primary" />
+              <span className="size-1.5 rounded-full bg-primary" />
               {CHAIN.name} · {t("Map available · Agent integration pending", "地图可浏览 · Agent 接入中")}
             </span>
             <span className="readout hidden sm:block">
@@ -96,22 +95,22 @@ function Home() {
             </span>
           </div>
 
-          <div className="relative py-10 sm:py-12 lg:py-14">
-            <div className="reveal-focus min-w-0 max-w-2xl">
-              <p className="label-caps text-xs text-primary">
+          <div className="hero-composition relative py-10 sm:py-12 lg:py-14">
+            <div className="hero-copy min-w-0 max-w-2xl">
+              <p className="hero-kicker label-caps text-xs text-primary">
                 {t("Real-world stock fragments × Binance Agentic Wallet", "真实世界美股碎片 × 币安 Agent AI 钱包")}
               </p>
-              <CatchLettering className="mt-6 w-[320px] max-w-full sm:w-[520px]" />
-              <h1 className="mt-5 max-w-xl text-balance text-[1.75rem] leading-[1.3] sm:text-[2.5rem]">
+              <div className="hero-lettering"><CatchLettering className="mt-6 w-[320px] max-w-full sm:w-[520px]" /></div>
+              <h1 className="hero-heading mt-5 max-w-xl text-balance text-[1.75rem] leading-[1.3] sm:text-[2.5rem]">
                 {t("You explore. Your Agent claims.", "你走进城市，Agent 抓住市场。")}
               </h1>
-              <p className="mt-6 max-w-lg border-l-2 border-primary pl-5 text-sm leading-[1.9] text-foreground/75 sm:text-base">
+              <p className="hero-description mt-6 max-w-lg border-l border-primary/50 pl-5 text-sm leading-[1.9] text-foreground/75 sm:text-base">
                 {t(
                   "Walk to a real venue with your phone. In the planned flow, GPS checks unlock a one-time command for your AI, and only its Agent Wallet can claim the stock fragment.",
                   "真人带手机到店，定位通过后取得一次性指令；把指令交给 AI，由币安 Agent 钱包领取美股碎片。普通钱包不能领，所有稀有度都一样。",
                 )}
               </p>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div className="hero-actions mt-8 flex flex-wrap items-center gap-3">
                 <Button asChild size="lg" className="btn-arrow agent-cta h-12 rounded-sm px-7 font-bold">
                   <Link to="/app">{t("Explore the Agent map", "打开 Agent 地图")} <ArrowUpRight className="arrow" /></Link>
                 </Button>
@@ -122,6 +121,11 @@ function Home() {
             </div>
 
 
+          </div>
+
+          <div className="hero-scene-controls flex items-center justify-between gap-4">
+            <a href="#agent-journey" className="hero-scroll-link flex items-center gap-3 text-xs text-muted-foreground"><ArrowDown className="size-4 text-primary" />{t("Human × Agent", "真人 × Agent")}<span className="font-mono text-primary">01 / 03</span></a>
+            <Button variant="ghost" size="icon" className="scene-playback size-9 text-muted-foreground" onClick={() => setMotionPaused((value) => !value)} aria-pressed={motionPaused} aria-label={t(motionPaused ? "Resume animation" : "Pause animation", motionPaused ? "继续动效" : "暂停动效")} title={t(motionPaused ? "Resume animation" : "Pause animation", motionPaused ? "继续动效" : "暂停动效")}>{motionPaused ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}</Button>
           </div>
 
           {/* big numbers */}
@@ -157,7 +161,7 @@ function Home() {
       </div>
 
 
-      <section className="city-handoff mx-auto max-w-6xl px-5 py-12 sm:py-16" data-scroll-shot="journey"><AgentJourney /></section>
+      <section id="agent-journey" className="city-handoff mx-auto max-w-6xl px-5 py-12 sm:py-16" data-scroll-shot="journey"><AgentJourney /></section>
 
       {/* ---------------------------------------------------------- map */}
       <section className="city-map-arrival mx-auto mt-10 max-w-6xl px-5" data-scroll-shot="map">
