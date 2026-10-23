@@ -25,3 +25,4 @@
 - SiteMotion owns decorative reading progress and section emphasis; shared Reveal provides hydration-safe staggered entrances, while CityMarketScene owns the desktop sticky Agent journey. Preserve native scrolling, reduced-motion and playback fallbacks so motion never gates content or touches claim logic.
 
 - Agent claim presentation policy lives in src/lib/agent-claims.ts and shared AgentJourney UI; while integration is pending, the map page must not issue vouchers or submit legacy browser-wallet claims, so previews cannot appear to award real assets.
+- Published hosts are gated to /coming-soon by the root beforeLoad (src/lib/site-gate.ts); preview/dev hosts see the full site, so development stays previewable before launch.
