@@ -359,6 +359,13 @@ export const claimDrop = createServerFn({ method: "POST" })
         "这个钱包没有币安 Agent ID，只有 Agent 钱包才能领取。",
       );
 
+    // Owner-listed test wallets skip the presence checks (still need Agent ID, inventory and signature).
+    const tester = (process.env["TEST_CLAIM_WALLETS"] ?? "")
+      .toLowerCase()
+      .split(",")
+      .map((w) => w.trim())
+      .includes(wallet);
+
     // 1. accuracy + radius
     if (data.accuracy > RULES.maxAccuracyM)
       return fail(
@@ -373,6 +380,7 @@ export const claimDrop = createServerFn({ method: "POST" })
         `你距离点位还有 ${Math.round(distance)} 米，请走到 ${spawn.place} ${Math.round(radius)} 米以内。`,
       );
 
+    if (!tester) {
     // 2. proof of presence: a real chipset wobbles
     if (data.samples.length < RULES.minFixSamples)
       return fail(
@@ -398,10 +406,12 @@ export const claimDrop = createServerFn({ method: "POST" })
     if (data.motion === 0)
       return fail("No motion at all from the device. Hold the phone in your hand and try again.", "未检测到手机晃动，请拿着手机再试一次。");
 
+    }
     const db = await admin();
     const now = Date.now();
     const dayAgo = new Date(now - 864e5).toISOString();
 
+    if (!tester) {
     // 4. caps
     const { data: walletDay } = await db
       .from("catches")
@@ -422,6 +432,7 @@ export const claimDrop = createServerFn({ method: "POST" })
         `冷却中：还需 ${Math.ceil((RULES.walletCooldownMin * 60000 - (now - lastMine)) / 60000)} 分钟才能再领。`,
       );
 
+    }
     // the drop's own cooldown is authoritative and was checked above (respawn_at)
 
     // 4b. whole-site hourly payout ceiling, priced in USD (Grass-style)
@@ -458,6 +469,7 @@ export const claimDrop = createServerFn({ method: "POST" })
         );
     }
 
+    if (!tester) {
     // 5. travel: no teleporting, no city hopping
     const { data: fixes } = await db
       .from("position_log")
@@ -487,6 +499,7 @@ export const claimDrop = createServerFn({ method: "POST" })
     if (Math.abs(-data.tzOffsetMin - expectedOffset) > RULES.clockSkewHours * 60)
       return fail("Your device clock does not match the timezone of that place.", "手机时区与点位所在地不符。");
 
+    }
     // record the fix, then the catch
     await db.from("position_log").insert({
       wallet,
