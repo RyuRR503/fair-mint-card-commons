@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Recompose all four 1500×500 banners with individually sized and positioned CATCH lettering, preserving the final logo's yellow-to-gold palette without forcing hero typography.
+- [x] Recompose all four 1500×500 banners with individually sized and positioned CATCH lettering, preserving the final logo's yellow-to-gold palette without forcing hero typography; inspect all final compositions and deliver v4 collection.
 - [x] Refine black-gold navigation, mobile stock list and shared visual details; verify interactions and reduced motion.
 - [x] Replace warm yellow city treatment with a cool neutral Agent visual direction.
 - [x] Add intentional city motion, signal details and Agent flow micro-interactions with reduced-motion support.
