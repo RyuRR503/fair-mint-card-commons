@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useLang, useT } from "@/lib/i18n";
@@ -76,24 +76,34 @@ export function SiteHeader() {
   const { lang } = useLang();
   const NAV = useNav();
   const navText = lang === "zh" ? "text-[13px]" : "text-[10px]";
-
+  const menuToggle = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      menuToggle.current?.focus();
+    }
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [open]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 px-3 py-3 backdrop-blur-xl sm:px-5">
+    <header className="site-header sticky top-0 z-40 border-b border-border/60 bg-background/85 px-3 py-3 backdrop-blur-xl sm:px-5">
       <div className="mx-auto flex max-w-6xl items-center gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="CATCH home">
           <CatchMark />
           <span className="font-poster text-3xl text-foreground">CATCH</span>
         </Link>
 
-        <nav className="hidden flex-1 items-center justify-center gap-0.5 lg:flex">
+        <nav aria-label={t("Main navigation", "主导航")} className="hidden flex-1 items-center justify-center gap-0.5 xl:flex">
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               activeOptions={{ exact: item.to === "/" }}
-              activeProps={{ className: "!text-primary border-b-primary" }}
-              className={`label-caps border-b-2 border-transparent px-2.5 py-2 ${navText} text-muted-foreground transition-colors hover:text-foreground`}
+              activeProps={{ className: "!text-primary is-active" }}
+              className={`site-nav-link label-caps px-2.5 py-2 ${navText} text-muted-foreground transition-colors hover:text-foreground`}
             >
               {item.label}
             </Link>
@@ -101,19 +111,22 @@ export function SiteHeader() {
         </nav>
 
 
-        <div className="ml-auto flex items-center gap-2 lg:ml-0">
+        <div className="ml-auto flex items-center gap-2 xl:ml-0">
           <LangToggle className="hidden sm:flex" />
           <Button asChild className={`label-caps rounded-sm px-4 py-2.5 ${navText}`}>
             <Link to="/app">{t("Start hunting", "开始抓取")} <span aria-hidden>↗</span></Link>
           </Button>
 
           <Button
+            ref={menuToggle}
             variant="outline"
             size="icon"
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="grid size-10 place-items-center rounded-md border border-border lg:hidden"
+            className="grid size-10 place-items-center rounded-md border border-border xl:hidden"
             aria-label={t("Toggle menu", "菜单")}
+            aria-expanded={open}
+            aria-controls="mobile-navigation"
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </Button>
@@ -121,20 +134,21 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <nav className="glass-panel mx-auto mt-2 grid max-w-6xl gap-1 rounded-md p-3 lg:hidden">
-          {NAV.map((item) => (
+        <nav id="mobile-navigation" aria-label={t("Main navigation", "主导航")} className="mobile-navigation mx-auto mt-3 grid max-h-[calc(100dvh-90px)] max-w-6xl grid-cols-2 gap-1 overflow-y-auto border-t border-border pt-3 xl:hidden">
+          {NAV.map((item, i) => (
             <Link
               key={item.to}
               to={item.to}
               onClick={() => setOpen(false)}
               activeOptions={{ exact: item.to === "/" }}
-              activeProps={{ className: "!text-primary border-b-primary" }}
-              className={`label-caps rounded-md px-4 py-3 ${lang === "zh" ? "text-[14px]" : "text-[11px]"} text-muted-foreground`}
+              activeProps={{ className: "!text-primary bg-primary/10" }}
+              className={`flex items-center gap-3 rounded-md px-3 py-3 ${lang === "zh" ? "text-[14px]" : "text-[12px]"} text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground`}
             >
+              <span aria-hidden className="font-mono text-[10px] text-primary/60">0{i + 1}</span>
               {item.label}
             </Link>
           ))}
-          <LangToggle className="mt-2 w-fit sm:hidden" />
+          <LangToggle className="col-span-2 mt-2 w-fit sm:hidden" />
         </nav>
       )}
     </header>

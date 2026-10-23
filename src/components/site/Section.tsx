@@ -61,7 +61,7 @@ export function Panel({
   return (
     <div
       className={cn(
-        "plate lift-card rounded-xl p-6 sm:p-8",
+        "plate rounded-md p-6 sm:p-8",
         className,
       )}
     >

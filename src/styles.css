@@ -721,7 +721,8 @@ html[lang^="zh"] h2 {
 }
 .city-hero-shade { background: var(--hero-shade); }
 .gold-wordmark { background: var(--metallic-gold); background-clip: text; -webkit-background-clip: text; color: transparent; }
-.agent-wordmark { background: var(--metallic-gold); background-size: 200% 100%; background-clip: text; -webkit-background-clip: text; color: transparent; animation: metallic-pass 9s ease-in-out infinite; }
+.agent-wordmark { position: relative; width: fit-content; background: var(--metallic-gold); background-clip: text; -webkit-background-clip: text; color: transparent; }
+.agent-wordmark::after { content: "CATCH."; position: absolute; inset: 0; color: var(--gold); clip-path: polygon(0 0, 22% 0, 0 100%); opacity: 0; animation: wordmark-light 12s ease-in-out infinite; pointer-events: none; }
 .city-cover { animation: city-breathe 22s ease-in-out infinite alternate; transform-origin: 72% 50%; }
 .city-signals { position: absolute; inset: 0; pointer-events: none; z-index: -1; }
 .city-signal { position: absolute; display: grid; grid-template-columns: 24px auto; gap: 6px 10px; color: var(--accent); opacity: 0; animation: city-signal 9s ease-in-out infinite; }
@@ -747,6 +748,7 @@ html[lang^="zh"] h2 {
 .command-reveal { animation: reveal-focus 500ms var(--ease-cine) both; }
 .terminal-caret { color: var(--accent); animation: caret-blink 1.2s steps(1) infinite; }
 @keyframes metallic-pass { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes wordmark-light { 0%, 70%, 100% { opacity: 0; transform: translateX(0); } 78% { opacity: 0.45; } 92% { opacity: 0; transform: translateX(60%); } }
 @keyframes city-breathe { from { transform: scale(1); } to { transform: scale(1.045); } }
 @keyframes city-signal { 0%, 7%, 48%, 100% { opacity: 0; transform: translateY(6px); } 15%, 38% { opacity: 0.85; transform: translateY(0); } }
 @keyframes signal-dash { 0%, 100% { transform: scaleX(0.4); } 50% { transform: scaleX(1); } }
@@ -757,7 +759,25 @@ html[lang^="zh"] h2 {
   .city-cover, .agent-wordmark, .city-signal, .signal-dash, .agent-steps li::after, .terminal-caret { animation: none; }
   .city-signal { opacity: 0.6; transform: none; }
   .agent-cta:hover { transform: none; }
+  .agent-wordmark::after { animation: none; opacity: 0; }
 }
+
+/* Precision details: quiet navigation, clear focus, and composed data bands. */
+:root {
+  --header-shade: 0 8px 24px -20px color-mix(in oklab, var(--background-deep) 80%, transparent);
+  --ticker-edge: linear-gradient(90deg, transparent, var(--background) 4%, var(--background) 96%, transparent);
+}
+.site-header { box-shadow: var(--header-shade); }
+.site-nav-link { position: relative; }
+.site-nav-link::after { content: ""; position: absolute; bottom: 0; inset-inline: 10px; height: 1px; background: var(--primary); transform: scaleX(0); transform-origin: left; transition: transform 350ms var(--ease-cine); }
+.site-nav-link:hover::after, .site-nav-link.is-active::after { transform: scaleX(1); }
+.mobile-navigation { animation: reveal-focus 280ms var(--ease-cine) both; }
+.stock-ticker { mask-image: var(--ticker-edge); }
+.hero-stats > div { transition: background-color 400ms; }
+.hero-stats > div:hover { background: color-mix(in oklab, var(--primary) 3%, transparent); }
+a:focus-visible { outline: 2px solid var(--ring); outline-offset: 5px; border-radius: var(--radius); }
+html { scroll-padding-top: 90px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 @media (max-width: 639px) {
   .city-hero-shade { background: linear-gradient(90deg, color-mix(in oklab, var(--background) 92%, transparent), color-mix(in oklab, var(--background) 50%, transparent)), linear-gradient(0deg, var(--background), transparent 50%); }
 }

@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Refine black-gold navigation, mobile stock list and shared visual details; verify interactions and reduced motion.
 - [x] Replace warm yellow city treatment with a cool neutral Agent visual direction.
 - [x] Add intentional city motion, signal details and Agent flow micro-interactions with reduced-motion support.
 - [x] Verify homepage, preview interaction and desktop/mobile layout.
