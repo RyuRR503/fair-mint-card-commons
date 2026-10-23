@@ -116,7 +116,7 @@ async function hasAgentId(wallet: string): Promise<boolean | null> {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         jsonrpc: "2.0", id: 1, method: "eth_call",
-        params: [{ to: vaultAddress(), data: `0x5efc2b3b000000000000000000000000${wallet.slice(2).toLowerCase()}` }, "latest"],
+        params: [{ to: vaultAddress(), data: `0x4eab3ef2000000000000000000000000${wallet.slice(2).toLowerCase()}` }, "latest"],
       }),
     });
     const json = (await res.json()) as { result?: string };
