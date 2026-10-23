@@ -1,7 +1,10 @@
 /**
  * Shared, browser-safe pieces of the on-chain claim path.
- * The vault contract source lives in contracts/MapCityVault.sol.
+ * Uploaded VaultEx/Trigger revision: contracts/reference/MapCityBeaconFactory.flat.sol.
+ * ABI is generated with the source's exact Solidity 0.8.24 compiler.
  */
+import vaultAbi from "./contracts/MapCityVaultUpgradeable.abi.json";
+import factoryAbi from "./contracts/MapCityBeaconFactory.abi.json";
 
 export const VOUCHER_TYPES = {
   GameVoucher: [
@@ -18,38 +21,9 @@ export const EIP712_NAME = "MapCityVault";
 export const EIP712_VERSION = "1";
 export const VOUCHER_PRIMARY_TYPE = "GameVoucher";
 
-/** ABI of the single user-facing function plus the reads the site needs. */
-export const VAULT_ABI = [
-  {
-    type: "function",
-    name: "claimGameVoucher",
-    stateMutability: "nonpayable",
-    inputs: [
-      { name: "to", type: "address" },
-      { name: "district", type: "uint8" },
-      { name: "amount", type: "uint256" },
-      { name: "spawnId", type: "bytes32" },
-      { name: "nonce", type: "uint256" },
-      { name: "deadline", type: "uint256" },
-      { name: "signature", type: "bytes" },
-    ],
-    outputs: [],
-  },
-  {
-    type: "function",
-    name: "gamePool",
-    stateMutability: "view",
-    inputs: [{ name: "district", type: "uint256" }],
-    outputs: [{ name: "", type: "uint256" }],
-  },
-  {
-    type: "function",
-    name: "gameNonceUsed",
-    stateMutability: "view",
-    inputs: [{ name: "nonce", type: "uint256" }],
-    outputs: [{ name: "", type: "bool" }],
-  },
-] as const;
+/** Full compiled ABIs, including signer configuration, identity reads and claim errors. */
+export const VAULT_ABI = vaultAbi;
+export const FACTORY_ABI = factoryAbi;
 
 export type Voucher = {
   to: string;
