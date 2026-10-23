@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useLang, useT } from "@/lib/i18n";
-import { CatchLogo } from "@/components/site/CatchLogo";
+import catchLogo from "@/assets/catch-logo.png";
 
 function useNav() {
   const t = useT();
@@ -52,7 +52,14 @@ export function LangToggle({ className = "" }: { className?: string }) {
  * The CATCH logo, drawn in the site's primary token so it always matches.
  */
 export function CatchMark({ className = "" }: { className?: string }) {
-  return <CatchLogo className={`h-7 w-auto shrink-0 select-none ${className}`} />;
+  return (
+    <img
+      src={catchLogo}
+      alt="CATCH"
+      draggable={false}
+      className={`h-8 w-auto shrink-0 select-none ${className}`}
+    />
+  );
 }
 
 export function SiteHeader() {
