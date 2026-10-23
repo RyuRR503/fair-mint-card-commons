@@ -199,6 +199,9 @@ function Proof() {
                     </span>
                   </td>
                   <td className="px-6 py-4 font-mono text-xs">{r.balance.toFixed(4)}{r.onChain ? "" : " *"}</td>
+                  <td className="px-6 py-4 font-mono text-xs">
+                    {r.pendingBnb != null ? `${r.pendingBnb.toFixed(4)} BNB` : "—"}
+                  </td>
                   <td className="px-6 py-4 font-mono text-xs">{r.drops}</td>
                   <td className="px-6 py-4 font-mono text-xs">{r.targetDrops}</td>
                   <td className="px-6 py-4 text-xs">
