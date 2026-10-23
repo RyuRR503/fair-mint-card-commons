@@ -97,7 +97,10 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-6xl items-center gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="CATCH home">
           <CatchMark />
+          <span aria-hidden className="hidden h-5 w-px bg-border sm:block" />
+          <CatchWordmark />
         </Link>
+
 
         <nav aria-label={t("Main navigation", "主导航")} className="hidden min-w-0 flex-1 items-center justify-center gap-0 lg:flex">
           {NAV.map((item) => (
