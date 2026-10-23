@@ -978,3 +978,15 @@ html { scroll-padding-top: 90px; }
   .signal-lock, .signal-lock b, .city-signals .signal-tag, .city-signals .city-signal > small, .city-routes path { animation: none; opacity: 1; clip-path: none; transform: none; }
   .city-scroll-controller { display: none; }
 }
+
+/* Claim received: one gold ring and a rising amount, then gone. */
+.claim-celebrate { background: color-mix(in oklab, var(--background) 55%, transparent); animation: claim-fade 3.2s ease forwards; }
+.claim-celebrate-ring { position: absolute; width: 14rem; height: 14rem; border-radius: 9999px; border: 2px solid var(--primary); box-shadow: 0 0 60px color-mix(in oklab, var(--primary) 45%, transparent); animation: claim-ring 1.6s cubic-bezier(.2,.7,.2,1) forwards; }
+.claim-celebrate-card { position: relative; animation: claim-rise .9s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes claim-ring { from { transform: scale(.3); opacity: 1; } to { transform: scale(2.4); opacity: 0; } }
+@keyframes claim-rise { from { transform: translateY(18px) scale(.9); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes claim-fade { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .claim-celebrate-ring { animation: none; opacity: 0; }
+  .claim-celebrate-card { animation: none; }
+}

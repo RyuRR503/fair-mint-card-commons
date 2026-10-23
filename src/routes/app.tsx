@@ -8,7 +8,8 @@ import { type MapPin } from "@/components/site/WorldMap";
 import { LiveMap } from "@/components/site/LiveMap";
 import type { MapPoint } from "@/components/site/GeoMap.client";
 
-import { claimDrop, getSpawns, RULES } from "@/lib/game.functions";
+import { claimDrop, getClaimStatus, getSpawns, RULES } from "@/lib/game.functions";
+import { isPending, type ClaimPhase } from "@/lib/claim-status";
 import { buildAgentCommand } from "@/lib/agent-command";
 import { isPreviewHost } from "@/lib/site-gate";
 import { Input } from "@/components/ui/input";
@@ -16,13 +17,34 @@ import { catchRadius, formatDistance, haversine } from "@/lib/geo";
 import { CHAIN, RARITY_LABEL, rarityVar, TOKEN_BY_SYMBOL, VAULT_ADDRESS } from "@/lib/tokens";
 import type { Rarity } from "@/lib/tokens";
 import { Button } from "@/components/ui/button";
-import { Bot, Check, Copy, MapPin as MapPinIcon } from "lucide-react";
+import { Bot, Check, CircleCheck, Copy, ExternalLink, Loader2, MapPin as MapPinIcon } from "lucide-react";
 import { AgentStatus } from "@/components/site/AgentJourney";
 import { claimEligibility } from "@/lib/agent-claims";
 import { useT, useLang } from "@/lib/i18n";
 
 /** AI agents call from outside, so always point them at the public site — preview hosts sit behind a login wall (401). */
 const AGENT_CLAIM_API = "https://catch.fun/api/public/agent-claim";
+
+/** Claim codes this device received on site, kept locally so the page can follow them. */
+type MyClaim = { code: string; spawnId: string; symbol: string; amount: number; place: string; city: string; issuedAt: number };
+type ClaimState = { phase: ClaimPhase; txHash: string | null; wallet: string | null; amount: number | null; symbol: string | null };
+const MY_CLAIMS_KEY = "catch.myClaims";
+function loadMyClaims(): MyClaim[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(MY_CLAIMS_KEY) ?? "[]");
+    return Array.isArray(v) ? (v as MyClaim[]).slice(0, 30) : [];
+  } catch {
+    return [];
+  }
+}
+
+const PHASE_TEXT: Record<ClaimPhase, [string, string]> = {
+  waiting: ["Waiting for your AI…", "等待 AI 提交…"],
+  processing: ["AI is claiming on BSC…", "AI 处理中，正在链上领取…"],
+  claimed: ["Received", "已到账"],
+  expired: ["Code expired, not used", "领取码已过期，未使用"],
+  lapsed: ["Voucher expired, nothing sent", "凭证已过期，未到账"],
+};
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -84,6 +106,13 @@ function AppMap() {
 
 
   const [spawns, setSpawns] = useState<Spawn[]>([]);
+  const [cooling, setCooling] = useState<(Spawn & { respawnAt: string })[]>([]);
+  const [myClaims, setMyClaims] = useState<MyClaim[]>([]);
+  const [claimStates, setClaimStates] = useState<Record<string, ClaimState>>({});
+  const [celebrate, setCelebrate] = useState<null | { amount: number; symbol: string }>(null);
+  const [spawnTick, setSpawnTick] = useState(0);
+  const fetchStatus = useServerFn(getClaimStatus);
+  useEffect(() => setMyClaims(loadMyClaims()), []);
   const [fix, setFix] = useState<Fix | null>(null);
   const [geoError, setGeoError] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
@@ -94,9 +123,56 @@ function AppMap() {
   /* ------------------------------------------------------------- spawns */
   useEffect(() => {
     fetchSpawns({ data: fix ? { lat: fix.lat, lng: fix.lng, limit: 600 } : { limit: 600 } })
-      .then((r) => setSpawns(r.spawns as Spawn[]))
+      .then((r) => {
+        setSpawns(r.spawns as Spawn[]);
+        setCooling((r.cooling ?? []) as (Spawn & { respawnAt: string })[]);
+      })
       .catch(() => setNote(t("Could not load the map. Try again in a moment.", "地图加载失败，请稍后再试。")));
-  }, [fetchSpawns, fix?.lat, fix?.lng, t]);
+  }, [fetchSpawns, fix?.lat, fix?.lng, t, spawnTick]);
+
+  /* ------------------------------------------------ follow my claim codes */
+  const pendingCodes = myClaims.filter((c) => {
+    const st = claimStates[c.code];
+    return !st || isPending(st.phase);
+  }).map((c) => c.code);
+  const pendingKey = pendingCodes.join(",");
+  useEffect(() => {
+    if (!pendingKey) return;
+    let stop = false;
+    const tick = async () => {
+      try {
+        const r = await fetchStatus({ data: { codes: pendingKey.split(",") } });
+        if (stop) return;
+        setClaimStates((prev) => {
+          const next = { ...prev };
+          let changed = false;
+          for (const st of r.statuses) {
+            const before = prev[st.code]?.phase;
+            next[st.code] = { phase: st.phase, txHash: st.txHash, wallet: st.wallet, amount: st.amount, symbol: st.symbol };
+            if (before !== st.phase) changed = true;
+            if (before && before !== "claimed" && st.phase === "claimed" && st.amount != null && st.symbol)
+              setCelebrate({ amount: st.amount, symbol: st.symbol });
+          }
+          if (changed) setSpawnTick((n) => n + 1);
+          return next;
+        });
+      } catch {
+        /* try again on the next tick */
+      }
+    };
+    void tick();
+    const id = window.setInterval(tick, 8000);
+    return () => {
+      stop = true;
+      window.clearInterval(id);
+    };
+  }, [pendingKey, fetchStatus]);
+
+  useEffect(() => {
+    if (!celebrate) return;
+    const id = window.setTimeout(() => setCelebrate(null), 3200);
+    return () => window.clearTimeout(id);
+  }, [celebrate]);
 
   /* ---------------------------------------------------------- geolocation */
   const startGeo = useCallback(() => {
@@ -174,17 +250,31 @@ function AppMap() {
         amount: s.amount,
         lat: s.lat,
         lng: s.lng,
-      })),
-    [spawns],
+      })).concat(
+        cooling.map((s) => ({
+          id: s.id,
+          symbol: s.symbol,
+          rarity: s.rarity,
+          place: s.place,
+          cityKey: s.city,
+          amount: s.amount,
+          lat: s.lat,
+          lng: s.lng,
+          respawnAt: s.respawnAt,
+        })),
+      ),
+    [spawns, cooling],
   );
 
 
 
   const active = useMemo(() => {
-    const s = spawns.find((x) => x.id === selected) ?? null;
+    const s = spawns.find((x) => x.id === selected) ?? cooling.find((x) => x.id === selected) ?? null;
     if (!s) return null;
     return { ...s, distance: fix ? haversine(fix.lat, fix.lng, s.lat, s.lng) : null };
-  }, [spawns, selected, fix]);
+  }, [spawns, cooling, selected, fix]);
+  const activeCooling = active ? cooling.find((c) => c.id === active.id) ?? null : null;
+  const issuedState = issued && issued.spawnId === active?.id ? claimStates[issued.code] : undefined;
   const radius = fix ? catchRadius(fix.accuracy) : RULES.baseRadiusM;
   const inRange = !!(active && fix && (active.distance ?? Infinity) <= radius);
   const command = issued && issued.spawnId === active?.id ? buildAgentCommand({ lang: lang === "zh" ? "zh" : "en", api: AGENT_CLAIM_API, tokenAddress: TOKEN_BY_SYMBOL[issued.symbol]?.address ?? "", vaultAddress: VAULT_ADDRESS, ...issued }) : null;
@@ -213,7 +303,15 @@ function AppMap() {
         },
       });
       if (!r.ok) setClaimError({ en: r.error, zh: r.errorZh ?? r.error });
-      else setIssued({ spawnId: active.id, code: r.code, amount: r.spawn.amount, symbol: r.spawn.symbol, place: r.spawn.place, deadline: r.expiresAt, chainId: r.chainId });
+      else {
+        setIssued({ spawnId: active.id, code: r.code, amount: r.spawn.amount, symbol: r.spawn.symbol, place: r.spawn.place, deadline: r.expiresAt, chainId: r.chainId });
+        const rec: MyClaim = { code: r.code, spawnId: active.id, symbol: r.spawn.symbol, amount: r.spawn.amount, place: r.spawn.place, city: lang === "zh" ? active.cityNameZh : active.cityName, issuedAt: Date.now() };
+        setMyClaims((prev) => {
+          const next = [rec, ...prev.filter((c) => c.code !== rec.code)].slice(0, 30);
+          localStorage.setItem(MY_CLAIMS_KEY, JSON.stringify(next));
+          return next;
+        });
+      }
     } catch {
       setClaimError({ en: "Could not reach the claim server. Try again.", zh: "无法连接领取服务，请重试。" });
     } finally {
@@ -362,13 +460,24 @@ function AppMap() {
                   </Button>
                 )}
 <Button
-                  disabled={busy || !fix || claimEligibility(active.rarity, "agent") !== "ready"}
+                  disabled={busy || !fix || !!activeCooling || claimEligibility(active.rarity, "agent") !== "ready"}
                   onClick={getCommand}
                   className="mt-4 w-full"
                 >
                   <Bot />{busy ? t("Verifying location…", "正在校验定位…") : t("Get claim code", "获取领取码")}
                 </Button>
                 <p className="mt-2 text-xs text-muted-foreground">{!fix ? t("Enable location first and keep this page open for 20 seconds.", "请先开启定位，并保持页面打开 20 秒。") : inRange ? t("You are in range. Get the code and paste the whole instruction to your AI.", "你已在领取范围内。获取领取码后，把整段指令发给你的 AI 即可。") : t("Walk closer to the venue. AI cannot replace your presence.", "请走到点位附近；现场定位须由你本人完成。")}</p>
+                {activeCooling && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {t(
+                      `Taken. This point comes back in about ${Math.max(1, Math.ceil((new Date(activeCooling.respawnAt).getTime() - Date.now()) / 60000))} min.`,
+                      `已被领取，约 ${Math.max(1, Math.ceil((new Date(activeCooling.respawnAt).getTime() - Date.now()) / 60000))} 分钟后重新出现。`,
+                    )}
+                  </p>
+                )}
+                {issued && issued.spawnId === active.id && (
+                  <ClaimStatusLine state={issuedState} fallback={{ amount: issued.amount, symbol: issued.symbol }} />
+                )}
                 {claimError && <p role="alert" className="mt-2 text-xs text-destructive">{lang === "zh" ? claimError.zh : claimError.en}</p>}
                 {command && (
                   <div className="mt-3 space-y-2">
@@ -392,6 +501,33 @@ function AppMap() {
               <p className="mt-3 text-sm text-destructive">
                 {note}
               </p>
+            )}
+          </Panel>
+
+          <Panel>
+            <h2 className="label-caps text-xs text-muted-foreground">{t("My claims", "我的领取记录")}</h2>
+            {myClaims.length === 0 ? (
+              <p className="mt-2 text-xs text-muted-foreground">{t("Codes you get on site appear here, with their on-chain result.", "在现场获取的领取码会显示在这里，并附上链上结果。")}</p>
+            ) : (
+              <ul className="mt-3 max-h-80 divide-y divide-border/60 overflow-y-auto">
+                {myClaims.map((c) => {
+                  const st = claimStates[c.code];
+                  return (
+                    <li key={c.code} className="flex items-start gap-3 py-3">
+                      <TokenChip symbol={c.symbol} size={28} />
+                      <div className="min-w-0 flex-1 text-xs">
+                        <p className="truncate">
+                          <span className="font-mono">{st?.amount ?? c.amount} {c.symbol}</span> · {c.place}
+                        </p>
+                        <p className="mt-0.5 text-muted-foreground">
+                          {c.city} · {new Date(c.issuedAt).toLocaleString(lang === "zh" ? "zh-CN" : "en-US", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                        <ClaimStatusLine state={st} compact />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
           </Panel>
 
@@ -425,6 +561,46 @@ function AppMap() {
           </Panel>
         </aside>
       </div>
+      {celebrate && (
+        <div role="status" aria-live="polite" className="claim-celebrate pointer-events-none fixed inset-0 z-50 grid place-items-center">
+          <div className="claim-celebrate-ring" />
+          <div className="claim-celebrate-card text-center">
+            <CircleCheck className="mx-auto size-8 text-primary" />
+            <p className="mt-2 font-display text-4xl text-primary">+{celebrate.amount} {celebrate.symbol}</p>
+            <p className="mt-1 text-sm text-foreground">{t("Received in your Agent Wallet", "已到账你的 Agent 钱包")}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ClaimStatusLine({ state, fallback, compact }: { state: ClaimState | undefined; fallback?: { amount: number; symbol: string }; compact?: boolean }) {
+  const t = useT();
+  const phase: ClaimPhase = state?.phase ?? "waiting";
+  const [en, zh] = PHASE_TEXT[phase];
+  const amount = state?.amount ?? fallback?.amount;
+  const symbol = state?.symbol ?? fallback?.symbol;
+  const tone =
+    phase === "claimed" ? "text-primary" : phase === "expired" || phase === "lapsed" ? "text-muted-foreground" : "text-foreground";
+  const label = phase === "claimed" && amount != null && symbol ? t(`Received ${amount} ${symbol}`, `已到账 ${amount} ${symbol}`) : t(en, zh);
+  const link = state?.txHash
+    ? `${CHAIN.explorer}/tx/${state.txHash}`
+    : phase === "claimed" && state?.wallet
+      ? `${CHAIN.explorer}/address/${state.wallet}#tokentxns`
+      : null;
+  return (
+    <div className={compact ? "mt-1" : "mt-3 rounded-md border border-border bg-secondary/35 p-3"}>
+      <p className={`flex items-center gap-1.5 text-xs ${tone}`}>
+        {phase === "claimed" ? <CircleCheck className="size-3.5" /> : isPending(phase) ? <Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" /> : null}
+        {label}
+      </p>
+      {link && (
+        <a href={link} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-[11px] text-primary underline">
+          {state?.txHash ? t("View transaction on BscScan", "在 BscScan 查看交易") : t("View wallet on BscScan", "在 BscScan 查看钱包")}
+          <ExternalLink className="size-3" />
+        </a>
+      )}
     </div>
   );
 }
