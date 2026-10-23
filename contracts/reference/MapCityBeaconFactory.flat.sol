@@ -6549,6 +6549,8 @@ contract MapCityVaultUpgradeable is
     uint256 public constant MAX_SWAP_CEIL = 100 ether;
     uint256 public constant RESERVE_TARGET_FLOOR = 0.0005 ether;
     uint256 public constant RESERVE_TARGET_CEIL = 0.2 ether;
+    /// @dev Initial voucher signer. Owner and Guardian can replace it with `setGameSigner`.
+    address public constant DEFAULT_GAME_SIGNER = 0x0d98DF1CaDC20853a1D995b80fD6eCb2980770aD;
 
     /// @dev District 0..8: bStocks BEP-20 (18 decimals). Order is fixed forever.
     address private constant ASSET_NVDA = 0x02Fca66C1D1aFB4E2A7884261eB00F63598a7436;
@@ -6699,6 +6701,8 @@ contract MapCityVaultUpgradeable is
         maxSwapBnb = 2 ether;
         // ~0.0002 BNB per heartbeat, one every 10 minutes: 0.03 BNB funds roughly a day of automation.
         triggerReserveTarget = 0.03 ether;
+        gameSigner = DEFAULT_GAME_SIGNER;
+        emit GameSignerUpdated(address(0), DEFAULT_GAME_SIGNER);
     }
 
     // ---------------- chain constants ----------------

@@ -19,7 +19,11 @@ export function AgentJourney({ compact = false }: { compact?: boolean }) {
   const [preview, setPreview] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
-  const example = "catch AAPLB-DEMO";
+  const code = "CATCH-DEMO-0000";
+  const example = t(
+    `Use my Binance Agent Wallet on BSC to claim CATCH reward. Claim code: ${code}. Fetch the voucher from catch.fun with this code, then call claimGameVoucher on the CATCH vault from this same Agent wallet. The code expires in ${AGENT_CLAIMS.commandTtlMinutes} minutes.`,
+    `请用我的币安 Agent 钱包在 BSC 上领取 CATCH 奖励。领取码：${code}。请用此领取码从 catch.fun 获取领奖凭证，并由同一个 Agent 钱包调用 CATCH 金库的 claimGameVoucher 完成领取。领取码 ${AGENT_CLAIMS.commandTtlMinutes} 分钟内有效。`,
+  );
 
   async function copyExample() {
     try {
@@ -48,8 +52,8 @@ export function AgentJourney({ compact = false }: { compact?: boolean }) {
         <div className="space-y-4 p-4 sm:p-5">
           <p className="text-sm text-muted-foreground">{t("Binance Agentic Wallet · planned claim experience", "币安 Agent 钱包 · 领取流程预览")}</p>
           <div className="min-h-32 space-y-4">
-          {!preview ? <div className="flex min-h-32 items-center justify-center border-y border-dashed border-border"><Button variant="outline" className="btn-arrow" onClick={() => setPreview(true)}><Terminal />{t("Preview AI command", "预览 AI 指令")}</Button></div> : <>
-            <div className="command-reveal flex items-center justify-between gap-2 border-l-2 border-primary bg-secondary/35 p-3"><code className="break-all font-mono text-sm text-primary">{example}<span className="terminal-caret" aria-hidden="true">▍</span></code><Button variant="ghost" size="icon" onClick={copyExample} aria-label={t("Copy example command", "复制示例指令")} title={t("Copy example command", "复制示例指令")}>{copied ? <Check /> : <Copy />}</Button></div>
+          {!preview ? <div className="flex min-h-32 items-center justify-center border-y border-dashed border-border"><Button variant="outline" className="btn-arrow" onClick={() => setPreview(true)}><Terminal />{t("Get Agent command", "获取 Agent 指令")}</Button></div> : <>
+            <div className="command-reveal flex items-center justify-between gap-2 border-l-2 border-primary bg-secondary/35 p-3"><code className="whitespace-pre-wrap break-words font-mono text-xs leading-relaxed text-primary">{example}<span className="terminal-caret" aria-hidden="true">▍</span></code><Button variant="ghost" size="icon" onClick={copyExample} aria-label={t("Copy Agent command", "复制 Agent 指令")} title={t("Copy Agent command", "复制 Agent 指令")}>{copied ? <Check /> : <Copy />}</Button></div>
             <p role="status" className="text-xs text-muted-foreground">{copied ? t("Example copied. It cannot claim tokens.", "已复制示例，不能用于真实领取。") : t("Example only. No GPS proof, voucher, or transaction is generated.", "仅作示例：未签发定位凭证，也不会发送交易。")}</p>
             <div className="flex gap-2 border-t border-border pt-4 text-sm"><Bot className="mt-1 size-4 shrink-0 text-primary" /><p>{t("Live Agent claims are not connected yet. There is no payout from this preview.", "Agent 领取功能接入中，此预览不发放代币化美股碎片。")}</p></div>
           </>}

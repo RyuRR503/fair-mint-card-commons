@@ -2,7 +2,7 @@
 
 `MapCityBeaconFactory.flat.sol` is the user's verbatim upload received on 2026-10-23.
 
-- SHA-256: `1aa031a185f2e3fc4089908d927cf9a56e55aa422e0d145abef305e1494c2b71`.
+- SHA-256: `499f6f426d2def0a08c819b6304edad2994bd8782cff3ead889eb9ffc137702c`.
 - Exact compiler: Solidity `0.8.24`.
 - ABI-only standard JSON compilation succeeded. This is not bytecode-size validation, a security audit, a fork execution test, or deployed-state verification.
 - Generated vault and factory ABIs are in `src/lib/contracts/`. `src/lib/vault.ts` exports them; the EIP-712 voucher type and domain remain unchanged.
@@ -10,7 +10,7 @@
 
 ## Signer setup
 
-Call `setGameSigner(address)` on the deployed **vault proxy**, not the factory, beacon, or implementation. Only that vault's owner or Flap Guardian can call it. Initialization leaves `gameSigner` unset. Read it back afterward.
+Call `setGameSigner(address)` on the deployed **vault proxy**, not the factory, beacon, or implementation. Only that vault's owner or Flap Guardian can call it. Initialization sets `gameSigner` to `DEFAULT_GAME_SIGNER` (0x0d98DF1CaDC20853a1D995b80fD6eCb2980770aD). Read it back afterward.
 
 The configured address must match the account derived from the backend `CLAIM_SIGNER_KEY`. This revision verifies a 65-byte ECDSA signature with `ecrecover`; it does not support ERC-1271 contract-wallet signatures. Use a dedicated signing key held only in backend secrets, not the owner's funding key. Setting the signer to zero blocks future voucher claims; rotating it invalidates unredeemed signatures from the old signer.
 
