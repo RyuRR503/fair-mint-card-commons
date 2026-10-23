@@ -20,5 +20,6 @@
 - Decorative city signals are isolated from live map data and claim status; motion uses transforms and opacity with reduced-motion fallbacks so visual polish cannot imply GPS validation or payouts.
 - CityMarketScene loads Three.js only after hydration, derives its palette from CSS tokens, and owns disposable decorative scene resources; keep it independent of real GPS, pricing and claims.
 - CityMarketScene owns bounded, delta-time-smoothed pointer movement for feathered photograph depth slices and independent scene depth groups; disable parallax for reduced motion and touch to preserve reading and scrolling.
+- The homepage uses one bounded sticky city backdrop and CityMarketScene scroll progression through the Agent journey into the live map; keep native scrolling, restore inline animation properties on cleanup, and avoid shared-component changes for homepage-only choreography.
 
 - Agent claim presentation policy lives in src/lib/agent-claims.ts and shared AgentJourney UI; while integration is pending, the map page must not issue vouchers or submit legacy browser-wallet claims, so previews cannot appear to award real assets.

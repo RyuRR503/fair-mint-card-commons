@@ -795,6 +795,21 @@ html { scroll-padding-top: 90px; }
 @media (prefers-reduced-motion: reduce) { .catch-logo-eye-glow { animation: none; } }
 
 /* Unframed market coordinates occupy the city, not the reading column. */
+.home-continuum { position: relative; isolation: isolate; --city-scroll-fade: 0; }
+.city-scroll-stage { position: absolute; inset: 0 0 auto; height: 2200px; height: min(2400px, 280svh); z-index: -1; pointer-events: none; }
+.city-scroll-backdrop { position: sticky; top: 64px; height: calc(100svh - 64px); overflow: hidden; isolation: isolate; }
+.city-scroll-backdrop::after { content: ""; position: absolute; inset: 0; background: var(--background); opacity: var(--city-scroll-fade); pointer-events: none; }
+.city-handoff { position: relative; }
+.city-handoff::before { content: ""; position: absolute; top: -24px; left: 20px; height: 56px; width: 1px; background: var(--primary); opacity: 0.45; transform-origin: top; transform: scaleY(calc(0.3 + var(--city-scroll-fade) * 0.7)); }
+.home-continuum > .stock-ticker { border-bottom-color: transparent; }
+.home-continuum > section .reveal-up { opacity: 1; transform: none; transition: none; }
+@media (max-width: 639px) { .city-scroll-stage { height: min(2600px, 310svh); } }
+@media (prefers-reduced-motion: reduce) {
+  .city-scroll-backdrop { position: relative; top: 0; }
+  .city-scroll-stage { height: calc(100svh - 64px); }
+  .city-scroll-backdrop::after { opacity: 0; }
+  .city-handoff::before { transform: none; }
+}
 .city-market-scene {
   position: absolute;
   top: 10%;

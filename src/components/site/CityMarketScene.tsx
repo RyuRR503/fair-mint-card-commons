@@ -6,8 +6,9 @@ export function CityMarketScene() {
 
   useEffect(() => {
     const element = host.current;
-    const hero = element?.closest<HTMLElement>(".agent-hero");
-    if (!element || !hero) return;
+    const page = element?.closest<HTMLElement>(".home-continuum");
+    const hero = page?.querySelector<HTMLElement>(".agent-hero");
+    if (!element || !hero || !page) return;
     let disposed = false;
     let cleanup = () => {};
 
@@ -15,7 +16,9 @@ export function CityMarketScene() {
       if (disposed) return;
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
       const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
-      const photoLayers = Array.from(hero.querySelectorAll<HTMLElement>("[data-city-depth]"));
+      const photoLayers = Array.from(page.querySelectorAll<HTMLElement>("[data-city-depth]"));
+      const shots = Array.from(page.querySelectorAll<HTMLElement>("[data-scroll-shot]"));
+      const arrival = page.querySelector<HTMLElement>(".city-map-arrival");
       const depthStrength = { far: 10, mid: 28, near: 52 };
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 80);
@@ -102,9 +105,11 @@ export function CityMarketScene() {
       const start = performance.now();
       let visible = true;
       const visibility = new IntersectionObserver(([entry]) => { visible = entry?.isIntersecting ?? false; });
-      visibility.observe(hero);
+      const stage = element.closest<HTMLElement>(".city-scroll-stage");
+      visibility.observe(stage ?? hero);
       let frame = 0;
       let previous = performance.now();
+      let scroll = 0;
       const render = () => {
         if (disposed) return;
         frame = requestAnimationFrame(render);
@@ -113,15 +118,31 @@ export function CityMarketScene() {
         previous = now;
         if (!visible || document.hidden) return;
         const ease = 1 - Math.exp(-5 * dt);
+        const pageBox = page.getBoundingClientRect();
+        const arrivalTop = arrival ? arrival.offsetTop : hero.offsetHeight * 2;
+        const travel = Math.max(hero.offsetHeight, arrivalTop - window.innerHeight * 0.28);
+        const scrollTarget = Math.min(1, Math.max(0, (64 - pageBox.top) / travel));
+        scroll += (scrollTarget - scroll) * ease;
+        const progress = reduced.matches ? 0 : scroll;
+        page.style.setProperty("--city-scroll-fade", String(reduced.matches ? 0 : Math.min(1, Math.max(0, (progress - 0.1) / 0.85))));
+        for (const shot of shots) {
+          const top = shot.getBoundingClientRect().top;
+          const entry = Math.min(1, Math.max(0, (window.innerHeight - top) / (window.innerHeight * 0.65)));
+          shot.style.transform = reduced.matches ? "none" : `translate3d(0, ${(1 - entry) * 36}px, 0)`;
+          shot.style.opacity = String(reduced.matches ? 1 : 0.55 + entry * 0.45);
+        }
         pointer.x += ((reduced.matches || !finePointer.matches ? 0 : mouse.x) - pointer.x) * ease;
         pointer.y += ((reduced.matches || !finePointer.matches ? 0 : mouse.y) - pointer.y) * ease;
         for (const layer of photoLayers) {
           const key = layer.dataset['cityDepth'];
           const strength = key === "near" ? depthStrength.near : key === "mid" ? depthStrength.mid : depthStrength.far;
-          layer.style.transform = reduced.matches ? "none" : `translate3d(${-pointer.x * strength}px, ${-pointer.y * strength * 0.55}px, 0)`;
+          const advance = key === "near" ? 0.1 : key === "mid" ? 0.055 : 0.025;
+          layer.style.transform = reduced.matches ? "none" : `translate3d(${-pointer.x * strength}px, ${-pointer.y * strength * 0.55 - progress * strength * 0.6}px, 0) scale(${1 + progress * advance})`;
         }
         const time = reduced.matches ? 4 : (performance.now() - start) / 1000;
-        const progress = Math.min(1, Math.max(0, -hero.getBoundingClientRect().top / hero.offsetHeight));
+        camera.position.z = 17 - progress * 3.8;
+        camera.position.y = 3.2 - progress * 1.2;
+        camera.lookAt(0, progress * 0.45, 0);
         world.rotation.y += ((reduced.matches ? 0 : pointer.x * 0.22 + progress * 0.32) - world.rotation.y) * ease;
         world.rotation.x += ((reduced.matches ? -0.04 : -0.04 + pointer.y * 0.1) - world.rotation.x) * ease;
         distance.position.x = -pointer.x * 0.15;
@@ -146,6 +167,8 @@ export function CityMarketScene() {
         observer.disconnect(); visibility.disconnect();
         hero.removeEventListener("pointermove", move); hero.removeEventListener("pointerleave", leave);
         photoLayers.forEach((layer) => layer.style.removeProperty("transform"));
+        shots.forEach((shot) => { shot.style.removeProperty("transform"); shot.style.removeProperty("opacity"); });
+        page.style.removeProperty("--city-scroll-fade");
         scene.traverse((object) => { if (object instanceof THREE.Line || object instanceof THREE.Mesh) object.geometry.dispose(); });
         materials.forEach((material) => material.dispose());
         renderer.dispose(); renderer.domElement.remove();
