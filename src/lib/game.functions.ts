@@ -3,6 +3,7 @@ import { z } from "zod";
 import { cityByKey, type Spawn } from "./spawns";
 import { TOKEN_BY_SYMBOL, TOKENS, VAULT_ADDRESS, CHAIN, DISTRICT_BY_SYMBOL, type Rarity } from "./tokens";
 import { catchRadius, haversine, MAX_ACCURACY_M } from "./geo";
+import { allocate, claimShares, payableClaims } from "./allocation";
 import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES, VOUCHER_PRIMARY_TYPE } from "./vault";
 
 
@@ -132,6 +133,76 @@ async function feedPriceUsd(feed: string): Promise<number | null> {
   }
 }
 
+
+/* ------------------------------------------------------------ live book */
+
+type Book = {
+  shares: Record<string, number>;
+  budget: Record<string, number>;
+  inventory: Record<string, number | null>;
+  price: Record<string, number | null>;
+  live: Set<string>;
+  day: string;
+  at: number;
+};
+let bookCache: Book | null = null;
+
+async function vaultTokenBalance(tokenAddress: string, decimals: number): Promise<number | null> {
+  const vault = vaultAddress();
+  if (vault === ZERO) return null;
+  try {
+    const res = await fetch(CHAIN.rpc, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: tokenAddress, data: `0x70a08231000000000000000000000000${vault.slice(2)}` }, "latest"] }),
+    });
+    const json = (await res.json()) as { result?: string };
+    if (!json.result || json.result === "0x") return null;
+    return Number(BigInt(json.result)) / 10 ** decimals;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Prices claims at their tier's USD value and decides which points are live:
+ * live points per stock = vault inventory / shares per claim, spread over cities
+ * with a daily rotation. Cached for 5 minutes.
+ */
+async function liveBook(): Promise<Book> {
+  const day = new Date().toISOString().slice(0, 10);
+  if (bookCache && bookCache.day === day && Date.now() - bookCache.at < 300_000) return bookCache;
+  const shares: Book["shares"] = {};
+  const budget: Book["budget"] = {};
+  const inventory: Book["inventory"] = {};
+  const price: Book["price"] = {};
+  await Promise.all(
+    TOKENS.map(async (t) => {
+      const [p, inv] = await Promise.all([
+        /^0x0+$/.test(t.feed) ? Promise.resolve(null) : feedPriceUsd(t.feed),
+        vaultTokenBalance(tokenAddressFor(t.symbol, t.address), t.decimals),
+      ]);
+      price[t.symbol] = p;
+      inventory[t.symbol] = inv;
+      shares[t.symbol] = claimShares(t.rarity, p, t.fragment);
+      budget[t.symbol] = inv == null ? 0 : payableClaims(inv, shares[t.symbol]!);
+    }),
+  );
+  const db = await admin();
+  const { data } = await db.from("spawns").select("id, symbol, places!inner(city)").limit(4000);
+  const bySym = new Map<string, { id: string; city: string }[]>();
+  for (const r of (data ?? []) as unknown as { id: string; symbol: string; places: { city: string } }[]) {
+    const l = bySym.get(r.symbol) ?? [];
+    l.push({ id: r.id, city: r.places.city });
+    bySym.set(r.symbol, l);
+  }
+  const live = new Set<string>();
+  for (const [sym, cands] of bySym)
+    for (const id of allocate(cands, budget[sym] ?? 0, `${day}:${sym}`)) live.add(id);
+  bookCache = { shares, budget, inventory, price, live, day, at: Date.now() };
+  return bookCache;
+}
+
 /* ----------------------------------------------------------------- spawns */
 
 export const getSpawns = createServerFn({ method: "GET" })
@@ -145,7 +216,10 @@ export const getSpawns = createServerFn({ method: "GET" })
       .parse(d ?? {}),
   )
   .handler(async ({ data }) => {
-    const all = await openSpawns();
+    const book = await liveBook();
+    const all = (await openSpawns())
+      .filter((s) => book.live.has(s.id))
+      .map((s) => ({ ...s, amount: book.shares[s.symbol] ?? s.amount }));
     const list: Spawn[] =
       data.lat != null && data.lng != null
         ? all
@@ -215,6 +289,9 @@ export const claimDrop = createServerFn({ method: "POST" })
       const mins = Math.ceil((new Date(spawnRow.respawn_at).getTime() - Date.now()) / 60000);
       return fail(`Someone just took this one. It comes back in ${mins} min.`);
     }
+    const book = await liveBook();
+    if (!book.live.has(spawnRow.id))
+      return fail("This point is not active right now. Points follow the vault's real inventory.");
     const spawn = toSpawn(row as unknown as SpawnRow);
     if (spawn.rarity === "legendary")
       return fail("Legendary drops are only claimable inside their event window, on the spot.");
@@ -306,7 +383,7 @@ export const claimDrop = createServerFn({ method: "POST" })
         if (p == null) unknown = true;
         else spentUsd += Number(c.amount) * p;
       }
-      const thisUsd = hourlyToken.fragment * prices.get(hourlyToken.symbol)!;
+      const thisUsd = (book.shares[hourlyToken.symbol] ?? hourlyToken.fragment) * prices.get(hourlyToken.symbol)!;
       if (!unknown && spentUsd + thisUsd > RULES.hourlyUsdCap)
         return fail(
           "This hour's prize budget is used up. New budget unlocks within the hour — try again soon.",
@@ -368,7 +445,7 @@ export const claimDrop = createServerFn({ method: "POST" })
     const spawnIdHash = keccak256(toHex(spawn.id));
     // One drop rule per token, everywhere on the map: the token's fragment size
     // is authoritative, never a per-pin number.
-    const payout = token.fragment;
+    const payout = book.shares[token.symbol] ?? token.fragment;
     const amountWei = parseUnits(payout.toString(), token.decimals).toString();
 
     const voucher = {
