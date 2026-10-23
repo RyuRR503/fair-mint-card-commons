@@ -1,4 +1,4 @@
-import { BRAND_PATH } from "@/lib/brandMarks";
+import { BRAND_IMAGE, BRAND_PATH } from "@/lib/brandMarks";
 import { TOKEN_BY_SYMBOL } from "@/lib/tokens";
 import { cn } from "@/lib/utils";
 
@@ -13,18 +13,7 @@ type Props = {
 
 /** Brands whose real mark is near-black; drawn light on the dark chip. */
 const MARK_COLOR: Record<string, string> = {
-  AAPLB: "#F5F5F5",
-};
-
-/** Tokens with no clean vector mark available: use their ticker instead. */
-const WORDMARK: Record<string, string> = {
-  QQQB: "QQQ",
-  SPYB: "SPY",
-  MUB: "MU",
-  NVDAB: "NVDA",
-  MSFTB: "MSFT",
-  GOOGLB: "GOOGL",
-  SPCXB: "SPCX",
+  AAPLB: "var(--foreground)",
 };
 
 /**
@@ -43,7 +32,7 @@ export function TokenChip({
   const hue = token?.color ?? "var(--primary)";
   const glyph = token?.glyph || symbol.slice(0, 2);
   const path = BRAND_PATH[symbol];
-  const word = WORDMARK[symbol];
+  const image = BRAND_IMAGE[symbol];
   const markColor = MARK_COLOR[symbol] ?? hue;
 
 
@@ -72,7 +61,14 @@ export function TokenChip({
           boxShadow: `0 0 ${size * 0.3}px ${hue}`,
         }}
       />
-      {path ? (
+      {image ? (
+        <img
+          src={image.url}
+          alt={image.label}
+          className="relative mt-[6%] object-contain"
+          style={{ width: size * (image.wide ? 0.82 : 0.54), height: size * 0.54 }}
+        />
+      ) : path ? (
         <svg
           viewBox="0 0 24 24"
           role="img"
@@ -82,17 +78,6 @@ export function TokenChip({
         >
           <path d={path} />
         </svg>
-      ) : word ? (
-        <span
-          className="relative mt-[6%] font-semibold leading-none"
-          style={{
-            color: markColor,
-            fontSize: size * (0.62 / word.length),
-            letterSpacing: "0.04em",
-          }}
-        >
-          {word}
-        </span>
       ) : (
         <span
           className="relative mt-[6%] font-mono font-semibold leading-none text-foreground"

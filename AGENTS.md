@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Stock company and ETF logos are centrally mapped in brandMarks and rendered by TokenChip using static asset pointers (Apple/Tesla retain vector marks), so all pages share consistent identities without runtime logo lookup.
 - Keep the uploaded VaultEx/Trigger revision verbatim in contracts/reference/MapCityBeaconFactory.flat.sol and generate its vault/factory ABIs with Solidity 0.8.24; legacy contracts/MapCityVault.sol and its fork tests remain separate because this revision is not a validated storage-compatible upgrade.
 - Use the shared CatchLettering image component for homepage and coming-soon brand lettering; derive the shared header/footer logo and square favicon from the same approved upload, giving replacement icons new URLs to avoid stale browser caches.
 - Vault inventory is the live bStocks balance (`gamePool` = balanceOf), never a counter — bStocks can rebase.
