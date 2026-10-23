@@ -3,8 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useLang, useT } from "@/lib/i18n";
-import catchLogo from "@/assets/catch-logo.png";
-import { CatchLettering } from "@/components/site/CatchLettering";
+import catchLogo from "@/assets/catch-logo-letters-wide.png.asset.json";
 
 function useNav() {
   const t = useT();
@@ -50,25 +49,16 @@ export function LangToggle({ className = "" }: { className?: string }) {
 }
 
 /**
- * The CATCH logo, drawn in the site's primary token so it always matches.
+ * The CATCH logo — the approved lettering variant, drawn in the site's gold.
  */
 export function CatchMark({ className = "" }: { className?: string }) {
   return (
     <img
-      src={catchLogo}
+      src={catchLogo.url}
       alt=""
       draggable={false}
       className={`h-8 w-auto shrink-0 select-none ${className}`}
     />
-  );
-}
-
-/**
- * The approved banner lettering, shared with the hero title.
- */
-export function CatchWordmark({ className = "" }: { className?: string }) {
-  return (
-    <CatchLettering className={`w-[88px] sm:w-[104px] ${className}`} />
   );
 }
 
@@ -96,8 +86,6 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-6xl items-center gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="CATCH home">
           <CatchMark />
-          <span aria-hidden className="hidden h-5 w-px bg-border sm:block" />
-          <CatchWordmark />
         </Link>
 
 
