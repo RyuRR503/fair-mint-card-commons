@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "CATCH 将代币化美股碎片与真实地点连接。规划流程包括定位验证、一次性指令与币安 Agent 钱包链上领取；Agent 领取功能接入中。",
+          "CATCH 将代币化美股碎片与真实地点连接。流程为现场定位验证、一次性领取码，再由币安 Agent 钱包链上领取。",
       },
       {
         property: "og:title",
@@ -36,7 +36,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "浏览真实点位，了解定位验证与 Agent 专属领取规则。所有稀有度均仅限 Agent 钱包领取，真实领取尚未开放。",
+          "浏览真实点位，了解定位验证与 Agent 专属领取规则。所有稀有度均仅限 Agent 钱包领取。",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -96,7 +96,7 @@ function Home() {
           <div className="hero-topline flex items-center justify-between gap-6 border-b border-border pb-5">
             <span className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="size-1.5 rounded-full bg-primary" />
-              {CHAIN.name} · {t("Map available · Agent integration pending", "地图已开放 · Agent 领取功能接入中")}
+              {CHAIN.name} · {t("Map live · Agent claims open", "地图已开放 · Agent 领取已开放")}
             </span>
             <span className="readout hidden sm:block">
               {t("LOCATION VERIFICATION × AGENT WALLET", "定位验证 × Agent 钱包")}
@@ -114,7 +114,7 @@ function Home() {
               </h1>
               <p className="hero-description mt-6 max-w-lg border-l border-primary/50 pl-5 text-sm leading-[1.9] text-foreground/75 sm:text-base">
                 {t(
-                  "CATCH connects tokenized U.S. stock fragments with real locations. In the planned flow, verified visitors receive a single-use command for a Binance Agent Wallet to submit an on-chain claim. All rarities are Agent-only.",
+                  "CATCH connects tokenized U.S. stock fragments with real locations. Verified visitors receive a single-use command for a Binance Agent Wallet to submit an on-chain claim. All rarities are Agent-only.",
                   "CATCH 将代币化美股碎片与真实地点连接。用户抵达指定地点并通过定位验证后，可获取一次性领取指令，由币安 Agent 钱包完成链上领取。所有稀有度的碎片均仅限 Agent 钱包领取。",
                 )}
               </p>
@@ -207,8 +207,8 @@ function Home() {
               n: "01 / REAL",
               h: t("Tokenized U.S. stocks", "代币化美股"),
               p: t(
-                `Rewards are BEP-20 tokenized U.S. stock fragments on ${CHAIN.name}, including NVDAB, AAPLB and TSLAB, rather than points. Once integration is complete, eligible Agent Wallets can claim and hold them.`,
-                `奖励采用 ${CHAIN.name} 上的 BEP-20 代币化美股碎片，包括 NVDAB、AAPLB、TSLAB，而非平台积分。领取功能接入后，由符合资格的 Agent 钱包领取并持有。`,
+                `Rewards are BEP-20 tokenized U.S. stock fragments on ${CHAIN.name}, including NVDAB, AAPLB and TSLAB, rather than points. Eligible Agent Wallets claim and hold them.`,
+                `奖励采用 ${CHAIN.name} 上的 BEP-20 代币化美股碎片，包括 NVDAB、AAPLB、TSLAB，而非平台积分。由符合资格的 Agent 钱包领取并持有。`,
               ),
             },
             {
@@ -251,8 +251,8 @@ function Home() {
         eyebrow={t("claim process", "领取流程")}
         title={t("Location verification. Command. Agent claim.", "定位验证、一次性指令与 Agent 领取。")}
         lead={t(
-          "All four rarities follow the same Agent-only claim rule. Live integration is pending.",
-          "普通、稀有、史诗与传奇均适用 Agent 专属领取规则。以下为规划流程，真实领取功能尚未开放。",
+          "All four rarities follow the same Agent-only claim rule. Map claims are live; the legendary event claim is not connected yet.",
+          "普通、稀有、史诗与传奇均适用 Agent 专属领取规则。地图点位已可真实领取；传奇活动的领取暂未接通。",
         )}
       >
         <div className="mt-10 grid gap-px bg-border md:grid-cols-3">
@@ -269,8 +269,8 @@ function Home() {
               n: "02",
               h: t("Complete location verification.", "完成定位验证。"),
               p: t(
-                "Once integration is complete, passing location and eligibility checks will provide a single-use command valid for 15 minutes. Send it to your AI within that period.",
-                "接入完成后，通过定位与规则校验即可获取一次性领取指令，并在 15 分钟有效期内发送给 AI。",
+                "Passing location and eligibility checks provides a single-use command valid for 15 minutes. Send it to your AI within that period.",
+                "通过定位与规则校验即可获取一次性领取指令，并在 15 分钟有效期内发送给 AI。",
               ),
             },
             {
@@ -305,7 +305,7 @@ function Home() {
       {/* ------------------------------------------------------- spawn table */}
       <Section
         eyebrow={t("token rules", "代币规则")}
-        title={t("Consistent claim amounts for each token.", "同类代币，统一领取数量。")}
+        title={t("Each claim is sized by rarity at live prices.", "单次奖励按稀有度定价值，按实时价格换算数量。")}
       >
         <div className="mt-8 divide-y divide-border border-y border-border sm:hidden">
           {TOKENS.map((tk) => (
@@ -317,7 +317,7 @@ function Home() {
               </div>
               <div className="shrink-0 text-right">
                 <span className="text-xs" style={{ color: rarityVar(tk.rarity) }}>{RARITY_LABEL[tk.rarity]}</span>
-                <p className="mt-2 font-mono text-xs">{tk.rarity === "legendary" ? t("1 full share", "1 整股") : tk.fragment}</p>
+                <p className="mt-2 font-mono text-xs">{tk.rarity === "legendary" ? t("≈$150", "约 $150") : `≈$${TIER_USD[tk.rarity]}`}</p>
               </div>
             </div>
           ))}
@@ -353,7 +353,7 @@ function Home() {
                     </span>
                   </td>
                   <td className="px-6 py-4 font-mono text-xs">
-                    {tk.rarity === "legendary" ? t("1 full share", "1 整股") : tk.fragment}
+                    {tk.rarity === "legendary" ? t("≈$150", "约 $150") : `≈$${TIER_USD[tk.rarity]}`}
                   </td>
                 </tr>
               ))}
@@ -412,7 +412,7 @@ function Home() {
           </div>
           <p className="mt-6 text-sm text-muted-foreground">
             {t(
-              `Each token is associated with a venue category, including bank branches, internet cafés, computer malls, phone shops, superchargers, Apple Stores and science museums. Under the planned flow, fragments are transferred from the vault on ${CHAIN.short}.`,
+              `Each token is associated with a venue category, including bank branches, internet cafés, computer malls, phone shops, superchargers, Apple Stores and science museums. Fragments are transferred from the vault on ${CHAIN.short}.`,
               `每种代币对应一类真实场所，包括银行网点、网吧、电脑城、手机店、超充站、Apple 直营店与科技馆。按规划流程，碎片由 ${CHAIN.short} 上的金库转出。`,
 
             )}

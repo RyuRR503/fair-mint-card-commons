@@ -45,7 +45,7 @@ function AgentGuide() {
     },
     {
       title: t("Hold an Agent ID", "持有 Agent ID"),
-      body: t("The CATCH vault only pays wallets holding a Binance Agent ID, and only to themselves. Without one the map refuses to issue a command.", "CATCH 金库只向持有币安 Agent ID 的钱包付款，且只能领给自己。没有 Agent ID，地图不会签发指令。"),
+      body: t("The CATCH vault only pays wallets holding a Binance Agent ID, and only to themselves. Without one the vault refuses the claim.", "CATCH 金库只向持有币安 Agent ID 的钱包付款，且只能领给自己。没有 Agent ID，金库会拒绝这笔领取。"),
     },
     {
       title: t("Claim on site", "到店领取"),

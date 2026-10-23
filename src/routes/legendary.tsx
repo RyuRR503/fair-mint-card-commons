@@ -16,12 +16,12 @@ export const Route = createFileRoute("/legendary")({
       {
         name: "description",
         content:
-          "Every day a full SPCXB share sits at one spot for 120 minutes. Announced 24 hours ahead. Planned eligibility requires GPS within 25 metres and an Agent Wallet; live claims are pending.",
+          "Every day about $150 of SPCXB sits at one spot for 120 minutes. Announced 24 hours ahead. Planned eligibility requires GPS within 25 metres and an Agent Wallet; live claims are pending.",
       },
       { property: "og:title", content: "CATCH legendary drop" },
       {
         property: "og:description",
-        content: "One whole share. One place. One winner. Agent-only claims are planned; live integration is pending.",
+        content: "About $150 of SPCXB. One place. One winner. Agent-only claims are planned; live integration is pending.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -85,10 +85,10 @@ function Legendary() {
     <>
       <Section hero
         eyebrow={t("the legendary", "传奇掉落")}
-        title={t("Legendary event: one full share", "传奇活动：一整股限时领取")}
+        title={t("Legendary event: about $150", "传奇活动：约 $150 限时领取")}
         lead={t(
-          "Under the planned rules, a daily legendary event offers one full SPCXB share at a designated location for 120 minutes. Live Agent claims are not available yet.",
-          "按计划规则，传奇活动每日在指定地点投放一整股 SPCXB，开放 120 分钟。真实 Agent 领取功能尚未开放。",
+          "Under the planned rules, a daily legendary event offers about $150 of SPCXB at a designated location for 120 minutes. Live Agent claims are not available yet.",
+          "按计划规则，传奇活动每日在指定地点投放约 $150 的 SPCXB，开放 120 分钟。真实 Agent 领取功能尚未开放。",
 
         )}
         className="mt-10"

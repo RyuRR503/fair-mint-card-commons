@@ -47,9 +47,9 @@ const CHAPTERS: {
 }[] = [
   {
     title: ["Agent-first claims", "Agent 专属领取"],
-    lead: ["Human presence and Agent execution are separate. Live integration is pending.", "现场位置验证与 Agent 链上执行分别完成。真实领取功能接入中。"],
+    lead: ["Human presence and Agent execution are separate. Map claims are live.", "现场位置验证与 Agent 链上执行分别完成。地图领取已上线。"],
     items: [
-      { s: "live", h: ["Flow preview and rules", "流程展示与规则"], p: ["All rarities are intended for Agent Wallets only. Preview does not issue vouchers or tokens.", "所有稀有度均计划仅限 Agent 钱包。预览不签发凭证、不发放代币。"] },
+      { s: "live", h: ["Flow preview and rules", "流程展示与规则"], p: ["All rarities are Agent Wallet only.", "所有稀有度均仅限 Agent 钱包。"] },
       { s: "next", h: ["Identity and real commands", "身份验证与真实指令"], p: ["Connect verifiable Agent identity, bind GPS commands to the recipient and implement Agent transaction submission.", "接入可验证的 Agent 身份，绑定定位指令与收款钱包，完成 Agent 交易提交。"] },
     ],
   },
@@ -63,7 +63,7 @@ const CHAPTERS: {
       {
         s: "live",
         h: ["The web app", "网页版"],
-        p: ["Map browsing and Agent flow preview. Live Agent claims are not connected.", "可浏览地图与预览 Agent 流程；真实 Agent 领取尚未接通。"],
+        p: ["Map browsing and live Agent claims.", "可浏览地图并通过 Agent 钱包真实领取。"],
       },
       {
         s: "building",
@@ -112,8 +112,8 @@ const CHAPTERS: {
         s: "live",
         h: ["Points that respawn by themselves", "点位冷却与重新开放"],
         p: [
-          "Signals are tied to real venues and sleep on a cooldown after a catch instead of being regenerated at some faraway midnight.",
-          "点位绑定真实场所，完成领取后按规则进入冷却，结束后重新开放，无需每日重新生成。",
+          "Signals are tied to real venues and sleep on a cooldown after a catch and which points are open rotates daily with the vault's inventory.",
+          "点位绑定真实场所，完成领取后按规则进入冷却，结束后重新开放；开放哪些点位随金库库存每日轮换。",
         ],
       },
 
@@ -164,7 +164,7 @@ const CHAPTERS: {
         s: "building",
         h: ["Trading tax into the nine districts", "交易税进入九个区"],
         p: [
-          "Incoming BNB pays a 10% operating fee, and the rest is split evenly across the nine district buckets. The ratio lives in the contract, not in a key.",
+          "Incoming BNB pays a 10% operating fee, and the rest is split evenly across the nine district buckets. The split is executed by the contract.",
           "收到的 BNB 中，10% 用于运营，其余平均分配至九个区的补货池，分配规则由合约执行。",
         ],
       },

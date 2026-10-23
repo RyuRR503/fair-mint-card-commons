@@ -15,12 +15,12 @@ export const Route = createFileRoute("/proof")({
       {
         name: "description",
         content:
-          "查看 CATCH 金库代币余额、库存状态与领取记录。部署前显示预置数据，实际储备以链上余额为准。",
+          "查看 CATCH 金库代币余额、库存状态与领取记录。数据实时读取链上余额。",
       },
       { property: "og:title", content: "CATCH proof of reserves" },
       {
         property: "og:description",
-        content: "查看金库储备与公开链上记录。领取不增发代币；部署前的预置数据不代表实际储备。",
+        content: "查看金库储备与公开链上记录。领取不增发代币，余额实时读取链上数据。",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -99,7 +99,7 @@ function Proof() {
         eyebrow={t("proof of reserves", "储备证明")}
         title={t("Vault balances and on-chain records", "金库余额与链上记录")}
         lead={t(
-          "Under the payout rules, fragments must be purchased and deposited before claims are enabled. This page reports inventory and data sources; actual reserves must be verified on-chain.",
+          "Under the payout rules, points only open when the vault holds the tokens to pay them. This page reports inventory and data sources; actual reserves must be verified on-chain.",
           "按发放规则，碎片须先买入并存入金库，库存不足时不开放对应领取。此处展示库存与数据来源；实际储备请以链上余额为准。",
         )}
         className="mt-10"
@@ -164,8 +164,8 @@ function Proof() {
           {checkedAt ? `, ${t("last at", "最近")} ${new Date(checkedAt).toLocaleTimeString()}` : ""}.
           {!onChain &&
             t(
-              " Showing seeded figures until the vault contract is deployed.",
-              " 金库合约部署前，此处显示的是预置数据。",
+              " Live chain data is temporarily unavailable; figures may be out of date.",
+              " 暂时读不到链上数据，此处数字可能不是最新。",
             )}
         </p>
       </Section>
@@ -173,8 +173,8 @@ function Proof() {
       <Section
         title={t("What the vault holds right now", "金库当前持仓")}
         lead={t(
-          "Each token has a consistent claim amount and an inventory target measured in payable claims. When inventory is below target, anyone may trigger a refill under the contract rules.",
-          "同种代币在所有点位采用统一的单次领取数量，并设定可支付次数的库存目标。库存低于目标时，任何人均可按合约规则发起补货交易。",
+          "Each claim is sized by rarity at live prices; the inventory target is measured in payable claims. When inventory is below target, anyone may trigger a refill under the contract rules.",
+          "单次奖励按稀有度价值和实时价格换算，库存目标按可支付次数计算。库存低于目标时，任何人均可按合约规则发起补货交易。",
         )}
       >
         <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
@@ -230,7 +230,7 @@ function Proof() {
         <Panel className="mt-6">
           {feed.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {t("No claim records yet. Live Agent claims are not available.", "暂无领取记录。Agent 真实领取尚未开放。")}
+              {t("No claim records yet.", "暂无领取记录。")}
             </p>
           ) : (
             <ul className="divide-y divide-border/60">

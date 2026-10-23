@@ -53,10 +53,10 @@ export const Route = createFileRoute("/app")({
       {
         name: "description",
         content:
-          "Explore nearby signals and preview the phone GPS to AI command to Agent Wallet claim flow. Live Agent claims are pending.",
+          "Explore nearby signals and claim real bStocks: phone GPS, a single-use code, then your Binance Agent Wallet claims on BSC.",
       },
       { property: "og:title", content: "CATCH — the live map" },
-      { property: "og:description", content: "Explore real-world stock locations and the planned Binance Agentic Wallet claim experience." },
+      { property: "og:description", content: "Explore real-world stock locations and claim them with a Binance Agentic Wallet." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       ...SITE_PREVIEW_META,
@@ -574,7 +574,7 @@ function AppMap() {
             <h2 className="label-caps text-xs text-muted-foreground">{t("The rules", "规则")}</h2>
             <ul className="mt-3 space-y-2 text-xs leading-relaxed text-muted-foreground">
               <li>{t("· Every rarity requires an Agent Wallet, including legendary.", "· 普通、稀有、史诗、传奇，全部仅限 Agent 钱包。")}</li>
-              <li>{t("· Planned flow: phone GPS → 15-minute command → AI → Agent claim.", "· 计划流程：手机定位 → 15 分钟指令 → AI → Agent 领取。")}</li>
+              <li>{t("· Flow: phone GPS → 15-minute command → AI → Agent claim.", "· 流程：手机定位 → 15 分钟指令 → AI → Agent 领取。")}</li>
               <li>
                 {t(`· GPS accuracy under ${RULES.maxAccuracyM} m.`, `· GPS 精度需优于 ${RULES.maxAccuracyM} 米。`)}
               </li>

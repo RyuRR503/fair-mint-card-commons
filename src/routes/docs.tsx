@@ -16,7 +16,7 @@ export const Route = createFileRoute("/docs")({
           "The vault contract interface, the claim endpoints, the spawn rules, the token list and the fee split, on BNB Smart Chain.",
       },
       { property: "og:title", content: "CATCH docs" },
-      { property: "og:description", content: "CATCH vault interfaces, token parameters and planned Agent-only claim rules. Live Agent integration is pending." },
+      { property: "og:description", content: "CATCH vault interfaces, token parameters and Agent-only claim rules." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       ...SITE_PREVIEW_META,
@@ -45,17 +45,17 @@ function Docs() {
         eyebrow={tr("docs", "文档")}
         title={tr("CATCH interfaces and operating rules", "CATCH 接口与运行规则")}
         lead={tr(
-          "Current vault interfaces and planned Agent claim rules are documented separately. The Agent integration is not connected.",
-          "这里区分现有金库接口与计划中的 Agent 领取规则。Agent 真实接入尚未完成，页面展示不代表链上已限制普通钱包。",
+          "Vault interfaces and the live Agent claim rules.",
+          "这里说明金库接口与已上线的 Agent 领取规则。",
         )}
         className="mt-10"
       />
 
       <section className="mx-auto max-w-6xl px-5 py-6"><AgentStatus /></section>
-      <Section title={tr("Agent-only claims · planned", "Agent 专属领取 · 计划规则")}>
+      <Section title={tr("Agent-only claims · live", "Agent 专属领取 · 已上线")}>
         <div className="grid gap-6 border-b border-border py-6 md:grid-cols-2">
-          <div><h3 className="text-lg">{tr("Every fragment requires an Agent Wallet", "任何碎片都必须由 Agent 钱包领取")}</h3><p className="mt-3 text-sm text-muted-foreground">{tr("Common, rare, epic and legendary all follow the same rule. Ordinary wallets cannot claim. Intended flow: phone GPS → single-use 15-minute command → AI → Binance Agentic Wallet submits on BSC.", "普通、稀有、史诗、传奇全部采用同一规则，普通钱包不具备领取资格。计划流程：手机 GPS → 一次性 15 分钟指令 → AI → 币安 Agent 钱包提交 BSC 领取。")}</p></div>
-          <div><h3 className="text-lg">{tr("Not implemented in the current contract", "现有合约尚未加入这项限制")}</h3><p className="mt-3 text-sm text-muted-foreground">{tr("Agent identity verification, command issuance and wallet submission still require implementation. The existing voucher interface below permits relaying; it is not proof of Agent-only enforcement. This preview does not call it to claim.", "Agent 身份验证、指令签发和钱包提交仍需实现。下方现有凭证接口允许代交，并不代表已经实现 Agent 专属限制。当前预览不调用该接口发起领取。")}</p></div>
+          <div><h3 className="text-lg">{tr("Every fragment requires an Agent Wallet", "任何碎片都必须由 Agent 钱包领取")}</h3><p className="mt-3 text-sm text-muted-foreground">{tr("Common, rare, epic and legendary all follow the same rule. Ordinary wallets cannot claim. Flow: phone GPS → single-use 15-minute command → AI → Binance Agentic Wallet submits on BSC.", "普通、稀有、史诗、传奇全部采用同一规则，普通钱包不具备领取资格。流程：手机 GPS → 一次性 15 分钟指令 → AI → 币安 Agent 钱包提交 BSC 领取。")}</p></div>
+          <div><h3 className="text-lg">{tr("Enforced by the contract", "由合约强制执行")}</h3><p className="mt-3 text-sm text-muted-foreground">{tr("claimGameVoucher requires the caller to hold a Binance Agent ID and pays only the caller itself. Legendary event claims are not connected yet.", "claimGameVoucher 要求调用者持有币安 Agent ID，奖励只转给调用者本人。传奇活动的领取暂未接通。")}</p></div>
         </div>
       </Section>
       <Section title={tr("Coverage", "覆盖范围")}>
@@ -75,7 +75,7 @@ function Docs() {
             </p>
           </Panel>
           <Panel>
-            <p className="label-caps text-[10px] text-muted-foreground">{tr("Permanent drops", "固定点位")}</p>
+            <p className="label-caps text-[10px] text-muted-foreground">{tr("Candidate points", "候选点位")}</p>
             <p className="mt-2 font-display text-4xl">{totalSpawns.toLocaleString()}</p>
             <p className="mt-1 text-sm text-muted-foreground">
               {tr("Each one sleeps after a catch and respawns automatically.", "点位完成领取后进入冷却，结束后按规则重新开放。")}
@@ -121,8 +121,8 @@ function Docs() {
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "The vault never mints. Each of the nine districts holds one BEP-20 stock token, and stock only leaves against an EIP-712 voucher signed by the claim key. Nonces are burned on use, deadlines are enforced, and anyone may relay a voucher — the stock still goes to the address inside it. The vault owner has full control: it can change every parameter and withdraw any BNB or stock from the vault.",
-              "金库永不增发。九个区各持有一种 BEP-20 股票代币，只有凭领取私钥签发的 EIP-712 凭证才能取出。nonce 用后即废、deadline 强制生效，任何人都可以代为提交凭证，代币仍然只会转给凭证里写明的地址。金库 owner 拥有全部权限：可以修改所有参数，也可以提走金库里的任何 BNB 和股票代币。",
+              "The vault never mints. Each of the nine districts holds one BEP-20 stock token, and stock only leaves against an EIP-712 voucher signed by the claim key. Nonces are burned on use, deadlines are enforced, and only the Agent Wallet named in the voucher can submit it, and the stock goes to that wallet. The vault owner has full control: it can change every parameter and withdraw any BNB or stock from the vault.",
+              "金库永不增发。九个区各持有一种 BEP-20 股票代币，只有凭领取私钥签发的 EIP-712 凭证才能取出。nonce 用后即废、deadline 强制生效，只有凭证里写明的 Agent 钱包能提交，代币也只转给这个钱包。金库 owner 拥有全部权限：可以修改所有参数，也可以提走金库里的任何 BNB 和股票代币。",
             )}
           </p>
           <Code>{`// EIP-712 domain
@@ -138,18 +138,18 @@ function claimGameVoucher(
   address to, uint8 district, uint256 amount,
   bytes32 spawnId, uint256 nonce, uint256 deadline,
   bytes signature
-) external;                       // anyone may relay
+) external;                       // caller must hold an Agent ID and be the recipient
 function gameNonceUsed(uint256 nonce) external view returns (bool);
 function gamePool(uint256 district) external view returns (uint256); // live balance, rebase-safe
 function refillViaSwap(uint8 district, uint256 bnbIn, uint256 callerMinOut) external returns (uint256);
           function setGameSigner(address signer) external;  // guardian only`}</Code>
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <Panel>
-              <h3 className="label-caps text-[11px] text-primary">{tr("Planned Agent example", "计划中的 Agent 例子")}</h3>
+              <h3 className="label-caps text-[11px] text-primary">{tr("Agent example", "Agent 领取例子")}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {tr(
-                  "You visit an Apple store with your phone. Once the integration is ready and GPS checks pass, a command bound to your Agent recipient is issued. Your AI submits the claim through its Agent Wallet. Today this is a design example, not a live payout.",
-                  "以 Apple 门店为例，接入完成后，用户通过现场定位验证，可获取绑定 Agent 收款钱包的一次性指令，由 AI 使用 Agent 钱包提交领取。当前仅为规划示例，尚未开放真实发放。",
+                  "You visit an Apple store with your phone. After GPS checks pass, a single-use claim code is issued; your AI adds its own Agent Wallet when redeeming it. Your AI submits the claim through its Agent Wallet. ",
+                  "以 Apple 门店为例，用户通过现场定位验证后，获取一次性领取码，AI 兑换时自动带上自己的 Agent 钱包，由 AI 使用 Agent 钱包提交领取。",
                 )}
               </p>
             </Panel>
@@ -203,8 +203,8 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "Rarity is a property of the token, not the number of pins. It decides three things: how long a point sleeps after a catch, how dense its venues are, and how much a single catch is worth. Value rises with rarity — a common catch is worth about $2, a rare one about $3.5, an epic one about $5.5, and the legendary SPCXB pays one whole share (about $150). QQQB (banks) is common: banks are everywhere, they respawn in 20 minutes, and each catch is a modest slice. AAPLB (Apple stores) is epic: fewer doors, 90 minutes of cooldown, and a catch worth almost three times a common one.",
-              "稀有度是代币本身的属性，不是地图上点位的数量。它决定三件事：点位冷却多久、门店密度多大、以及单次领取的参考价值。价值随稀有度递增——普通约 $2，稀有约 $3.5，史诗约 $5.5，传奇 SPCXB 是 1 整股（约 $150）。QQQB（银行）是普通：网点分布广、20 分钟冷却、单次价值较小；AAPLB（Apple 店）是史诗：门店少、90 分钟冷却、单次参考价值约为普通的三倍。",
+              "Rarity is a property of the token, not the number of pins. It decides three things: how long a point sleeps after a catch, how dense its venues are, and how much a single catch is worth. Value rises with rarity — a common catch is worth about $2, a rare one about $3.5, an epic one about $7, and the legendary SPCXB about $150. QQQB (banks) is common: banks are everywhere, they respawn in 20 minutes, and each catch is a modest slice. AAPLB (Apple stores) is epic: fewer doors, 90 minutes of cooldown, and a catch worth almost three times a common one.",
+              "稀有度是代币本身的属性，不是地图上点位的数量。它决定三件事：点位冷却多久、门店密度多大、以及单次领取的参考价值。价值随稀有度递增——普通约 $2，稀有约 $3.5，史诗约 $7，传奇 SPCXB 约 $150。QQQB（银行）是普通：网点分布广、20 分钟冷却、单次价值较小；AAPLB（Apple 店）是史诗：门店少、90 分钟冷却、单次参考价值约为普通的三倍。",
             )}
           </p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -221,12 +221,12 @@ POST early-access    { email, kind, city?, company? }`}</Code>
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Epic", "史诗")}</p>
               <p className="mt-1 text-sm font-medium">{tr("AAPLB", "AAPLB")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{tr("90 min cooldown · fewer stores · ~$5.5 a catch", "90 分钟冷却 · 门店少 · 单次约 $5.5")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("90 min cooldown · fewer stores · ~$7 a catch", "90 分钟冷却 · 门店少 · 单次约 $7")}</p>
             </div>
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Legendary", "传奇")}</p>
               <p className="mt-1 text-sm font-medium">{tr("SPCXB", "SPCXB")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{tr("120 min cooldown · event only · one whole share (~$150)", "120 分钟冷却 · 仅活动出现 · 1 整股（约 $150）")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("120 min cooldown · event only · ~$150", "120 分钟冷却 · 仅活动出现 · 约 $150")}</p>
             </div>
           </div>
 
@@ -263,8 +263,8 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         </Panel>
         <p className="mt-4 text-sm text-muted-foreground">
           {tr(
-            `Agent Wallet caps (planned): ${RULES.perWalletPerDay} catches per day, ${RULES.walletCooldownMin} minutes between catches, and the same signal cannot be caught twice within 24 hours. Site-wide, payouts are capped at $${RULES.hourlyUsdCap} per rolling hour, valued at live Chainlink quotes — when the budget is spent, claims pause until the window refills.`,
-            `计划中的钱包限制：每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，两次领取间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复领取。全站层面，每个滚动小时的发放总额封顶 $${RULES.hourlyUsdCap}（按 Chainlink 实时报价折算）——预算用完即暂停，窗口滚动后自动恢复。`,
+            `Agent Wallet caps: ${RULES.perWalletPerDay} catches per day, ${RULES.walletCooldownMin} minutes between catches, and the same signal cannot be caught twice within 24 hours. Site-wide, payouts are capped at $${RULES.hourlyUsdCap} per rolling hour, valued at live Chainlink quotes — when the budget is spent, claims pause until the window refills.`,
+            `钱包限制：每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，两次领取间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复领取。全站层面，每个滚动小时的发放总额封顶 $${RULES.hourlyUsdCap}（按 Chainlink 实时报价折算）——预算用完即暂停，窗口滚动后自动恢复。`,
           )}
         </p>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -281,8 +281,8 @@ POST early-access    { email, kind, city?, company? }`}</Code>
             <h3 className="label-caps text-[11px] text-primary">{tr("Why the rolling hour cap", "为什么有每小时滚动上限")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {tr(
-                `The site pays out at most $${RULES.hourlyUsdCap} worth of fragments every rolling hour. If the first ${RULES.perWalletPerDay} people in Beijing each claim $5 in a 10-minute window, the remaining 50 minutes pause until the hour rolls forward. This protects the prize pool from bursts, not from normal use.`,
-                `全站每小时滚动发放不超过 $${RULES.hourlyUsdCap}。如果北京前 ${RULES.perWalletPerDay} 个人在 10 分钟内各领走约 $5，剩下 50 分钟会暂停发放，直到滚动窗口推进。该限制用于控制短时间集中发放对奖池的影响。`,
+                `The site pays out at most $${RULES.hourlyUsdCap} worth of fragments every rolling hour. If a burst of claims uses up the budget early in the hour, new claims pause until the rolling hour frees budget again. This protects the prize pool from bursts, not from normal use.`,
+                `全站每小时滚动发放不超过 $${RULES.hourlyUsdCap}。如果一小时内领取集中、提前用完额度，之后的领取会暂停，直到滚动窗口推进、额度恢复。该限制用于控制短时间集中发放对奖池的影响。`,
               )}
             </p>
           </Panel>
@@ -293,8 +293,8 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "Every token has one fixed fragment size — the same amount at every pin on the map. The vault aims to keep 25 payable catches per token in stock (2 for the legendary SPCXB). Trading tax arrives as BNB, 10% goes to operations, and the rest is split evenly across the nine districts. Restocking has one road: refillViaSwap — anyone can trigger a PancakeSwap V3/V2 swap of a district's BNB into its bStocks token, guarded by a price ruler — Chainlink, or a 30-minute PancakeSwap TWAP for SPYB/QQQB (max 10% worse, max 2 BNB per swap). Every token bought goes 100% into the map prize pool — player claims use signatures, while the owner retains full withdrawal permissions.",
-              "每种代币的碎片大小固定，地图上所有同类点位数量一致。金库为每种代币维持 25 次可领取库存（传奇 SPCXB 为 2 次）。交易税以 BNB 流入，10% 归运营，其余平均分到九个区。补货只有一条路：refillViaSwap——任何人都能触发，金库把该区 BNB 在 PancakeSwap V3/V2 上换成 bStocks，有参考价格校验——Chainlink，SPYB/QQQB 用 PancakeSwap 30 分钟平均价（比参考价差超过 10% 就拒绝，单笔最多 2 BNB）。买入的代币 100% 进入地图奖池——玩家通过签名领取；owner 仍保留全部提款权限。",
+              "Every pin of the same token pays the same amount, sized from its rarity's USD value at the live price. The vault aims to keep 25 payable catches per token in stock (2 for the legendary SPCXB). Trading tax arrives as BNB, 10% goes to operations, and the rest is split evenly across the nine districts. Restocking has one road: refillViaSwap — anyone can trigger a PancakeSwap V3/V2 swap of a district's BNB into its bStocks token, guarded by a price ruler — Chainlink, or a 30-minute PancakeSwap TWAP for SPYB/QQQB (max 10% worse, max 2 BNB per swap). Every token bought goes 100% into the map prize pool — player claims use signatures, while the owner retains full withdrawal permissions.",
+              "同种代币所有点位单次数量一致，按稀有度的美元价值和实时价格换算。金库为每种代币维持 25 次可领取库存（传奇 SPCXB 为 2 次）。交易税以 BNB 流入，10% 归运营，其余平均分到九个区。补货只有一条路：refillViaSwap——任何人都能触发，金库把该区 BNB 在 PancakeSwap V3/V2 上换成 bStocks，有参考价格校验——Chainlink，SPYB/QQQB 用 PancakeSwap 30 分钟平均价（比参考价差超过 10% 就拒绝，单笔最多 2 BNB）。买入的代币 100% 进入地图奖池——玩家通过签名领取；owner 仍保留全部提款权限。",
             )}
           </p>
         </Panel>
@@ -316,7 +316,7 @@ POST early-access    { email, kind, city?, company? }`}</Code>
                 <tr key={t.symbol} className="border-b border-border/60 last:border-0">
                   <td className="px-6 py-3 label-caps text-xs">{t.symbol}</td>
                   <td className="px-6 py-3 font-mono text-[11px] break-all">{t.address}</td>
-                  <td className="px-6 py-3 font-mono text-xs">{t.fragment}</td>
+                  <td className="px-6 py-3 font-mono text-xs">≈${TIER_USD[t.rarity]}</td>
                   <td className="px-6 py-3 font-mono text-xs">{t.targetDrops} {tr("catches", "次")}</td>
                 </tr>
               ))}
@@ -325,8 +325,8 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         </Panel>
         <p className="mt-4 text-sm text-muted-foreground">
           {tr(
-            `Addresses are placeholders until the vault and the token wrappers are deployed on ${CHAIN.short}.`,
-            `在金库与代币封装合约部署到 ${CHAIN.short} 之前，这些地址都是占位值。`,
+            `These are the live contract addresses on ${CHAIN.short}; verify them on BscScan.`,
+            `以下为 ${CHAIN.short} 上的真实合约地址，可在 BscScan 核对。`,
           )}{" "}
           <Link to="/proof" className="text-primary underline underline-offset-4">
             {tr("The proof page", "储备证明页")}
