@@ -136,6 +136,39 @@ async function feedPriceUsd(feed: string): Promise<number | null> {
 
 /* ------------------------------------------------------------ live book */
 
+/**
+ * On-chain PancakeSwap V2 quote in USDT for one whole token, for stocks without
+ * a Chainlink feed. Takes the higher of the direct and via-WBNB routes, so a
+ * thin pool can only make claims smaller, never larger.
+ */
+async function poolPriceUsd(token: string, decimals: number): Promise<number | null> {
+  const { encodeFunctionData, decodeFunctionResult, parseAbi } = await import("viem");
+  const abi = parseAbi(["function getAmountsOut(uint256,address[]) view returns (uint256[])"]);
+  const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
+  const USDT = "0x55d398326f99059fF775485246999027B3197955";
+  const unit = 10n ** BigInt(decimals) / 100n; // quote 0.01 token to limit pool impact
+  const quotes = await Promise.all(
+    [[token, USDT], [token, WBNB, USDT]].map(async (path) => {
+      try {
+        const data = encodeFunctionData({ abi, functionName: "getAmountsOut", args: [unit, path as `0x${string}`[]] });
+        const res = await fetch(CHAIN.rpc, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: "0x10ED43C718714eb63d5aA57B78B54704E256024E", data }, "latest"] }),
+        });
+        const json = (await res.json()) as { result?: `0x${string}` };
+        if (!json.result || json.result === "0x") return 0;
+        const out = decodeFunctionResult({ abi, functionName: "getAmountsOut", data: json.result }) as readonly bigint[];
+        return (Number(out[out.length - 1]) / 1e18) * 100;
+      } catch {
+        return 0;
+      }
+    }),
+  );
+  const best = Math.max(...quotes);
+  return best > 0 ? best : null;
+}
+
 type Book = {
   shares: Record<string, number>;
   budget: Record<string, number>;
@@ -179,7 +212,9 @@ async function liveBook(): Promise<Book> {
   await Promise.all(
     TOKENS.map(async (t) => {
       const [p, inv] = await Promise.all([
-        /^0x0+$/.test(t.feed) ? Promise.resolve(null) : feedPriceUsd(t.feed),
+        /^0x0+$/.test(t.feed)
+          ? poolPriceUsd(tokenAddressFor(t.symbol, t.address), t.decimals)
+          : feedPriceUsd(t.feed),
         vaultTokenBalance(tokenAddressFor(t.symbol, t.address), t.decimals),
       ]);
       price[t.symbol] = p;
