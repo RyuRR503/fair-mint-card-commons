@@ -16,7 +16,7 @@ import { CHAIN, RARITY_LABEL, rarityVar } from "@/lib/tokens";
 import type { Rarity } from "@/lib/tokens";
 import { Button } from "@/components/ui/button";
 import { Bot, Check, Copy, MapPin as MapPinIcon } from "lucide-react";
-import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
+import { AgentStatus } from "@/components/site/AgentJourney";
 import { claimEligibility } from "@/lib/agent-claims";
 import { useT, useLang } from "@/lib/i18n";
 
@@ -287,8 +287,12 @@ function AppMap() {
           <Panel>
             <h2 className="flex items-center gap-2 text-sm font-semibold"><Bot className="size-4 text-primary" />{t("Agent Wallet", "Agent 钱包")}</h2>
             <p className="mt-3 text-sm">{t("Binance Agentic Wallet", "币安 Agent AI 钱包")}</p>
-            <p className="mt-2 text-xs text-muted-foreground">{t("Identity verification and live claims are not connected. An ordinary wallet connection does not qualify for claiming.", "身份验证与真实领取尚未接通；连接普通钱包不代表拥有领取资格。")}</p>
-            <Button disabled className="mt-4 w-full"><Bot />{t("Agent connection pending", "Agent 接入待开放")}</Button>
+            <ol className="mt-3 space-y-1.5 text-xs text-muted-foreground">
+              <li>{t("1. Walk to a live point and enable location.", "1. 走到开放中的点位，开启定位。")}</li>
+              <li>{t("2. Keep the page open 20 s, enter your Agent Wallet address, get the command.", "2. 保持页面 20 秒，填写 Agent 钱包地址，获取指令。")}</li>
+              <li>{t("3. Paste it to your AI. It previews, you confirm, it claims on BSC.", "3. 把指令发给 AI：先预览，你确认后它在 BSC 上领取。")}</li>
+            </ol>
+            <p className="mt-3 text-xs text-muted-foreground">{t("The vault only pays wallets holding a Binance Agent ID, and only to themselves.", "金库只向持有币安 Agent ID 的钱包付款，且只能领给自己。")}</p>
             <p className="mt-3 text-xs text-muted-foreground">{CHAIN.name} · {t("All rarities are Agent-only", "所有稀有度均仅限 Agent")}</p>
           </Panel>
           <Panel>
@@ -373,9 +377,6 @@ function AppMap() {
             )}
           </Panel>
 
-          <div className="px-1 py-4">
-            <AgentJourney compact />
-          </div>
           <Panel>
             <h2 className="label-caps text-xs text-muted-foreground">{t("The rules", "规则")}</h2>
             <ul className="mt-3 space-y-2 text-xs leading-relaxed text-muted-foreground">
