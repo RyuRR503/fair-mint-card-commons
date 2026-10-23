@@ -21,6 +21,9 @@ import { AgentStatus } from "@/components/site/AgentJourney";
 import { claimEligibility } from "@/lib/agent-claims";
 import { useT, useLang } from "@/lib/i18n";
 
+/** AI agents call from outside, so always point them at the public site — preview hosts sit behind a login wall (401). */
+const AGENT_CLAIM_API = "https://catch.fun/api/public/agent-claim";
+
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
@@ -184,7 +187,7 @@ function AppMap() {
   }, [spawns, selected, fix]);
   const radius = fix ? catchRadius(fix.accuracy) : RULES.baseRadiusM;
   const inRange = !!(active && fix && (active.distance ?? Infinity) <= radius);
-  const command = issued && issued.spawnId === active?.id ? buildAgentCommand({ lang: lang === "zh" ? "zh" : "en", api: `${window.location.origin}/api/public/agent-claim`, tokenAddress: TOKEN_BY_SYMBOL[issued.symbol]?.address ?? "", vaultAddress: VAULT_ADDRESS, ...issued }) : null;
+  const command = issued && issued.spawnId === active?.id ? buildAgentCommand({ lang: lang === "zh" ? "zh" : "en", api: AGENT_CLAIM_API, tokenAddress: TOKEN_BY_SYMBOL[issued.symbol]?.address ?? "", vaultAddress: VAULT_ADDRESS, ...issued }) : null;
 
   async function getCommand() {
     if (!active || !fix) return;

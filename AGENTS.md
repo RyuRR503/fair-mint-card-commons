@@ -27,3 +27,4 @@
 - Agent claims are two-step: the map's claimDrop runs on-site GPS and inventory checks and issues a single-use 15-minute claim code (claim_codes table, no wallet); the AI redeems it at /api/public/agent-claim with its own address, where Agent ID, wallet caps and signing happen, returning claimGameVoucher calldata. Users never type a wallet; on-site checks are skippable only on preview hosts.
 - Claim size and live points derive from on-chain prices and vault inventory (src/lib/allocation.ts, liveBook in game.functions.ts), so the map never shows points the vault cannot pay.
 - Published hosts are gated to /coming-soon by the root beforeLoad (src/lib/site-gate.ts); preview/dev hosts see the full site, so development stays previewable before launch.
+- AI agent commands always target the published host's /api/public/agent-claim (catch.fun), never window.location.origin: preview hosts are login-walled and return 401 to outside callers.
