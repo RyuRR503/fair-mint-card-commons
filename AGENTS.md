@@ -16,5 +16,6 @@
 - Contract fork tests live in contracts/test/Fork.t.sol (Foundry, BSC mainnet fork via BSC_RPC + BLOCK env).
 
 - Shared website colors and cover-image treatments are defined in src/styles.css semantic tokens; company identity and rarity colors remain distinct so theme changes do not erase asset recognition.
+- Decorative city signals are isolated from live map data and claim status; motion uses transforms and opacity with reduced-motion fallbacks so visual polish cannot imply GPS validation or payouts.
 
 - Agent claim presentation policy lives in src/lib/agent-claims.ts and shared AgentJourney UI; while integration is pending, the map page must not issue vouchers or submit legacy browser-wallet claims, so previews cannot appear to award real assets.
