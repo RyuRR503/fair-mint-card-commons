@@ -17,6 +17,7 @@ export function CityMarketScene() {
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 80);
       camera.position.set(0, 3.2, 17);
+      camera.lookAt(0, 0, 0);
       const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
       renderer.setClearAlpha(0);
@@ -89,7 +90,7 @@ export function CityMarketScene() {
       resize();
       const start = performance.now();
       let visible = true;
-      const visibility = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
+      const visibility = new IntersectionObserver(([entry]) => { visible = entry?.isIntersecting ?? false; });
       visibility.observe(hero);
       let frame = 0;
       const render = () => {
