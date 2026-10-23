@@ -10,7 +10,7 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/legendary")({
   head: () => ({
     meta: [
-      { title: "The legendary drop — one whole share, one place, one winner" },
+      { title: "CATCH — The legendary drop — one whole share, one place, one winner" },
       {
         name: "description",
         content:
@@ -21,6 +21,8 @@ export const Route = createFileRoute("/legendary")({
         property: "og:description",
         content: "One whole share. One place. One winner. Every day. Bring shoes.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Legendary,

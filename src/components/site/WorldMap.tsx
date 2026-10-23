@@ -123,7 +123,7 @@ export function WorldMap({
         <path
           d={WORLD_PATH}
           fill="var(--map-land)"
-          stroke="oklch(0.87 0.235 158 / 0.35)"
+          stroke="var(--map-coast)"
           strokeWidth={0.7 / view.z}
         />
       </svg>

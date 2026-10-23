@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useLang, useT } from "@/lib/i18n";
 
@@ -26,8 +27,10 @@ export function LangToggle({ className = "" }: { className?: string }) {
       className={`flex items-center rounded-md border border-border bg-card/60 p-0.5 text-[10px] ${className}`}
     >
       {(["en", "zh"] as const).map((l) => (
-        <button
+        <Button
           key={l}
+          variant="ghost"
+          size="sm"
           type="button"
           onClick={() => setLang(l)}
           aria-pressed={lang === l}
@@ -38,7 +41,7 @@ export function LangToggle({ className = "" }: { className?: string }) {
           }`}
         >
           {l === "en" ? "EN" : "中"}
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -80,7 +83,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-6xl items-center gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="CATCH home">
           <CatchMark />
-          <span className="font-latin text-base font-semibold uppercase tracking-[0.42em]">CATCH</span>
+          <span className="font-poster text-3xl text-foreground">CATCH</span>
         </Link>
 
         <nav className="hidden flex-1 items-center justify-center gap-0.5 lg:flex">
@@ -89,8 +92,8 @@ export function SiteHeader() {
               key={item.to}
               to={item.to}
               activeOptions={{ exact: item.to === "/" }}
-              activeProps={{ className: "!text-primary bg-primary/10" }}
-              className={`label-caps rounded-md px-2.5 py-2 ${navText} text-muted-foreground transition-colors hover:text-foreground`}
+              activeProps={{ className: "!text-primary border-b-primary" }}
+              className={`label-caps border-b-2 border-transparent px-2.5 py-2 ${navText} text-muted-foreground transition-colors hover:text-foreground`}
             >
               {item.label}
             </Link>
@@ -100,21 +103,20 @@ export function SiteHeader() {
 
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
           <LangToggle className="hidden sm:flex" />
-          <Link
-            to="/app"
-            className={`label-caps rounded-md bg-primary px-4 py-2.5 ${navText} text-primary-foreground halation transition-all duration-300 hover:shadow-[var(--shadow-glossy)]`}
-          >
-            {t("Start hunting", "开始抓取")}
-          </Link>
+          <Button asChild className={`label-caps rounded-sm px-4 py-2.5 ${navText}`}>
+            <Link to="/app">{t("Start hunting", "开始抓取")} <span aria-hidden>↗</span></Link>
+          </Button>
 
-          <button
+          <Button
+            variant="outline"
+            size="icon"
             type="button"
             onClick={() => setOpen((v) => !v)}
             className="grid size-10 place-items-center rounded-md border border-border lg:hidden"
             aria-label={t("Toggle menu", "菜单")}
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -126,7 +128,7 @@ export function SiteHeader() {
               to={item.to}
               onClick={() => setOpen(false)}
               activeOptions={{ exact: item.to === "/" }}
-              activeProps={{ className: "!text-primary bg-primary/10" }}
+              activeProps={{ className: "!text-primary border-b-primary" }}
               className={`label-caps rounded-md px-4 py-3 ${lang === "zh" ? "text-[14px]" : "text-[11px]"} text-muted-foreground`}
             >
               {item.label}

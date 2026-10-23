@@ -7,7 +7,7 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/docs")({
   head: () => ({
     meta: [
-      { title: "Docs — contracts, endpoints and rules" },
+      { title: "CATCH — Docs — contracts, endpoints and rules" },
       {
         name: "description",
         content:
@@ -15,6 +15,8 @@ export const Route = createFileRoute("/docs")({
       },
       { property: "og:title", content: "CATCH docs" },
       { property: "og:description", content: "Everything an integrator or a sceptic needs." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Docs,

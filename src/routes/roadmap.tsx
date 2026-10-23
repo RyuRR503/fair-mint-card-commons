@@ -18,6 +18,8 @@ export const Route = createFileRoute("/roadmap")({
         content:
           "What is live, what is built but dark, what is being built, and what we have decided not to do.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Roadmap,

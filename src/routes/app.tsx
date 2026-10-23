@@ -22,6 +22,10 @@ export const Route = createFileRoute("/app")({
         content:
           "Every live signal near you. Connect a wallet, walk to a spawn, tap, and the fragment lands on BNB Smart Chain.",
       },
+      { property: "og:title", content: "CATCH — the live map" },
+      { property: "og:description", content: "Explore real-world stock fragment locations on BNB Smart Chain." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: AppMap,

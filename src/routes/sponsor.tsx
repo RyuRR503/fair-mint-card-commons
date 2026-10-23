@@ -7,7 +7,7 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/sponsor")({
   head: () => ({
     meta: [
-      { title: "Sponsor a spot — pay per verified footstep, not per impression" },
+      { title: "CATCH — Sponsor a spot — pay per verified footstep, not per impression" },
       {
         name: "description",
         content:
@@ -19,6 +19,8 @@ export const Route = createFileRoute("/sponsor")({
         content:
           "Outdoor advertising that only bills when somebody actually walked to your door and passed every anti-spoof check.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Sponsor,
