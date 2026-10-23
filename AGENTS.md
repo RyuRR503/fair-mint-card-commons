@@ -24,5 +24,6 @@
 - The homepage uses one bounded sticky city backdrop with explicit non-negative internal layers; scroll choreography updates through a passive scroll listener independently of WebGL availability, preserves native scrolling and readable content, and restores inline properties on cleanup.
 - SiteMotion owns decorative reading progress and section emphasis; shared Reveal provides hydration-safe staggered entrances, while CityMarketScene owns the desktop sticky Agent journey. Preserve native scrolling, reduced-motion and playback fallbacks so motion never gates content or touches claim logic.
 
-- Agent claim presentation policy lives in src/lib/agent-claims.ts and shared AgentJourney UI; while integration is pending, the map page must not issue vouchers or submit legacy browser-wallet claims, so previews cannot appear to award real assets.
+- Agent claims: the map issues a signed voucher only after server-side GPS, inventory-allocation and on-chain Agent ID checks, and returns claimGameVoucher calldata wrapped in a zh/en AI command (src/lib/agent-command.ts); the wallet never signs in the browser, so the Agent Wallet is the only submitter.
+- Claim size and live points derive from on-chain prices and vault inventory (src/lib/allocation.ts, liveBook in game.functions.ts), so the map never shows points the vault cannot pay.
 - Published hosts are gated to /coming-soon by the root beforeLoad (src/lib/site-gate.ts); preview/dev hosts see the full site, so development stays previewable before launch.
