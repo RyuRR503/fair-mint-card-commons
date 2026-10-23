@@ -11,6 +11,7 @@ function useNav() {
     { to: "/", label: t("Home", "首页") },
     { to: "/app", label: t("Map", "点位地图") },
     { to: "/how-it-works", label: t("Claim rules", "领取规则") },
+    { to: "/agent-guide", label: t("Agent setup", "钱包教程") },
     { to: "/legendary", label: t("Legendary", "每日传奇") },
     { to: "/proof", label: t("Proof", "金库储备") },
     { to: "/sponsor", label: t("Sponsor", "品牌合作") },

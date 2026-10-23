@@ -21,14 +21,14 @@ export function buildAgentCommand(c: AgentCommandInput): string {
   if (c.lang === "zh") {
     return [
       `请用我的币安 Agent 钱包领取 CATCH 奖励：在 ${c.place} 领取 ${c.amount} ${c.symbol}。`,
-      `在 BSC（链 ID ${c.chainId}）上调用 CATCH 金库 ${c.vault} 的 claimGameVoucher，发送 0 BNB。`,
+      `需已在币安 App 开启开发者模式。在 BSC（链 ID ${c.chainId}）上调用 CATCH 金库 ${c.vault} 的 claimGameVoucher，发送 0 BNB。`,
       `先预览交易并把结果给我看，我确认后再执行。本指令 ${clock(c.deadline, "zh")} 前有效，只能由钱包 ${c.wallet} 使用一次。`,
       cli,
     ].join("\n");
   }
   return [
     `Claim my CATCH reward with my Binance Agentic Wallet: ${c.amount} ${c.symbol} at ${c.place}.`,
-    `Call claimGameVoucher on the CATCH vault ${c.vault} on BSC (chain ${c.chainId}), sending 0 BNB.`,
+    `Developer Mode must be on in the Binance App. Call claimGameVoucher on the CATCH vault ${c.vault} on BSC (chain ${c.chainId}), sending 0 BNB.`,
     `Preview the transaction first and show me the result; execute only after I confirm. Valid until ${clock(c.deadline, "en")}, single use, only from wallet ${c.wallet}.`,
     cli,
   ].join("\n");

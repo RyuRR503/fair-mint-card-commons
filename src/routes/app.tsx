@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -293,6 +293,7 @@ function AppMap() {
               <li>{t("3. Paste it to your AI. It previews, you confirm, it claims on BSC.", "3. 把指令发给 AI：先预览，你确认后它在 BSC 上领取。")}</li>
             </ol>
             <p className="mt-3 text-xs text-muted-foreground">{t("The vault only pays wallets holding a Binance Agent ID, and only to themselves.", "金库只向持有币安 Agent ID 的钱包付款，且只能领给自己。")}</p>
+            <Link to="/agent-guide" className="mt-3 inline-block text-xs text-primary underline">{t("First time? Set up your Agent Wallet →", "第一次用？查看 Agent 钱包设置教程 →")}</Link>
             <p className="mt-3 text-xs text-muted-foreground">{CHAIN.name} · {t("All rarities are Agent-only", "所有稀有度均仅限 Agent")}</p>
           </Panel>
           <Panel>
