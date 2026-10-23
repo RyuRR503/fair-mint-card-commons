@@ -126,7 +126,7 @@ export function CityMarketScene() {
         camera.position.z = 17 - progress * 3.8;
         camera.position.y = 3.2 - progress * 1.2;
         camera.lookAt(0, progress * 0.45, 0);
-        world.rotation.y += ((reduced.matches ? 0 : progress * 0.32) - world.rotation.y) * ease;
+        world.rotation.y = reduced.matches ? 0 : world.rotation.y + (progress * 0.32 - world.rotation.y) * ease;
         world.rotation.x = -0.04;
         world.position.y = progress * 0.8;
         // Trace continuously, hold the final target, then gently release for the next pass.
