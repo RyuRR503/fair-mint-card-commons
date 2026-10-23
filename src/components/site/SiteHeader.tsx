@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useLang, useT } from "@/lib/i18n";
-import catchLogo from "@/assets/catch-logo.png";
+import catchLogo from "@/assets/catch-wordmark.png";
 
 function useNav() {
   const t = useT();
@@ -49,16 +49,15 @@ export function LangToggle({ className = "" }: { className?: string }) {
 }
 
 /**
- * The CATCH mark: a bracket-built "C" catching a signal dot.
+ * The CATCH logo: refined gold lettering whose A carries a glowing agent "eye".
  */
 export function CatchMark({ className = "" }: { className?: string }) {
   return (
     <img
       src={catchLogo}
-      alt=""
-      aria-hidden
+      alt="CATCH"
       draggable={false}
-      className={`size-9 shrink-0 select-none ${className}`}
+      className={`h-7 w-auto shrink-0 select-none ${className}`}
     />
   );
 }
@@ -86,7 +85,6 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-6xl items-center gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="CATCH home">
           <CatchMark />
-          <span className="font-poster text-3xl text-foreground">CATCH</span>
         </Link>
 
         <nav aria-label={t("Main navigation", "主导航")} className="hidden min-w-0 flex-1 items-center justify-center gap-0 lg:flex">
