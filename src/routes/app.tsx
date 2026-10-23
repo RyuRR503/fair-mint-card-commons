@@ -11,7 +11,6 @@ import type { LegendaryPoint, MapPoint } from "@/components/site/GeoMap.client";
 import { claimDrop, getClaimStatus, getLegendary, getSpawns, RULES } from "@/lib/game.functions";
 import { isPending, type ClaimPhase } from "@/lib/claim-status";
 import { buildAgentCommand } from "@/lib/agent-command";
-import { isPreviewHost } from "@/lib/site-gate";
 import { CITY_BY_KEY } from "@/lib/cities";
 import { Input } from "@/components/ui/input";
 import { catchRadius, formatDistance, haversine } from "@/lib/geo";
@@ -54,10 +53,10 @@ export const Route = createFileRoute("/app")({
       {
         name: "description",
         content:
-          "Explore nearby signals and preview the phone GPS to AI command to Agent Wallet claim flow. Live Agent claims are pending.",
+          "Explore nearby signals and claim real bStocks: phone GPS, a single-use code, then your Binance Agent Wallet claims on BSC.",
       },
       { property: "og:title", content: "CATCH — the live map" },
-      { property: "og:description", content: "Explore real-world stock locations and the planned Binance Agentic Wallet claim experience." },
+      { property: "og:description", content: "Explore real-world stock locations and claim them with a Binance Agentic Wallet." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       ...SITE_PREVIEW_META,
@@ -99,10 +98,6 @@ function AppMap() {
   const [claimError, setClaimError] = useState<{ en: string; zh: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [issued, setIssued] = useState<null | { spawnId: string; code: string; amount: number; symbol: string; place: string; deadline: number; chainId: number }>(null);
-  const [testMode, setTestMode] = useState(false);
-  useEffect(() => {
-    setTestMode(isPreviewHost(window.location.host));
-  }, []);
 
 
 
@@ -349,16 +344,6 @@ function AppMap() {
     }
   }
 
-  /** Preview-only: place the device next to the selected point. The server skips on-site checks only on preview hosts. */
-  function teleportToActive() {
-    if (!active) return;
-    const now = Date.now();
-    const lat = active.lat + 0.00004;
-    const lng = active.lng + 0.00004;
-    samples.current = Array.from({ length: 6 }, (_, i) => [lat + i * 0.000005, lng - i * 0.000004, 10 + i, now - (5 - i) * 5000] as [number, number, number, number]);
-    motion.current = 12;
-    setFix({ lat, lng, accuracy: 12 });
-  }
 
   async function copyCommand() {
     if (!command) return;
@@ -513,11 +498,6 @@ function AppMap() {
                     ? t(`${formatDistance(active.distance)} away`, `距离 ${formatDistance(active.distance)}`)
                     : t("Enable location to measure the distance.", "开启定位后可查看点位距离。")}
                 </p>
-                {testMode && (
-                  <Button variant="outline" size="sm" onClick={teleportToActive} className="mt-4 w-full">
-                    <MapPinIcon />{t("Test: put me at this point", "测试：把我的位置设到这个点位")}
-                  </Button>
-                )}
 <Button
                   disabled={busy || !fix || !!activeCooling || claimEligibility(active.rarity, "agent") !== "ready"}
                   onClick={getCommand}
@@ -594,7 +574,7 @@ function AppMap() {
             <h2 className="label-caps text-xs text-muted-foreground">{t("The rules", "规则")}</h2>
             <ul className="mt-3 space-y-2 text-xs leading-relaxed text-muted-foreground">
               <li>{t("· Every rarity requires an Agent Wallet, including legendary.", "· 普通、稀有、史诗、传奇，全部仅限 Agent 钱包。")}</li>
-              <li>{t("· Planned flow: phone GPS → 15-minute command → AI → Agent claim.", "· 计划流程：手机定位 → 15 分钟指令 → AI → Agent 领取。")}</li>
+              <li>{t("· Flow: phone GPS → 15-minute command → AI → Agent claim.", "· 流程：手机定位 → 15 分钟指令 → AI → Agent 领取。")}</li>
               <li>
                 {t(`· GPS accuracy under ${RULES.maxAccuracyM} m.`, `· GPS 精度需优于 ${RULES.maxAccuracyM} 米。`)}
               </li>

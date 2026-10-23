@@ -1,3 +1,4 @@
+import { TIER_USD } from "@/lib/allocation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
@@ -13,13 +14,13 @@ export const Route = createFileRoute("/how-it-works")({
       {
         name: "description",
         content:
-          "CATCH location verification, single-use commands, Agent-only claim rules, vault funding and anti-cheat checks on BNB Smart Chain. Live Agent integration is pending.",
+          "CATCH location verification, single-use commands, Agent-only claim rules, vault funding and anti-cheat checks on BNB Smart Chain.",
       },
       { property: "og:title", content: "How CATCH works" },
       {
         property: "og:description",
         content:
-          "Planned Agent-only claim rules, GPS presence checks and 15-minute AI commands. Live integration is pending.",
+          "Agent-only claim rules, GPS presence checks and 15-minute claim codes.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -67,18 +68,18 @@ function HowItWorks() {
     },
     {
       n: "05",
-      h: t("A 15-minute AI command (planned).", "获取 15 分钟有效的 AI 指令（待接通）。"),
+      h: t("A 15-minute claim code.", "获取 15 分钟有效的领取码。"),
       p: t(
-        "After GPS and rule checks pass, the planned service issues a single-use command bound to the point and Agent recipient. Send it to your AI within 15 minutes. This preview does not issue real commands.",
-        "接通后，定位与规则通过才会签发一次性指令，绑定点位和 Agent 收款钱包。用户将指令发送给 AI，并在 15 分钟内使用；当前预览不会签发真实指令。",
+        "After GPS and rule checks pass, the site issues a single-use claim code bound to the point. You don't enter a wallet: send the instruction to your AI within 15 minutes and it adds its own Agent Wallet.",
+        "定位与规则通过后，网站签发绑定点位的一次性领取码，无需填写钱包。15 分钟内把指令发给 AI，它会自动带上自己的 Agent 钱包。",
       ),
     },
     {
       n: "06",
-      h: t("Your Agent submits the claim (planned).", "Agent 提交领取（待接通）。"),
+      h: t("Your Agent submits the claim.", "Agent 提交领取。"),
       p: t(
-        "Your AI uses its Binance Agentic Wallet to claim the bStocks fragment on BSC. Ordinary wallets cannot claim any rarity under the intended rules. Agent identity checks and transaction submission are not connected yet; gas sponsorship is not promised.",
-        "AI 使用币安 Agent 钱包在 BSC 领取 bStocks 碎片。计划规则下，普通钱包不能领取任何稀有度。Agent 身份校验和交易提交尚未接通，不承诺免 Gas。",
+        "Your AI uses its Binance Agentic Wallet to claim the bStocks fragment on BSC. Ordinary wallets cannot claim any rarity: the vault checks the Agent ID on-chain and pays the calling wallet itself. Gas is paid by the Agent Wallet.",
+        "AI 使用币安 Agent 钱包在 BSC 领取 bStocks 碎片。普通钱包不能领取任何稀有度：金库在链上核对 Agent ID，并只把奖励转给发起交易的钱包本身。手续费由 Agent 钱包支付。",
       ),
     },
   ];
@@ -145,8 +146,8 @@ function HowItWorks() {
         eyebrow={t("how it works", "玩法")}
         title={t("Location verification and Agent claim rules", "定位验证与 Agent 领取规则")}
         lead={t(
-          "Every rarity is intended for Agent-only claims: human GPS, AI command, Agent transaction. Live integration is not connected.",
-          "所有稀有度的碎片均仅限币安 Agent 钱包领取。用户抵达指定地点并通过定位验证后，获取一次性指令，由 AI 通过 Agent 钱包提交链上领取。当前为流程预览，真实领取功能接入中。",
+          "Every rarity is intended for Agent-only claims: human GPS, AI command, Agent transaction. Map claims are live; the legendary event claim is not connected yet.",
+          "所有稀有度的碎片均仅限币安 Agent 钱包领取。用户抵达指定地点并通过定位验证后，获取一次性指令，由 AI 通过 Agent 钱包提交链上领取。地图点位已可真实领取，传奇活动的领取暂未接通。",
         )}
         className="mt-10"
       />
@@ -181,7 +182,7 @@ function HowItWorks() {
                 <tr key={tk.symbol} className="border-b border-border/60 last:border-0">
                   <td className="px-6 py-3 label-caps text-xs">{tk.symbol}</td>
                   <td className="px-6 py-3 text-muted-foreground">{t(tk.venue, tk.venueZh)}</td>
-                  <td className="px-6 py-3 font-mono text-xs">{tk.fragment} {tk.symbol}</td>
+                  <td className="px-6 py-3 font-mono text-xs">≈${TIER_USD[tk.rarity]} {tk.symbol}</td>
                   <td className="px-6 py-3 font-mono text-xs">
                     {tk.targetDrops} {t("catches", "次")}
                   </td>
@@ -192,11 +193,11 @@ function HowItWorks() {
         </Panel>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <Panel>
-            <h3 className="label-caps text-[11px] text-primary">{t("Same token, same amount", "同一代币，数量统一")}</h3>
+            <h3 className="label-caps text-[11px] text-primary">{t("Value by rarity, amount by price", "价值按稀有度，数量按实时价格")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "The fragment size belongs to the token, not the pin. Every Apple store pays the same AAPLB fragment, every internet café pays the same NVDAB fragment. Value follows rarity: about $2 a catch for common, $3.5 for rare, $5.5 for epic, and one whole share (about $150) for the legendary SPCXB.",
-                "碎片大小由代币决定，与点位无关。每家 Apple 店发同样的 AAPLB，每家网吧发同样的 NVDAB。价值按稀有度递增：普通约 $2 一次，稀有约 $3.5，史诗约 $5.5，传奇 SPCXB 是 1 整股（约 $150）。",
+                "Every point of the same token pays the same amount. Value follows rarity: about $2 a catch for common, $3.5 for rare, $7 for epic and about $150 for the legendary SPCXB; the token amount is converted from the live on-chain price.",
+                "同种代币的所有点位，单次数量相同。价值按稀有度递增：普通约 $2 一次，稀有约 $3.5，史诗约 $7，传奇 SPCXB 约 $150；具体数量按链上实时价格换算。",
               )}
             </p>
 
@@ -217,8 +218,8 @@ function HowItWorks() {
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {t(
-              "The map covers 30 Chinese cities with 938 permanent drops pinned to 7,407 real OpenStreetMap venues. Beijing has 67 drops, Shanghai 63, Shenzhen 59, and Chengdu 56. A weekend in Guangzhou could take you from a bank (QQQB) near Haizhu Square to a brokerage (SPYB) in Tianhe, then a phone repair market (MUB) in Dongshan — all within the same wallet day.",
-              "地图覆盖 30 座中国城市，938 个永久掉落点对应 7407 个 OpenStreetMap 真实门店。北京 67 个，上海 63 个，深圳 59 个，成都 56 个。一个广州周末可以从海珠广场附近的银行（QQQB）开始，走到天河的证券营业部（SPYB），再去东山的手机维修市场（MUB）—— 全在一天钱包上限之内。",
+              "The map covers 30 Chinese cities with 938 candidate points pinned to 7,407 real OpenStreetMap venues; how many are open at once follows the vault's real inventory and rotates daily. Beijing has 67 drops, Shanghai 63, Shenzhen 59, and Chengdu 56. A weekend in Guangzhou could take you from a bank (QQQB) near Haizhu Square to a brokerage (SPYB) in Tianhe, then a phone repair market (MUB) in Dongshan — all within the same wallet day.",
+              "地图覆盖 30 座中国城市，938 个候选点位对应 7407 个 OpenStreetMap 真实门店；同时开放多少个由金库实际库存决定，并每日轮换。北京 67 个，上海 63 个，深圳 59 个，成都 56 个。一个广州周末可以从海珠广场附近的银行（QQQB）开始，走到天河的证券营业部（SPYB），再去东山的手机维修市场（MUB）—— 全在一天钱包上限之内。",
             )}
           </p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -289,11 +290,11 @@ function HowItWorks() {
             </p>
           </Panel>
           <Panel>
-            <h3 className="label-caps text-[11px] text-primary">{t("Permanent points", "固定点位")}</h3>
+            <h3 className="label-caps text-[11px] text-primary">{t("Real venues", "真实门店")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "Signals are tied to real stores, not regenerated every day. A caught point simply goes to sleep, then reopens automatically when its cooldown ends.",
-                "点位绑定真实门店，并非每日重新生成。完成领取后进入冷却，冷却结束后按规则重新开放。",
+                "Points are tied to real stores; which ones are open rotates daily with the vault's inventory. A caught point goes to sleep, then reopens automatically when its cooldown ends.",
+                "点位绑定真实门店，开放哪些点随金库库存每日轮换。完成领取后进入冷却，冷却结束后按规则重新开放。",
               )}
             </p>
           </Panel>
@@ -303,7 +304,7 @@ function HowItWorks() {
       <Section title={t("The voucher", "凭证结构")}>
         <Panel className="mt-6">
           <pre className="overflow-x-auto font-mono text-xs leading-relaxed text-foreground/80">{`GameVoucher {
-  address to;       // your Agent Wallet (planned)
+  address to;       // your Agent Wallet
   uint8   district; // 0-8, e.g. the AAPLB district on ${CHAIN.short}
   uint256 amount;   // 0.02 AAPLB = 20000000000000000 (18 decimals)
   bytes32 spawnId;  // keccak256("shanghai-0")

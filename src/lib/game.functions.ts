@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { cityByKey, type Spawn } from "./spawns";
-import { isPreviewHost } from "./site-gate";
 import { TOKEN_BY_SYMBOL, TOKENS, VAULT_ADDRESS, CHAIN, DISTRICT_BY_SYMBOL, type Rarity } from "./tokens";
 import { catchRadius, haversine, MAX_ACCURACY_M } from "./geo";
 import { allocate, claimShares, payableClaims } from "./allocation";
@@ -357,9 +356,8 @@ export const claimDrop = createServerFn({ method: "POST" })
     if (spawn.rarity === "legendary")
       return fail("Legendary drops are only claimable inside their event window, on the spot.", "传奇碎片只能在限时活动期间现场领取。");
 
-    // Preview/dev hosts may skip the on-site checks for testing; published hosts never can.
-    const { getRequestHost } = await import("@tanstack/react-start/server");
-    const tester = isPreviewHost(getRequestHost());
+    // on-site checks always apply, on every host
+    const tester = false as boolean;
 
     // 1. accuracy + radius
     if (data.accuracy > RULES.maxAccuracyM)
