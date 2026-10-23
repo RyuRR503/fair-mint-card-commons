@@ -8,4 +8,4 @@
 - [x] Test the preview-only claim gate and verify the UI on desktop/mobile.
 - [x] Apply a cohesive black-and-gold visual theme inspired by baid.help.
 - [x] Replace the homepage decorative fragment panel with city photography.
-- [x] Verify desktop/mobile appearance and existing navigation.
+- [x] Verify desktop/mobile appearance and existing navigation.- [ ] Logo 重做：去掉猫爪等直白图形，做高级感/艺术馆气质的抽象设计，表达"抓住股票"的瞬间，出多版供用户选择
