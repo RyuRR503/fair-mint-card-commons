@@ -245,7 +245,13 @@ export default function GeoMap({
             </div>`,
           )
           .addTo(m);
-      });
+      };
+      for (const layer of ["signal-dot", "signal-label"] as const) {
+        m.on("click", layer, (e) => {
+          const f = e.features?.[0];
+          if (f) openSignal(f as unknown as { properties: Record<string, string>; geometry: { coordinates: number[] } });
+        });
+      }
       m.on("mouseenter", "signal-dot", () => {
         m.getCanvas().style.cursor = "pointer";
       });
