@@ -19,7 +19,7 @@
 - Shared website colors and cover-image treatments are defined in src/styles.css semantic tokens; company identity and rarity colors remain distinct so theme changes do not erase asset recognition.
 - Decorative city signals are isolated from live map data and claim status; motion uses transforms and opacity with reduced-motion fallbacks so visual polish cannot imply GPS validation or payouts.
 - CityMarketScene loads Three.js only after hydration, derives its palette from CSS tokens, and owns disposable decorative scene resources; keep it independent of real GPS, pricing and claims.
-- The city photograph is a single stationary image; CityMarketScene animates decorative route tracing and lock-on independently of pointer input, with reduced-motion fallback, so moving image copies cannot cause blur or ghosting.
-- The homepage uses one bounded sticky city backdrop and CityMarketScene scroll progression through the Agent journey into the live map; keep native scrolling, restore inline animation properties on cleanup, and avoid shared-component changes for homepage-only choreography.
+- The city photograph is a single stationary image; CityMarketScene animates an optical capture sculpture independently of pointer input, supports explicit playback pause and a static reduced-motion composition, and suspends frames offscreen or in hidden tabs to prevent blur and wasted rendering.
+- The homepage uses one bounded sticky city backdrop with explicit non-negative internal layers; scroll choreography updates through a passive scroll listener independently of WebGL availability, preserves native scrolling and readable content, and restores inline properties on cleanup.
 
 - Agent claim presentation policy lives in src/lib/agent-claims.ts and shared AgentJourney UI; while integration is pending, the map page must not issue vouchers or submit legacy browser-wallet claims, so previews cannot appear to award real assets.
