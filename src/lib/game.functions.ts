@@ -254,6 +254,11 @@ async function liveBook(): Promise<Book> {
   const live = new Set<string>();
   for (const [sym, cands] of bySym)
     for (const id of allocate(cands, budget[sym] ?? 0, `${day}:${sym}`)) live.add(id);
+  // temporary owner drain test: "test-" points stay open while their token has any inventory
+  if (process.env["TEST_CLAIM_DRAIN"] === "1")
+    for (const [sym, cands] of bySym)
+      for (const c of cands)
+        if (c.id.startsWith("test-") && (inventory[sym] ?? 0) > 0) live.add(c.id);
   bookCache = { shares, budget, inventory, price, live, day, at: Date.now() };
   return bookCache;
 }
