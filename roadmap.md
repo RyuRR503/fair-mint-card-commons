@@ -1,6 +1,6 @@
 # Roadmap
-- [ ] Unify homepage and navigation CATCH lettering with the approved uploaded map banner; verify desktop and mobile.
-- [ ] Update all four banners to the approved lettering, inspect exact 1500×500 outputs and deliver a new collection.
+- [x] Unify homepage and navigation CATCH lettering with the approved uploaded map banner; verify desktop and mobile.
+- [x] Update all four banners to the approved lettering, inspect exact 1500×500 outputs and deliver a new collection.
 - [x] Redesign only banner CATCH typography and color; compare three lettering directions on the same unchanged map artwork and deliver inspected 1500×500 options.
 - [x] Recompose all four 1500×500 banners with individually sized and positioned CATCH lettering, preserving the final logo's yellow-to-gold palette without forcing hero typography; inspect all final compositions and deliver v4 collection.
 - [x] Refine black-gold navigation, mobile stock list and shared visual details; verify interactions and reduced motion.

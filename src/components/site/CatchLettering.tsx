@@ -1,4 +1,4 @@
-import lettering from "@/assets/catch-lettering.png.asset.json";
+import lettering from "@/assets/catch-lettering-crisp.png.asset.json";
 
 /** One approved lettering asset shared by every website placement. */
 export function CatchLettering({ className = "" }: { className?: string }) {
