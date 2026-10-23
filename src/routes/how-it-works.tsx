@@ -197,8 +197,8 @@ function HowItWorks() {
             <h3 className="label-caps text-[11px] text-primary">{t("Value by rarity, amount by price", "价值按稀有度，数量按实时价格")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "Current reward targets are approximately $2 for common, $3.5 for rare and $7 for epic claims. Token amounts are calculated from live on-chain prices, not fixed token quantities. If these targets change, this page and the claim rules will be updated. SPCXB legendary events are not open; the $150 target is reserved for future events.",
-                "目前单次奖励按稀有度设置参考价值：普通约 2 美元、稀有约 3.5 美元、史诗约 7 美元。实际代币数量按链上实时价格换算，并非固定股数。后续如调整奖励标准，本页与领取规则将同步更新。传奇 SPCXB 暂未开放，约 150 美元为后续活动的预设标准。",
+                "Current reward targets are approximately $5 for common, $10 for rare and $20 for epic claims. Token amounts are calculated from live on-chain prices, not fixed token quantities. If these targets change, this page and the claim rules will be updated. SPCXB legendary events are not open; the $150 target is reserved for future events.",
+                "目前单次奖励按稀有度设置参考价值：普通约 5 美元、稀有约 10 美元、史诗约 20 美元。实际代币数量按链上实时价格换算，并非固定股数。后续如调整奖励标准，本页与领取规则将同步更新。传奇 SPCXB 暂未开放，约 150 美元为后续活动的预设标准。",
               )}
             </p>
 

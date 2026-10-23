@@ -2,9 +2,9 @@ import type { Rarity } from "./tokens";
 
 /** Target USD value of one claim, by rarity. */
 export const TIER_USD: Record<Rarity, number> = {
-  common: 2,
-  rare: 3.5,
-  epic: 7,
+  common: 5,
+  rare: 10,
+  epic: 20,
   legendary: 150,
 };
 

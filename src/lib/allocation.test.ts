@@ -13,8 +13,8 @@ describe("inventory-based point allocation", () => {
     assert.equal(payableClaims(1, 0.01), 100);
     assert.equal(payableClaims(0, 0.01), 0);
   });
-  test("each claim is worth about $2 for common", () => {
-    assert.equal(claimShares("common", 200, 0.5), 0.01);
+  test("each claim is worth about $5 for common", () => {
+    assert.equal(claimShares("common", 500, 0.5), 0.01);
   });
   test("no price keeps the fixed fragment", () => {
     assert.equal(claimShares("common", null, 0.0027), 0.0027);
