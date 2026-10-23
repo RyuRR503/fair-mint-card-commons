@@ -45,8 +45,8 @@ export const CHAIN = {
 /** Deployed MapCity vault proxy on BSC (verified on-chain 2026-10-23). */
 export const VAULT_ADDRESS = "0x699ffc34719d992fa14b2b6e3da1ebd083797beb";
 
-/** Treasury that buys fragments and refills the vault. */
-export const TREASURY_ADDRESS = "0x0000000000000000000000000000000000000000";
+/** Treasury / ops wallet that receives fees and refills the vault (opsTreasury on-chain). */
+export const TREASURY_ADDRESS = "0xD60d847c18610dB29d48d6181bc3D55E30cA0Aa5";
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 

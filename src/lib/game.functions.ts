@@ -502,26 +502,55 @@ export const getVault = createServerFn({ method: "GET" }).handler(async () => {
   const vault = vaultAddress();
   const rpc = CHAIN.rpc;
   const live = liveMode();
+  // Balance reads are public: show real chain data as soon as a vault address
+  // is set, even while claims (which need the signer key) are not live yet.
+  const hasVault = vault !== ZERO;
 
-  async function balanceOf(tokenAddress: string): Promise<number | null> {
-    if (!live) return null;
+  async function rpcCall(to: string, data: string): Promise<bigint | null> {
     try {
-      const body = {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "eth_call",
-        params: [
-          {
-            to: tokenAddress,
-            data: `0x70a08231000000000000000000000000${vault.slice(2)}`,
-          },
-          "latest",
-        ],
-      };
       const res = await fetch(rpc, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_call",
+          params: [{ to, data }, "latest"],
+        }),
+      });
+      const json = (await res.json()) as { result?: string };
+      if (!json.result || json.result === "0x") return null;
+      return BigInt(json.result);
+    } catch {
+      return null;
+    }
+  }
+
+  async function balanceOf(tokenAddress: string): Promise<number | null> {
+    if (!hasVault) return null;
+    const raw = await rpcCall(tokenAddress, `0x70a08231000000000000000000000000${vault.slice(2)}`);
+    return raw == null ? null : Number(raw) / 1e18;
+  }
+
+  /** BNB waiting in a district to be swapped into its stock token. */
+  async function pendingBnb(district: number): Promise<number | null> {
+    if (!hasVault) return null;
+    const raw = await rpcCall(vault, `0x953714c3${district.toString(16).padStart(64, "0")}`);
+    return raw == null ? null : Number(raw) / 1e18;
+  }
+
+  async function vaultBnb(): Promise<number | null> {
+    if (!hasVault) return null;
+    try {
+      const res = await fetch(rpc, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_getBalance",
+          params: [vault, "latest"],
+        }),
       });
       const json = (await res.json()) as { result?: string };
       if (!json.result) return null;
@@ -531,35 +560,41 @@ export const getVault = createServerFn({ method: "GET" }).handler(async () => {
     }
   }
 
-  const balances = await Promise.all(
-    TOKENS.map(async (t) => {
-      const address = tokenAddressFor(t.symbol, t.address);
-      const onChain = await balanceOf(address);
-      // Demo reserve so the page is never empty before the vault is funded.
-      const balance = onChain ?? t.fragment * t.targetDrops;
-      const drops = Math.floor(balance / t.fragment);
-      return {
-        symbol: t.symbol,
-        address,
-        balance,
-        fragment: t.fragment,
-        drops,
-        targetDrops: t.targetDrops,
-        // How much of this token still has to be bought to hit the target.
-        deficit: Math.max(0, (t.targetDrops - drops) * t.fragment),
-        needsRefill: drops < t.targetDrops,
-        rarity: t.rarity,
-        onChain: onChain != null,
-      };
-    }),
-  );
+  const [bnb, balances] = await Promise.all([
+    vaultBnb(),
+    Promise.all(
+      TOKENS.map(async (t, i) => {
+        const address = tokenAddressFor(t.symbol, t.address);
+        const [onChain, pending] = await Promise.all([balanceOf(address), pendingBnb(i)]);
+        // Demo reserve so the page is never empty before the vault is funded.
+        const balance = onChain ?? t.fragment * t.targetDrops;
+        const drops = Math.floor(balance / t.fragment);
+        return {
+          symbol: t.symbol,
+          address,
+          balance,
+          fragment: t.fragment,
+          drops,
+          targetDrops: t.targetDrops,
+          // How much of this token still has to be bought to hit the target.
+          deficit: Math.max(0, (t.targetDrops - drops) * t.fragment),
+          needsRefill: drops < t.targetDrops,
+          rarity: t.rarity,
+          onChain: onChain != null,
+          pendingBnb: pending,
+        };
+      }),
+    ),
+  ]);
 
   return {
     vault,
     live,
+    onChain: hasVault,
     explorer: CHAIN.explorer,
     chainId: CHAIN.id,
-    treasuryBnb: live ? 0 : 12.4,
+    vaultBnb: bnb,
+    treasuryBnb: 0,
     balances,
     payableDrops: balances.reduce((n, b) => n + b.drops, 0),
     targetDrops: balances.reduce((n, b) => n + b.targetDrops, 0),
