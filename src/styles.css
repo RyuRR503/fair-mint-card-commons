@@ -781,3 +781,8 @@ html { scroll-padding-top: 90px; }
 @media (max-width: 639px) {
   .city-hero-shade { background: linear-gradient(90deg, color-mix(in oklab, var(--background) 92%, transparent), color-mix(in oklab, var(--background) 50%, transparent)), linear-gradient(0deg, var(--background), transparent 50%); }
 }
+
+/* CATCH logo: flat primary token, breathing agent eye. */
+.catch-logo-eye-glow { opacity: 0.35; transform-box: fill-box; transform-origin: center; animation: logo-eye 3.2s ease-in-out infinite; }
+@keyframes logo-eye { 0%, 100% { opacity: 0.2; transform: scale(0.85); } 50% { opacity: 0.55; transform: scale(1.15); } }
+@media (prefers-reduced-motion: reduce) { .catch-logo-eye-glow { animation: none; } }
