@@ -122,7 +122,7 @@ function Home() {
           </div>
 
           {/* big numbers */}
-          <div className="grid grid-cols-3 border-t border-border">
+          <div className="hero-stats grid grid-cols-3 border-t border-border">
             {[
               { v: String(TOTAL_SPAWNS), l: t("Live drops", "永久掉落点") },
               { v: String(TOTAL_CITIES), l: t("Cities", "座城市") },
@@ -140,7 +140,7 @@ function Home() {
       <div className="mx-auto max-w-6xl px-5"><AgentStatus /></div>
 
       {/* ------------------------------------------------------ ticker */}
-      <div className="overflow-hidden border-b border-border py-5" aria-hidden>
+      <div className="stock-ticker overflow-hidden border-b border-border py-5" aria-hidden>
         <div className="marquee-track gap-12">
           {[...TOKENS, ...TOKENS].map((tk, i) => (
             <span key={i} className="flex shrink-0 items-center gap-3 pr-12">
@@ -292,7 +292,22 @@ function Home() {
         eyebrow={t("signal table", "信号表")}
         title={t("One drop rule per token, worldwide.", "每个代币一条掉落规则，全球通用。")}
       >
-        <Panel className="mt-8 overflow-x-auto p-0 sm:p-0">
+        <div className="mt-8 divide-y divide-border border-y border-border sm:hidden">
+          {TOKENS.map((tk) => (
+            <div key={tk.symbol} className="flex items-start gap-3 py-5">
+              <TokenChip symbol={tk.symbol} size={36} />
+              <div className="min-w-0 flex-1">
+                <p className="font-mono text-sm font-semibold">{tk.symbol}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{t(tk.venue, tk.venueZh)}</p>
+              </div>
+              <div className="shrink-0 text-right">
+                <span className="text-xs" style={{ color: rarityVar(tk.rarity) }}>{RARITY_LABEL[tk.rarity]}</span>
+                <p className="mt-2 font-mono text-xs">{tk.rarity === "legendary" ? t("1 full share", "1 整股") : tk.fragment}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <Panel className="mt-8 hidden overflow-x-auto p-0 sm:block sm:p-0">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead>
               <tr className="label-caps border-b border-border text-[10px] text-muted-foreground">
