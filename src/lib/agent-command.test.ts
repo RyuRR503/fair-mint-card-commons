@@ -3,9 +3,8 @@ import assert from "node:assert/strict";
 import { buildAgentCommand } from "./agent-command";
 
 const base = {
-  wallet: "0x1111111111111111111111111111111111111111",
-  vault: "0x699ffc34719d992fa14b2b6e3da1ebd083797beb",
-  inputData: "0xabcdef",
+  code: "CATCH-ABC234",
+  api: "https://catch.fun/api/public/agent-claim",
   amount: 0.00942,
   symbol: "NVDAB",
   place: "网吧",
@@ -24,11 +23,12 @@ describe("Agent claim command", () => {
     assert.ok(s.includes("Claim my CATCH reward"));
     assert.ok(!s.includes("请用"));
   });
-  test("both carry the real wallet, vault, calldata and BSC chain", () => {
+  test("user never types a wallet: the AI fills its own address", () => {
     for (const lang of ["zh", "en"] as const) {
       const s = buildAgentCommand({ ...base, lang });
-      assert.ok(s.includes(`--from ${base.wallet} --to ${base.vault} --value 0 --inputData 0xabcdef`));
-      assert.ok(s.includes("--binanceChainId 56"));
+      assert.ok(s.includes('"wallet":"<AGENT_WALLET>"'));
+      assert.ok(s.includes('"code":"CATCH-ABC234"'));
+      assert.ok(s.includes(base.api));
     }
   });
 });
