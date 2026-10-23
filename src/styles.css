@@ -788,3 +788,35 @@ html { scroll-padding-top: 90px; }
 .catch-logo-eye-glow { opacity: 0.35; transform-box: fill-box; transform-origin: center; animation: logo-eye 3.2s ease-in-out infinite; }
 @keyframes logo-eye { 0%, 100% { opacity: 0.2; transform: scale(0.85); } 50% { opacity: 0.55; transform: scale(1.15); } }
 @media (prefers-reduced-motion: reduce) { .catch-logo-eye-glow { animation: none; } }
+
+/* Unframed market coordinates occupy the city, not the reading column. */
+.city-market-scene {
+  position: absolute;
+  top: 10%;
+  right: 0;
+  width: 48%;
+  height: 76%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  animation: market-scene-in 1800ms var(--ease-cine) 350ms forwards;
+  mask-image: linear-gradient(90deg, transparent, var(--background) 15%, var(--background) 92%, transparent);
+}
+.city-market-scene canvas { display: block; width: 100%; height: 100%; }
+.agent-hero .signal-apple { top: 31%; left: 77%; }
+.agent-hero .signal-nvidia { top: 18%; left: 85%; }
+.agent-hero .signal-tesla { top: 64%; left: 70%; }
+.agent-hero .reveal-focus { animation-duration: 1200ms; }
+.agent-hero .hero-stats { animation: reveal-focus 1200ms var(--ease-cine) 300ms both; }
+@keyframes market-scene-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 0.8; transform: translateY(0); } }
+@media (max-width: 1023px) {
+  .city-market-scene { width: 50%; right: -7%; opacity: 0.45; }
+}
+@media (max-width: 639px) {
+  .city-market-scene { top: auto; bottom: 0; right: -6%; width: 78%; height: 33%; animation-name: market-scene-mobile-in; }
+  @keyframes market-scene-mobile-in { from { opacity: 0; } to { opacity: 0.3; } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .city-market-scene { animation: none; opacity: 0.65; }
+  .agent-hero .hero-stats { animation: none; }
+}
