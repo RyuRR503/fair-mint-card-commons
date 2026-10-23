@@ -49,7 +49,7 @@ function AgentGuide() {
     },
     {
       title: t("Claim on site", "到店领取"),
-      body: t("Open the map at a live point, enable location, enter your Agent Wallet address and get the command. Paste it to your AI: it previews, shows you the result, and executes only after you say yes. The command is single use and valid for 15 minutes.", "到开放中的点位打开地图，开启定位，填写 Agent 钱包地址并获取指令。把指令发给 AI：它先预览并把结果给你看，你确认后才执行。指令只能用一次，15 分钟内有效。"),
+      body: t("Open the map at a live point, enable location and get the claim code. Paste the whole instruction to your AI: it adds its own wallet address, previews, shows you the result, and executes only after you say yes. The code is single use and valid for 15 minutes — don't share it.", "到开放中的点位打开地图，开启定位，获取领取码。把整段指令发给 AI：它会自动带上自己的钱包地址，先预览并把结果给你看，你确认后才执行。领取码只能用一次，15 分钟内有效，请勿外传。"),
     },
   ];
   return (
