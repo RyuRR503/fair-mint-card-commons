@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Correct all four 1500×500 banners to use the homepage hero typography and gold gradient.
 - [x] Refine black-gold navigation, mobile stock list and shared visual details; verify interactions and reduced motion.
 - [x] Replace warm yellow city treatment with a cool neutral Agent visual direction.
 - [x] Add intentional city motion, signal details and Agent flow micro-interactions with reduced-motion support.
