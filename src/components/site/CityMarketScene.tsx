@@ -63,6 +63,8 @@ export function CityMarketScene() {
             const length = path.getTotalLength();
             path.style.strokeDasharray = String(length);
             path.style.strokeDashoffset = String(length * (1 - eased));
+            // Retire the city arc after arrival; leave only the step-to-step trace.
+            path.style.opacity = String(index === 0 ? 0.35 * (1 - Math.min(1, Math.max(0, (signalStage - end) / 0.04))) : 0.35);
             if (signalStage >= start) position = path.getPointAtLength(length * eased);
           });
           if (position && dot.current) {
