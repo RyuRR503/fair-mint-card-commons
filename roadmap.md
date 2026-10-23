@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Connect the city scene and homepage content through a shared sticky backdrop and scroll-driven progression; verify forward/backward scrolling, mobile, reduced motion and existing controls.
 - [x] Separate city foreground, midground and distance with stronger smooth pointer parallax; preserve lettering and palette, verify pointer movement, mobile framing and reduced motion.
 - [x] Add a decorative 3D city stock-lock scene with pointer depth and scroll-driven movement; verify desktop/mobile rendering, reduced motion and map navigation while preserving branding and claim protections.
 - [x] Unify homepage and navigation CATCH lettering with the approved uploaded map banner; verify desktop and mobile.

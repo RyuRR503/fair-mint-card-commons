@@ -73,9 +73,10 @@ function Home() {
   );
 
   return (
-    <>
+    <div className="home-continuum">
       {/* ---------------------------------------------------------- hero */}
-      <section className="agent-hero relative isolate overflow-hidden px-5 pb-6 pt-6 sm:pt-8">
+      <div className="city-scroll-stage" aria-hidden="true">
+        <div className="city-scroll-backdrop">
         <div className="city-depth city-depth--far" data-city-depth="far" aria-hidden="true">
           <img src={cityGold} alt="" width={1920} height={1024} fetchPriority="high" className="city-cover size-full object-cover object-[64%_center] sm:object-center" />
         </div>
@@ -88,6 +89,9 @@ function Home() {
         <div aria-hidden className="city-hero-shade absolute inset-0 -z-10" />
         <CitySignals />
         <CityMarketScene />
+        </div>
+      </div>
+      <section className="agent-hero relative overflow-hidden px-5 pb-6 pt-6 sm:pt-8">
         <div className="mx-auto max-w-6xl">
           <div className="reveal-focus flex items-center justify-between gap-6 border-b border-border pb-5">
             <span className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -160,10 +164,10 @@ function Home() {
       </div>
 
 
-      <Reveal as="section" className="mx-auto max-w-6xl px-5 py-12 sm:py-16"><AgentJourney /></Reveal>
+      <section className="city-handoff mx-auto max-w-6xl px-5 py-12 sm:py-16" data-scroll-shot="journey"><AgentJourney /></section>
 
       {/* ---------------------------------------------------------- map */}
-      <section className="mx-auto mt-10 max-w-6xl px-5">
+      <section className="city-map-arrival mx-auto mt-10 max-w-6xl px-5" data-scroll-shot="map">
         <div className="mb-8 flex flex-col justify-between gap-5 border-b border-border pb-6 md:flex-row md:items-end">
           <div>
             <span className="label-caps text-[10px] text-primary">Live map</span>
@@ -420,6 +424,6 @@ function Home() {
           <WaitlistForm />
         </Panel>
       </Section>
-    </>
+    </div>
   );
 }
