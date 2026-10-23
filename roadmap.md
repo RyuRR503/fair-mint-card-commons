@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Refine sequential homepage location capture into ring, expanding stock label and collapse; add scroll-driven decorative signal handoff and verify pause, reduced motion and mobile.
 - [x] Upgrade shared site scroll reveals, navigation feedback and page transitions; preserve approved city-stock signals and branding.
 - [x] Choreograph homepage city-to-Agent-to-map scrolling; verify native forward/back scrolling, preview controls, mobile and reduced motion.
 - [x] Restore the approved sequential city-location stock signals and remove the rejected optical-frame scene; verify cycling, pause, sharp background and existing controls.
