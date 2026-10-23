@@ -15,7 +15,6 @@ export function CityMarketScene() {
     const shots = Array.from(page.querySelectorAll<HTMLElement>("[data-scroll-shot]"));
     const journey = page.querySelector<HTMLElement>(".city-handoff");
     const steps = Array.from(page.querySelectorAll<HTMLElement>(".city-handoff .agent-steps li"));
-    const copy = page.querySelector<HTMLElement>(".hero-copy");
     let scrollFrame = 0;
     let progress = 0;
     const updateScroll = () => {
