@@ -140,13 +140,29 @@ function Proof() {
           ))}
 
         </div>
+        {vaultBnb != null && (
+          <Panel className="mt-4">
+            <h3 className="label-caps text-xs text-muted-foreground">
+              {t("Vault BNB balance", "金库 BNB 余额")}
+            </h3>
+            <p className="mt-2 font-mono text-2xl text-primary">
+              {vaultBnb.toFixed(4)} <span className="text-sm">BNB</span>
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t(
+                "BNB received by the vault, split into nine districts waiting to be swapped into stock tokens.",
+                "金库收到的 BNB，已分到九个分区，等待兑换成对应的股票代币。",
+              )}
+            </p>
+          </Panel>
+        )}
         <p className="mt-4 text-sm text-muted-foreground">
           {t(
             `Read on ${CHAIN.name} (chain id ${CHAIN.id}), refreshed every minute`,
             `数据读自 ${CHAIN.name}（链 id ${CHAIN.id}），每分钟刷新一次`,
           )}
           {checkedAt ? `, ${t("last at", "最近")} ${new Date(checkedAt).toLocaleTimeString()}` : ""}.
-          {!live &&
+          {!onChain &&
             t(
               " Showing seeded figures until the vault contract is deployed.",
               " 金库合约部署前，此处显示的是预置数据。",
@@ -167,6 +183,7 @@ function Proof() {
               <tr className="label-caps border-b border-border text-[10px] text-muted-foreground">
                 <th className="px-6 py-4">{t("Token", "代币")}</th>
                 <th className="px-6 py-4">{t("Balance", "余额")}</th>
+                <th className="px-6 py-4">{t("BNB pending swap", "待兑换 BNB")}</th>
                 <th className="px-6 py-4">{t("Signals it covers", "可支撑信号数")}</th>
                 <th className="px-6 py-4">{t("Target", "目标库存")}</th>
                 <th className="px-6 py-4">{t("Status", "状态")}</th>
