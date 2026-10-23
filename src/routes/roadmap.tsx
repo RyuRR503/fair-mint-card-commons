@@ -170,10 +170,10 @@ const CHAPTERS: {
       },
       {
         s: "live",
-        h: ["Permissionless refill transactions", "无需许可的补货"],
+        h: ["Reward restocking", "奖励补货"],
         p: [
-          "Anyone may trigger refillViaSwap to exchange a district’s BNB for its bStocks token through PancakeSwap V2/V3, subject to the contract’s reference-price checks.",
-          "任何人均可发起 refillViaSwap 补货交易，由合约通过 PancakeSwap V2/V3 将该区 BNB 兑换为对应 bStocks，并执行参考价格校验。",
+          "Reward funds in the vault buy stock tokens to replenish the prize pool. The map updates availability as actual inventory changes.",
+          "金库中用于奖励的资金会买入股票代币，补充奖池；地图按实际库存更新可领取点位。",
         ],
       },
       {
@@ -213,10 +213,10 @@ const CHAPTERS: {
       },
       {
         s: "open",
-        h: ["The signing key", "签名密钥"],
+        h: ["Claim authorization security", "领取授权安全"],
         p: [
-          "The vault owner keeps full control and can withdraw the pool; one key also decides who gets a voucher. Reducing that trust is the open problem.",
-          "金库 owner 保留全部权限，可以提走奖池；同时由一把密钥决定谁能拿到凭证。如何进一步削弱这份信任，是尚未解决的问题。",
+          "The signing key authorizes rewards; misuse could authorize improper claims, so its security remains important. This is not a direct owner withdrawal power. The supplied contract revision assigns emergency withdrawals to the Flap Guardian, not the owner; active deployed permissions need on-chain verification.",
+          "签名密钥用于批准奖励领取，若被滥用，可能批准不当领取，因此需要妥善保护。这不等于 Owner 可以直接提走奖池。现有合约资料将紧急提款权限赋予 Flap Guardian，而非 Owner；实际部署权限仍需链上核验。",
         ],
       },
     ],
@@ -232,8 +232,8 @@ function Roadmap() {
         eyebrow={t("roadmap", "路线图")}
         title={t("Where this goes next. And what is in the way.", "开发计划与接入进度")}
         lead={t(
-          "Including the things we decided not to build, and the questions we have not answered.",
-          "展示当前进度、后续开发安排与尚待确定的事项。",
+          "The current version has completed claim-flow testing. Further cities, points and activities may open in stages according to actual vault inventory; this plan is not a promise that all features or candidate points are available. Legendary events remain closed until launch is announced.",
+          "当前版本已完成领取流程测试。后续城市、点位与活动将视金库实际库存逐步开放；开发计划不代表所有功能或候选点位已经开放。传奇活动保持关闭，待正式上线安排确定后再开启。",
         )}
         className="mt-10"
       />

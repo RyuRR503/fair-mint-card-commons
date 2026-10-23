@@ -544,7 +544,11 @@ function AppMap() {
           </Panel>
 
           <Panel>
-            <h2 className="label-caps text-xs text-muted-foreground">{t("My claims", "我的领取记录")}</h2>
+            <h2 className="label-caps text-xs text-muted-foreground">{t("Claims from this browser", "本机领取记录")}</h2>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t(
+              "This browser saves the claim codes you request and follows each code through your AI's redemption and on-chain result. No wallet login is needed. These are not all transactions from your Agent Wallet; another device, browser or cleared browser data will not show this history.",
+              "这里按本浏览器保存的领取码，追踪 AI 兑换凭证与链上到账结果，无需登录钱包。这不是 Agent 钱包的全部交易记录；换设备、换浏览器或清除浏览器数据后，这些记录不会保留。",
+            )}</p>
             {myClaims.length === 0 ? (
               <p className="mt-2 text-xs text-muted-foreground">{t("Codes you get on site appear here, with their on-chain result.", "在现场获取的领取码会显示在这里，并附上链上结果。")}</p>
             ) : (
@@ -562,6 +566,7 @@ function AppMap() {
                           {c.city} · {new Date(c.issuedAt).toLocaleString(lang === "zh" ? "zh-CN" : "en-US", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                         </p>
                         <ClaimStatusLine state={st} compact />
+                        {st?.wallet && <a href={`${CHAIN.explorer}/address/${st.wallet}`} target="_blank" rel="noreferrer" className="mt-1 inline-flex max-w-full items-center gap-1 text-primary underline underline-offset-4"><span>{t("Recipient Agent Wallet", "收款 Agent 钱包")} · {st.wallet.slice(0, 6)}…{st.wallet.slice(-4)}</span><ExternalLink className="h-3 w-3 shrink-0" /></a>}
                       </div>
                     </li>
                   );
