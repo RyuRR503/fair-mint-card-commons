@@ -1,3 +1,4 @@
+import { TIER_USD } from "@/lib/allocation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { useMemo, useState } from "react";
@@ -139,7 +140,7 @@ function Home() {
           {/* big numbers */}
           <div className="hero-stats grid grid-cols-3 border-t border-border">
             {[
-              { v: String(TOTAL_SPAWNS), l: t("Fixed locations", "固定点位") },
+              { v: String(TOTAL_SPAWNS), l: t("Candidate points", "候选点位") },
               { v: String(TOTAL_CITIES), l: t("Cities", "座城市") },
               { v: String(TOKENS.length), l: t("Stocks", "种美股代币") },
             ].map((s, i) => (
@@ -362,8 +363,8 @@ function Home() {
         </Panel>
         <p className="mt-4 text-sm text-muted-foreground">
           {t(
-            `${TOTAL_SPAWNS} fixed locations across ${TOTAL_CITIES} cities. Under the claim rules, locations reopen after a cooldown, subject to sufficient vault inventory. `,
-            `覆盖 ${TOTAL_CITIES} 座城市，共 ${TOTAL_SPAWNS} 个固定点位。按领取规则，点位在领取后进入冷却，冷却结束且金库库存充足时重新开放。`,
+            `${TOTAL_SPAWNS} candidate points across ${TOTAL_CITIES} cities. How many are open at once follows the vault's real inventory and rotates daily; a caught point reopens after its cooldown. `,
+            `覆盖 ${TOTAL_CITIES} 座城市，共 ${TOTAL_SPAWNS} 个候选点位。同时开放多少个由金库实际库存决定，并每日轮换；被领取的点位冷却结束后重新开放。`,
           )}
           <Link to="/proof" className="text-primary underline underline-offset-4">
             {t("View vault balances and on-chain records", "查看金库余额与链上记录")}

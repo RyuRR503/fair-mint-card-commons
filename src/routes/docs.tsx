@@ -1,3 +1,4 @@
+import { TIER_USD } from "@/lib/allocation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { AgentStatus } from "@/components/site/AgentJourney";

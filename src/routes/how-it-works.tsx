@@ -1,3 +1,4 @@
+import { TIER_USD } from "@/lib/allocation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
@@ -292,8 +293,8 @@ function HowItWorks() {
             <h3 className="label-caps text-[11px] text-primary">{t("Real venues", "真实门店")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "Signals are tied to real stores, not regenerated every day. A caught point simply goes to sleep, then reopens automatically when its cooldown ends.",
-                "点位绑定真实门店，并非每日重新生成。完成领取后进入冷却，冷却结束后按规则重新开放。",
+                "Points are tied to real stores; which ones are open rotates daily with the vault's inventory. A caught point goes to sleep, then reopens automatically when its cooldown ends.",
+                "点位绑定真实门店，开放哪些点随金库库存每日轮换。完成领取后进入冷却，冷却结束后按规则重新开放。",
               )}
             </p>
           </Panel>

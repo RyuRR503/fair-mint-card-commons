@@ -264,7 +264,6 @@ export default function GeoMap({
               <div class="catch-pop-status ${status.cls}">${esc(status.text)}</div>
               ${timeText && !expired ? `<div class="catch-pop-time">${esc(timeText)}</div>` : ""}
               <div class="catch-pop-hint">${esc(tr("Claims need on-site location verification and an Agent Wallet.", "领取须通过现场定位校验，并由 Agent 钱包提交。"))}</div>
-              ${isPreviewHost(window.location.host) ? `<div class="catch-pop-hint">${esc(tr("Preview: after closing this card, use “Test: put me at this point” in the right panel.", "预览版：关掉这张卡片后，在右侧面板点“测试：把我的位置设到这个点位”。"))}</div>` : ""}
             </div>`,
           )
           .addTo(m);
