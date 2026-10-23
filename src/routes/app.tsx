@@ -170,9 +170,9 @@ function AppMap() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <div className="mb-7"><p className="label-caps flex items-center gap-2 text-primary"><Bot className="size-4" />BINANCE AGENTIC WALLET</p><h1 className="mt-3 text-3xl sm:text-4xl">{t("Your city. Your Agent.", "你去探索，Agent 来领取。")}</h1><div className="mt-5"><AgentStatus /></div></div>
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         {/* ------------------------------------------------------------ map */}
-        <div>
+        <div className="min-w-0">
           <LiveMap
             pins={pins}
             points={points}
@@ -221,7 +221,7 @@ function AppMap() {
         </div>
 
         {/* -------------------------------------------------------- sidebar */}
-        <aside className="space-y-4">
+        <aside className="min-w-0 space-y-4">
           <Panel>
             <h2 className="flex items-center gap-2 text-sm font-semibold"><Bot className="size-4 text-primary" />{t("Agent Wallet", "Agent 钱包")}</h2>
             <p className="mt-3 text-sm">{t("Binance Agentic Wallet", "币安 Agent AI 钱包")}</p>
@@ -293,9 +293,9 @@ function AppMap() {
             )}
           </Panel>
 
-          <Panel>
+          <div className="px-1 py-4">
             <AgentJourney compact />
-          </Panel>
+          </div>
           <Panel>
             <h2 className="label-caps text-xs text-muted-foreground">{t("The rules", "规则")}</h2>
             <ul className="mt-3 space-y-2 text-xs leading-relaxed text-muted-foreground">
