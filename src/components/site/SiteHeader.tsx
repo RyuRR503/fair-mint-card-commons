@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useLang, useT } from "@/lib/i18n";
-import catchLogo from "@/assets/catch-logo-square.png";
+import catchLogo from "@/assets/catch-logo-wide.png";
 
 function useNav() {
   const t = useT();
@@ -57,7 +57,7 @@ export function CatchMark({ className = "" }: { className?: string }) {
       src={catchLogo}
       alt="CATCH"
       draggable={false}
-      className={`size-11 shrink-0 select-none rounded-md ${className}`}
+      className={`h-9 w-auto shrink-0 select-none ${className}`}
     />
   );
 }
