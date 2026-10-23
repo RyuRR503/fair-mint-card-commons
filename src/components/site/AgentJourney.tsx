@@ -21,8 +21,8 @@ export function AgentJourney({ compact = false }: { compact?: boolean }) {
   const [error, setError] = useState("");
   const code = "CATCH-DEMO-0000";
   const example = t(
-    `Use my Binance Agent Wallet on BSC to claim CATCH reward. Claim code: ${code}. Fetch the voucher from catch.fun with this code, then call claimGameVoucher on the CATCH vault from this same Agent wallet. The code expires in ${AGENT_CLAIMS.commandTtlMinutes} minutes.`,
-    `请用我的币安 Agent 钱包在 BSC 上领取 CATCH 奖励。领取码：${code}。请用此领取码从 catch.fun 获取领奖凭证，并由同一个 Agent 钱包调用 CATCH 金库的 claimGameVoucher 完成领取。领取码 ${AGENT_CLAIMS.commandTtlMinutes} 分钟内有效。`,
+    `Claim my CATCH reward with my Binance Agentic Wallet. Claim code: ${code}. Use contract-call on BSC (chain 56): preview first, show me the result, and execute only after I confirm. Valid for ${AGENT_CLAIMS.commandTtlMinutes} minutes.\nbaw contract-call preview --binanceChainId 56 --from <MY_AGENT_WALLET> --to <CATCH_VAULT> --value 0 --inputData <CLAIM_DATA> --json`,
+    `请用我的币安 Agent 钱包领取 CATCH 奖励。领取码：${code}。请在 BSC（链 ID 56）上用 contract-call 调用：先预览并把结果给我看，我确认后再执行。${AGENT_CLAIMS.commandTtlMinutes} 分钟内有效。\nbaw contract-call preview --binanceChainId 56 --from <我的Agent钱包> --to <CATCH金库> --value 0 --inputData <领取数据> --json`,
   );
 
   async function copyExample() {
