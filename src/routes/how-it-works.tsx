@@ -5,7 +5,7 @@ import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
 import { Section, Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
 import { RULES } from "@/lib/game.functions";
-import { CHAIN, COOLDOWN_MIN, TOKENS, RARITY_LABEL, type Rarity } from "@/lib/tokens";
+import { COOLDOWN_MIN, TOKENS, RARITY_LABEL, type Rarity } from "@/lib/tokens";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/how-it-works")({

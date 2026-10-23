@@ -122,8 +122,8 @@ function Docs() {
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "The vault never mints. Each of the nine districts holds one BEP-20 stock token, and stock only leaves against an EIP-712 voucher signed by the claim key. Nonces are burned on use, deadlines are enforced, and only the Agent Wallet named in the voucher can submit it, and the stock goes to that wallet. The vault owner has full control: it can change every parameter and withdraw any BNB or stock from the vault.",
-              "金库永不增发。九个区各持有一种 BEP-20 股票代币，只有凭领取私钥签发的 EIP-712 凭证才能取出。nonce 用后即废、deadline 强制生效，只有凭证里写明的 Agent 钱包能提交，代币也只转给这个钱包。金库 owner 拥有全部权限：可以修改所有参数，也可以提走金库里的任何 BNB 和股票代币。",
+              "The vault holds nine stock tokens. Player rewards are transferred directly to the Agent Wallet named in a valid, single-use signed voucher. The signing key authorizes claims; it does not directly transfer funds. Do not confuse owner permissions with Guardian permissions: the supplied contract revision assigns emergency withdrawals to the Flap Guardian, not the owner. Active deployed permissions must be verified on-chain.",
+              "金库存放九种股票代币，玩家奖励通过有效的一次性签名凭证，直接转入凭证对应的 Agent 钱包。签名密钥负责批准领取，并不直接转账。Owner 与 Guardian 权限不能混为一谈：现有合约资料中的紧急提款属于 Flap Guardian，而不是 Owner；实际部署权限应以链上核验为准。",
             )}
           </p>
           <Code>{`// EIP-712 domain
@@ -183,6 +183,13 @@ GET  legendary -> { next, past }
 POST legendary/claim { address, lat, lng, accuracy }
 POST early-access    { email, kind, city?, company? }`}</Code>
         </Panel>
+      </Section>
+
+      <Section title={tr("How your claim history works", "领取记录如何判定")}>
+        <p className="mt-6 text-sm leading-relaxed text-muted-foreground">{tr(
+          "The map's Claims from this browser panel tracks claim codes saved in this browser, not a signed-in wallet account. When your AI redeems a code, its recipient Agent Wallet is associated with that code; an on-chain confirmation marks it as received. The record includes the recipient wallet and transaction link. No wallet address entry is required. History does not sync between devices or browsers, and clearing browser data removes it. For the wallet's full transaction history, check your Agent Wallet or BscScan.",
+          "地图中的“本机领取记录”按本浏览器保存的领取码追踪，不是按登录账号或钱包判定。AI 兑换领取码时，会关联它使用的收款 Agent 钱包；链上确认后，记录才显示已到账，并提供收款钱包与交易链接。你不需要填写钱包地址。记录不跨设备或浏览器同步，清除浏览器数据后会消失；钱包的完整交易记录，请在 Agent 钱包或 BscScan 查看。",
+        )}</p>
       </Section>
 
       <Section title={tr("Rules, as numbers", "规则参数")}>
@@ -294,8 +301,8 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "Every pin of the same token pays the same amount, sized from its rarity's USD value at the live price. The vault aims to keep 25 payable catches per token in stock (2 for the legendary SPCXB). Trading tax arrives as BNB, 10% goes to operations, and the rest is split evenly across the nine districts. Restocking has one road: refillViaSwap — anyone can trigger a PancakeSwap V3/V2 swap of a district's BNB into its bStocks token, guarded by a price ruler — Chainlink, or a 30-minute PancakeSwap TWAP for SPYB/QQQB (max 10% worse, max 2 BNB per swap). Every token bought goes 100% into the map prize pool — player claims use signatures, while the owner retains full withdrawal permissions.",
-              "同种代币所有点位单次数量一致，按稀有度的美元价值和实时价格换算。金库为每种代币维持 25 次可领取库存（传奇 SPCXB 为 2 次）。交易税以 BNB 流入，10% 归运营，其余平均分到九个区。补货只有一条路：refillViaSwap——任何人都能触发，金库把该区 BNB 在 PancakeSwap V3/V2 上换成 bStocks，有参考价格校验——Chainlink，SPYB/QQQB 用 PancakeSwap 30 分钟平均价（比参考价差超过 10% 就拒绝，单笔最多 2 BNB）。买入的代币 100% 进入地图奖池——玩家通过签名领取；owner 仍保留全部提款权限。",
+              "Per-claim token amounts are calculated from the current rarity-based value targets and live prices. Reward funds in the vault buy stock tokens to replenish the prize pool. The number of open points follows actual token inventory, not the number of candidate locations. With limited stock, opening too many points would dilute each reward; the current rule preserves the reward target and opens only as many points as inventory can pay for. Following claim-flow testing, more cities, points and activities may open in stages as inventory permits. Legendary events remain closed. Any changes to reward standards will be reflected in the rules.",
+              "单次代币数量按当前稀有度参考价值与实时价格换算。金库中用于奖励的资金会买入股票代币，补充奖池。开放点位数量按真实代币库存确定，并不是候选点位越多就全部开放。有限库存若分给过多点位，每份奖励会被摊薄；目前保留单次奖励标准，库存够支付多少份，就开放多少个点位。领取流程测试完成后，更多城市、点位与活动将视库存逐步开放，传奇活动仍暂未开放。后续如调整奖励标准，领取规则会同步更新。",
             )}
           </p>
         </Panel>
