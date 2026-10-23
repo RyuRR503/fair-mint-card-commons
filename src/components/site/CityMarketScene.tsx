@@ -16,7 +16,7 @@ export function CityMarketScene() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const shots = Array.from(page.querySelectorAll<HTMLElement>("[data-scroll-shot]"));
     const journey = page.querySelector<HTMLElement>(".city-handoff");
-    const steps = Array.from(page.querySelectorAll<HTMLElement>(".city-handoff .agent-steps li"));
+    let steps: HTMLElement[] = [];
     const stops = [0, 0.44, 0.7, 0.94];
     let scrollFrame = 0;
     let progress = 0;
@@ -33,6 +33,7 @@ export function CityMarketScene() {
       element.hidden = reduced.matches || window.innerWidth < 1024;
       page.style.setProperty("--hero-scroll-offset", staticMotion ? "0px" : `${-Math.min(1, progress * 2) * 36}px`);
       if (journey) {
+        steps = Array.from(journey.querySelectorAll<HTMLElement>(".agent-steps li"));
         const journeyBox = journey.getBoundingClientRect();
         const travel = Math.max(1, journey.offsetHeight - window.innerHeight * 0.7);
         // Pause freezes this timeline, rather than jumping to its end.
