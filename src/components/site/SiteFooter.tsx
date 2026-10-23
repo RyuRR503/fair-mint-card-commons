@@ -17,15 +17,15 @@ export function SiteFooter() {
             <p className="mt-4 text-sm text-muted-foreground">
               {t(
                 `Tokenized stock fragments appear at real coordinates. Planned flow: phone GPS → AI command → Agent Wallet claims on ${CHAIN.name}. Live integration is pending.`,
-                `代币化的股票碎片出现在真实坐标上。真人到店定位，AI 接收指令，Agent 钱包在 ${CHAIN.name} 领取。所有碎片仅限 Agent，真实接入待完成。`,
+                `CATCH 将代币化美股碎片与真实地点连接，通过定位验证、一次性指令与 Agent 钱包完成 ${CHAIN.name} 链上领取。所有稀有度均仅限 Agent 钱包，领取功能接入中。`,
               )}
             </p>
             <LangToggle className="mt-5 w-fit" />
           </div>
 
           <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm sm:grid-cols-3">
-            <FooterLink to="/app">{t("Map & catch", "抓取地图")}</FooterLink>
-            <FooterLink to="/how-it-works">{t("How it works", "玩法说明")}</FooterLink>
+            <FooterLink to="/app">{t("Map", "点位地图")}</FooterLink>
+            <FooterLink to="/how-it-works">{t("Claim rules", "领取规则")}</FooterLink>
             <FooterLink to="/legendary">{t("Legendary", "每日传奇")}</FooterLink>
             <FooterLink to="/proof">{t("Proof of reserves", "金库储备")}</FooterLink>
             <FooterLink to="/sponsor">{t("Sponsor a spot", "品牌合作")}</FooterLink>
@@ -47,7 +47,7 @@ export function SiteFooter() {
         <p className="mt-10 border-t border-border pt-6 text-xs text-muted-foreground">
           {t(
             `Chain id ${CHAIN.id} · ${CHAIN.name} · Fragments are transferred out of a funded vault. Nothing is minted on catch. 18+ only. Not investment advice.`,
-            `链 ID ${CHAIN.id} · ${CHAIN.name} · 碎片从已注资的金库转出，捕捉时不增发任何代币。仅限 18 岁以上。不构成投资建议。`,
+            `链 ID ${CHAIN.id} · ${CHAIN.name} · 碎片从已注资的金库转出，领取时不增发任何代币。仅限 18 岁以上。不构成投资建议。`,
           )}
         </p>
       </div>

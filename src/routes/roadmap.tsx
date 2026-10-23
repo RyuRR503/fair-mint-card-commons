@@ -6,11 +6,11 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/roadmap")({
   head: () => ({
     meta: [
-      { title: "Roadmap — where CATCH goes next, and what is in the way" },
+      { title: "CATCH — 开发计划与接入进度" },
       {
         name: "description",
         content:
-          "The phone, Asia, the rest of the world, money in, and the structure. Including the parts that are not planned and the questions still open.",
+          "查看 CATCH 的 Agent 领取接入、客户端、城市覆盖与金库功能开发计划，以及尚待确定的事项。",
       },
       { property: "og:title", content: "CATCH roadmap" },
       {
@@ -45,7 +45,7 @@ const CHAPTERS: {
 }[] = [
   {
     title: ["Agent-first claims", "Agent 专属领取"],
-    lead: ["Human presence and Agent execution are separate. Live integration is pending.", "真人负责到场，Agent 负责执行。真实接入尚未完成。"],
+    lead: ["Human presence and Agent execution are separate. Live integration is pending.", "现场位置验证与 Agent 链上执行分别完成。真实领取功能接入中。"],
     items: [
       { s: "live", h: ["Flow preview and rules", "流程展示与规则"], p: ["All rarities are intended for Agent Wallets only. Preview does not issue vouchers or tokens.", "所有稀有度均计划仅限 Agent 钱包。预览不签发凭证、不发放代币。"] },
       { s: "next", h: ["Identity and real commands", "身份验证与真实指令"], p: ["Connect verifiable Agent identity, bind GPS commands to the recipient and implement Agent transaction submission.", "接入可验证的 Agent 身份，绑定定位指令与收款钱包，完成 Agent 交易提交。"] },
@@ -55,7 +55,7 @@ const CHAPTERS: {
     title: ["The phone", "手机端"],
     lead: [
       "A browser can tell you where you are. A phone can prove you stood there.",
-      "浏览器能告诉你在哪儿，原生 App 才能证明你真的站过那儿。",
+      "浏览器可显示定位；可靠的现场验证还需结合设备与运动数据。",
     ],
     items: [
       {
@@ -74,12 +74,12 @@ const CHAPTERS: {
       {
         s: "next",
         h: ["iOS", "iOS 版"],
-        p: ["One codebase, already runs. Blocked on store paperwork, not engineering.", "同一套代码，已经能跑。卡在上架流程，不是技术问题。"],
+        p: ["One codebase, already runs. Blocked on store paperwork, not engineering.", "基于共用代码开发，上架流程尚待完成。"],
       },
       {
         s: "next",
         h: ["One account everywhere", "全端同一账号"],
-        p: ["Web and app land on the same wallet instead of two.", "网页和 App 落到同一个钱包，而不是两个。"],
+        p: ["Web and app land on the same wallet instead of two.", "网页与客户端使用同一钱包身份。"],
       },
     ],
   },
@@ -87,7 +87,7 @@ const CHAPTERS: {
     title: ["Asia first", "亚洲优先"],
     lead: [
       "Most maps of this kind start in Europe and North America. This one does not.",
-      "这类项目的地图通常从欧美开始，我们不。",
+      "优先完善亚洲城市的真实点位覆盖。",
     ],
     items: [
       {
@@ -95,7 +95,7 @@ const CHAPTERS: {
         h: ["Chinese cities on the map", "中国城市已上线"],
         p: [
           "Beijing, Shanghai, Shenzhen, Guangzhou, Hangzhou, Chengdu and more are in the spawn table from day one.",
-          "北京、上海、深圳、广州、杭州、成都等城市第一天就在投放表里。",
+          "点位数据已覆盖北京、上海、深圳、广州、杭州、成都等城市。",
         ],
       },
       {
@@ -103,15 +103,15 @@ const CHAPTERS: {
         h: ["Local doors", "本地门店"],
         p: [
           "Authorised resellers count, not only flagship stores. That is how retail actually works across most of Asia.",
-          "授权经销商也算，不只是旗舰店——这才是亚洲零售的真实样子。",
+          "点位范围包含授权经销商与旗舰店，以适应本地零售场景。",
         ],
       },
       {
         s: "live",
-        h: ["Points that respawn by themselves", "点位自动复活"],
+        h: ["Points that respawn by themselves", "点位冷却与重新开放"],
         p: [
           "Signals are tied to real venues and sleep on a cooldown after a catch instead of being regenerated at some faraway midnight.",
-          "信号绑定真实场所，被抓走后按冷却休眠、时间一到自己醒来，而不是等某个遥远时区的午夜重置。",
+          "点位绑定真实场所，完成领取后按规则进入冷却，结束后重新开放，无需每日重新生成。",
         ],
       },
 
@@ -132,12 +132,12 @@ const CHAPTERS: {
       {
         s: "building",
         h: ["Banded caps", "分档上限"],
-        p: ["Catch caps scaled to local purchasing power, so farming never beats working.", "按当地购买力调整每日上限，确保刷量永远比不上正经工作。"],
+        p: ["Catch caps scaled to local purchasing power, so farming never beats working.", "按当地购买力调整每日上限，降低自动化或重复领取的激励。"],
       },
       {
         s: "next",
         h: ["Lite mode", "轻量模式"],
-        p: ["Low-end phones and 3G. The map should not need a flagship device.", "面向低端机和 3G 网络。看地图不该需要旗舰手机。"],
+        p: ["Low-end phones and 3G. The map should not need a flagship device.", "面向低端机和 3G 网络。降低地图浏览对设备性能的要求。"],
       },
       {
         s: "open",
@@ -147,7 +147,7 @@ const CHAPTERS: {
       {
         s: "no",
         h: ["Selling this as an income", "把这个包装成收入来源"],
-        p: ["It is a game with real loot. It is not a job and we will not market it as one.", "这是一个有真实战利品的游戏，不是工作，我们也不会那样宣传。"],
+        p: ["It is a game with real loot. It is not a job and we will not market it as one.", "项目提供基于真实地点的资产探索体验，不作为工作或稳定收入来源宣传。"],
       },
     ],
   },
@@ -155,7 +155,7 @@ const CHAPTERS: {
     title: ["Money in", "资金来源"],
     lead: [
       "Sponsors fund the vault. Fees fund the vault. Nothing depends on new buyers.",
-      "赞助方给金库注资，手续费给金库注资。整套机制不依赖新买家接盘。",
+      "金库资金来源包括赞助注资与交易手续费，用于补充代币库存。",
     ],
     items: [
       {
@@ -163,15 +163,15 @@ const CHAPTERS: {
         h: ["Trading tax into the nine districts", "交易税进入九个区"],
         p: [
           "Incoming BNB pays a 10% operating fee, and the rest is split evenly across the nine district buckets. The ratio lives in the contract, not in a key.",
-          "进来的 BNB 先扣 10% 运营费，剩下的平均分进九个区的补货池。比例写在合约里，不靠私钥调。",
+          "收到的 BNB 中，10% 用于运营，其余平均分配至九个区的补货池，分配规则由合约执行。",
         ],
       },
       {
         s: "building",
-        h: ["Refill nobody has to run", "无需许可的补货"],
+        h: ["Permissionless refill transactions", "无需许可的补货"],
         p: [
-          "Anyone can sell the right stock token into its district at the oracle price plus a small premium and take the BNB. That is the whole restock mechanism — no bot of ours, no treasury wallet.",
-          "任何人都可以按预言机报价加一点溢价，把对应的股票代币卖进它所属的区，换走 BNB。补货机制就这一条——没有我们的机器人，也没有国库钱包。",
+          "Anyone may trigger refillViaSwap to exchange a district’s BNB for its bStocks token through PancakeSwap V2/V3, subject to the contract’s reference-price checks.",
+          "任何人均可发起 refillViaSwap 补货交易，由合约通过 PancakeSwap V2/V3 将该区 BNB 兑换为对应 bStocks，并执行参考价格校验。",
         ],
       },
       {
@@ -181,7 +181,7 @@ const CHAPTERS: {
       },
       {
         s: "open",
-        h: ["Catching with an empty wallet", "空钱包也能领"],
+        h: ["Catching with an empty wallet", "Agent 交易费用代付"],
         p: [
           "Agent gas sponsorship remains undecided. The intended rules still require Agent identity; ordinary relaying does not qualify.",
           "Agent Gas 代付尚待确定；领取仍须 Agent 身份，普通钱包代交不等于具备资格。",
@@ -191,14 +191,14 @@ const CHAPTERS: {
   },
   {
     title: ["The structure", "运营结构"],
-    lead: ["A hundred cities is a spreadsheet. A thousand is an operation.", "一百个城市是一张表格，一千个城市是一套运营。"],
+    lead: ["A hundred cities is a spreadsheet. A thousand is an operation.", "扩展至更多城市，需要配套的数据维护与运营支持。"],
     items: [
       {
         s: "building",
-        h: ["Venues that match the asset", "场所与资产对得上"],
+        h: ["Venues that match the asset", "场所与资产关联"],
         p: [
           "Bank branches, internet cafés, computer malls, phone shops, superchargers, Apple Stores, science museums — pulled from real map data, not invented.",
-          "银行网点、网吧、电脑城、手机店、超充站、Apple 直营店、科技馆——全部来自真实地图数据，不是编出来的。",
+          "银行网点、网吧、电脑城、手机店、超充站、Apple 直营店、科技馆——依据真实地图数据确定。",
         ],
       },
       {
@@ -228,10 +228,10 @@ function Roadmap() {
     <>
       <Section hero
         eyebrow={t("roadmap", "路线图")}
-        title={t("Where this goes next. And what is in the way.", "接下来往哪走，以及路上有什么。")}
+        title={t("Where this goes next. And what is in the way.", "开发计划与接入进度")}
         lead={t(
           "Including the things we decided not to build, and the questions we have not answered.",
-          "包括我们决定不做的东西，和还没想清楚的问题。",
+          "展示当前进度、后续开发安排与尚待确定的事项。",
         )}
         className="mt-10"
       />

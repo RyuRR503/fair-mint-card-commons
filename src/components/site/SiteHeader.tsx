@@ -10,8 +10,8 @@ function useNav() {
   const t = useT();
   return [
     { to: "/", label: t("Home", "首页") },
-    { to: "/app", label: t("Map & catch", "抓取地图") },
-    { to: "/how-it-works", label: t("How it works", "玩法说明") },
+    { to: "/app", label: t("Map", "点位地图") },
+    { to: "/how-it-works", label: t("Claim rules", "领取规则") },
     { to: "/legendary", label: t("Legendary", "每日传奇") },
     { to: "/proof", label: t("Proof", "金库储备") },
     { to: "/sponsor", label: t("Sponsor", "品牌合作") },
@@ -119,7 +119,7 @@ export function SiteHeader() {
         <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-0">
           <LangToggle className="hidden sm:flex" />
           <Button asChild className={`label-caps rounded-sm px-4 py-2.5 ${navText}`}>
-            <Link to="/app">{t("Start hunting", "开始抓取")} <span aria-hidden>↗</span></Link>
+            <Link to="/app">{t("Browse map", "浏览地图")} <span aria-hidden>↗</span></Link>
           </Button>
 
           <Button

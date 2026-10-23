@@ -10,16 +10,16 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/proof")({
   head: () => ({
     meta: [
-      { title: "CATCH — Proof of reserves — count the vault yourself" },
+      { title: "CATCH — 金库余额与链上记录" },
       {
         name: "description",
         content:
-          "Every fragment is bought and deposited before it spawns. The vault balance is public on BscScan and re-read every minute.",
+          "查看 CATCH 金库代币余额、库存状态与领取记录。部署前显示预置数据，实际储备以链上余额为准。",
       },
       { property: "og:title", content: "CATCH proof of reserves" },
       {
         property: "og:description",
-        content: "Nothing is minted. The vault holds the shares before the drop appears.",
+        content: "查看金库储备与公开链上记录。领取不增发代币；部署前的预置数据不代表实际储备。",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -92,10 +92,10 @@ function Proof() {
     <>
       <Section hero
         eyebrow={t("proof of reserves", "储备证明")}
-        title={t("Nothing is minted. Count it yourself.", "不增发。你自己数。")}
+        title={t("Vault balances and on-chain records", "金库余额与链上记录")}
         lead={t(
-          "Every fragment that spawns was bought on the open market and deposited into the vault first. If the vault cannot pay a signal, the signal does not appear.",
-          "每一枚投放出去的碎片，都是先在市场上买入、再存进金库的。金库付不出的信号，压根不会出现在地图上。",
+          "Under the payout rules, fragments must be purchased and deposited before claims are enabled. This page reports inventory and data sources; actual reserves must be verified on-chain.",
+          "按发放规则，碎片须先买入并存入金库，库存不足时不开放对应领取。此处展示库存与数据来源；实际储备请以链上余额为准。",
         )}
         className="mt-10"
       />
@@ -110,7 +110,7 @@ function Proof() {
             },
             {
               h: t("Treasury", "国库"),
-              d: t("Receives fees, buys stock tokens, tops the vault back up.", "收取手续费、买入股票代币、给金库补货。"),
+              d: t("Receives fees, buys stock tokens, tops the vault back up.", "接收手续费，用于买入股票代币并补充金库库存。"),
               a: TREASURY_ADDRESS,
             },
           ].map((c) => (
@@ -152,8 +152,8 @@ function Proof() {
       <Section
         title={t("What the vault holds right now", "金库当前持仓")}
         lead={t(
-          "Each token has one drop size that applies at every pin, and a stock target of payable drops. When a token falls under its target, refilling it becomes profitable and anyone can do it.",
-          "每只股票在所有点位上的单次领取数量是统一的，并各自设定了一个「可支付次数」的库存目标。低于目标时补货变得有利可图，任何人都可以来补。",
+          "Each token has a consistent claim amount and an inventory target measured in payable claims. When inventory is below target, anyone may trigger a refill under the contract rules.",
+          "同种代币在所有点位采用统一的单次领取数量，并设定可支付次数的库存目标。库存低于目标时，任何人均可按合约规则发起补货交易。",
         )}
       >
         <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
@@ -205,7 +205,7 @@ function Proof() {
         <Panel className="mt-6">
           {feed.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {t("No catches yet. Be the first — the map is open.", "还没有人抓到。地图已经开了，你可以是第一个。")}
+              {t("No claim records yet. Live Agent claims are not available.", "暂无领取记录。Agent 真实领取尚未开放。")}
             </p>
           ) : (
             <ul className="divide-y divide-border/60">
@@ -216,7 +216,7 @@ function Proof() {
                   <span className="text-muted-foreground">
                     {t(
                       `caught ${c.amount} ${c.symbol} at ${c.place}, ${c.city}`,
-                      `在${c.city} ${c.place} 抓到 ${c.amount} ${c.symbol}`,
+                      `在${c.city} ${c.place} 领取 ${c.amount} ${c.symbol}`,
                     )}
                   </span>
                   <span className="label-caps ml-auto text-[10px] text-muted-foreground">

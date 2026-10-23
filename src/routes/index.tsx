@@ -22,17 +22,17 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CATCH — catch the fun, catch real-world stock fragments" },
+      { title: "CATCH — 在真实地点，发现代币化美股" },
       {
         name: "description",
         content:
-          "CATCH combines real-world stock hunting with a planned Binance Agentic Wallet claim flow: phone GPS, AI command, Agent-only claims.",
+          "CATCH 将代币化美股碎片与真实地点连接。规划流程包括定位验证、一次性指令与币安 Agent 钱包链上领取；Agent 领取功能接入中。",
       },
-      { property: "og:title", content: "CATCH — catch the fun, catch the market" },
+      { property: "og:title", content: "CATCH — 真实地点与代币化美股" },
       {
         property: "og:description",
         content:
-          "Walk to real stock locations. Preview GPS verification, one-time AI commands, and Agent-only claims on BSC. Live Agent integration is pending.",
+          "浏览真实点位，了解定位验证与 Agent 专属领取规则。所有稀有度均仅限 Agent 钱包领取，真实领取尚未开放。",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/")({
   loader: () => getMapSummary(),
   errorComponent: () => (
     <div className="mx-auto max-w-3xl px-5 py-32 text-center text-muted-foreground">
-      信号板暂时读不出来，请稍后刷新。
+      点位信息暂时无法加载，请稍后刷新。
     </div>
   ),
   notFoundComponent: () => (
@@ -91,34 +91,34 @@ function Home() {
           <div className="hero-topline flex items-center justify-between gap-6 border-b border-border pb-5">
             <span className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="size-1.5 rounded-full bg-primary" />
-              {CHAIN.name} · {t("Map available · Agent integration pending", "地图可浏览 · Agent 接入中")}
+              {CHAIN.name} · {t("Map available · Agent integration pending", "地图已开放 · Agent 领取功能接入中")}
             </span>
             <span className="readout hidden sm:block">
-              {t("HUMAN GPS × AGENT WALLET", "真人 GPS × Agent 钱包")}
+              {t("LOCATION VERIFICATION × AGENT WALLET", "定位验证 × Agent 钱包")}
             </span>
           </div>
 
           <div className="hero-composition relative py-10 sm:py-12 lg:py-14">
             <div className="hero-copy min-w-0 max-w-2xl">
               <p className="hero-kicker label-caps text-xs text-primary">
-                {t("Real-world stock fragments × Binance Agentic Wallet", "真实世界美股碎片 × 币安 Agent AI 钱包")}
+                {t("Tokenized U.S. stock fragments × Binance Agentic Wallet", "代币化美股碎片 × 币安 Agent 钱包")}
               </p>
               <div className="hero-lettering"><CatchLettering className="mt-6 w-[320px] max-w-full sm:w-[520px]" /></div>
               <h1 className="hero-heading mt-5 max-w-xl text-balance text-[1.75rem] leading-[1.3] sm:text-[2.5rem]">
-                {t("You explore. Your Agent claims.", "你走进城市，Agent 抓住市场。")}
+                {t("Discover tokenized U.S. stocks at real locations.", "在真实地点，发现代币化美股。")}
               </h1>
               <p className="hero-description mt-6 max-w-lg border-l border-primary/50 pl-5 text-sm leading-[1.9] text-foreground/75 sm:text-base">
                 {t(
-                  "Walk to a real venue with your phone. In the planned flow, GPS checks unlock a one-time command for your AI, and only its Agent Wallet can claim the stock fragment.",
-                  "真人带手机到店，定位通过后取得一次性指令；把指令交给 AI，由币安 Agent 钱包领取美股碎片。普通钱包不能领，所有稀有度都一样。",
+                  "CATCH connects tokenized U.S. stock fragments with real locations. In the planned flow, verified visitors receive a single-use command for a Binance Agent Wallet to submit an on-chain claim. All rarities are Agent-only.",
+                  "CATCH 将代币化美股碎片与真实地点连接。用户抵达指定地点并通过定位验证后，可获取一次性领取指令，由币安 Agent 钱包完成链上领取。所有稀有度的碎片均仅限 Agent 钱包领取。",
                 )}
               </p>
               <div className="hero-actions mt-8 flex flex-wrap items-center gap-3">
                 <Button asChild size="lg" className="btn-arrow agent-cta h-12 rounded-sm px-7 font-bold">
-                  <Link to="/app">{t("Explore the Agent map", "打开 Agent 地图")} <ArrowUpRight className="arrow" /></Link>
+                  <Link to="/app">{t("Browse the map", "浏览地图")} <ArrowUpRight className="arrow" /></Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="h-12 rounded-sm border-foreground/25 bg-background/35 px-7">
-                  <Link to="/how-it-works">{t("How it works", "玩法说明")}</Link>
+                  <Link to="/how-it-works">{t("Claim rules", "了解领取规则")}</Link>
                 </Button>
               </div>
             </div>
@@ -127,14 +127,14 @@ function Home() {
           </div>
 
           <div className="hero-scene-controls flex items-center justify-between gap-4">
-            <a href="#agent-journey" className="hero-scroll-link flex items-center gap-3 text-xs text-muted-foreground"><ArrowDown className="size-4 text-primary" />{t("Human × Agent", "真人 × Agent")}<span className="font-mono text-primary">01 / 03</span></a>
+            <a href="#agent-journey" className="hero-scroll-link flex items-center gap-3 text-xs text-muted-foreground"><ArrowDown className="size-4 text-primary" />{t("Claim process", "领取流程")}<span className="font-mono text-primary">01 / 03</span></a>
             <Button variant="ghost" size="icon" className="scene-playback size-9 text-muted-foreground" onClick={() => setMotionPaused((value) => !value)} aria-pressed={motionPaused} aria-label={t(motionPaused ? "Resume animation" : "Pause animation", motionPaused ? "继续动效" : "暂停动效")} title={t(motionPaused ? "Resume animation" : "Pause animation", motionPaused ? "继续动效" : "暂停动效")}>{motionPaused ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}</Button>
           </div>
 
           {/* big numbers */}
           <div className="hero-stats grid grid-cols-3 border-t border-border">
             {[
-              { v: String(TOTAL_SPAWNS), l: t("Live drops", "永久掉落点") },
+              { v: String(TOTAL_SPAWNS), l: t("Fixed locations", "固定点位") },
               { v: String(TOTAL_CITIES), l: t("Cities", "座城市") },
               { v: String(TOKENS.length), l: t("Stocks", "种美股代币") },
             ].map((s, i) => (
@@ -172,7 +172,7 @@ function Home() {
           <div>
             <span className="label-caps text-[10px] text-primary">Live map</span>
             <h2 className="mt-3 text-[1.75rem] sm:text-4xl">
-              {t("Where the signals are right now", "此刻信号在哪里")}
+              {t("Location coverage", "点位分布与覆盖城市")}
             </h2>
           </div>
           <p className="readout">
@@ -193,34 +193,34 @@ function Home() {
 
       {/* ------------------------------------------------------ what is this */}
       <Section
-        eyebrow={t("what this is", "这是什么")}
-        title={t("A market with coordinates.", "一个有坐标的市场。")}
+        eyebrow={t("about CATCH", "项目介绍")}
+        title={t("Real locations. Tokenized assets.", "连接真实地点与代币化资产。")}
       >
         <div className="hair-grid mt-10 grid md:grid-cols-3">
           {[
             {
               n: "01 / REAL",
-              h: t("Real assets.", "真实资产。"),
+              h: t("Tokenized U.S. stocks", "代币化美股"),
               p: t(
-                `Not points and not a picture of a stock. Tokenized shares as BEP-20s on ${CHAIN.name} — NVDAB, AAPLB, TSLAB — paid into your Agent Wallet after the integration is connected.`,
-                `不是积分，也不是股票截图。而是 ${CHAIN.name} 上的 BEP-20 代币化股票——NVDAB、AAPLB、TSLAB——接通后由 Agent 钱包领取并持有。`,
+                `Rewards are BEP-20 tokenized U.S. stock fragments on ${CHAIN.name}, including NVDAB, AAPLB and TSLAB, rather than points. Once integration is complete, eligible Agent Wallets can claim and hold them.`,
+                `奖励采用 ${CHAIN.name} 上的 BEP-20 代币化美股碎片，包括 NVDAB、AAPLB、TSLAB，而非平台积分。领取功能接入后，由符合资格的 Agent 钱包领取并持有。`,
               ),
             },
             {
               n: "02 / PLACE",
-              h: t("Real coordinates.", "真实坐标。"),
+              h: t("Asset-related locations", "与资产相关的地点"),
               p: t(
-                "Signals sit in front of places that actually match the asset. An Apple Store drops AAPLB, an internet café drops NVDAB, a Tesla supercharger drops TSLAB.",
-                "信号停在与资产真正匹配的场所门口：Apple 直营店掉 AAPLB，网吧掉 NVDAB，特斯拉超充站掉 TSLAB。",
+                "Each token is associated with relevant venues: AAPLB at Apple Stores, NVDAB at internet cafés, and TSLAB at Tesla superchargers.",
+                "各类代币对应与其相关的真实场所：Apple 直营店对应 AAPLB，网吧对应 NVDAB，特斯拉超充站对应 TSLAB。",
 
               ),
             },
             {
               n: "03 / EFFORT",
-              h: t("Real distance.", "真实距离。"),
+              h: t("On-site verification", "现场位置验证"),
               p: t(
-                "You have to physically get there. GPS fix, motion sensors, device and travel-speed checks. Spoofers get a polite refusal and zero shares.",
-                "你必须真的走过去。定位采样、运动传感器、设备与移动速度校验。伪造定位的只会收到一句礼貌的拒绝和 0 股。",
+                "Users must be physically present. Verification considers location samples, motion data, device information and travel speed; requests that fail the checks are rejected.",
+                "用户须抵达指定地点。验证结合定位采样、运动数据、设备信息与移动速度；未通过校验的请求无法领取。",
               ),
             },
           ].map((c) => (
@@ -243,34 +243,34 @@ function Home() {
 
       {/* ------------------------------------------------------ how it works */}
       <Section
-        eyebrow={t("how it works", "怎么玩")}
-        title={t("Human presence. AI command. Agent claim.", "真人到场，AI 接令，Agent 领取。")}
+        eyebrow={t("claim process", "领取流程")}
+        title={t("Location verification. Command. Agent claim.", "定位验证、一次性指令与 Agent 领取。")}
         lead={t(
           "All four rarities follow the same Agent-only claim rule. Live integration is pending.",
-          "普通、稀有、史诗、传奇，全部使用同一条 Agent 专属领取规则；真实接入尚未完成。",
+          "普通、稀有、史诗与传奇均适用 Agent 专属领取规则。以下为规划流程，真实领取功能尚未开放。",
         )}
       >
         <div className="mt-10 grid gap-px bg-border md:grid-cols-3">
           {[
             {
               n: "01",
-              h: t("Walk to a real venue.", "真人到店。"),
+              h: t("Arrive at the designated location.", "抵达指定地点。"),
               p: t(
-                "Use the map to find a venue, then take your phone there for GPS verification.",
-                "先在地图找到真实点位，再带手机到现场完成定位校验。",
+                "Locate a designated venue on the map and arrive on-site to begin location verification.",
+                "通过地图查找指定点位，抵达现场后启动定位验证。",
               ),
             },
             {
               n: "02",
-              h: t("Give your AI the command.", "把指令交给 AI。"),
+              h: t("Complete location verification.", "完成定位验证。"),
               p: t(
-                "After location and rule checks pass, a one-time claim command will be valid for 15 minutes.",
-                "接通后，定位与规则校验通过才会发出一次性指令，有效期 15 分钟。",
+                "Once integration is complete, passing location and eligibility checks will provide a single-use command valid for 15 minutes. Send it to your AI within that period.",
+                "接入完成后，通过定位与规则校验即可获取一次性领取指令，并在 15 分钟有效期内发送给 AI。",
               ),
             },
             {
               n: "03",
-              h: t("Agent claims on BSC.", "Agent 上链领取。"),
+              h: t("Claim through an Agent Wallet.", "Agent 钱包领取。"),
               p: t(
                 `The AI uses its Agent Wallet to submit the claim on ${CHAIN.name}. Ordinary wallets are excluded.`,
                 `AI 使用 Agent 钱包在 ${CHAIN.name} 上提交领取；普通钱包不具备领取资格。`,
@@ -291,7 +291,7 @@ function Home() {
             to="/how-it-works"
             className="label-caps text-[11px] text-accent underline underline-offset-8"
           >
-            {t("The long version →", "查看完整规则 →")}
+            {t("View all claim rules →", "查看完整规则 →")}
           </Link>
         </div>
       </Section>
@@ -299,8 +299,8 @@ function Home() {
 
       {/* ------------------------------------------------------- spawn table */}
       <Section
-        eyebrow={t("signal table", "信号表")}
-        title={t("One drop rule per token, worldwide.", "每个代币一条掉落规则，全球通用。")}
+        eyebrow={t("token rules", "代币规则")}
+        title={t("Consistent claim amounts for each token.", "同类代币，统一领取数量。")}
       >
         <div className="mt-8 divide-y divide-border border-y border-border sm:hidden">
           {TOKENS.map((tk) => (
@@ -357,11 +357,11 @@ function Home() {
         </Panel>
         <p className="mt-4 text-sm text-muted-foreground">
           {t(
-            `${TOTAL_SPAWNS} permanent drops across ${TOTAL_CITIES} cities. Catch one and it goes on cooldown, then respawns by itself — the map is never empty. A signal only appears if the vault can pay it — `,
-            `${TOTAL_CITIES} 座城市共 ${TOTAL_SPAWNS} 个固定掉落点。被捡走后进入冷却，时间一到自动复活，地图永远不会空。只有金库付得起，信号才会出现——`,
+            `${TOTAL_SPAWNS} fixed locations across ${TOTAL_CITIES} cities. Under the claim rules, locations reopen after a cooldown, subject to sufficient vault inventory. `,
+            `覆盖 ${TOTAL_CITIES} 座城市，共 ${TOTAL_SPAWNS} 个固定点位。按领取规则，点位在领取后进入冷却，冷却结束且金库库存充足时重新开放。`,
           )}
           <Link to="/proof" className="text-primary underline underline-offset-4">
-            {t("count the vault yourself", "自己去数金库")}
+            {t("View vault balances and on-chain records", "查看金库余额与链上记录")}
           </Link>
           .
         </p>
@@ -370,14 +370,14 @@ function Home() {
       {/* --------------------------------------------------------- legendary */}
       <Section
         eyebrow={t("legendary", "传奇")}
-        title={t("One share. One place. One winner.", "一整股。一个地点。一个人。")}
+        title={t("Legendary event: one full share.", "传奇活动：一整股限时领取。")}
       >
         <Panel className="mt-8 flex flex-wrap items-center justify-between gap-8">
           <div className="max-w-xl">
             <p className="text-base leading-relaxed text-muted-foreground">
               {t(
                 "Every day a whole SPCXB share sits at one spot for 120 minutes, announced 24 hours ahead with a live countdown. Planned eligibility requires on-site GPS and an Agent Wallet; the first valid Agent claim wins. Live claims are pending.",
-                "每天一次，一整股 SPCXB 会在某个地点停留 120 分钟，提前 24 小时公布并附实时倒计时。真人进入 25 米范围通过定位后，也需交由 Agent 钱包领取；规则为首个有效 Agent 领取者获胜。真实领取待接通。",
+                "按计划规则，传奇活动每日投放一整股 SPCXB，指定点位开放 120 分钟，并提前 24 小时公布。用户须进入 25 米范围并通过定位验证，由 Agent 钱包提交领取；首个有效领取者获得奖励。真实领取功能尚未开放。",
               )}
             </p>
             <Link
@@ -394,7 +394,7 @@ function Home() {
       {/* --------------------------------------------------------- catchdex */}
       <Section
         eyebrow={t("the catchdex", "图鉴")}
-        title={t(`Collect all ${TOKENS.length}.`, `集齐全部 ${TOKENS.length} 枚。`)}
+        title={t(`Explore ${TOKENS.length} tokenized assets.`, `了解全部 ${TOKENS.length} 种代币化资产。`)}
       >
         <Panel className="mt-8">
           <div className="flex flex-wrap gap-4">
@@ -407,8 +407,8 @@ function Home() {
           </div>
           <p className="mt-6 text-sm text-muted-foreground">
             {t(
-              `Every token maps to a kind of place you can actually walk into — bank branch, internet café, computer mall, phone shop, supercharger, Apple Store, science museum. Fragments are paid out of the vault on ${CHAIN.short}.`,
-              `每一枚代币都对应一类你真的能走进去的场所——银行网点、网吧、电脑城、手机店、超充站、Apple 直营店、科技馆。碎片从 ${CHAIN.short} 上的金库发出。`,
+              `Each token is associated with a venue category, including bank branches, internet cafés, computer malls, phone shops, superchargers, Apple Stores and science museums. Under the planned flow, fragments are transferred from the vault on ${CHAIN.short}.`,
+              `每种代币对应一类真实场所，包括银行网点、网吧、电脑城、手机店、超充站、Apple 直营店与科技馆。按规划流程，碎片由 ${CHAIN.short} 上的金库转出。`,
 
             )}
           </p>
@@ -417,8 +417,8 @@ function Home() {
 
       {/* --------------------------------------------------------- waitlist */}
       <Section
-        eyebrow={t("early access", "抢先体验")}
-        title={t("Tell us where to drop next.", "告诉我们下一站投放在哪。")}
+        eyebrow={t("city updates", "城市拓展")}
+        title={t("Register interest in your city.", "登记意向城市，关注后续开放。")}
       >
         <Panel className="mt-8">
           <WaitlistForm />
