@@ -55,12 +55,24 @@ export function CatchMark({ className = "" }: { className?: string }) {
   return (
     <img
       src={catchLogo}
-      alt="CATCH"
+      alt=""
       draggable={false}
       className={`h-8 w-auto shrink-0 select-none ${className}`}
     />
   );
 }
+
+/**
+ * The CATCH letters, set in the same poster face and gradient as the hero title.
+ */
+export function CatchWordmark({ className = "" }: { className?: string }) {
+  return (
+    <span aria-hidden className={`site-wordmark font-poster text-[28px] ${className}`}>
+      CATCH
+    </span>
+  );
+}
+
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
