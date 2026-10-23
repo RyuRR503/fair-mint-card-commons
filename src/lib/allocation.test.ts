@@ -28,8 +28,8 @@ describe("inventory-based point allocation", () => {
     assert.ok([...p].some((id) => id.startsWith("bj")));
   });
   test("one city holds at most 30% of points", () => {
-    const p = allocate(cands, 10, "d");
-    assert.ok([...p].filter((id) => id.startsWith("sh")).length <= 3);
+    const p = allocate(cands, 7, "d");
+    assert.ok([...p].filter((id) => id.startsWith("sh")).length <= 2);
   });
   test("different day rotates venues", () => {
     const a = [...allocate(cands, 10, "2026-10-23")].sort().join();
