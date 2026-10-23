@@ -213,7 +213,7 @@ function Proof() {
               ))}
               {!rows && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-sm text-muted-foreground">
+                  <td colSpan={6} className="px-6 py-8 text-center text-sm text-muted-foreground">
                     {t("Reading the chain…", "正在读取链上数据…")}
                   </td>
                 </tr>
