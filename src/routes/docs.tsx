@@ -211,25 +211,25 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "Rarity is a property of the token, not the number of pins. It decides three things: how long a point sleeps after a catch, how dense its venues are, and how much a single catch is worth. Value rises with rarity — a common catch is worth about $2, a rare one about $3.5, an epic one about $7, and the legendary SPCXB about $150. QQQB (banks) is common: banks are everywhere, they respawn in 20 minutes, and each catch is a modest slice. AAPLB (Apple stores) is epic: fewer doors, 90 minutes of cooldown, and a catch worth almost three times a common one.",
-              "稀有度是代币本身的属性，不是地图上点位的数量。它决定三件事：点位冷却多久、门店密度多大、以及单次领取的参考价值。价值随稀有度递增——普通约 $2，稀有约 $3.5，史诗约 $7，传奇 SPCXB 约 $150。QQQB（银行）是普通：网点分布广、20 分钟冷却、单次价值较小；AAPLB（Apple 店）是史诗：门店少、90 分钟冷却、单次参考价值约为普通的三倍。",
+              "Rarity is a property of the token, not the number of pins. It decides three things: how long a point sleeps after a catch, how dense its venues are, and how much a single catch is worth. Value rises with rarity — a common catch is worth about $5, a rare one about $10, an epic one about $20, and the legendary SPCXB about $150. QQQB (banks) is common: banks are everywhere, they respawn in 20 minutes, and each catch is a modest slice. AAPLB (Apple stores) is epic: fewer doors, 90 minutes of cooldown, and a catch worth about four times a common one.",
+              "稀有度是代币本身的属性，不是地图上点位的数量。它决定三件事：点位冷却多久、门店密度多大、以及单次领取的参考价值。价值随稀有度递增——普通约 $5，稀有约 $10，史诗约 $20，传奇 SPCXB 约 $150。QQQB（银行）是普通：网点分布广、20 分钟冷却、单次价值较小；AAPLB（Apple 店）是史诗：门店少、90 分钟冷却、单次参考价值约为普通的四倍。",
             )}
           </p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Common", "普通")}</p>
               <p className="mt-1 text-sm font-medium">{tr("QQQB · NVDAB · SPYB · MUB", "QQQB · NVDAB · SPYB · MUB")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{tr("20 min cooldown · many venues · ~$2 a catch", "20 分钟冷却 · 门店多 · 单次约 $2")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("20 min cooldown · many venues · ~$5 a catch", "20 分钟冷却 · 门店多 · 单次约 $5")}</p>
             </div>
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Rare", "稀有")}</p>
               <p className="mt-1 text-sm font-medium">{tr("TSLAB · MSFTB · GOOGLB", "TSLAB · MSFTB · GOOGLB")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{tr("45 min cooldown · medium density · ~$3.5 a catch", "45 分钟冷却 · 密度中等 · 单次约 $3.5")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("45 min cooldown · medium density · ~$10 a catch", "45 分钟冷却 · 密度中等 · 单次约 $10")}</p>
             </div>
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Epic", "史诗")}</p>
               <p className="mt-1 text-sm font-medium">{tr("AAPLB", "AAPLB")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{tr("90 min cooldown · fewer stores · ~$7 a catch", "90 分钟冷却 · 门店少 · 单次约 $7")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("90 min cooldown · fewer stores · ~$20 a catch", "90 分钟冷却 · 门店少 · 单次约 $20")}</p>
             </div>
             <div>
               <p className="label-caps text-[10px] text-muted-foreground">{tr("Legendary", "传奇")}</p>
