@@ -28,9 +28,21 @@ export type MapPoint = {
   lng: number;
 };
 
+/** The next timed legendary drop, drawn as one gold marker on the map. */
+export type LegendaryPoint = {
+  id: string;
+  place: string;
+  city: string;
+  lat: number;
+  lng: number;
+  startsAt: string;
+  durationMin: number;
+};
+
 type Props = {
   pins: MapPin[];
   points?: MapPoint[];
+  legendary?: LegendaryPoint | null;
   me?: { lat: number; lng: number } | null;
   /** Catch radius around the player, drawn as a ring on the map. */
   meRadiusM?: number;
@@ -91,6 +103,7 @@ function rarityColors(): Record<Rarity, string> {
 export default function GeoMap({
   pins,
   points = [],
+  legendary,
   me,
   meRadiusM,
   onSelect,
