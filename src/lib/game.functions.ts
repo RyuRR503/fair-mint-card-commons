@@ -2,7 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { cityByKey, type Spawn } from "./spawns";
 import { isPreviewHost } from "./site-gate";
-import { getRequestHost } from "@tanstack/react-start/server";
 import { TOKEN_BY_SYMBOL, TOKENS, VAULT_ADDRESS, CHAIN, DISTRICT_BY_SYMBOL, type Rarity } from "./tokens";
 import { catchRadius, haversine, MAX_ACCURACY_M } from "./geo";
 import { allocate, claimShares, payableClaims } from "./allocation";
@@ -352,6 +351,7 @@ export const claimDrop = createServerFn({ method: "POST" })
       return fail("Legendary drops are only claimable inside their event window, on the spot.", "传奇碎片只能在限时活动期间现场领取。");
 
     // Preview/dev hosts may skip the on-site checks for testing; published hosts never can.
+    const { getRequestHost } = await import("@tanstack/react-start/server");
     const tester = isPreviewHost(getRequestHost());
 
     // 1. accuracy + radius
@@ -487,6 +487,9 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
     return fail("This point is not active right now.", "这个点位当前未开放。");
   const spawn = toSpawn(spawnRow);
   const data = { address, spawnId: spawnRow.id, deviceId: codeRow.device_id, lat: codeRow.lat, lng: codeRow.lng, accuracy: codeRow.accuracy };
+
+  // owner-listed test wallets skip the per-wallet daily caps and cooldown
+  const tester = (process.env["TEST_CLAIM_WALLETS"] ?? "").toLowerCase().split(",").map((w) => w.trim()).includes(wallet);
 
   // burn the code first so two AIs cannot race the same one
   const { data: burned } = await db
