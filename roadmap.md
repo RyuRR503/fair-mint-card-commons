@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Apply the newly uploaded single-row CATCH logo to the header and browser favicon; verify displayed assets.
 - [ ] Replace the promo's old chart-frame logo with the approved single-row CATCH lettering; preserve other scenes and audio, inspect the revised video and deliver v3.
 - [x] Preserve the uploaded VaultEx/Trigger contract verbatim, generate matching ABIs with Solidity 0.8.24, and run 13 voucher/interface and Agent-presentation checks; document signer setup and integration gaps without enabling payouts.
 - [ ] Enable and verify live Agent claims only after deployed vault/factory addresses and Agent caller integration are supplied; resolve uploaded Guardian-only withdrawal policy versus the prior owner-full-control requirement before treating it as the final deployment source.
