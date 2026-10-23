@@ -112,6 +112,35 @@ function AppMap() {
   const [claimStates, setClaimStates] = useState<Record<string, ClaimState>>({});
   const [celebrate, setCelebrate] = useState<null | { amount: number; symbol: string }>(null);
   const [spawnTick, setSpawnTick] = useState(0);
+
+  /* ------------------------------------------------- next legendary drop */
+  const fetchLegendary = useServerFn(getLegendary);
+  const [legendary, setLegendary] = useState<LegendaryPoint | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetchLegendary()
+      .then((r: { next?: { place: string; city: string; lat: number; lng: number; starts_at: string; duration_min: number } | null }) => {
+        if (!alive) return;
+        const n = r?.next;
+        setLegendary(
+          n
+            ? {
+                id: "legendary-event",
+                place: n.place,
+                city: n.city,
+                lat: n.lat,
+                lng: n.lng,
+                startsAt: n.starts_at,
+                durationMin: n.duration_min,
+              }
+            : null,
+        );
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [fetchLegendary]);
   const fetchStatus = useServerFn(getClaimStatus);
   useEffect(() => setMyClaims(loadMyClaims()), []);
   const [fix, setFix] = useState<Fix | null>(null);
@@ -350,6 +379,7 @@ function AppMap() {
           <LiveMap
             pins={pins}
             points={points}
+            legendary={legendary}
             me={fix ? { lat: fix.lat, lng: fix.lng } : null}
             meRadiusM={radius}
             selected={selected}
