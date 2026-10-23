@@ -42,8 +42,8 @@ export const CHAIN = {
   explorer: "https://bscscan.com",
 } as const;
 
-/** Vault holding the fragments. Set once the contract is deployed. */
-export const VAULT_ADDRESS = "0x0000000000000000000000000000000000000000";
+/** Deployed MapCity vault proxy on BSC (verified on-chain 2026-10-23). */
+export const VAULT_ADDRESS = "0x699ffc34719d992fa14b2b6e3da1ebd083797beb";
 
 /** Treasury that buys fragments and refills the vault. */
 export const TREASURY_ADDRESS = "0x0000000000000000000000000000000000000000";
