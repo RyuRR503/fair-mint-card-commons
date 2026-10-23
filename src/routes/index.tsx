@@ -92,8 +92,23 @@ function Home() {
         </div>
       </div>
       <CityMarketScene />
-      <section className="agent-hero relative overflow-hidden px-5 pb-6 pt-6 sm:pt-8">
-        <div className="mx-auto max-w-6xl">
+      {/* ------------------------------------------------------ ticker */}
+      <div className="stock-ticker home-ticker overflow-hidden border-b border-border py-3" aria-hidden>
+        <div className="marquee-track gap-12">
+          {[...TOKENS, ...TOKENS].map((tk, i) => (
+            <span key={i} className="flex shrink-0 items-center gap-3 pr-12">
+              <TokenChip symbol={tk.symbol} size={22} />
+              <span className="font-poster text-2xl">{tk.symbol}</span>
+              <span className="text-sm text-muted-foreground">{t(tk.venue, tk.venueZh)}</span>
+              <span className="text-primary">✦</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+
+      <section className="agent-hero relative overflow-hidden pb-6 pt-6 sm:pt-8">
+        <div className="mx-auto max-w-6xl px-5">
           <div className="hero-topline flex items-center justify-between gap-6 border-b border-border pb-5">
             <span className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="size-1.5 rounded-full bg-primary" />
@@ -155,25 +170,10 @@ function Home() {
 
       <div className="mx-auto max-w-6xl px-5"><AgentStatus /></div>
 
-      {/* ------------------------------------------------------ ticker */}
-      <div className="stock-ticker overflow-hidden border-b border-border py-5" aria-hidden>
-        <div className="marquee-track gap-12">
-          {[...TOKENS, ...TOKENS].map((tk, i) => (
-            <span key={i} className="flex shrink-0 items-center gap-3 pr-12">
-              <TokenChip symbol={tk.symbol} size={28} />
-              <span className="font-poster text-3xl">{tk.symbol}</span>
-              <span className="text-sm text-muted-foreground">{t(tk.venue, tk.venueZh)}</span>
-              <span className="text-primary">✦</span>
-            </span>
-          ))}
-        </div>
-      </div>
-
-
       <section id="agent-journey" className="city-handoff mx-auto max-w-6xl px-5 py-12 sm:py-16" data-scroll-shot="journey"><div className="journey-sticky"><Reveal variant="heading"><AgentJourney /></Reveal><div className="journey-scroll-track" aria-hidden="true"><span /></div></div></section>
 
       {/* ---------------------------------------------------------- map */}
-      <section className="city-map-arrival mx-auto mt-10 max-w-6xl px-5" data-scroll-shot="map">
+      <section className="city-map-arrival mx-auto mt-24 max-w-6xl px-5 sm:mt-32" data-scroll-shot="map">
         <Reveal variant="heading" className="mb-8 flex flex-col justify-between gap-5 border-b border-border pb-6 md:flex-row md:items-end">
           <div>
             <span className="label-caps text-[10px] text-primary">Live map</span>
@@ -246,62 +246,6 @@ function Home() {
           ))}
         </div>
       </Section>
-
-      {/* ------------------------------------------------------ how it works */}
-      <Section
-        eyebrow={t("claim process", "领取流程")}
-        title={t("Location verification. Command. Agent claim.", "定位验证、一次性指令与 Agent 领取。")}
-        lead={t(
-          "All four rarities follow the same Agent-only claim rule. Map claims are live; the legendary event claim is not connected yet.",
-          "普通、稀有、史诗与传奇均适用 Agent 专属领取规则。地图点位已可真实领取；传奇活动的领取暂未接通。",
-        )}
-      >
-        <div className="mt-10 grid gap-px bg-border md:grid-cols-3">
-          {[
-            {
-              n: "01",
-              h: t("Arrive at the designated location.", "抵达指定地点。"),
-              p: t(
-                "Locate a designated venue on the map and arrive on-site to begin location verification.",
-                "通过地图查找指定点位，抵达现场后启动定位验证。",
-              ),
-            },
-            {
-              n: "02",
-              h: t("Complete location verification.", "完成定位验证。"),
-              p: t(
-                "Passing location and eligibility checks provides a single-use command valid for 15 minutes. Send it to your AI within that period.",
-                "通过定位与规则校验即可获取一次性领取指令，并在 15 分钟有效期内发送给 AI。",
-              ),
-            },
-            {
-              n: "03",
-              h: t("Claim through an Agent Wallet.", "Agent 钱包领取。"),
-              p: t(
-                `The AI uses its Agent Wallet to submit the claim on ${CHAIN.name}. Ordinary wallets are excluded.`,
-                `AI 使用 Agent 钱包在 ${CHAIN.name} 上提交领取；普通钱包不具备领取资格。`,
-              ),
-            },
-          ].map((s) => (
-            <div key={s.n} className="group bg-card p-8 transition-colors duration-500 hover:bg-secondary sm:p-10">
-              <span className="font-poster outline-text block text-8xl">
-                {s.n}
-              </span>
-              <h3 className="mt-6 text-xl transition-colors group-hover:text-primary">{s.h}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.p}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-8">
-          <Link
-            to="/how-it-works"
-            className="label-caps text-[11px] text-accent underline underline-offset-8"
-          >
-            {t("View all claim rules →", "查看完整规则 →")}
-          </Link>
-        </div>
-      </Section>
-
 
       {/* ------------------------------------------------------- spawn table */}
       <Section
@@ -376,6 +320,62 @@ function Home() {
           .
         </p>
       </Section>
+
+      {/* ------------------------------------------------------ how it works */}
+      <Section
+        eyebrow={t("claim process", "领取流程")}
+        title={t("Location verification. Command. Agent claim.", "定位验证、一次性指令与 Agent 领取。")}
+        lead={t(
+          "All four rarities follow the same Agent-only claim rule. Map claims are live; the legendary event claim is not connected yet.",
+          "普通、稀有、史诗与传奇均适用 Agent 专属领取规则。地图点位已可真实领取；传奇活动的领取暂未接通。",
+        )}
+      >
+        <div className="mt-10 grid gap-px bg-border md:grid-cols-3">
+          {[
+            {
+              n: "01",
+              h: t("Arrive at the designated location.", "抵达指定地点。"),
+              p: t(
+                "Locate a designated venue on the map and arrive on-site to begin location verification.",
+                "通过地图查找指定点位，抵达现场后启动定位验证。",
+              ),
+            },
+            {
+              n: "02",
+              h: t("Complete location verification.", "完成定位验证。"),
+              p: t(
+                "Passing location and eligibility checks provides a single-use command valid for 15 minutes. Send it to your AI within that period.",
+                "通过定位与规则校验即可获取一次性领取指令，并在 15 分钟有效期内发送给 AI。",
+              ),
+            },
+            {
+              n: "03",
+              h: t("Claim through an Agent Wallet.", "Agent 钱包领取。"),
+              p: t(
+                `The AI uses its Agent Wallet to submit the claim on ${CHAIN.name}. Ordinary wallets are excluded.`,
+                `AI 使用 Agent 钱包在 ${CHAIN.name} 上提交领取；普通钱包不具备领取资格。`,
+              ),
+            },
+          ].map((s) => (
+            <div key={s.n} className="group bg-card p-8 transition-colors duration-500 hover:bg-secondary sm:p-10">
+              <span className="font-poster outline-text block text-8xl">
+                {s.n}
+              </span>
+              <h3 className="mt-6 text-xl transition-colors group-hover:text-primary">{s.h}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.p}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-8">
+          <Link
+            to="/how-it-works"
+            className="label-caps text-[11px] text-accent underline underline-offset-8"
+          >
+            {t("View all claim rules →", "查看完整规则 →")}
+          </Link>
+        </div>
+      </Section>
+
 
       {/* --------------------------------------------------------- legendary */}
       <Section

@@ -1054,3 +1054,7 @@ html { scroll-padding-top: 90px; }
   .claim-celebrate-ring { animation: none; opacity: 0; }
   .claim-celebrate-card { animation: none; }
 }
+
+/* homepage rhythm: ticker sits as a top band under the header */
+.home-continuum > .home-ticker { margin-top: 0; opacity: 1; border-bottom-color: var(--border); background: color-mix(in oklab, var(--background) 82%, transparent); backdrop-filter: blur(6px); position: relative; z-index: 2; }
+.home-continuum .city-handoff::before { display: none; }
