@@ -11,7 +11,7 @@
 
 ## Architecture rules
 - Keep the uploaded VaultEx/Trigger revision verbatim in contracts/reference/MapCityBeaconFactory.flat.sol and generate its vault/factory ABIs with Solidity 0.8.24; legacy contracts/MapCityVault.sol and its fork tests remain separate because this revision is not a validated storage-compatible upgrade.
-- Use the shared CatchLettering image component for homepage and navigation brand lettering so approved letter shapes remain identical across sizes.
+- Use the shared CatchLettering image component for homepage and coming-soon brand lettering; the site logo itself is the lettering variant (src/assets/catch-logo-letters-wide.png for header/footer, catch-logo-letters-512.png as favicon source) so all brand marks share the approved letter shapes.
 - Vault inventory is the live bStocks balance (`gamePool` = balanceOf), never a counter — bStocks can rebase.
 - Vault refills BNB->bStocks via per-district PancakeSwap V3/V2 routes stored on-chain, permissionless and guarded by a per-district price ruler; tokens without Chainlink use contracts/TwapUsdFeed.sol (immutable V3 TWAP) so every district stays swappable by anyone.
 - District order in contracts/MapCityVault.sol is fixed and must match DISTRICT_BY_SYMBOL in src/lib/tokens.ts.
