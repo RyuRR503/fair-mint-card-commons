@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AgentGuideRouteImport } from './routes/agent-guide'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as ComingSoonRouteImport } from './routes/coming-soon'
 import { Route as DocsRouteImport } from './routes/docs'
@@ -24,6 +25,11 @@ import { Route as ApiPublicSyncRouteImport } from './routes/api/public/sync'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentGuideRoute = AgentGuideRouteImport.update({
+  id: '/agent-guide',
+  path: '/agent-guide',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -79,6 +85,7 @@ const ApiPublicSyncRoute = ApiPublicSyncRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agent-guide': typeof AgentGuideRoute
   '/app': typeof AppRoute
   '/coming-soon': typeof ComingSoonRoute
   '/docs': typeof DocsRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agent-guide': typeof AgentGuideRoute
   '/app': typeof AppRoute
   '/coming-soon': typeof ComingSoonRoute
   '/docs': typeof DocsRoute
@@ -106,6 +114,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/agent-guide': typeof AgentGuideRoute
   '/app': typeof AppRoute
   '/coming-soon': typeof ComingSoonRoute
   '/docs': typeof DocsRoute
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/agent-guide'
     | '/app'
     | '/coming-soon'
     | '/docs'
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/agent-guide'
     | '/app'
     | '/coming-soon'
     | '/docs'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/agent-guide'
     | '/app'
     | '/coming-soon'
     | '/docs'
@@ -161,6 +173,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AgentGuideRoute: typeof AgentGuideRoute
   AppRoute: typeof AppRoute
   ComingSoonRoute: typeof ComingSoonRoute
   DocsRoute: typeof DocsRoute
@@ -180,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent-guide': {
+      id: '/agent-guide'
+      path: '/agent-guide'
+      fullPath: '/agent-guide'
+      preLoaderRoute: typeof AgentGuideRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -257,6 +277,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgentGuideRoute: AgentGuideRoute,
   AppRoute: AppRoute,
   ComingSoonRoute: ComingSoonRoute,
   DocsRoute: DocsRoute,
