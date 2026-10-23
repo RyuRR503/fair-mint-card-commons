@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useLang, useT } from "@/lib/i18n";
+import catchLogo from "@/assets/catch-logo.png";
 
 function useNav() {
   const t = useT();
@@ -48,25 +49,17 @@ export function LangToggle({ className = "" }: { className?: string }) {
 }
 
 /**
- * The reticle: four camera-style focus corners around a single signal dot.
- * Not a game crosshair — a viewfinder.
+ * The CATCH mark: a bracket-built "C" catching a signal dot.
  */
 export function CatchMark({ className = "" }: { className?: string }) {
   return (
-    <span className={`group relative grid size-9 shrink-0 place-items-center ${className}`}>
-      {[
-        "left-0 top-0 border-l border-t",
-        "right-0 top-0 border-r border-t",
-        "left-0 bottom-0 border-l border-b",
-        "right-0 bottom-0 border-r border-b",
-      ].map((pos) => (
-        <span
-          key={pos}
-          className={`absolute size-2.5 border-primary/70 transition-all duration-300 ${pos}`}
-        />
-      ))}
-      <span className="size-1.5 rounded-full bg-primary shadow-[0_0_14px_var(--signal)]" />
-    </span>
+    <img
+      src={catchLogo}
+      alt=""
+      aria-hidden
+      draggable={false}
+      className={`size-9 shrink-0 select-none ${className}`}
+    />
   );
 }
 
