@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Explain device-based claim records and recipient wallets; simplify restocking and inventory-based rollout copy; correct current contract withdrawal assertions and verify affected pages.
 - [x] Clarify current per-claim reward targets and future updates; complete genuine stock/ETF brand marks and verify shared rendering on homepage/rules pages, with seven allocation tests passing.
 - [x] Apply the newly uploaded single-row CATCH logo to the header and browser favicon; verify displayed assets and build OK.
 - [x] Replace the promo's old chart-frame logo with the approved single-row CATCH lettering; inspect full timeline and ending, validate 600 frames and identical audio, deliver v3 in the existing video collection.

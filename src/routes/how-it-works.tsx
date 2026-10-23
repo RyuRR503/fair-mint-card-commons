@@ -204,11 +204,11 @@ function HowItWorks() {
 
           </Panel>
           <Panel>
-            <h3 className="label-caps text-[11px] text-primary">{t("Refill is automatic", "自动补货")}</h3>
+            <h3 className="label-caps text-[11px] text-primary">{t("Reward restocking", "奖励补货")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "Trading tax flows into the vault as BNB, split evenly across the nine districts. The vault then swaps each district's BNB into its bStocks token on PancakeSwap — anyone can press the button, and the contract refuses any swap more than 10% worse than the reference price (Chainlink, or a 30-minute PancakeSwap average for SPYB and QQQB), so a quick pump cannot rob it. ",
-                "交易税以 BNB 形式流入金库，平均分配到九个区。随后金库会在 PancakeSwap 上把每个区的 BNB 自动换成对应的 bStocks 股票代币——任何人均可发起补货交易，成交价偏离参考价超过 10% 时，合约将拒绝执行（参考价用 Chainlink；SPYB、QQQB 没有 Chainlink，就用 PancakeSwap 过去 30 分钟的平均价），该机制用于限制异常价格下的兑换风险。",
+                "Funds allocated to rewards in the vault are used to buy stock tokens and replenish the prize pool. Map availability updates as inventory changes; points without enough stock for a reward do not open.",
+                "金库中用于奖励的资金会按规则买入股票代币，补充奖池。库存增加后，地图会相应更新可领取点位；库存不足的点位不会开放。",
               )}
             </p>
           </Panel>
@@ -216,6 +216,10 @@ function HowItWorks() {
       </Section>
 
       <Section title={t("Cities and location coverage", "城市与点位覆盖范围")}>
+        <p className="mt-6 text-sm leading-relaxed text-muted-foreground">{t(
+          "The current version has completed claim-flow testing. Additional cities, points and activities may open in stages, according to actual vault inventory. Opening every candidate point with the same limited stock would dilute rewards, so the current rule keeps the per-claim target and opens only as many points as the inventory can pay for. Candidate points are not a promise of availability; legendary events remain closed.",
+          "当前版本已完成领取流程测试，后续城市、点位与活动将视金库实际库存逐步开放。同样的有限库存，如果一次开放过多点位，每份奖励就会被摊薄；因此目前保留单次奖励标准，库存够支付多少份，就开放多少个点位。候选点位不代表全部可领，传奇活动仍暂未开放。",
+        )}</p>
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {t(
@@ -302,20 +306,12 @@ function HowItWorks() {
         </div>
       </Section>
 
-      <Section title={t("The voucher", "凭证结构")}>
+      <Section title={t("Claim confirmation and fund safety", "领取确认与资金安全")}>
         <Panel className="mt-6">
-          <pre className="overflow-x-auto font-mono text-xs leading-relaxed text-foreground/80">{`GameVoucher {
-  address to;       // your Agent Wallet
-  uint8   district; // 0-8, e.g. the AAPLB district on ${CHAIN.short}
-  uint256 amount;   // 0.02 AAPLB = 20000000000000000 (18 decimals)
-  bytes32 spawnId;  // keccak256("shanghai-0")
-  uint256 nonce;    // unique, burned on use
-  uint256 deadline; // unix seconds
-}`}</pre>
           <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
             {t(
-              "The chain never trusts the app. It trusts one key, and that key only signs after the physical checks pass. If the key leaks it is rotated with setGameSigner. Apart from player claims, only the vault owner can move stock out of the pool.",
-              "链上从不信任 App，只信任一把密钥，而这把密钥只有在所有物理校验通过后才会签名。密钥一旦泄露可用 setGameSigner 轮换。除了玩家凭证领取，只有金库 owner 能把股票从奖池转出。",
+              "The website verifies your location and issues claim authorization. Your Agent Wallet submits the transaction, and rewards move directly from the vault to that wallet. The signing key authorizes claims; it is not a withdrawal button. If the key is misused, improper rewards can still be authorized, so signing security remains important. Confirm receipt using the transaction link in this browser's claim history.",
+              "网站验证到场情况并签发领取凭证，由 Agent 钱包提交交易，奖励直接从金库转入该钱包。签名密钥用于批准领取，不是直接提款按钮；若被滥用，仍可能批准不当奖励，因此签名安全依然重要。是否到账，可通过本机领取记录中的交易链接核对。",
             )}
           </p>
 
