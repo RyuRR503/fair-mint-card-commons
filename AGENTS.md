@@ -28,3 +28,4 @@
 - Claim size and live points derive from on-chain prices and vault inventory (src/lib/allocation.ts, liveBook in game.functions.ts), so the map never shows points the vault cannot pay.
 - Published hosts are gated to /coming-soon by the root beforeLoad (src/lib/site-gate.ts); preview/dev hosts see the full site, so development stays previewable before launch.
 - AI agent commands always target the published host's /api/public/agent-claim (catch.fun), never window.location.origin: preview hosts are login-walled and return 401 to outside callers.
+- Claim progress is derived on read (src/lib/claim-status.ts): claim_codes → matching catches row → on-chain gameNonceUsed, with tx hash found via windowed eth_getLogs; the device keeps its own code list in localStorage, so no wallet login is needed to follow a claim.

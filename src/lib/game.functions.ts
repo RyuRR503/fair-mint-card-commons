@@ -284,7 +284,14 @@ export const getSpawns = createServerFn({ method: "GET" })
             }))
             .sort((a, b) => (a.distance ?? 0) - (b.distance ?? 0))
         : all.map((s) => ({ ...s, distance: null }));
-    return { spawns: list.slice(0, data.limit ?? 400), total: all.length };
+    // recently taken points stay on the map, greyed, until they respawn
+    const { data: coolRows } = await (await admin())
+      .from("spawns")
+      .select(SPAWN_SELECT)
+      .gt("respawn_at", new Date().toISOString())
+      .limit(300);
+    const cooling = ((coolRows ?? []) as unknown as SpawnRow[]).map((r) => ({ ...toSpawn(r), respawnAt: r.respawn_at! }));
+    return { spawns: list.slice(0, data.limit ?? 400), total: all.length, cooling };
   });
 
 
@@ -704,6 +711,110 @@ export const recordClaimTx = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+async function chainRpc<T>(method: string, params: unknown[]): Promise<T | null> {
+  try {
+    const res = await fetch(CHAIN.rpc, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+    });
+    const json = (await res.json()) as { result?: T };
+    return json.result ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Has the vault burned this voucher nonce, and in which transaction (best effort)? */
+async function voucherOnChain(nonce: string, wallet: string): Promise<{ used: boolean; txHash: string | null }> {
+  const { encodeFunctionData, encodeEventTopics } = await import("viem");
+  const { VAULT_ABI } = await import("./vault");
+  const data = encodeFunctionData({ abi: VAULT_ABI as never, functionName: "gameNonceUsed", args: [BigInt(nonce)] } as never);
+  const r = await chainRpc<string>("eth_call", [{ to: vaultAddress(), data }, "latest"]);
+  const used = !!r && r !== "0x" && BigInt(r) !== 0n;
+  if (!used) return { used, txHash: null };
+  const latest = await chainRpc<string>("eth_blockNumber", []);
+  if (!latest) return { used, txHash: null };
+  const topics = (encodeEventTopics({ abi: VAULT_ABI as never, eventName: "GameRewardClaimed", args: { to: wallet } } as never) as (string | null)[]).slice(0, 2);
+  // public nodes cap log ranges, so walk back in 5,000-block windows (about the last few hours)
+  const LOG_RPC = "https://bsc-rpc.publicnode.com";
+  let to = BigInt(latest);
+  for (let i = 0; i < 6 && to > 0n; i++) {
+    const from = to > 4999n ? to - 4999n : 0n;
+    try {
+      const res = await fetch(LOG_RPC, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getLogs", params: [{ address: vaultAddress(), topics, fromBlock: `0x${from.toString(16)}`, toBlock: `0x${to.toString(16)}` }] }),
+      });
+      const logs = ((await res.json()) as { result?: { data: string; transactionHash: string }[] }).result ?? [];
+      const hit = logs.find((l) => l.data.length >= 194 && BigInt(`0x${l.data.slice(-64)}`) === BigInt(nonce));
+      if (hit) return { used, txHash: hit.transactionHash };
+    } catch {
+      break;
+    }
+    to = from - 1n;
+  }
+  return { used, txHash: null };
+}
+
+/** The site's own view of claim codes it issued on this device: did the AI claim yet? */
+export const getClaimStatus = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ codes: z.array(z.string().min(6).max(40)).max(30) }).parse(d))
+  .handler(async ({ data }) => {
+    const { claimPhase } = await import("./claim-status");
+    const db = await admin();
+    const codes = [...new Set(data.codes.map((c) => c.trim().toUpperCase()))];
+    if (codes.length === 0) return { statuses: [] };
+    const { data: rows } = await db.from("claim_codes").select("code, spawn_id, wallet, used_at, expires_at").in("code", codes);
+    const now = Date.now();
+    const statuses = await Promise.all(
+      (rows ?? []).map(async (row) => {
+        type CatchLite = { id: string; nonce: string | null; tx_hash: string | null; deadline: number | null; symbol: string; amount: number; token_address: string | null };
+        let catchRow = null as CatchLite | null;
+        if (row.used_at && row.wallet) {
+          const { data: c } = await db
+            .from("catches")
+            .select("id, nonce, tx_hash, deadline, symbol, amount, token_address")
+            .eq("spawn_id", row.spawn_id)
+            .eq("wallet", row.wallet)
+            .gte("created_at", new Date(new Date(row.used_at).getTime() - 60000).toISOString())
+            .order("created_at", { ascending: true })
+            .limit(1)
+            .maybeSingle();
+          catchRow = c as CatchLite | null;
+        }
+        let txHash = catchRow?.tx_hash ?? null;
+        let nonceUsed = false;
+        if (catchRow && !txHash && catchRow.nonce) {
+          const onChain = await voucherOnChain(catchRow.nonce, row.wallet!);
+          nonceUsed = onChain.used;
+          if (onChain.used) {
+            txHash = onChain.txHash;
+            await db.from("catches").update({ tx_hash: txHash, settled_at: new Date().toISOString() }).eq("id", catchRow.id).is("tx_hash", null);
+          }
+        }
+        const phase = claimPhase({
+          now,
+          codeExpiresAt: new Date(row.expires_at).getTime(),
+          codeUsed: !!row.used_at,
+          txHash,
+          nonceUsedOnChain: nonceUsed,
+          voucherDeadline: catchRow?.deadline ? Number(catchRow.deadline) * 1000 : null,
+        });
+        return {
+          code: row.code,
+          phase,
+          txHash,
+          wallet: row.wallet,
+          symbol: catchRow?.symbol ?? null,
+          amount: catchRow ? Number(catchRow.amount) : null,
+          tokenAddress: catchRow?.token_address ?? null,
+        };
+      }),
+    );
+    return { statuses };
+  });
 
 /* ------------------------------------------------------------- claim feed */
 
