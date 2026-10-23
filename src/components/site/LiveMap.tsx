@@ -12,6 +12,7 @@ type Props = {
   me?: { lat: number; lng: number } | null;
   meRadiusM?: number;
   onSelect?: (key: string) => void;
+  onSelectPoint?: (id: string) => void;
   selected?: string | null;
   center?: [number, number];
   zoom?: number;

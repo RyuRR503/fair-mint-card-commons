@@ -3,6 +3,7 @@ import * as maplibregl from "maplibre-gl";
 import type { Map as MlMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
+import { isPreviewHost } from "@/lib/site-gate";
 
 // Under Vite, maplibre-gl 6 cannot locate its worker on its own and leaves the
 // basemap blank ("Worker failed to load"); point it at the bundled worker.
@@ -32,6 +33,7 @@ type Props = {
   /** Catch radius around the player, drawn as a ring on the map. */
   meRadiusM?: number;
   onSelect?: (key: string) => void;
+  onSelectPoint?: (id: string) => void;
   selected?: string | null;
   center?: [number, number];
   zoom?: number;
@@ -90,6 +92,7 @@ export default function GeoMap({
   me,
   meRadiusM,
   onSelect,
+  onSelectPoint,
   selected,
   center,
   zoom,
@@ -191,10 +194,9 @@ export default function GeoMap({
         maxWidth: "280px",
         className: "catch-popup",
       });
-      m.on("click", "signal-dot", (e) => {
-        const f = e.features?.[0];
-        if (!f) return;
+      const openSignal = (f: { properties: Record<string, string>; geometry: { coordinates: number[] } }) => {
         const p = f.properties as Record<string, string>;
+        if (p["id"]) onSelectPoint?.(p["id"]);
         const tr = tRef.current;
         const tok = TOKEN_BY_SYMBOL[p["symbol"] ?? ""];
         const rarity = (p["rarity"] ?? "common") as Rarity;
@@ -239,10 +241,17 @@ export default function GeoMap({
               <div class="catch-pop-status ${status.cls}">${esc(status.text)}</div>
               ${timeText && !expired ? `<div class="catch-pop-time">${esc(timeText)}</div>` : ""}
               <div class="catch-pop-hint">${esc(tr("Planned claims require on-site location verification and an eligible Agent Wallet.", "按规划，领取须通过现场定位验证，并由符合资格的 Agent 钱包提交。"))}</div>
+              ${isPreviewHost(window.location.host) ? `<div class="catch-pop-hint">${esc(tr("Preview: after closing this card, use “Test: put me at this point” in the right panel.", "预览版：关掉这张卡片后，在右侧面板点“测试：把我的位置设到这个点位”。"))}</div>` : ""}
             </div>`,
           )
           .addTo(m);
-      });
+      };
+      for (const layer of ["signal-dot", "signal-label"] as const) {
+        m.on("click", layer, (e) => {
+          const f = e.features?.[0];
+          if (f) openSignal(f as unknown as { properties: Record<string, string>; geometry: { coordinates: number[] } });
+        });
+      }
       m.on("mouseenter", "signal-dot", () => {
         m.getCanvas().style.cursor = "pointer";
       });
@@ -280,6 +289,7 @@ export default function GeoMap({
           type: "Feature" as const,
           geometry: { type: "Point" as const, coordinates: [p.lng, p.lat] },
           properties: {
+            id: p.id ?? "",
             symbol: p.symbol,
             rarity: p.rarity,
             place: p.place,

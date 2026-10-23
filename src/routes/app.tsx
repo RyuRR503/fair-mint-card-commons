@@ -177,7 +177,11 @@ function AppMap() {
 
 
 
-  const active = nearby.find((s) => s.id === selected) ?? null;
+  const active = useMemo(() => {
+    const s = spawns.find((x) => x.id === selected) ?? null;
+    if (!s) return null;
+    return { ...s, distance: fix ? haversine(fix.lat, fix.lng, s.lat, s.lng) : null };
+  }, [spawns, selected, fix]);
   const radius = fix ? catchRadius(fix.accuracy) : RULES.baseRadiusM;
   const inRange = !!(active && fix && (active.distance ?? Infinity) <= radius);
   const command = issued && issued.spawnId === active?.id ? buildAgentCommand({ lang: lang === "zh" ? "zh" : "en", api: `${window.location.origin}/api/public/agent-claim`, ...issued }) : null;
@@ -247,6 +251,7 @@ function AppMap() {
             me={fix ? { lat: fix.lat, lng: fix.lng } : null}
             meRadiusM={radius}
             selected={selected}
+            onSelectPoint={(id) => setSelected(id)}
             {...(fix ? { center: [fix.lng, fix.lat] as [number, number], zoom: 13 } : {})}
 
             height="520px"
