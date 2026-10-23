@@ -8,6 +8,7 @@ import { CityMarketScene } from "@/components/site/CityMarketScene";
 import { CitySignals } from "@/components/site/CitySignals";
 import { CatchLettering } from "@/components/site/CatchLettering";
 import { Section, Panel } from "@/components/site/Section";
+import { Reveal } from "@/components/site/Reveal";
 import { TokenChip } from "@/components/site/TokenChip";
 import { type MapPin } from "@/components/site/WorldMap";
 import { LiveMap } from "@/components/site/LiveMap";
@@ -163,11 +164,11 @@ function Home() {
       </div>
 
 
-      <section id="agent-journey" className="city-handoff mx-auto max-w-6xl px-5 py-12 sm:py-16" data-scroll-shot="journey"><AgentJourney /></section>
+      <section id="agent-journey" className="city-handoff mx-auto max-w-6xl px-5 py-12 sm:py-16" data-scroll-shot="journey"><div className="journey-sticky"><Reveal variant="heading"><AgentJourney /></Reveal><div className="journey-scroll-track" aria-hidden="true"><span /></div></div></section>
 
       {/* ---------------------------------------------------------- map */}
       <section className="city-map-arrival mx-auto mt-10 max-w-6xl px-5" data-scroll-shot="map">
-        <div className="mb-8 flex flex-col justify-between gap-5 border-b border-border pb-6 md:flex-row md:items-end">
+        <Reveal variant="heading" className="mb-8 flex flex-col justify-between gap-5 border-b border-border pb-6 md:flex-row md:items-end">
           <div>
             <span className="label-caps text-[10px] text-primary">Live map</span>
             <h2 className="mt-3 text-[1.75rem] sm:text-4xl">
@@ -180,7 +181,7 @@ function Home() {
               `${TOTAL_CITIES} 城 / ${TOTAL_SPAWNS} 点 / 已同步`,
             )}
           </p>
-        </div>
+        </Reveal>
 
         <div className="ink-frame relative overflow-hidden rounded-md">
           <div className="overflow-hidden rounded-md">

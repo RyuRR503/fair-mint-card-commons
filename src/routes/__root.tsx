@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { HuntBackdrop } from "@/components/site/HuntBackdrop";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { SiteMotion } from "@/components/site/SiteMotion";
 import { LangProvider } from "@/lib/i18n";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -136,6 +137,7 @@ function RootComponent() {
         <HuntBackdrop />
         <div className="relative flex min-h-screen flex-col">
           <SiteHeader />
+          <SiteMotion />
           <main className="flex-1">
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />

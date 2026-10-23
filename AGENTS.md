@@ -21,5 +21,6 @@
 - CitySignals owns the sequential decorative location-stock labels using CSS animation; keep it independent of real GPS, pricing and claims, and honor the homepage playback pause and reduced-motion preference.
 - The city photograph is a single stationary image; CityMarketScene only coordinates scroll handoff and does not render a canvas or pointer-driven photograph movement, so location signals remain the main city animation without blur.
 - The homepage uses one bounded sticky city backdrop with explicit non-negative internal layers; scroll choreography updates through a passive scroll listener independently of WebGL availability, preserves native scrolling and readable content, and restores inline properties on cleanup.
+- SiteMotion owns decorative reading progress and section emphasis; shared Reveal provides hydration-safe staggered entrances, while CityMarketScene owns the desktop sticky Agent journey. Preserve native scrolling, reduced-motion and playback fallbacks so motion never gates content or touches claim logic.
 
 - Agent claim presentation policy lives in src/lib/agent-claims.ts and shared AgentJourney UI; while integration is pending, the map page must not issue vouchers or submit legacy browser-wallet claims, so previews cannot appear to award real assets.

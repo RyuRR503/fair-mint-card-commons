@@ -27,8 +27,8 @@ export function Section({
   index?: string;
 }) {
   return (
-    <section id={id} className={cn("mx-auto max-w-6xl px-5", hero ? "mt-14 border-b border-border pb-12 sm:mt-20 sm:pb-14" : "mt-24 sm:mt-32", className)}>
-      <Reveal>
+    <section id={id} className={cn("motion-section mx-auto max-w-6xl px-5", hero ? "motion-section-hero mt-14 border-b border-border pb-12 sm:mt-20 sm:pb-14" : "mt-24 sm:mt-32", className)}>
+      <Reveal variant="heading">
       {(eyebrow || index) && (
         <div className="flex items-center gap-4">
           <span className="h-0.5 w-10 bg-primary" />
@@ -46,7 +46,7 @@ export function Section({
         </p>
       )}
       </Reveal>
-      <Reveal delay={120}>{children}</Reveal>
+      <Reveal delay={120} variant="content">{children}</Reveal>
     </section>
   );
 }
