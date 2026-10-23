@@ -184,7 +184,7 @@ function AppMap() {
   }, [spawns, selected, fix]);
   const radius = fix ? catchRadius(fix.accuracy) : RULES.baseRadiusM;
   const inRange = !!(active && fix && (active.distance ?? Infinity) <= radius);
-  const command = issued && issued.spawnId === active?.id ? buildAgentCommand({ lang: lang === "zh" ? "zh" : "en", api: `${window.location.origin}/api/public/agent-claim`, ...issued }) : null;
+  const command = issued && issued.spawnId === active?.id ? buildAgentCommand({ lang: lang === "zh" ? "zh" : "en", api: `${window.location.origin}/api/public/agent-claim`, tokenAddress: TOKEN_BY_SYMBOL[issued.symbol]?.address ?? "", vaultAddress: VAULT_ADDRESS, ...issued }) : null;
 
   async function getCommand() {
     if (!active || !fix) return;
