@@ -2,7 +2,7 @@ import type { Rarity } from "@/lib/tokens";
 
 /** Presentation policy only; not an on-chain identity check. */
 export const AGENT_CLAIMS = {
-  integrationReady: false,
+  integrationReady: true,
   commandTtlMinutes: 15,
   requiredWallet: "Binance Agentic Wallet",
 } as const;

@@ -8,12 +8,14 @@ import { type MapPin } from "@/components/site/WorldMap";
 import { LiveMap } from "@/components/site/LiveMap";
 import type { MapPoint } from "@/components/site/GeoMap.client";
 
-import { getSpawns, RULES } from "@/lib/game.functions";
+import { claimDrop, getSpawns, RULES } from "@/lib/game.functions";
+import { buildAgentCommand } from "@/lib/agent-command";
+import { Input } from "@/components/ui/input";
 import { catchRadius, formatDistance, haversine } from "@/lib/geo";
 import { CHAIN, RARITY_LABEL, rarityVar } from "@/lib/tokens";
 import type { Rarity } from "@/lib/tokens";
 import { Button } from "@/components/ui/button";
-import { Bot, MapPin as MapPinIcon } from "lucide-react";
+import { Bot, Check, Copy, MapPin as MapPinIcon } from "lucide-react";
 import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
 import { claimEligibility } from "@/lib/agent-claims";
 import { useT, useLang } from "@/lib/i18n";
@@ -65,6 +67,15 @@ function AppMap() {
   const t = useT();
   const { lang } = useLang();
   const fetchSpawns = useServerFn(getSpawns);
+  const requestClaim = useServerFn(claimDrop);
+  const [wallet, setWallet] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [claimError, setClaimError] = useState<{ en: string; zh: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [issued, setIssued] = useState<null | { spawnId: string; vault: string; inputData: string; amount: number; symbol: string; place: string; deadline: number; chainId: number; wallet: string }>(null);
+  useEffect(() => {
+    setWallet(localStorage.getItem("catch.agentWallet") ?? "");
+  }, []);
 
 
 
@@ -168,6 +179,55 @@ function AppMap() {
   const active = nearby.find((s) => s.id === selected) ?? null;
   const radius = fix ? catchRadius(fix.accuracy) : RULES.baseRadiusM;
   const inRange = !!(active && fix && (active.distance ?? Infinity) <= radius);
+  const walletOk = /^0x[a-fA-F0-9]{40}$/.test(wallet.trim());
+  const command = issued && issued.spawnId === active?.id ? buildAgentCommand({ lang: lang === "zh" ? "zh" : "en", ...issued }) : null;
+
+  async function getCommand() {
+    if (!active || !fix || !walletOk) return;
+    setBusy(true);
+    setClaimError(null);
+    setCopied(false);
+    const address = wallet.trim();
+    localStorage.setItem("catch.agentWallet", address);
+    let deviceId = localStorage.getItem("catch.deviceId");
+    if (!deviceId) {
+      deviceId = crypto.randomUUID();
+      localStorage.setItem("catch.deviceId", deviceId);
+    }
+    try {
+      const r = await requestClaim({
+        data: {
+          address,
+          spawnId: active.id,
+          lat: fix.lat,
+          lng: fix.lng,
+          accuracy: fix.accuracy,
+          deviceId,
+          samples: samples.current,
+          motion: Math.round(motion.current),
+          tzOffsetMin: new Date().getTimezoneOffset(),
+        },
+      });
+      if (!r.ok) setClaimError({ en: r.error, zh: r.errorZh ?? r.error });
+      else if (!r.inputData) setClaimError({ en: "Live claims are not switched on yet.", zh: "真实领取尚未开启。" });
+      else
+        setIssued({ spawnId: active.id, vault: r.contract, inputData: r.inputData, amount: r.spawn.amount, symbol: r.spawn.symbol, place: r.spawn.place, deadline: r.voucher.deadline, chainId: r.chainId, wallet: address });
+    } catch {
+      setClaimError({ en: "Could not reach the claim server. Try again.", zh: "无法连接领取服务，请重试。" });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function copyCommand() {
+    if (!command) return;
+    try {
+      await navigator.clipboard.writeText(command);
+      setCopied(true);
+    } catch {
+      setClaimError({ en: "Copy unavailable. Select the text instead.", zh: "无法复制，请手动选中文字复制。" });
+    }
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -277,8 +337,26 @@ function AppMap() {
                     ? t(`${formatDistance(active.distance)} away`, `距离 ${formatDistance(active.distance)}`)
                     : t("Enable location to measure the distance.", "开启定位后可查看点位距离。")}
                 </p>
-                <Button disabled={claimEligibility(active.rarity, "agent") !== "ready"} className="mt-4 w-full"><Bot />{t("Live Agent claims pending", "Agent 真实领取待开放")}</Button>
-                <p className="mt-2 text-xs text-muted-foreground">{!fix ? t("Enable location to measure distance. No command is issued in this preview.", "开启定位可测距；本预览不会签发领取指令。") : inRange ? t("You appear nearby; full GPS checks and Agent verification are still required before a live command.", "当前位置接近点位；签发真实指令仍需完整定位校验与 Agent 身份验证。") : t("Walk closer to the venue. AI cannot replace your presence.", "请抵达指定点位；现场位置验证须由用户本人完成。")}</p>
+                <label className="mt-4 block text-xs text-muted-foreground" htmlFor="agent-wallet">{t("Your Agent Wallet address", "你的 Agent 钱包地址")}</label>
+                <Input id="agent-wallet" value={wallet} onChange={(e) => setWallet(e.target.value)} placeholder="0x…" className="mt-1 font-mono text-xs" autoComplete="off" spellCheck={false} />
+                <Button
+                  disabled={busy || !fix || !walletOk || claimEligibility(active.rarity, "agent") !== "ready"}
+                  onClick={getCommand}
+                  className="mt-3 w-full"
+                >
+                  <Bot />{busy ? t("Verifying location…", "正在校验定位…") : t("Get Agent command", "获取 Agent 指令")}
+                </Button>
+                <p className="mt-2 text-xs text-muted-foreground">{!fix ? t("Enable location first and keep this page open for 20 seconds.", "请先开启定位，并保持页面打开 20 秒。") : !walletOk ? t("Enter the address of your Binance Agent Wallet. Only that wallet can use the command.", "请填写你的币安 Agent 钱包地址，指令只能由这个钱包使用。") : inRange ? t("You are in range. Get the command, then send it to your AI.", "你已在领取范围内。获取指令后发给你的 AI 即可。") : t("Walk closer to the venue. AI cannot replace your presence.", "请走到点位附近；现场定位须由你本人完成。")}</p>
+                {claimError && <p role="alert" className="mt-2 text-xs text-destructive">{lang === "zh" ? claimError.zh : claimError.en}</p>}
+                {command && (
+                  <div className="mt-3 space-y-2">
+                    <div className="flex items-start gap-2 border-l-2 border-primary bg-secondary/35 p-3">
+                      <code className="max-h-48 flex-1 overflow-y-auto whitespace-pre-wrap break-all font-mono text-[11px] leading-relaxed text-primary">{command}</code>
+                      <Button variant="ghost" size="icon" onClick={copyCommand} aria-label={t("Copy Agent command", "复制 Agent 指令")}>{copied ? <Check /> : <Copy />}</Button>
+                    </div>
+                    <p role="status" className="text-xs text-muted-foreground">{copied ? t("Copied. Paste it to your AI; it previews first, then executes after you confirm.", "已复制。发给你的 AI，它会先预览，你确认后再执行。") : t(`Valid for ${RULES.voucherTtlMin} minutes, single use.`, `${RULES.voucherTtlMin} 分钟内有效，只能用一次。`)}</p>
+                  </div>
+                )}
               </>
             ) : (
               <p className="mt-2 text-sm text-muted-foreground">

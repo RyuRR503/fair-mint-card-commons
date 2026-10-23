@@ -7,8 +7,8 @@ describe("Agent-only claim presentation policy", () => {
     test(`${rarity} excludes ordinary wallets`, () => {
       assert.equal(claimEligibility(rarity, "ordinary"), "agent-required");
     });
-    test(`${rarity} cannot claim before integration`, () => {
-      assert.equal(claimEligibility(rarity, "agent"), "integration-pending");
+    test(`${rarity} is claimable by an Agent wallet`, () => {
+      assert.equal(claimEligibility(rarity, "agent"), "ready");
     });
   }
   test("intended commands expire after 15 minutes", () => {
