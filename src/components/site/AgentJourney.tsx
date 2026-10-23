@@ -34,7 +34,7 @@ export function AgentJourney({ compact = false }: { compact?: boolean }) {
   return (
     <div className={compact ? "space-y-5" : "grid items-start gap-10 lg:grid-cols-[1fr_1fr]"}>
       <div>
-        {!compact && <><p className="label-caps text-primary">HUMAN × AGENT</p><h2 className="mt-4 text-3xl sm:text-4xl">{t("You walk. Your Agent claims.", "你负责到场，Agent 负责领取。")}</h2></>}
+        {!compact && <><p className="label-caps text-primary">HUMAN × AGENT</p><h2 className="mt-4 text-balance text-[1.75rem] sm:text-4xl">{t("You walk. Your Agent claims.", "你负责到场，Agent 负责领取。")}</h2></>}
         <ol className="agent-steps mt-5 divide-y divide-border">
           {[
             { icon: MapPin, name: t("Human · phone GPS", "真人 · 手机定位"), detail: t("Walk to the venue and pass the presence checks.", "走到真实点位，通过距离、精度和连续定位校验。") },
