@@ -21,8 +21,8 @@ export function AgentJourney({ compact = false }: { compact?: boolean }) {
   const [error, setError] = useState("");
   const code = "CATCH-DEMO-0000";
   const example = t(
-    `Use my Binance Agent Wallet on BSC to claim CATCH reward. Claim code: ${code}. Fetch the voucher from catch.fun with this code, then call claimGameReward on the CATCH vault from this same Agent wallet. The code expires in ${AGENT_CLAIMS.commandTtlMinutes} minutes.`,
-    `请用我的币安 Agent 钱包在 BSC 上领取 CATCH 奖励。领取码：${code}。请用此领取码从 catch.fun 获取领奖凭证，并由同一个 Agent 钱包调用 CATCH 金库的 claimGameReward 完成领取。领取码 ${AGENT_CLAIMS.commandTtlMinutes} 分钟内有效。`,
+    `Use my Binance Agent Wallet on BSC to claim CATCH reward. Claim code: ${code}. Fetch the voucher from catch.fun with this code, then call claimGameVoucher on the CATCH vault from this same Agent wallet. The code expires in ${AGENT_CLAIMS.commandTtlMinutes} minutes.`,
+    `请用我的币安 Agent 钱包在 BSC 上领取 CATCH 奖励。领取码：${code}。请用此领取码从 catch.fun 获取领奖凭证，并由同一个 Agent 钱包调用 CATCH 金库的 claimGameVoucher 完成领取。领取码 ${AGENT_CLAIMS.commandTtlMinutes} 分钟内有效。`,
   );
 
   async function copyExample() {
