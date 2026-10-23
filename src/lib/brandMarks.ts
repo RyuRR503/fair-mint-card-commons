@@ -1,6 +1,6 @@
 import nvidia from "@/assets/stock-logos/nvidia.svg.asset.json";
 import microsoft from "@/assets/stock-logos/microsoft.svg.asset.json";
-import alphabet from "@/assets/stock-logos/alphabet.svg.asset.json";
+import google from "@/assets/stock-logos/google.svg.asset.json";
 import micron from "@/assets/stock-logos/micron.png.asset.json";
 import spacex from "@/assets/stock-logos/spacex.svg.asset.json";
 import qqq from "@/assets/stock-logos/qqq.svg.asset.json";
@@ -10,7 +10,7 @@ import spy from "@/assets/stock-logos/spy.svg.asset.json";
 export const BRAND_IMAGE: Record<string, { url: string; label: string; wide?: boolean }> = {
   NVDAB: { url: nvidia.url, label: "NVIDIA" },
   MSFTB: { url: microsoft.url, label: "Microsoft" },
-  GOOGLB: { url: alphabet.url, label: "Alphabet", wide: true },
+  GOOGLB: { url: google.url, label: "Google", wide: true },
   MUB: { url: micron.url, label: "Micron", wide: true },
   SPCXB: { url: spacex.url, label: "SpaceX", wide: true },
   QQQB: { url: qqq.url, label: "Invesco QQQ", wide: true },
