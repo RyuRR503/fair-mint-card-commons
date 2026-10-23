@@ -218,7 +218,7 @@ export default function GeoMap({
             ? { cls: "is-on", text: tr("Nearby · Agent integration pending", "已接近 · Agent 领取待接通") }
             : dist !== null
               ? { cls: "is-far", text: tr(`${formatDistance(dist)} away`, `距你 ${formatDistance(dist)}`) }
-              : { cls: "is-ok", text: tr("Catchable on site", "到现场即可捕捉") };
+              : { cls: "is-ok", text: tr("Location available · Live claims pending", "点位可浏览 · 真实领取待开放") };
         popup
           .setLngLat(coords)
           .setHTML(
@@ -233,7 +233,7 @@ export default function GeoMap({
               <div class="catch-pop-geo">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
               <div class="catch-pop-status ${status.cls}">${esc(status.text)}</div>
               ${timeText && !expired ? `<div class="catch-pop-time">${esc(timeText)}</div>` : ""}
-              <div class="catch-pop-hint">${esc(tr("Walk here. Planned claims require GPS and an Agent Wallet.", "真人到这里定位，再由 Agent 钱包领取（待接通）"))}</div>
+              <div class="catch-pop-hint">${esc(tr("Planned claims require on-site location verification and an eligible Agent Wallet.", "按规划，领取须通过现场定位验证，并由符合资格的 Agent 钱包提交。"))}</div>
             </div>`,
           )
           .addTo(m);

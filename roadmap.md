@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Apply the selected clear, steady copy direction throughout the homepage, shared UI and content pages; preserve rules and pending integration status, verify navigation and command preview.
+- [x] Apply the selected clear, steady copy direction throughout the homepage, shared UI and content pages; preserve rules and pending integration status, verify navigation and command preview.
 - [x] Unify the city signal and Agent step arrivals on one geometry-aware scroll timeline; verify forward/backward scrolling, pause and reduced motion.
 - [x] Refine sequential homepage location capture into ring, expanding stock label and collapse; add scroll-driven decorative signal handoff and verify pause, reduced motion and mobile.
 - [x] Upgrade shared site scroll reveals, navigation feedback and page transitions; preserve approved city-stock signals and branding.
