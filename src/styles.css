@@ -788,9 +788,10 @@ html[lang^="zh"] h2 {
 /* CATCH wordmark: the five letters arrive one after another, then a gold sheen crosses the word. */
 .catch-word { align-items: stretch; line-height: 0; }
 .catch-word .catch-letter { display: block; flex: 0 0 auto; height: 100%; width: auto; opacity: 0; transform: translateY(52%); filter: blur(10px); animation: catch-letter-in 1000ms var(--ease-cine) both; }
-.catch-word .catch-sheen { position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(105deg, transparent 38%, color-mix(in oklab, var(--foreground) 70%, var(--primary)) 50%, transparent 62%); background-size: 260% 100%; background-position: -90% 0; background-repeat: no-repeat; mix-blend-mode: screen; mask-size: 100% 100%; mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; animation: catch-sheen 6.4s linear 1.6s infinite; }
+.catch-word .catch-sheen { position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(105deg, transparent 44%, color-mix(in oklab, var(--foreground) 70%, var(--primary)) 50%, transparent 56%); background-size: 220% 100%; background-position: 120% 0; background-repeat: no-repeat; mix-blend-mode: screen; mask-size: 100% 100%; mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; animation: catch-sheen 6.4s linear 1.6s infinite; }
 @keyframes catch-letter-in { to { opacity: 1; transform: none; filter: none; } }
-@keyframes catch-sheen { 0% { background-position: -90% 0; } 45%, 100% { background-position: 190% 0; } }
+@keyframes catch-sheen { 0% { background-position: 120% 0; } 45%, 100% { background-position: -20% 0; } }
+
 
 @media (prefers-reduced-motion: reduce) { .catch-word .catch-letter { opacity: 1; transform: none; filter: none; animation: none; } .catch-word .catch-sheen { display: none; } }
 
