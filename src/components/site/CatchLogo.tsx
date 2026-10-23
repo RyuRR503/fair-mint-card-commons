@@ -30,7 +30,7 @@ export function CatchLogo({ className = "", title = "CATCH" }: { className?: str
         <path d="M60 90L80 10H94L114 90H100L87 36L74 90Z" />
         <rect x="124" y="10" width="46" height="14" />
         <rect x="140" y="10" width="14" height="80" />
-        <path d={c} transform="translate(180 0)" fill="none" stroke={paint} strokeWidth="14" />
+        <path d="M223 32V27Q223 17 213 17H197Q187 17 187 27V73Q187 83 197 83H213Q223 83 223 73V68" fill="none" stroke={paint} strokeWidth="14" />
         <rect x="240" y="10" width="14" height="80" />
         <rect x="272" y="10" width="14" height="80" />
         <rect x="240" y="43" width="46" height="14" />
