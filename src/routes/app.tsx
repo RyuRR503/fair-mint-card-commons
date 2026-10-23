@@ -84,7 +84,7 @@ function AppMap() {
   /* ---------------------------------------------------------- geolocation */
   const startGeo = useCallback(() => {
     if (!("geolocation" in navigator)) {
-      setGeoError(t("This browser has no location support.", "这个浏览器不支持定位。"));
+      setGeoError(t("This browser has no location support.", "当前浏览器不支持定位。"));
       return;
     }
     navigator.geolocation.watchPosition(
@@ -99,7 +99,7 @@ function AppMap() {
         samples.current = [...samples.current.slice(-60), s];
         setFix({ lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy });
       },
-      () => setGeoError(t("Location is blocked. The game does not work without it.", "定位被拒绝。没有定位就没法玩。")),
+      () => setGeoError(t("Location permission was denied. Enable it to measure your distance from locations.", "定位权限未获授权。请允许定位以查看点位距离。")),
       { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 },
     );
   }, [t]);
@@ -169,7 +169,7 @@ function AppMap() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-7"><p className="label-caps flex items-center gap-2 text-primary"><Bot className="size-4" />BINANCE AGENTIC WALLET</p><h1 className="mt-3 text-3xl sm:text-4xl">{t("Your city. Your Agent.", "你去探索，Agent 来领取。")}</h1><div className="mt-5"><AgentStatus /></div></div>
+      <div className="mb-7"><p className="label-caps flex items-center gap-2 text-primary"><Bot className="size-4" />BINANCE AGENTIC WALLET</p><h1 className="mt-3 text-3xl sm:text-4xl">{t("Explore tokenized stock locations", "浏览代币化美股点位")}</h1><div className="mt-5"><AgentStatus /></div></div>
       <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         {/* ------------------------------------------------------------ map */}
         <div className="min-w-0">
@@ -185,7 +185,7 @@ function AppMap() {
           />
 
           <Panel className="mt-4">
-            <h2 className="label-caps text-xs text-muted-foreground">{t("Nearby signals", "附近信号")}</h2>
+            <h2 className="label-caps text-xs text-muted-foreground">{t("Nearby signals", "附近点位")}</h2>
             <ul className="mt-3 max-h-72 divide-y divide-border/60 overflow-y-auto">
               {nearby.map((s) => (
                 <li key={s.id}>
@@ -256,7 +256,7 @@ function AppMap() {
           </Panel>
 
           <Panel>
-            <h2 className="label-caps text-xs text-muted-foreground">{t("Selected signal", "已选信号")}</h2>
+            <h2 className="label-caps text-xs text-muted-foreground">{t("Selected signal", "已选点位")}</h2>
             {active ? (
               <>
                 <div className="mt-3 flex items-center gap-3">
@@ -273,16 +273,16 @@ function AppMap() {
                 <p className="mt-3 text-xs text-muted-foreground">
                   {active.distance != null
                     ? t(`${formatDistance(active.distance)} away`, `距离 ${formatDistance(active.distance)}`)
-                    : t("Enable location to measure the distance.", "开启定位后才能测距。")}
+                    : t("Enable location to measure the distance.", "开启定位后可查看点位距离。")}
                 </p>
                 <Button disabled={claimEligibility(active.rarity, "agent") !== "ready"} className="mt-4 w-full"><Bot />{t("Live Agent claims pending", "Agent 真实领取待开放")}</Button>
-                <p className="mt-2 text-xs text-muted-foreground">{!fix ? t("Enable location to measure distance. No command is issued in this preview.", "开启定位可测距；本预览不会签发领取指令。") : inRange ? t("You appear nearby; full GPS checks and Agent verification are still required before a live command.", "你已接近点位；真实指令还需完整定位校验与 Agent 身份验证。") : t("Walk closer to the venue. AI cannot replace your presence.", "请靠近真实点位，AI 不能代替你到场。")}</p>
+                <p className="mt-2 text-xs text-muted-foreground">{!fix ? t("Enable location to measure distance. No command is issued in this preview.", "开启定位可测距；本预览不会签发领取指令。") : inRange ? t("You appear nearby; full GPS checks and Agent verification are still required before a live command.", "当前位置接近点位；签发真实指令仍需完整定位校验与 Agent 身份验证。") : t("Walk closer to the venue. AI cannot replace your presence.", "请抵达指定点位；现场位置验证须由用户本人完成。")}</p>
               </>
             ) : (
               <p className="mt-2 text-sm text-muted-foreground">
                 {t(
                   "Pick a signal to see its distance and Agent claim status.",
-                  "从列表选择信号，查看距离与 Agent 领取状态。",
+                  "请选择点位，查看距离与 Agent 领取状态。",
                 )}
               </p>
             )}
@@ -307,13 +307,13 @@ function AppMap() {
               <li>
                 {t(
                   `· Catch radius ${RULES.baseRadiusM}–${RULES.maxRadiusM} m, scaled to your own error.`,
-                  `· 领取半径 ${RULES.baseRadiusM}–${RULES.maxRadiusM} 米，按你的定位误差浮动。`,
+                  `· 领取半径 ${RULES.baseRadiusM}–${RULES.maxRadiusM} 米，随定位误差调整。`,
                 )}
               </li>
               <li>
                 {t(
                   `· Keep the page open ${RULES.minFixSeconds} s so the log has at least ${RULES.minFixSamples} readings.`,
-                  `· 页面保持打开 ${RULES.minFixSeconds} 秒，让日志至少有 ${RULES.minFixSamples} 条采样。`,
+                  `· 保持页面打开至少 ${RULES.minFixSeconds} 秒，以完成不少于 ${RULES.minFixSamples} 次定位采样。`,
                 )}
               </li>
               <li>

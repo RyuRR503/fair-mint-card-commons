@@ -12,7 +12,7 @@ export const Route = createFileRoute("/how-it-works")({
       {
         name: "description",
         content:
-          "The signal table, the claim server, the vault contract on BNB Smart Chain, and every anti-cheat rule that stands between a spoofer and a share.",
+          "CATCH location verification, single-use commands, Agent-only claim rules, vault funding and anti-cheat checks on BNB Smart Chain. Live Agent integration is pending.",
       },
       { property: "og:title", content: "How CATCH works" },
       {
@@ -36,31 +36,31 @@ function HowItWorks() {
       h: t("Open the map and prepare an Agent Wallet.", "打开地图，准备 Agent 钱包。"),
       p: t(
         "The app reads your GPS once and draws every catchable signal around you — Apple stores, banks, internet cafés, phone shops, science museums. Nothing is sent anywhere yet.",
-        "App 读取一次定位，把周围所有可捕捉信号画出来：Apple 店、银行、网吧、手机店、科技馆。此时什么都不会上传。",
+        "App 读取定位并展示附近点位，包括 Apple 门店、银行、网吧、手机店与科技馆。此阶段不提交领取请求。",
       ),
     },
     {
       n: "02",
-      h: t("Walk up to the pin until it lights up.", "走到点位附近，等它亮起。"),
+      h: t("Walk up to the pin until it lights up.", "抵达点位并查看验证范围。"),
       p: t(
         `You are standing outside the Apple store on Shanghai Nanjing East Road. The app draws a circle around the pin. If your phone reports a clean fix, the circle is about ${RULES.baseRadiusM + 5} m. In a crowded downtown it can stretch to ${RULES.maxRadiusM} m — the radius grows with your own error so a real visitor does not get rejected.`,
-        `你站在上海南京东路 Apple 店门口，App 会在点位周围画一个圈。定位干净时圈约 ${RULES.baseRadiusM + 5} 米；市中心拥挤地段会放宽到 ${RULES.maxRadiusM} 米——半径随你的定位误差自动放大，真的到场的人不会被误伤。`,
+        `以上海南京东路 Apple 门店为例，App 会标注点位验证范围。定位精度较高时，范围约 ${RULES.baseRadiusM + 5} 米；定位误差较大时，半径可调整至 ${RULES.maxRadiusM} 米，以降低现场用户被误判的可能。`,
       ),
     },
     {
       n: "03",
-      h: t("Hold still for a few seconds.", "原地停留几秒。"),
+      h: t("Hold still for a few seconds.", "完成连续定位采样。"),
       p: t(
         `The app records at least ${RULES.minFixSamples} readings over ${RULES.minFixSeconds} seconds and reads your accelerometer. A real hand holding a real phone shakes; a mocked location sits perfectly still. That is how it tells the difference.`,
-        `App 会在 ${RULES.minFixSeconds} 秒内记录至少 ${RULES.minFixSamples} 次定位，并读取加速度计。真实的手握着真实的手机会微微抖动；模拟定位纹丝不动。这就是区分方式。`,
+        `App 会在 ${RULES.minFixSeconds} 秒内记录至少 ${RULES.minFixSamples} 次定位，并读取加速度计。系统结合定位波动与运动数据，辅助识别异常定位；单项数据并不等同于到场证明。`,
       ),
     },
     {
       n: "04",
-      h: t("The server runs the checks.", "服务器运行校验。"),
+      h: t("The server runs the checks.", "验证位置与领取资格。"),
       p: t(
         "It measures distance, accuracy, jitter, and whether your travel since the last catch is physically possible. It also checks the site-wide hourly budget and your daily cap. If anything fails, you see a plain reason and pay zero gas.",
-        "服务器会计算距离、精度、抖动，以及距上次捕捉的移动在现实里是否可能（比如一小时内在两座城市出现会被拒绝）；同时检查全站每小时预算和你的每日上限。任何一项失败都会给出一句人话原因，不花 gas。",
+        "服务器会计算距离、精度、抖动，以及距上次领取的移动在现实里是否可能（比如一小时内在两座城市出现会被拒绝）；同时检查全站每小时预算和你的每日上限。任何一项未通过，系统都会说明原因，且不会产生链上交易费用。",
       ),
     },
     {
@@ -68,7 +68,7 @@ function HowItWorks() {
       h: t("A 15-minute AI command (planned).", "获取 15 分钟有效的 AI 指令（待接通）。"),
       p: t(
         "After GPS and rule checks pass, the planned service issues a single-use command bound to the point and Agent recipient. Send it to your AI within 15 minutes. This preview does not issue real commands.",
-        "接通后，定位与规则通过才会签发一次性指令，绑定点位和 Agent 收款钱包。你把指令发给自己的 AI，15 分钟内使用；当前预览不会签发真实指令。",
+        "接通后，定位与规则通过才会签发一次性指令，绑定点位和 Agent 收款钱包。用户将指令发送给 AI，并在 15 分钟内使用；当前预览不会签发真实指令。",
       ),
     },
     {
@@ -93,19 +93,19 @@ function HowItWorks() {
       t("Travel", "移动轨迹"),
       t(
         `A new catch has to be reachable from the last one: walking speed (${RULES.walkSpeedMs} m/s) under ${RULES.flightThresholdKm} km, a plane plus ${RULES.airportMinutes} minutes of airport beyond that. Two different cities inside one hour is refused whatever the distance — the rule follows the device, so a fresh wallet does not clear the trail behind your phone.`,
-        `新的捕捉必须从上一次的位置"走得到"：${RULES.flightThresholdKm} 公里以内按步行速度（${RULES.walkSpeedMs} 米/秒）计算，更远则按飞行加 ${RULES.airportMinutes} 分钟机场时间。一小时内出现在两座不同城市一律拒绝——规则跟着设备走，换新钱包也抹不掉手机留下的轨迹。`,
+        `新的领取位置须符合从上一地点出发的合理移动时间：${RULES.flightThresholdKm} 公里以内按步行速度（${RULES.walkSpeedMs} 米/秒）计算，更远则按飞行加 ${RULES.airportMinutes} 分钟机场时间。一小时内出现在两座不同城市一律拒绝——规则关联设备记录，更换钱包不会重置移动轨迹。`,
       ),
     ],
     [
       t("Proof of presence", "在场证明"),
       t(
         "A real chipset wobbles by centimetres and its accuracy drifts every second. A mock provider returns the same coordinates and the same error forever, and that is exactly what we look for.",
-        "真实定位芯片会有厘米级抖动，精度每秒都在变。模拟定位永远返回同一个坐标和同一个误差——我们查的就是这个。",
+        "真实定位芯片会有厘米级抖动，精度每秒都在变。模拟定位永远返回同一个坐标和同一个误差——系统将此类异常作为校验依据。",
       ),
     ],
     [
       t("Motion", "运动数据"),
-      t("Hands shake, emulators do not. A perfect zero is refused.", "手会抖，模拟器不会。完全为零的运动数据会被拒绝。"),
+      t("Hands shake, emulators do not. A perfect zero is refused.", "系统检查运动数据；完全为零的数据会被判定为异常并拒绝请求。"),
     ],
     [
       t("Clock and timezone", "时钟与时区"),
@@ -118,14 +118,14 @@ function HowItWorks() {
       t("Cooldowns", "冷却时间"),
       t(
         `${RULES.walletCooldownMin} minutes between two catches by the same wallet. Each signal sleeps 20–120 minutes after it is caught, depending on rarity, then wakes up by itself.`,
-        `同一钱包两次捕捉间隔 ${RULES.walletCooldownMin} 分钟。每个信号被捡走后按稀有度休眠 20–120 分钟，时间一到自动复活。`,
+        `同一钱包两次领取间隔 ${RULES.walletCooldownMin} 分钟。点位完成领取后，根据稀有度进入 20–120 分钟冷却，结束后按规则重新开放。`,
       ),
     ],
     [
       t("Caps", "上限"),
       t(
         `${RULES.perWalletPerDay} catches per wallet per day, and the same wallet cannot take the same signal twice within 24 hours. The whole site also has a rolling hourly budget of $${RULES.hourlyUsdCap} (priced at live Chainlink quotes) — once it is spent, catches pause until the next hour.`,
-        `每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，且同一钱包 24 小时内不能重复捕捉同一个信号。全站还有每小时 $${RULES.hourlyUsdCap} 的滚动发放预算（按 Chainlink 实时报价折算）——用完即暂停，下一小时自动恢复。`,
+        `每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，且同一钱包 24 小时内不能重复领取同一个信号。全站还有每小时 $${RULES.hourlyUsdCap} 的滚动发放预算（按 Chainlink 实时报价折算）——用完即暂停，下一小时自动恢复。`,
       ),
     ],
     [
@@ -141,17 +141,17 @@ function HowItWorks() {
     <>
       <Section hero
         eyebrow={t("how it works", "玩法")}
-        title={t("You arrive. AI takes the command. Agent claims.", "你到场，AI 接令，Agent 领取。")}
+        title={t("Location verification and Agent claim rules", "定位验证与 Agent 领取规则")}
         lead={t(
           "Every rarity is intended for Agent-only claims: human GPS, AI command, Agent transaction. Live integration is not connected.",
-          "核心规则：所有碎片仅限币安 Agent 钱包领取。真人负责到店定位，AI 接收短时指令，Agent 钱包负责链上领取。当前仅展示流程，真实接入尚未完成。",
+          "所有稀有度的碎片均仅限币安 Agent 钱包领取。用户抵达指定地点并通过定位验证后，获取一次性指令，由 AI 通过 Agent 钱包提交链上领取。当前为流程预览，真实领取功能接入中。",
         )}
         className="mt-10"
       />
 
       <section className="mx-auto max-w-6xl px-5 py-8"><AgentStatus /><div className="mt-8"><AgentJourney /></div></section>
 
-      <Section title={t("Six steps, four of them invisible.", "六步，其中四步你看不见。")}>
+      <Section title={t("From location discovery to on-chain claim", "从查找点位到链上领取")}>
         <div className="mt-8 grid gap-5 md:grid-cols-2">
           {STEPS.map((s) => (
             <Panel key={s.n}>
@@ -163,13 +163,13 @@ function HowItWorks() {
         </div>
       </Section>
 
-      <Section title={t("What each catch pays", "每次捕捉能拿多少")}>
+      <Section title={t("Claim amounts by token", "各类代币的单次领取数量")}>
         <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
           <table className="w-full min-w-[520px] text-left text-sm">
             <thead>
               <tr className="label-caps border-b border-border text-[10px] text-muted-foreground">
                 <th className="px-6 py-4">{t("Token", "代币")}</th>
-                <th className="px-6 py-4">{t("Where you catch it", "捕捉地点")}</th>
+                <th className="px-6 py-4">{t("Where you catch it", "领取地点")}</th>
                 <th className="px-6 py-4">{t("Per catch", "单次数量")}</th>
                 <th className="px-6 py-4">{t("Vault target", "目标库存")}</th>
               </tr>
@@ -204,14 +204,14 @@ function HowItWorks() {
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
                 "Trading tax flows into the vault as BNB, split evenly across the nine districts. The vault then swaps each district's BNB into its bStocks token on PancakeSwap — anyone can press the button, and the contract refuses any swap more than 10% worse than the reference price (Chainlink, or a 30-minute PancakeSwap average for SPYB and QQQB), so a quick pump cannot rob it. ",
-                "交易税以 BNB 形式流入金库，平均分配到九个区。随后金库会在 PancakeSwap 上把每个区的 BNB 自动换成对应的 bStocks 股票代币——谁都可以按这个按钮，成交价比参考价差超过 10% 合约就直接拒绝（参考价用 Chainlink；SPYB、QQQB 没有 Chainlink，就用 PancakeSwap 过去 30 分钟的平均价），有人临时砸盘也占不到便宜。",
+                "交易税以 BNB 形式流入金库，平均分配到九个区。随后金库会在 PancakeSwap 上把每个区的 BNB 自动换成对应的 bStocks 股票代币——任何人均可发起补货交易，成交价偏离参考价超过 10% 时，合约将拒绝执行（参考价用 Chainlink；SPYB、QQQB 没有 Chainlink，就用 PancakeSwap 过去 30 分钟的平均价），该机制用于限制异常价格下的兑换风险。",
               )}
             </p>
           </Panel>
         </div>
       </Section>
 
-      <Section title={t("Where the pins live", "这些店都在哪儿")}>
+      <Section title={t("Cities and location coverage", "城市与点位覆盖范围")}>
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {t(
@@ -282,7 +282,7 @@ function HowItWorks() {
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
                 `One Agent Wallet can catch ${RULES.perWalletPerDay} drops per day, with at least ${RULES.walletCooldownMin} minutes between two catches. The same wallet cannot take the same signal twice within 24 hours.`,
-                `每个 Agent 钱包每天可捕捉 ${RULES.perWalletPerDay} 次，两次捕捉之间至少间隔 ${RULES.walletCooldownMin} 分钟，且 24 小时内不能重复捕捉同一信号。`,
+                `每个 Agent 钱包每天可领取 ${RULES.perWalletPerDay} 次，两次领取之间至少间隔 ${RULES.walletCooldownMin} 分钟，且 24 小时内不能重复领取同一信号。`,
               )}
             </p>
           </Panel>
@@ -291,7 +291,7 @@ function HowItWorks() {
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
                 "Signals are tied to real stores, not regenerated every day. A caught point simply goes to sleep, then reopens automatically when its cooldown ends.",
-                "信号绑定真实门店，并非每天重新生成。被捕捉后只是进入休眠，冷却结束后自动重新开放。",
+                "点位绑定真实门店，并非每日重新生成。完成领取后进入冷却，冷却结束后按规则重新开放。",
               )}
             </p>
           </Panel>
@@ -322,7 +322,7 @@ function HowItWorks() {
         title={t("Anti-cheat", "反作弊")}
         lead={t(
           "GPS can be faked and wallets are free, so per-wallet limits alone are worthless. Every counter is keyed on something a fresh wallet does not reset.",
-          "定位可以伪造，钱包不要钱，所以只按钱包限流毫无意义。每一项计数都绑定在换钱包也重置不了的东西上。",
+          "仅依赖钱包限额不足以防范伪造定位。系统同时结合设备记录、移动轨迹与连续采样，降低通过更换钱包重复领取的风险。",
         )}
       >
         <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -338,7 +338,7 @@ function HowItWorks() {
             {t("Full documentation →", "完整文档 →")}
           </Link>
           <Link to="/app" className="label-caps text-[11px] text-primary underline underline-offset-4">
-            {t("Open the radar →", "打开雷达 →")}
+            {t("Open the radar →", "浏览地图 →")}
           </Link>
         </div>
       </Section>

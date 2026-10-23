@@ -25,19 +25,19 @@ export function WaitlistForm({ kind = "walker" }: { kind?: "walker" | "brand" | 
         setState("done");
         setMessage(
           isBrand
-            ? t("Got it. Sponsor mail gets answered first.", "收到。品牌合作的邮件我们最先回。")
+            ? t("Your enquiry has been received. We will contact you about the partnership.", "合作意向已提交，我们将通过邮箱与您联系。")
             : t(
-                "You are on the list. We will tell you when your city lights up.",
-                "已加入名单。你所在的城市一上线我们就通知你。",
+                "Registration received. We will email you about availability in your city.",
+                "登记成功。所在城市开放后，我们将通过邮箱通知您。",
               ),
         );
       } else {
         setState("error");
-        setMessage("error" in res ? res.error : t("Something went wrong.", "出了点问题。"));
+        setMessage("error" in res ? res.error : t("Submission failed.", "提交失败，请稍后重试。"));
       }
     } catch {
       setState("error");
-      setMessage(t("Something went wrong. Try again.", "出了点问题，请重试。"));
+      setMessage(t("Submission failed. Please try again.", "提交失败，请重试。"));
     }
   }
 
@@ -69,7 +69,7 @@ export function WaitlistForm({ kind = "walker" }: { kind?: "walker" | "brand" | 
           <input
             value={company}
             onChange={(e) => setCompany(e.target.value)}
-            placeholder={t("Your brand", "你的品牌")}
+            placeholder={t("Your brand", "品牌名称")}
             className="mt-1 w-full rounded-md border border-input bg-card px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring"
           />
         </label>
@@ -81,7 +81,7 @@ export function WaitlistForm({ kind = "walker" }: { kind?: "walker" | "brand" | 
           <input
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            placeholder={t("Where should signals appear?", "希望信号出现在哪里？")}
+            placeholder={t("Where should signals appear?", "意向城市")}
             className="mt-1 w-full rounded-md border border-input bg-card px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring"
           />
         </label>
@@ -96,7 +96,7 @@ export function WaitlistForm({ kind = "walker" }: { kind?: "walker" | "brand" | 
           ? t("Sending…", "发送中…")
           : isBrand
             ? t("Talk to us", "联系我们")
-            : t("Join the list", "加入名单")}
+            : t("Join the list", "登记意向")}
       </button>
 
       {state === "error" && <p className="w-full text-sm text-destructive">{message}</p>}
