@@ -80,7 +80,8 @@ export function CityMarketScene({ paused = false }: { paused?: boolean }) {
       const aperture = new THREE.Group();
       sculpture.add(aperture);
       const brackets: ReturnType<typeof makeLine>[] = [];
-      for (const [x, y] of [[-2.6, -2.6], [2.6, -2.6], [-2.6, 2.6], [2.6, 2.6]]) {
+      const cornerPositions: [number, number][] = [[-2.6, -2.6], [2.6, -2.6], [-2.6, 2.6], [2.6, 2.6]];
+      for (const [x, y] of cornerPositions) {
         const dx = x < 0 ? 1 : -1, dy = y < 0 ? 1 : -1;
         brackets.push(makeLine([[x, y + dy * 1.05, 0], [x, y, 0], [x + dx * 1.05, y, 0]], 0.8, aperture));
       }
@@ -142,7 +143,7 @@ export function CityMarketScene({ paused = false }: { paused?: boolean }) {
         echo.rotation.z = reduced.matches ? 0.08 : Math.sin(time * 0.18) * 0.07;
         camera.position.z = 14 - progress * 1.2;
         guide.material.opacity = 0.09;
-        element.dataset.phase = cycle < 4.6 ? "capture" : cycle < 8.5 ? "signal" : "agent";
+        element.dataset["phase"] = cycle < 4.6 ? "capture" : cycle < 8.5 ? "signal" : "agent";
         renderer.render(scene, camera);
       };
       const animate = (now: number) => {
