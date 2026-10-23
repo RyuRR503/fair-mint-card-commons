@@ -99,10 +99,6 @@ function AppMap() {
   const [claimError, setClaimError] = useState<{ en: string; zh: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [issued, setIssued] = useState<null | { spawnId: string; code: string; amount: number; symbol: string; place: string; deadline: number; chainId: number }>(null);
-  const [testMode, setTestMode] = useState(false);
-  useEffect(() => {
-    setTestMode(isPreviewHost(window.location.host));
-  }, []);
 
 
 
@@ -349,16 +345,6 @@ function AppMap() {
     }
   }
 
-  /** Preview-only: place the device next to the selected point. The server skips on-site checks only on preview hosts. */
-  function teleportToActive() {
-    if (!active) return;
-    const now = Date.now();
-    const lat = active.lat + 0.00004;
-    const lng = active.lng + 0.00004;
-    samples.current = Array.from({ length: 6 }, (_, i) => [lat + i * 0.000005, lng - i * 0.000004, 10 + i, now - (5 - i) * 5000] as [number, number, number, number]);
-    motion.current = 12;
-    setFix({ lat, lng, accuracy: 12 });
-  }
 
   async function copyCommand() {
     if (!command) return;
@@ -513,11 +499,6 @@ function AppMap() {
                     ? t(`${formatDistance(active.distance)} away`, `距离 ${formatDistance(active.distance)}`)
                     : t("Enable location to measure the distance.", "开启定位后可查看点位距离。")}
                 </p>
-                {testMode && (
-                  <Button variant="outline" size="sm" onClick={teleportToActive} className="mt-4 w-full">
-                    <MapPinIcon />{t("Test: put me at this point", "测试：把我的位置设到这个点位")}
-                  </Button>
-                )}
 <Button
                   disabled={busy || !fix || !!activeCooling || claimEligibility(active.rarity, "agent") !== "ready"}
                   onClick={getCommand}

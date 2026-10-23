@@ -357,9 +357,8 @@ export const claimDrop = createServerFn({ method: "POST" })
     if (spawn.rarity === "legendary")
       return fail("Legendary drops are only claimable inside their event window, on the spot.", "传奇碎片只能在限时活动期间现场领取。");
 
-    // Preview/dev hosts may skip the on-site checks for testing; published hosts never can.
-    const { getRequestHost } = await import("@tanstack/react-start/server");
-    const tester = isPreviewHost(getRequestHost());
+    // on-site checks always apply, on every host
+    const tester = false as boolean;
 
     // 1. accuracy + radius
     if (data.accuracy > RULES.maxAccuracyM)
