@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useLang, useT } from "@/lib/i18n";
-import catchLogo from "@/assets/catch-logo-letters-wide.png.asset.json";
+import catchLogo from "@/assets/catch-logo-upload-header.png.asset.json";
 
 function useNav() {
   const t = useT();
