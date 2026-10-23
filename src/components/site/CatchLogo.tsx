@@ -28,7 +28,7 @@ export function CatchLogo({ className = "", title = "CATCH" }: { className?: str
         d="M65.5 24.5A36 36 0 1 0 65.5 75.5M100 90L135 12L170 90M111.4 64H158.6M205 14.5H265M235 14.5V90M355.5 24.5A36 36 0 1 0 355.5 75.5M404.5 10V90M447.5 10V90M404.5 50H447.5"
         fill="none"
         stroke={paint}
-        strokeWidth="9"
+        strokeWidth="11"
         strokeLinejoin="miter"
       />
       <circle className="catch-logo-eye-glow" cx="330" cy="50" r="15" fill="var(--primary)" />
