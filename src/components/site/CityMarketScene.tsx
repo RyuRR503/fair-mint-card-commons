@@ -34,12 +34,12 @@ export function CityMarketScene() {
       ctx.fillStyle = channels;
       ctx.fillRect(0, 0, 1, 1);
       const pixel = ctx.getImageData(0, 0, 1, 1).data;
-      const gold = new THREE.Color().setRGB(pixel[0] / 255, pixel[1] / 255, pixel[2] / 255, THREE.SRGBColorSpace);
+      const gold = new THREE.Color().setRGB((pixel[0] ?? 0) / 255, (pixel[1] ?? 0) / 255, (pixel[2] ?? 0) / 255, THREE.SRGBColorSpace);
       probe.remove();
       const world = new THREE.Group();
       scene.add(world);
       const materials: InstanceType<typeof THREE.Material>[] = [];
-      const line = (points: number[][], opacity = 0.45) => {
+      const line = (points: [number, number, number][], opacity = 0.45) => {
         const material = new THREE.LineBasicMaterial({ color: gold, transparent: true, opacity });
         materials.push(material);
         const geometry = new THREE.BufferGeometry().setFromPoints(points.map(([x, y, z]) => new THREE.Vector3(x, y, z)));
@@ -52,12 +52,13 @@ export function CityMarketScene() {
         line([[i * 1.2, -2.8, -6], [i * 1.2, -2.8, 4]], 0.1);
         line([[-7.2, -2.8, i], [7.2, -2.8, i]], 0.1);
       }
-      const route = [[-4, -1.7, 0], [-2.8, -1.7, 0], [-2.1, -0.7, 0], [-1, -1, 0], [0, 0.7, 0], [1.1, 0.4, 0], [2.5, 2.2, 0]];
+      const route: [number, number, number][] = [[-4, -1.7, 0], [-2.8, -1.7, 0], [-2.1, -0.7, 0], [-1, -1, 0], [0, 0.7, 0], [1.1, 0.4, 0], [2.5, 2.2, 0]];
       const chart = line(route, 0.8);
       chart.geometry.setDrawRange(0, 2);
       const corners = new THREE.Group();
       world.add(corners);
-      for (const [x, y] of [[-4.7, -2.3], [3.2, -2.3], [-4.7, 2.9], [3.2, 2.9]]) {
+      const cornerPositions: [number, number][] = [[-4.7, -2.3], [3.2, -2.3], [-4.7, 2.9], [3.2, 2.9]];
+      for (const [x, y] of cornerPositions) {
         const dx = x < 0 ? 1 : -1;
         const dy = y < 0 ? 1 : -1;
         const bracket = line([[x, y + dy * 0.65, 0], [x, y, 0], [x + dx * 0.65, y, 0]], 0.65);
@@ -105,7 +106,7 @@ export function CityMarketScene() {
         const part = phase * (route.length - 1);
         const index = Math.min(route.length - 2, Math.floor(part));
         const a = route[index], b = route[index + 1];
-        node.position.set(a[0] + (b[0] - a[0]) * (part - index), a[1] + (b[1] - a[1]) * (part - index), 0);
+        if (a && b) node.position.set(a[0] + (b[0] - a[0]) * (part - index), a[1] + (b[1] - a[1]) * (part - index), 0);
         target.scale.setScalar(reduced.matches ? 1 : 1 + Math.sin(time * 1.7) * 0.025);
         corners.position.z = reduced.matches ? 0 : Math.sin(time * 0.6) * 0.3;
         renderer.render(scene, camera);
