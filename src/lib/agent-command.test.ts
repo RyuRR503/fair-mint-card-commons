@@ -7,6 +7,8 @@ const base = {
   api: "https://catch.fun/api/public/agent-claim",
   amount: 0.00942,
   symbol: "NVDAB",
+  tokenAddress: "0x02Fca66C1D1aFB4E2A7884261eB00F63598a7436",
+  vaultAddress: "0x699ffc34719d992fa14b2b6e3da1ebd083797beb",
   place: "网吧",
   deadline: 1_800_000_000,
   chainId: 56,
@@ -29,6 +31,13 @@ describe("Agent claim command", () => {
       assert.ok(s.includes('"wallet":"<AGENT_WALLET>"'));
       assert.ok(s.includes('"code":"CATCH-ABC234"'));
       assert.ok(s.includes(base.api));
+    }
+  });
+  test("command names the reward token and vault contracts for verification", () => {
+    for (const lang of ["zh", "en"] as const) {
+      const s = buildAgentCommand({ ...base, lang });
+      assert.ok(s.includes(base.tokenAddress));
+      assert.ok(s.includes(base.vaultAddress));
     }
   });
 });
