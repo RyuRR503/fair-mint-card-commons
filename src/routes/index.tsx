@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
+import { CatchLogo } from "@/components/site/CatchLogo";
 import cityGold from "@/assets/catch-city-gold.jpg";
 import { CitySignals } from "@/components/site/CitySignals";
 import { Reveal } from "@/components/site/Reveal";
@@ -93,12 +94,7 @@ function Home() {
               <p className="label-caps text-xs text-primary">
                 {t("Real-world stock fragments × Binance Agentic Wallet", "真实世界美股碎片 × 币安 Agent AI 钱包")}
               </p>
-              <p
-                aria-hidden
-                className="agent-wordmark font-poster mt-5 select-none text-[6.5rem] sm:text-[10rem] lg:text-[12rem]"
-              >
-                CATCH.
-              </p>
+              <CatchLogo className="hero-wordmark mt-6" title="CATCH." />
               <h1 className="mt-5 max-w-xl text-balance text-[1.75rem] leading-[1.3] sm:text-[2.5rem]">
                 {t("You explore. Your Agent claims.", "你走进城市，Agent 抓住市场。")}
               </h1>
