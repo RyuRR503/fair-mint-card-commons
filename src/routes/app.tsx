@@ -214,7 +214,7 @@ function AppMap() {
     }
   }
 
-  /** Preview-only: place the device next to the selected point. Server still only skips checks for listed test wallets. */
+  /** Preview-only: place the device next to the selected point. The server skips on-site checks only on preview hosts. */
   function teleportToActive() {
     if (!active) return;
     const now = Date.now();
