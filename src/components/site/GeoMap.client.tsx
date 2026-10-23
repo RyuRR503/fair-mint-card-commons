@@ -194,9 +194,7 @@ export default function GeoMap({
         maxWidth: "280px",
         className: "catch-popup",
       });
-      m.on("click", "signal-dot", (e) => {
-        const f = e.features?.[0];
-        if (!f) return;
+      const openSignal = (f: { properties: Record<string, string>; geometry: { coordinates: number[] } }) => {
         const p = f.properties as Record<string, string>;
         if (p["id"]) onSelectPoint?.(p["id"]);
         const tr = tRef.current;
