@@ -22,13 +22,16 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CATCH — 在真实地点，发现代币化美股" },
+      { title: "CATCH — 真实地点美股碎片，币安 Agent 钱包领取" },
       {
         name: "description",
         content:
           "CATCH 将代币化美股碎片与真实地点连接。规划流程包括定位验证、一次性指令与币安 Agent 钱包链上领取；Agent 领取功能接入中。",
       },
-      { property: "og:title", content: "CATCH — 真实地点与代币化美股" },
+      {
+        property: "og:title",
+        content: "CATCH — 在真实地点发现代币化美股，由币安 Agent 钱包完成链上领取",
+      },
       {
         property: "og:description",
         content:
