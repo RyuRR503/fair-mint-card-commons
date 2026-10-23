@@ -283,6 +283,7 @@ export default function GeoMap({
           type: "Feature" as const,
           geometry: { type: "Point" as const, coordinates: [p.lng, p.lat] },
           properties: {
+            id: p.id ?? "",
             symbol: p.symbol,
             rarity: p.rarity,
             place: p.place,

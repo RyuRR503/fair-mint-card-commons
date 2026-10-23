@@ -247,6 +247,7 @@ function AppMap() {
             me={fix ? { lat: fix.lat, lng: fix.lng } : null}
             meRadiusM={radius}
             selected={selected}
+            onSelectPoint={(id) => setSelected(id)}
             {...(fix ? { center: [fix.lng, fix.lat] as [number, number], zoom: 13 } : {})}
 
             height="520px"
