@@ -51,13 +51,13 @@ export function LangToggle({ className = "" }: { className?: string }) {
 /**
  * The CATCH logo — the approved lettering variant, drawn in the site's gold.
  */
-export function CatchMark({ className = "" }: { className?: string }) {
+export function CatchMark({ className = "h-8 w-auto" }: { className?: string }) {
   return (
     <img
       src={catchLogo.url}
       alt=""
       draggable={false}
-      className={`h-8 w-auto shrink-0 select-none ${className}`}
+      className={`shrink-0 select-none ${className}`}
     />
   );
 }
@@ -85,7 +85,7 @@ export function SiteHeader() {
     <header className="site-header sticky top-0 z-40 border-b border-border/60 bg-background/85 px-3 py-3 backdrop-blur-xl sm:px-5">
       <div className="mx-auto flex max-w-6xl items-center gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="CATCH home">
-          <CatchMark />
+          <CatchMark className="h-auto w-24 sm:w-28" />
         </Link>
 
 
