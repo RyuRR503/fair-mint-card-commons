@@ -13,7 +13,7 @@ import { buildAgentCommand } from "@/lib/agent-command";
 import { isPreviewHost } from "@/lib/site-gate";
 import { Input } from "@/components/ui/input";
 import { catchRadius, formatDistance, haversine } from "@/lib/geo";
-import { CHAIN, RARITY_LABEL, rarityVar } from "@/lib/tokens";
+import { CHAIN, RARITY_LABEL, rarityVar, TOKEN_BY_SYMBOL, VAULT_ADDRESS } from "@/lib/tokens";
 import type { Rarity } from "@/lib/tokens";
 import { Button } from "@/components/ui/button";
 import { Bot, Check, Copy, MapPin as MapPinIcon } from "lucide-react";
@@ -184,7 +184,7 @@ function AppMap() {
   }, [spawns, selected, fix]);
   const radius = fix ? catchRadius(fix.accuracy) : RULES.baseRadiusM;
   const inRange = !!(active && fix && (active.distance ?? Infinity) <= radius);
-  const command = issued && issued.spawnId === active?.id ? buildAgentCommand({ lang: lang === "zh" ? "zh" : "en", api: `${window.location.origin}/api/public/agent-claim`, ...issued }) : null;
+  const command = issued && issued.spawnId === active?.id ? buildAgentCommand({ lang: lang === "zh" ? "zh" : "en", api: `${window.location.origin}/api/public/agent-claim`, tokenAddress: TOKEN_BY_SYMBOL[issued.symbol]?.address ?? "", vaultAddress: VAULT_ADDRESS, ...issued }) : null;
 
   async function getCommand() {
     if (!active || !fix) return;
