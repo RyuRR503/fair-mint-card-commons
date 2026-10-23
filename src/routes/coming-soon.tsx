@@ -15,6 +15,7 @@ export const Route = createFileRoute("/coming-soon")({
       { property: "og:description", content: "项目尚未正式上线，可先浏览覆盖城市与点位分布。" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...SITE_PREVIEW_META,
     ],
   }),
   loader: () => getMapSummary(),

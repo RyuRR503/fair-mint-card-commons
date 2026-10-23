@@ -18,6 +18,7 @@ export const Route = createFileRoute("/docs")({
       { property: "og:description", content: "CATCH vault interfaces, token parameters and planned Agent-only claim rules. Live Agent integration is pending." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...SITE_PREVIEW_META,
     ],
   }),
   component: Docs,

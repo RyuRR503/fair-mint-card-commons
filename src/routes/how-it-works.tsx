@@ -22,6 +22,7 @@ export const Route = createFileRoute("/how-it-works")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...SITE_PREVIEW_META,
     ],
   }),
   component: HowItWorks,

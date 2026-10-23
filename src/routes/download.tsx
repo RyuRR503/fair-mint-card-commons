@@ -15,6 +15,7 @@ export const Route = createFileRoute("/download")({
       { property: "og:description", content: "Web app today, Android APK in testing, App Store next." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...SITE_PREVIEW_META,
 
     ],
   }),

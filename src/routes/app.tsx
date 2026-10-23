@@ -30,6 +30,7 @@ export const Route = createFileRoute("/app")({
       { property: "og:description", content: "Explore real-world stock locations and the planned Binance Agentic Wallet claim experience." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...SITE_PREVIEW_META,
     ],
   }),
   component: AppMap,
