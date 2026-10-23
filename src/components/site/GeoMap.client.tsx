@@ -3,7 +3,6 @@ import * as maplibregl from "maplibre-gl";
 import type { Map as MlMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
-import { isPreviewHost } from "@/lib/site-gate";
 
 // Under Vite, maplibre-gl 6 cannot locate its worker on its own and leaves the
 // basemap blank ("Worker failed to load"); point it at the bundled worker.
