@@ -384,7 +384,7 @@ export default function GeoMap({
       m.flyTo({ center: [legendary.lng, legendary.lat], zoom: 13, duration: 1200, essential: true });
 
       const tr = tRef.current;
-      const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&", "<": "<", ">": ">" })[c]!);
+      const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
       const start = new Date(legendary.startsAt).getTime();
       const end = start + legendary.durationMin * 60000;
       const now = Date.now();
