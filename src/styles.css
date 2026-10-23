@@ -879,7 +879,7 @@ html { scroll-padding-top: 90px; }
 .site-reading-progress::after { content: ""; display: block; height: 100%; background: var(--primary); transform-origin: left; transform: scaleX(var(--reading-progress, 0)); }
 .site-header { transition: background-color 450ms, border-color 450ms, box-shadow 450ms; }
 .site-header[data-scrolled] { background-color: color-mix(in oklab, var(--background) 96%, transparent); border-color: color-mix(in oklab, var(--primary) 22%, transparent); }
-main { animation: page-arrive 700ms var(--ease-cine) both; }
+.site-page { animation: page-arrive 700ms var(--ease-cine) both; }
 @keyframes page-arrive { from { opacity: 0.6; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 
 /* Headings and content enter on different beats rather than as one slab. */
@@ -936,7 +936,7 @@ main { animation: page-arrive 700ms var(--ease-cine) both; }
   .reveal-up.motion-ready:not(.is-in) { transform: translateY(22px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  main, .reveal-heading.is-in h2, .reveal-content.is-in :is(.hair-grid, .grid, .flex-wrap) > * { animation: none; }
+  .site-page, .reveal-heading.is-in h2, .reveal-content.is-in :is(.hair-grid, .grid, .flex-wrap) > * { animation: none; }
   .reveal-up.motion-ready:not(.is-in) { opacity: 1; transform: none; }
   .hero-copy, .site-nav-link:hover, [data-slot="button"]:active:not(:disabled) { transform: none; }
   .motion-section::before, .motion-section .reveal-heading > div > span:first-child, .journey-scroll-track span { transform: none; }
