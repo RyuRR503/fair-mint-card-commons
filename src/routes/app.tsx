@@ -12,7 +12,7 @@ import { catchRadius, formatDistance, haversine } from "@/lib/geo";
 import { CHAIN, RARITY_LABEL, rarityVar } from "@/lib/tokens";
 import type { Rarity } from "@/lib/tokens";
 import { Button } from "@/components/ui/button";
-import { Bot, MapPin } from "lucide-react";
+import { Bot, MapPin as MapPinIcon } from "lucide-react";
 import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
 import { claimEligibility } from "@/lib/agent-claims";
 import { useT, useLang } from "@/lib/i18n";
@@ -249,7 +249,7 @@ function AppMap() {
                 onClick={startGeo}
                 className="label-caps mt-3 w-full rounded-md border border-border bg-card px-5 py-3 text-xs shadow-[var(--shadow-pop)]"
               >
-                <MapPin />{t("Enable location", "开启定位")}
+                <MapPinIcon />{t("Enable location", "开启定位")}
               </Button>
             )}
             {geoError && <p className="mt-2 text-xs text-destructive">{geoError}</p>}
