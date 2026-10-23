@@ -731,7 +731,7 @@ html[lang^="zh"] h2 {
 /* One stationary photograph prevents overlapping edges and pointer-driven blur. */
 .city-depth { position: absolute; inset: 0; pointer-events: none; }
 .city-depth--far { z-index: -20; }
-.city-signals { position: absolute; inset: 0; pointer-events: none; z-index: -1; }
+.city-signals { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
 .city-signal { position: absolute; display: grid; grid-template-columns: 24px auto; gap: 6px 10px; color: var(--accent); opacity: 0; animation: city-signal 9s ease-in-out infinite; }
 .city-signal > svg { width: 24px; height: 24px; filter: drop-shadow(var(--signal-glow)); }
 .city-signal > span { display: flex; align-items: center; gap: 14px; padding: 3px 7px; background: color-mix(in oklab, var(--background) 60%, transparent); border-bottom: 1px solid var(--accent); font: 12px var(--font-mono); color: var(--foreground); }
@@ -756,7 +756,7 @@ html[lang^="zh"] h2 {
 .terminal-caret { color: var(--accent); animation: caret-blink 1.2s steps(1) infinite; }
 @keyframes metallic-pass { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 @keyframes city-breathe { from { transform: scale(1); } to { transform: scale(1.045); } }
-@keyframes city-signal { 0%, 7%, 48%, 100% { opacity: 0; transform: translateY(6px); } 15%, 38% { opacity: 0.85; transform: translateY(0); } }
+@keyframes city-signal { 0%, 33%, 100% { opacity: 0; transform: translateY(6px); } 8%, 26% { opacity: 0.95; transform: translateY(0); } }
 @keyframes signal-dash { 0%, 100% { transform: scaleX(0.4); } 50% { transform: scaleX(1); } }
 @keyframes flow-trace { 0%, 32%, 100% { transform: scaleX(0); opacity: 0; } 4% { opacity: 0.7; } 26% { transform: scaleX(1); opacity: 0.7; } }
 @keyframes caret-blink { 50% { opacity: 0; } }
@@ -865,7 +865,7 @@ html { scroll-padding-top: 90px; }
 .capture-caption-rule { height: 1px; flex: 1; background: var(--primary); opacity: 0.4; }
 .home-continuum .stock-ticker { margin-top: 16px; opacity: 0.65; }
 .home-continuum .marquee-track { animation-duration: 65s; }
-.home-continuum[data-motion-paused="true"] .marquee-track, .home-continuum[data-motion-paused="true"] .agent-steps li::after, .home-continuum[data-motion-paused="true"] .terminal-caret { animation-play-state: paused; }
+.home-continuum[data-motion-paused="true"] .marquee-track, .home-continuum[data-motion-paused="true"] .agent-steps li::after, .home-continuum[data-motion-paused="true"] .terminal-caret, .home-continuum[data-motion-paused="true"] .city-signal, .home-continuum[data-motion-paused="true"] .signal-dash { animation-play-state: paused; }
 .home-continuum .city-handoff { padding-top: 90px; padding-bottom: 72px; }
 .home-continuum .agent-steps li::after { animation: none; transform: scaleX(0); opacity: 0.55; transition: transform 500ms var(--ease-cine); }
 .home-continuum .agent-steps li:hover::after { transform: scaleX(1); }

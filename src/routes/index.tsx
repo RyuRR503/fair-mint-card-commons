@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
 import cityGold from "@/assets/catch-city-gold.jpg";
 import { CityMarketScene } from "@/components/site/CityMarketScene";
+import { CitySignals } from "@/components/site/CitySignals";
 import { CatchLettering } from "@/components/site/CatchLettering";
 import { Section, Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
@@ -80,7 +81,8 @@ function Home() {
           <img src={cityGold} alt="" width={1920} height={1024} fetchPriority="high" className="city-cover size-full object-cover object-[64%_center] sm:object-center" />
         </div>
         <div aria-hidden className="city-hero-shade absolute inset-0" />
-        <CityMarketScene paused={motionPaused} />
+        <CitySignals />
+        <CityMarketScene />
         </div>
       </div>
       <section className="agent-hero relative overflow-hidden px-5 pb-6 pt-6 sm:pt-8">
