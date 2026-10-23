@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Add an immersive decorative city stock-lock scene with pointer depth and scroll-driven transitions; preserve branding, mobile usability and reduced motion.
+- [x] Add a decorative 3D city stock-lock scene with pointer depth and scroll-driven movement; verify desktop/mobile rendering, reduced motion and map navigation while preserving branding and claim protections.
 - [x] Unify homepage and navigation CATCH lettering with the approved uploaded map banner; verify desktop and mobile.
 - [x] Update all four banners to the approved lettering, inspect exact 1500×500 outputs and deliver a new collection.
 - [x] Redesign only banner CATCH typography and color; compare three lettering directions on the same unchanged map artwork and deliver inspected 1500×500 options.
