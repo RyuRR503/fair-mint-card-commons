@@ -735,7 +735,7 @@ async function voucherOnChain(nonce: string, wallet: string): Promise<{ used: bo
   if (!used) return { used, txHash: null };
   const latest = await chainRpc<string>("eth_blockNumber", []);
   if (!latest) return { used, txHash: null };
-  const topics = encodeEventTopics({ abi: VAULT_ABI as never, eventName: "GameRewardClaimed", args: { to: wallet } } as never);
+  const topics = (encodeEventTopics({ abi: VAULT_ABI as never, eventName: "GameRewardClaimed", args: { to: wallet } } as never) as (string | null)[]).slice(0, 2);
   // public nodes cap log ranges, so walk back in 5,000-block windows (about the last few hours)
   const LOG_RPC = "https://bsc-rpc.publicnode.com";
   let to = BigInt(latest);
