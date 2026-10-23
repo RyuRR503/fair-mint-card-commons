@@ -637,6 +637,7 @@ export const getVault = createServerFn({ method: "GET" }).handler(async () => {
     }
   }
 
+  const book = await liveBook();
   const [bnb, balances] = await Promise.all([
     vaultBnb(),
     Promise.all(
@@ -644,17 +645,19 @@ export const getVault = createServerFn({ method: "GET" }).handler(async () => {
         const address = tokenAddressFor(t.symbol, t.address);
         const [onChain, pending] = await Promise.all([balanceOf(address), pendingBnb(i)]);
         // Demo reserve so the page is never empty before the vault is funded.
-        const balance = onChain ?? t.fragment * t.targetDrops;
-        const drops = Math.floor(balance / t.fragment);
+        const fragment = book.shares[t.symbol] ?? t.fragment;
+        const balance = onChain ?? fragment * t.targetDrops;
+        const drops = payableClaims(balance, fragment);
         return {
           symbol: t.symbol,
           address,
           balance,
-          fragment: t.fragment,
+          fragment,
+          priceUsd: book.price[t.symbol] ?? null,
           drops,
           targetDrops: t.targetDrops,
           // How much of this token still has to be bought to hit the target.
-          deficit: Math.max(0, (t.targetDrops - drops) * t.fragment),
+          deficit: Math.max(0, (t.targetDrops - drops) * fragment),
           needsRefill: drops < t.targetDrops,
           rarity: t.rarity,
           onChain: onChain != null,
