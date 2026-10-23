@@ -14,7 +14,6 @@ export function CityMarketScene() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const shots = Array.from(page.querySelectorAll<HTMLElement>("[data-scroll-shot]"));
     const journey = page.querySelector<HTMLElement>(".city-handoff");
-    const steps = Array.from(page.querySelectorAll<HTMLElement>(".city-handoff .agent-steps li"));
     let scrollFrame = 0;
     let progress = 0;
     const updateScroll = () => {
@@ -24,7 +23,7 @@ export function CityMarketScene() {
       progress = Math.min(1, Math.max(0, (64 - box.top) / distance));
       page.style.setProperty("--city-scroll-fade", String(Math.min(1, progress * 1.15)));
       page.style.setProperty("--journey-progress", String(progress));
-      const paused = page.dataset.motionPaused === "true";
+      const paused = page.dataset["motionPaused"] === "true";
       const staticMotion = reduced.matches || paused;
       page.style.setProperty("--hero-scroll-offset", staticMotion ? "0px" : `${-Math.min(1, progress * 2) * 36}px`);
       if (journey) {
@@ -32,7 +31,7 @@ export function CityMarketScene() {
         const travel = Math.max(1, journey.offsetHeight - window.innerHeight * 0.7);
         const stage = Math.min(1, Math.max(0, (150 - journeyBox.top) / travel));
         journey.style.setProperty("--agent-scroll-progress", String(staticMotion ? 1 : stage));
-        steps.forEach((step, index) => step.toggleAttribute("data-step-active", staticMotion || index === Math.min(2, Math.floor(stage * 3))));
+        page.querySelectorAll<HTMLElement>(".city-handoff .agent-steps li").forEach((step, index) => step.toggleAttribute("data-step-active", staticMotion || index === Math.min(2, Math.floor(stage * 3))));
       }
       for (const shot of shots) {
         const entry = Math.min(1, Math.max(0, (window.innerHeight - shot.getBoundingClientRect().top) / (window.innerHeight * 0.72)));
@@ -49,6 +48,7 @@ export function CityMarketScene() {
     playback.observe(page, { attributes: true, attributeFilter: ["data-motion-paused"] });
     const resize = new ResizeObserver(queueScroll);
     resize.observe(page);
+    if (journey) resize.observe(journey);
     updateScroll();
 
     return () => {
@@ -62,7 +62,7 @@ export function CityMarketScene() {
       page.style.removeProperty("--journey-progress");
       page.style.removeProperty("--hero-scroll-offset");
       journey?.style.removeProperty("--agent-scroll-progress");
-      steps.forEach((step) => step.removeAttribute("data-step-active"));
+      page.querySelectorAll<HTMLElement>(".city-handoff .agent-steps li").forEach((step) => step.removeAttribute("data-step-active"));
       shots.forEach((shot) => { shot.style.removeProperty("transform"); shot.style.removeProperty("opacity"); });
     };
   }, []);
