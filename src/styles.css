@@ -793,12 +793,12 @@ html { scroll-padding-top: 90px; }
 @media (prefers-reduced-motion: reduce) { .catch-logo-eye-glow { animation: none; } }
 
 /* Unframed market coordinates occupy the city, not the reading column. */
-.home-continuum { position: relative; isolation: isolate; --city-scroll-fade: 0; }
+.home-continuum { position: relative; isolation: isolate; --city-scroll-fade: 0; --journey-progress: 0; }
 .city-scroll-stage { position: absolute; inset: 0 0 auto; height: 2200px; height: min(2400px, 280svh); z-index: -1; pointer-events: none; }
 .city-scroll-backdrop { position: sticky; top: 64px; height: calc(100svh - 64px); overflow: hidden; isolation: isolate; }
-.city-scroll-backdrop::after { content: ""; position: absolute; inset: 0; background: var(--background); opacity: var(--city-scroll-fade); pointer-events: none; }
+.city-scroll-backdrop::after { content: ""; position: absolute; inset: 0; z-index: 3; background: var(--background); opacity: var(--city-scroll-fade); pointer-events: none; }
 .city-handoff { position: relative; }
-.city-handoff::before { content: ""; position: absolute; top: -24px; left: 20px; height: 56px; width: 1px; background: var(--primary); opacity: 0.45; transform-origin: top; transform: scaleY(calc(0.3 + var(--city-scroll-fade) * 0.7)); }
+.city-handoff::before { content: ""; position: absolute; top: -40px; left: 20px; height: 68px; width: 1px; background: var(--primary); opacity: 0.45; transform-origin: top; transform: scaleY(calc(0.3 + var(--journey-progress) * 0.7)); }
 .home-continuum > .stock-ticker { border-bottom-color: transparent; }
 .home-continuum > section .reveal-up { opacity: 1; transform: none; transition: none; }
 @media (max-width: 639px) { .city-scroll-stage { height: min(2600px, 310svh); } }
@@ -810,15 +810,14 @@ html { scroll-padding-top: 90px; }
 }
 .city-market-scene {
   position: absolute;
-  top: 10%;
-  right: 0;
-  width: 48%;
-  height: 76%;
-  z-index: -1;
+  top: 8%;
+  right: 4%;
+  width: 43%;
+  height: 72%;
+  z-index: 2;
   pointer-events: none;
   opacity: 0;
-  animation: market-scene-in 1800ms var(--ease-cine) 350ms forwards;
-  mask-image: linear-gradient(90deg, transparent, var(--background) 15%, var(--background) 92%, transparent);
+  animation: market-scene-in 1600ms var(--ease-cine) 500ms forwards;
 }
 .city-market-scene canvas { display: block; width: 100%; height: 100%; }
 .agent-hero .signal-apple { top: 31%; left: 77%; }
@@ -826,15 +825,82 @@ html { scroll-padding-top: 90px; }
 .agent-hero .signal-tesla { top: 64%; left: 70%; }
 .agent-hero .reveal-focus { animation-duration: 1200ms; }
 .agent-hero .hero-stats { animation: reveal-focus 1200ms var(--ease-cine) 300ms both; }
-@keyframes market-scene-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 0.8; transform: translateY(0); } }
+@keyframes market-scene-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 1023px) {
-  .city-market-scene { width: 50%; right: -7%; opacity: 0.45; }
+  .city-market-scene { width: 43%; right: 0; }
 }
 @media (max-width: 639px) {
-  .city-market-scene { top: auto; bottom: 0; right: -6%; width: 78%; height: 33%; animation-name: market-scene-mobile-in; }
-  @keyframes market-scene-mobile-in { from { opacity: 0; } to { opacity: 0.3; } }
+  .city-market-scene { top: 28px; bottom: auto; right: -12%; width: 58%; height: 235px; animation-name: market-scene-mobile-in; }
+  @keyframes market-scene-mobile-in { from { opacity: 0; } to { opacity: 0.45; } }
 }
 @media (prefers-reduced-motion: reduce) {
   .city-market-scene { animation: none; opacity: 0.65; }
   .agent-hero .hero-stats { animation: none; }
+}
+
+/* Optical capture: restrained editorial rhythm rather than unrelated pulses. */
+:root {
+  --capture-caption-surface: color-mix(in oklab, var(--background) 65%, transparent);
+  --capture-scene-shade: linear-gradient(90deg, var(--background), color-mix(in oklab, var(--background) 88%, transparent) 33%, color-mix(in oklab, var(--background) 38%, transparent) 60%, color-mix(in oklab, var(--background) 12%, transparent)), linear-gradient(0deg, var(--background), transparent 42%);
+}
+.home-continuum .city-depth--far { z-index: 0; }
+.home-continuum .city-hero-shade { z-index: 1; background: var(--capture-scene-shade); }
+.hero-composition { padding-block: 62px 42px; }
+.hero-copy { max-width: 600px; }
+.hero-topline { animation: reveal-focus 900ms var(--ease-cine) both; }
+.hero-kicker { animation: reveal-focus 1000ms var(--ease-cine) 100ms both; }
+.hero-lettering { overflow: hidden; }
+.hero-lettering img { animation: capture-lettering-in 1400ms var(--ease-cine) 160ms both; }
+.hero-heading { animation: reveal-focus 1100ms var(--ease-cine) 320ms both; }
+.hero-description { animation: reveal-focus 1100ms var(--ease-cine) 420ms both; }
+.hero-actions { animation: reveal-focus 1100ms var(--ease-cine) 520ms both; }
+.hero-scene-controls { margin-block: 0 18px; animation: reveal-focus 1000ms var(--ease-cine) 600ms both; }
+.hero-scroll-link svg { transition: transform 350ms var(--ease-cine); }
+.hero-scroll-link:hover svg, .hero-scroll-link:focus-visible svg { transform: translateY(4px); }
+.capture-caption { position: absolute; inset: auto 12% 0; display: flex; align-items: center; gap: 14px; padding: 10px 0; color: var(--primary); font: 10px var(--font-mono); }
+.capture-caption-mark { font-size: 22px; }
+.capture-caption > div { display: grid; min-width: 145px; }
+.capture-phase { grid-area: 1 / 1; opacity: 0; transition: opacity 600ms; }
+[data-phase="capture"] .capture-phase--capture, [data-phase="signal"] .capture-phase--signal, [data-phase="agent"] .capture-phase--agent { opacity: 1; }
+.capture-caption-rule { height: 1px; flex: 1; background: var(--primary); opacity: 0.4; }
+.home-continuum .stock-ticker { margin-top: 16px; opacity: 0.65; }
+.home-continuum .marquee-track { animation-duration: 65s; }
+.home-continuum[data-motion-paused="true"] .marquee-track, .home-continuum[data-motion-paused="true"] .agent-steps li::after, .home-continuum[data-motion-paused="true"] .terminal-caret { animation-play-state: paused; }
+.home-continuum .city-handoff { padding-top: 90px; padding-bottom: 72px; }
+.home-continuum .agent-steps li::after { animation: none; transform: scaleX(0); opacity: 0.55; transition: transform 500ms var(--ease-cine); }
+.home-continuum .agent-steps li:hover::after { transform: scaleX(1); }
+.home-continuum .agent-steps li { padding-block: 22px; }
+.home-continuum .agent-steps li > svg { transition: transform 400ms var(--ease-cine); }
+.home-continuum .agent-steps li:hover > svg { transform: translateY(-3px); }
+.home-continuum .agent-terminal { box-shadow: none; }
+.home-continuum .city-map-arrival { margin-top: 24px; }
+@keyframes capture-lettering-in { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
+@media (min-width: 1280px) {
+  .hero-copy { max-width: 570px; }
+  .hero-description { max-width: 455px; }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hero-copy { max-width: 55%; }
+  .hero-heading { font-size: 28px; }
+  .hero-composition { padding-block: 48px 34px; }
+  .capture-caption { inset-inline: 8%; }
+}
+@media (max-width: 639px) {
+  .hero-composition { padding-block: 40px 24px; }
+  .hero-copy { max-width: 100%; }
+  .hero-kicker { max-width: 230px; }
+  .hero-heading { max-width: 330px; font-size: 26px; }
+  .hero-description { margin-top: 24px; padding-left: 14px; }
+  .hero-lettering img { width: 290px; }
+  .capture-caption { display: none; }
+  .home-continuum .city-hero-shade { background: var(--hero-shade); }
+  .home-continuum .city-handoff { padding-top: 58px; padding-bottom: 36px; }
+  .hero-stats > div { padding-block: 24px; }
+  .hero-stats > div p:first-child { font-size: 46px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-lettering img, .hero-kicker, .hero-heading, .hero-description, .hero-actions, .hero-scene-controls { animation: none; }
+  .city-market-scene { transform: none; }
+  .hero-scroll-link:hover svg, .home-continuum .agent-steps li:hover > svg { transform: none; }
+  .scene-playback { display: none; }
 }
