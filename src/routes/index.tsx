@@ -7,7 +7,6 @@ import cityGold from "@/assets/catch-city-gold.jpg";
 import { CitySignals } from "@/components/site/CitySignals";
 import { CityMarketScene } from "@/components/site/CityMarketScene";
 import { CatchLettering } from "@/components/site/CatchLettering";
-import { Reveal } from "@/components/site/Reveal";
 import { Section, Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
 import { type MapPin } from "@/components/site/WorldMap";
@@ -79,12 +78,6 @@ function Home() {
         <div className="city-scroll-backdrop">
         <div className="city-depth city-depth--far" data-city-depth="far" aria-hidden="true">
           <img src={cityGold} alt="" width={1920} height={1024} fetchPriority="high" className="city-cover size-full object-cover object-[64%_center] sm:object-center" />
-        </div>
-        <div className="city-depth city-depth--mid" data-city-depth="mid" aria-hidden="true">
-          <img src={cityGold} alt="" width={1920} height={1024} className="city-cover size-full object-cover object-[64%_center] sm:object-center" />
-        </div>
-        <div className="city-depth city-depth--near" data-city-depth="near" aria-hidden="true">
-          <img src={cityGold} alt="" width={1920} height={1024} className="city-cover size-full object-cover object-[64%_center] sm:object-center" />
         </div>
         <div aria-hidden className="city-hero-shade absolute inset-0 -z-10" />
         <CitySignals />

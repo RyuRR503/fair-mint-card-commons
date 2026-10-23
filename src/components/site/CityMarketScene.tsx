@@ -15,11 +15,8 @@ export function CityMarketScene() {
     void import("three").then((THREE) => {
       if (disposed) return;
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-      const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
-      const photoLayers = Array.from(page.querySelectorAll<HTMLElement>("[data-city-depth]"));
       const shots = Array.from(page.querySelectorAll<HTMLElement>("[data-scroll-shot]"));
       const arrival = page.querySelector<HTMLElement>(".city-map-arrival");
-      const depthStrength = { far: 10, mid: 28, near: 52 };
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 80);
       camera.position.set(0, 3.2, 17);
@@ -67,6 +64,11 @@ export function CityMarketScene() {
       }
       const route: [number, number, number][] = [[-4, -1.7, 0], [-2.8, -1.7, 0], [-2.1, -0.7, 0], [-1, -1, 0], [0, 0.7, 0], [1.1, 0.4, 0], [2.5, 2.2, 0]];
       const chart = line(route, 0.8);
+      const tracedPositions = new Float32Array((route.length + 1) * 3);
+      chart.geometry.dispose();
+      chart.geometry = new THREE.BufferGeometry();
+      chart.geometry.setAttribute("position", new THREE.BufferAttribute(tracedPositions, 3));
+      chart.frustumCulled = false;
       chart.geometry.setDrawRange(0, 2);
       const corners = new THREE.Group();
       foreground.add(corners);
@@ -82,17 +84,6 @@ export function CityMarketScene() {
       const node = new THREE.Mesh(new THREE.SphereGeometry(0.085, 16, 16), nodeMaterial);
       market.add(node);
       const target = line([[2, 1.7, 0], [3, 1.7, 0], [3, 2.7, 0], [2, 2.7, 0], [2, 1.7, 0]], 0.55);
-      const mouse = { x: 0, y: 0 };
-      const pointer = { x: 0, y: 0 };
-      const move = (event: PointerEvent) => {
-        if (reduced.matches || !finePointer.matches || event.pointerType === "touch") return;
-        const box = hero.getBoundingClientRect();
-        mouse.x = Math.max(-1, Math.min(1, ((event.clientX - box.left) / box.width - 0.5) * 2));
-        mouse.y = Math.max(-1, Math.min(1, ((event.clientY - box.top) / box.height - 0.5) * 2));
-      };
-      const leave = () => { mouse.x = 0; mouse.y = 0; };
-      hero.addEventListener("pointermove", move);
-      hero.addEventListener("pointerleave", leave);
       const resize = () => {
         const box = element.getBoundingClientRect();
         renderer.setSize(box.width, box.height);
@@ -131,42 +122,41 @@ export function CityMarketScene() {
           shot.style.transform = reduced.matches ? "none" : `translate3d(0, ${(1 - entry) * 36}px, 0)`;
           shot.style.opacity = String(reduced.matches ? 1 : 0.55 + entry * 0.45);
         }
-        pointer.x += ((reduced.matches || !finePointer.matches ? 0 : mouse.x) - pointer.x) * ease;
-        pointer.y += ((reduced.matches || !finePointer.matches ? 0 : mouse.y) - pointer.y) * ease;
-        for (const layer of photoLayers) {
-          const key = layer.dataset['cityDepth'];
-          const strength = key === "near" ? depthStrength.near : key === "mid" ? depthStrength.mid : depthStrength.far;
-          const advance = key === "near" ? 0.1 : key === "mid" ? 0.055 : 0.025;
-          layer.style.transform = reduced.matches ? "none" : `translate3d(${-pointer.x * strength}px, ${-pointer.y * strength * 0.55 - progress * strength * 0.6}px, 0) scale(${1 + progress * advance})`;
-        }
         const time = reduced.matches ? 4 : (performance.now() - start) / 1000;
         camera.position.z = 17 - progress * 3.8;
         camera.position.y = 3.2 - progress * 1.2;
         camera.lookAt(0, progress * 0.45, 0);
-        world.rotation.y += ((reduced.matches ? 0 : pointer.x * 0.22 + progress * 0.32) - world.rotation.y) * ease;
-        world.rotation.x += ((reduced.matches ? -0.04 : -0.04 + pointer.y * 0.1) - world.rotation.x) * ease;
-        distance.position.x = -pointer.x * 0.15;
-        market.position.x = -pointer.x * 0.45;
-        foreground.position.x = -pointer.x * 0.9;
-        market.position.y = pointer.y * 0.15;
-        foreground.position.y = pointer.y * 0.35;
-        world.position.y = reduced.matches ? 0 : Math.sin(time * 0.5) * 0.1 + progress * 0.8;
-        const phase = reduced.matches ? 1 : Math.min(1, (time % 10) / 3);
-        chart.geometry.setDrawRange(0, Math.max(2, Math.ceil(phase * route.length)));
+        world.rotation.y += ((reduced.matches ? 0 : progress * 0.32) - world.rotation.y) * ease;
+        world.rotation.x = -0.04;
+        world.position.y = progress * 0.8;
+        // Trace continuously, hold the final target, then gently release for the next pass.
+        const cycle = time % 9;
+        const phase = reduced.matches ? 1 : Math.min(1, cycle / 4.5);
         const part = phase * (route.length - 1);
         const index = Math.min(route.length - 2, Math.floor(part));
         const a = route[index], b = route[index + 1];
         if (a && b) node.position.set(a[0] + (b[0] - a[0]) * (part - index), a[1] + (b[1] - a[1]) * (part - index), 0);
-        target.scale.setScalar(reduced.matches ? 1 : 1 + Math.sin(time * 1.7) * 0.025);
-        corners.position.z = reduced.matches ? 0 : Math.sin(time * 0.6) * 0.12;
+        for (let i = 0; i <= index; i++) {
+          const point = route[i];
+          if (point) tracedPositions.set(point, i * 3);
+        }
+        tracedPositions.set([node.position.x, node.position.y, 0], (index + 1) * 3);
+        chart.geometry.getAttribute("position").needsUpdate = true;
+        chart.geometry.setDrawRange(0, index + 2);
+        const lock = reduced.matches ? 1 : Math.min(1, Math.max(0, (cycle - 4.5) / 0.65));
+        const release = reduced.matches ? 1 : 1 - Math.min(1, Math.max(0, (cycle - 8) / 1));
+        chart.material.opacity = 0.8 * release;
+        nodeMaterial.opacity = release;
+        nodeMaterial.transparent = true;
+        target.material.opacity = (0.18 + lock * 0.62) * release;
+        target.scale.setScalar(1.14 - lock * 0.14);
+        corners.scale.setScalar(1.06 - lock * 0.06);
         renderer.render(scene, camera);
       };
       render();
       cleanup = () => {
         cancelAnimationFrame(frame);
         observer.disconnect(); visibility.disconnect();
-        hero.removeEventListener("pointermove", move); hero.removeEventListener("pointerleave", leave);
-        photoLayers.forEach((layer) => layer.style.removeProperty("transform"));
         shots.forEach((shot) => { shot.style.removeProperty("transform"); shot.style.removeProperty("opacity"); });
         page.style.removeProperty("--city-scroll-fade");
         scene.traverse((object) => { if (object instanceof THREE.Line || object instanceof THREE.Mesh) object.geometry.dispose(); });
