@@ -37,6 +37,7 @@ type VaultRow = {
   targetDrops: number;
   needsRefill: boolean;
   onChain: boolean;
+  pendingBnb: number | null;
 };
 type Claim = {
   wallet: string;
@@ -52,7 +53,8 @@ function Proof() {
   const vault = useServerFn(getVault);
   const claims = useServerFn(getClaims);
   const [rows, setRows] = useState<VaultRow[] | null>(null);
-  const [live, setLive] = useState(true);
+  const [onChain, setOnChain] = useState(true);
+  const [vaultBnb, setVaultBnb] = useState<number | null>(null);
   const [checkedAt, setCheckedAt] = useState("");
   const [feed, setFeed] = useState<Claim[]>([]);
 
@@ -63,7 +65,8 @@ function Proof() {
         const v = await vault();
         if (!alive) return;
         setRows(v.balances);
-        setLive(v.live);
+        setOnChain(v.onChain);
+        setVaultBnb(v.vaultBnb);
         setCheckedAt(v.checkedAt);
       } catch {
         /* keep last good data */
