@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
-import citySilver from "@/assets/catch-city-silver.jpg";
+import cityGold from "@/assets/catch-city-gold.jpg";
 import { CitySignals } from "@/components/site/CitySignals";
 import { Reveal } from "@/components/site/Reveal";
 import { Section, Panel } from "@/components/site/Section";
@@ -74,7 +74,7 @@ function Home() {
     <>
       {/* ---------------------------------------------------------- hero */}
       <section className="agent-hero relative isolate overflow-hidden px-5 pb-6 pt-6 sm:pt-8">
-        <img src={citySilver} alt="" width={1920} height={1024} fetchPriority="high" className="city-cover absolute inset-0 -z-20 size-full object-cover object-[64%_center] sm:object-center" />
+        <img src={cityGold} alt="" width={1920} height={1024} fetchPriority="high" className="city-cover absolute inset-0 -z-20 size-full object-cover object-[64%_center] sm:object-center" />
         <div aria-hidden className="city-hero-shade absolute inset-0 -z-10" />
         <CitySignals />
         <div className="mx-auto max-w-6xl">

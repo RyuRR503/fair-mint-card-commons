@@ -85,7 +85,7 @@
   --popover-foreground: oklch(0.985 0 0);
 
   /* gold signal — the one colour that means "live" */
-  --primary: oklch(0.91 0.018 210);
+  --primary: oklch(0.84 0.17 88);
   --primary-foreground: oklch(0.145 0.002 250);
 
   --secondary: oklch(0.24 0.003 88);
@@ -95,7 +95,7 @@
   --muted-foreground: oklch(0.74 0.008 88);
 
   /* cool blue counterlight */
-  --accent: oklch(0.8 0.095 195);
+  --accent: oklch(0.78 0.1 86);
   --accent-foreground: oklch(0.985 0 0);
 
   --destructive: oklch(0.62 0.21 25);
@@ -103,14 +103,14 @@
 
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.8 0.095 195 / 45%);
+  --ring: oklch(0.84 0.17 88 / 45%);
 
-  --signal: oklch(0.8 0.095 195);
-  --signal-deep: oklch(0.6 0.07 195);
+  --signal: oklch(0.84 0.17 88);
+  --signal-deep: oklch(0.64 0.13 82);
   --alert: oklch(0.78 0.17 62);
   --gold: oklch(0.84 0.16 88);
-  --sky-deep: oklch(0.65 0.055 210);
-  --sky-soft: oklch(0.82 0.035 210);
+  --sky-deep: oklch(0.78 0.1 86);
+  --sky-soft: oklch(0.82 0.05 88);
   --rare: oklch(0.7 0.15 245);
   --epic: oklch(0.7 0.18 312);
   --common: oklch(0.72 0.02 250);
@@ -716,13 +716,12 @@ html[lang^="zh"] h2 {
 :root {
   --hero-shade: linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 88%, transparent) 30%, color-mix(in oklab, var(--background) 22%, transparent) 75%), linear-gradient(0deg, var(--background), transparent 35%);
   --metallic-gold: linear-gradient(115deg, var(--primary), var(--gold), var(--foreground), var(--gold));
-  --map-coast: oklch(0.8 0.095 195 / 0.35);
-  --metallic-silver: linear-gradient(110deg, var(--foreground) 15%, var(--sky-soft) 40%, var(--foreground) 55%, var(--muted-foreground) 80%);
+  --map-coast: oklch(0.84 0.17 88 / 0.35);
   --signal-glow: 0 0 18px color-mix(in oklab, var(--accent) 25%, transparent);
 }
 .city-hero-shade { background: var(--hero-shade); }
 .gold-wordmark { background: var(--metallic-gold); background-clip: text; -webkit-background-clip: text; color: transparent; }
-.agent-wordmark { background: var(--metallic-silver); background-size: 200% 100%; background-clip: text; -webkit-background-clip: text; color: transparent; animation: silver-pass 9s ease-in-out infinite; }
+.agent-wordmark { background: var(--metallic-gold); background-size: 200% 100%; background-clip: text; -webkit-background-clip: text; color: transparent; animation: metallic-pass 9s ease-in-out infinite; }
 .city-cover { animation: city-breathe 22s ease-in-out infinite alternate; transform-origin: 72% 50%; }
 .city-signals { position: absolute; inset: 0; pointer-events: none; z-index: -1; }
 .city-signal { position: absolute; display: grid; grid-template-columns: 24px auto; gap: 6px 10px; color: var(--accent); opacity: 0; animation: city-signal 9s ease-in-out infinite; }
@@ -747,7 +746,7 @@ html[lang^="zh"] h2 {
 .agent-terminal:hover { border-color: var(--accent); }
 .command-reveal { animation: reveal-focus 500ms var(--ease-cine) both; }
 .terminal-caret { color: var(--accent); animation: caret-blink 1.2s steps(1) infinite; }
-@keyframes silver-pass { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes metallic-pass { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 @keyframes city-breathe { from { transform: scale(1); } to { transform: scale(1.045); } }
 @keyframes city-signal { 0%, 7%, 48%, 100% { opacity: 0; transform: translateY(6px); } 15%, 38% { opacity: 0.85; transform: translateY(0); } }
 @keyframes signal-dash { 0%, 100% { transform: scaleX(0.4); } 50% { transform: scaleX(1); } }
