@@ -491,15 +491,6 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
   // owner-listed test wallets skip the per-wallet daily caps and cooldown
   const tester = (process.env["TEST_CLAIM_WALLETS"] ?? "").toLowerCase().split(",").map((w) => w.trim()).includes(wallet);
 
-  // burn the code first so two AIs cannot race the same one
-  const { data: burned } = await db
-    .from("claim_codes")
-    .update({ used_at: new Date(now).toISOString(), wallet })
-    .eq("code", codeRow.code)
-    .is("used_at", null)
-    .select("code");
-  if (!burned || burned.length === 0) return fail("This claim code was already used.", "这个领取码已经用过了。");
-
     const dayAgo = new Date(now - 864e5).toISOString();
 
     if (!tester) {
@@ -559,6 +550,15 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
           "本小时奖励额度已用完，一小时内会恢复，请稍后再试。",
         );
     }
+
+  // burn the code first so two AIs cannot race the same one
+  const { data: burned } = await db
+    .from("claim_codes")
+    .update({ used_at: new Date(now).toISOString(), wallet })
+    .eq("code", codeRow.code)
+    .is("used_at", null)
+    .select("code");
+  if (!burned || burned.length === 0) return fail("This claim code was already used.", "这个领取码已经用过了。");
 
     // record the fix, then the catch
     await db.from("position_log").insert({
