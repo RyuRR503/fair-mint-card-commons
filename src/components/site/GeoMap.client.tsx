@@ -358,13 +358,13 @@ export default function GeoMap({
         id: "me-range-fill",
         type: "fill",
         source: SRC,
-        paint: { "fill-color": "#22d3a5", "fill-opacity": 0.1 },
+        paint: { "fill-color": toHex(getComputedStyle(document.documentElement).getPropertyValue("--primary")), "fill-opacity": 0.1 },
       });
       m.addLayer({
         id: "me-range-line",
         type: "line",
         source: SRC,
-        paint: { "line-color": "#22d3a5", "line-width": 1.5, "line-opacity": 0.6 },
+        paint: { "line-color": toHex(getComputedStyle(document.documentElement).getPropertyValue("--primary")), "line-width": 1.5, "line-opacity": 0.6 },
       });
     };
 

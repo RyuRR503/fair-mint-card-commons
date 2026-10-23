@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
+import { ArrowUpRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import cityGold from "@/assets/catch-city-gold.jpg";
 import { Section, Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
 import { type MapPin } from "@/components/site/WorldMap";
@@ -67,7 +70,9 @@ function Home() {
   return (
     <>
       {/* ---------------------------------------------------------- hero */}
-      <section className="relative overflow-hidden px-5 pb-16 pt-8 sm:pt-12">
+      <section className="relative isolate overflow-hidden px-5 pb-8 pt-6 sm:pt-8">
+        <img src={cityGold} alt="" width={1920} height={1024} fetchPriority="high" className="absolute inset-0 -z-20 size-full object-cover object-[64%_center] sm:object-center" />
+        <div aria-hidden className="city-hero-shade absolute inset-0 -z-10" />
         <div className="mx-auto max-w-6xl">
           <div className="reveal-focus flex items-center justify-between gap-6 border-b border-border pb-5">
             <span className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -79,71 +84,41 @@ function Home() {
             </span>
           </div>
 
-          <div className="mt-10 grid items-end gap-12 lg:grid-cols-[1.25fr_1fr]">
-            <div className="reveal-focus min-w-0">
+          <div className="py-12 sm:py-16 lg:py-20">
+            <div className="reveal-focus min-w-0 max-w-2xl">
               <p className="label-caps text-xs text-primary">
                 {t("Catch the fun · real-world stock fragments", "抓住乐趣 · 真实世界的美股碎片")}
               </p>
               <p
                 aria-hidden
-                className="font-poster mt-4 select-none text-[7rem] text-foreground sm:text-[11rem] lg:text-[13rem]"
+                className="gold-wordmark font-poster mt-5 select-none text-[6.5rem] sm:text-[10rem] lg:text-[12rem]"
               >
-                CATCH<span className="text-primary">.</span>
+                CATCH.
               </p>
-              <h1 className="mt-4 max-w-xl text-[2rem] leading-[1.2] sm:text-[2.6rem]">
+              <h1 className="mt-5 max-w-xl text-[1.75rem] leading-[1.3] sm:text-[2.5rem]">
                 {t("Walk the city. Catch the market.", "走到街上，把市场装进口袋。")}
               </h1>
-              <p className="mt-6 max-w-lg text-base leading-[1.9] text-muted-foreground sm:text-lg">
+              <p className="mt-6 max-w-lg border-l-2 border-primary pl-5 text-sm leading-[1.9] text-foreground/75 sm:text-base">
                 {t(
                   "Tokenized stock fragments sit at real coordinates. Get in range, catch the signal, and the fragment moves out of a funded vault straight into your wallet.",
                   "代币化的股票碎片停在真实坐标上。走进范围、捕捉信号，碎片就从已注资的金库直接转进你的钱包。不增发，不预售。",
                 )}
               </p>
-              <div className="mt-9 flex flex-wrap items-center gap-3">
-                <Link
-                  to="/app"
-                  className="btn-arrow halation rounded-full bg-primary px-8 py-4 font-bold text-primary-foreground transition-transform duration-300 hover:scale-[1.03] active:scale-[0.98]"
-                >
-                  {t("Start hunting", "立即开始寻宝")} <span className="arrow">→</span>
-                </Link>
-                <Link
-                  to="/how-it-works"
-                  className="rounded-full border border-border px-8 py-4 font-medium text-foreground transition-colors duration-300 hover:border-primary/60 hover:bg-secondary"
-                >
-                  {t("How it works", "玩法说明")}
-                </Link>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Button asChild size="lg" className="btn-arrow h-12 rounded-sm px-7 font-bold">
+                  <Link to="/app">{t("Start hunting", "立即开始寻宝")} <ArrowUpRight className="arrow" /></Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="h-12 rounded-sm border-foreground/25 bg-background/35 px-7">
+                  <Link to="/how-it-works">{t("How it works", "玩法说明")}</Link>
+                </Button>
               </div>
             </div>
 
-            {/* HUD fragment card */}
-            <div className="relative mx-auto aspect-square w-full max-w-sm lg:max-w-md">
-              <div className="grid-field absolute inset-0 opacity-60" />
-              <div className="map-sweep absolute inset-8 rounded-full" />
-              <div className="viewfinder absolute inset-6 flex items-center justify-center">
-                <div className="panel w-full rotate-3 rounded-2xl p-7 transition-transform duration-700 [transition-timing-function:var(--ease-cine)] hover:rotate-0 hover:scale-[1.02]">
-                  <div className="mb-8 flex items-start justify-between">
-                    <TokenChip symbol="NVDAB" size={48} />
-                    <span className="readout text-[11px]">FRAG #8842</span>
-                  </div>
-                  <p className="label-caps text-[10px] text-muted-foreground">Stock fragment</p>
-                  <p className="font-poster mt-2 text-5xl">NVIDIA</p>
-                  <div className="mt-7 flex items-end justify-between gap-4">
-                    <div>
-                      <p className="text-xs text-muted-foreground">{t("Fragment", "碎片")}</p>
-                      <p className="readout mt-1 text-lg text-primary">0.0085 NVDAB</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-muted-foreground">{t("Location", "坐标")}</p>
-                      <p className="mt-1 text-sm">{t("SHANGHAI, CN", "中国 上海")}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+
           </div>
 
           {/* big numbers */}
-          <div className="mt-16 grid grid-cols-3 border-y border-border">
+          <div className="grid grid-cols-3 border-t border-border">
             {[
               { v: String(TOTAL_SPAWNS), l: t("Live drops", "永久掉落点") },
               { v: String(TOTAL_CITIES), l: t("Cities", "座城市") },
@@ -190,8 +165,8 @@ function Home() {
           </p>
         </div>
 
-        <div className="ink-frame relative overflow-hidden rounded-3xl p-3">
-          <div className="overflow-hidden rounded-2xl">
+        <div className="ink-frame relative overflow-hidden rounded-md">
+          <div className="overflow-hidden rounded-md">
             <LiveMap pins={pins} points={points} />
           </div>
         </div>

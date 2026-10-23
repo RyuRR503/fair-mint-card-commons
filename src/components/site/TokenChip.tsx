@@ -40,7 +40,7 @@ export function TokenChip({
   delay = 0,
 }: Props) {
   const token = TOKEN_BY_SYMBOL[symbol];
-  const hue = token?.color ?? "#00FF9D";
+  const hue = token?.color ?? "var(--primary)";
   const glyph = token?.glyph || symbol.slice(0, 2);
   const path = BRAND_PATH[symbol];
   const word = WORDMARK[symbol];

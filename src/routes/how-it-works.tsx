@@ -19,6 +19,8 @@ export const Route = createFileRoute("/how-it-works")({
         content:
           "Three parts: a signal table, a claim server that proves you were there, and a vault that only pays against a signed voucher.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: HowItWorks,

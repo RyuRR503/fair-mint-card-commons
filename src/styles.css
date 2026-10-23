@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * CATCH — "Instrument" design system
- * Near-black instrument surface, one acid-green signal colour, cool glass
+ * CATCH — "Black Gold" design system
+ * Near-black city surface, one gold signal colour, restrained glass
  * panels and soft ambient light. Chinese-first typography: headings use a
  * heavy sans that also renders CJK properly, never negative tracking,
  * never all-caps for Chinese. Latin labels stay small and wide-tracked.
@@ -66,36 +66,36 @@
   --color-map-land: var(--map-land);
 
   --shadow-pop: 0 30px 60px -30px oklch(0 0 0 / 0.85);
-  --shadow-glossy: 0 0 0 1px oklch(0.87 0.24 160 / 0.35);
+  --shadow-glossy: 0 0 0 1px oklch(0.84 0.17 88 / 0.35);
   --shadow-card: 0 20px 44px -32px oklch(0 0 0 / 0.9);
   --ease-cine: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {
-  --radius: 0.75rem;
+  --radius: 0.375rem;
 
   /* instrument black */
-  --background: oklch(0.145 0.002 250);
-  --background-deep: oklch(0.11 0.002 250);
+  --background: oklch(0.12 0 0);
+  --background-deep: oklch(0.09 0 0);
   --foreground: oklch(0.985 0 0);
 
-  --card: oklch(0.2 0.004 250);
+  --card: oklch(0.18 0.002 88);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.185 0.004 250);
   --popover-foreground: oklch(0.985 0 0);
 
-  /* acid signal green — the one colour that means "live" */
-  --primary: oklch(0.87 0.235 158);
+  /* gold signal — the one colour that means "live" */
+  --primary: oklch(0.84 0.17 88);
   --primary-foreground: oklch(0.145 0.002 250);
 
-  --secondary: oklch(0.26 0.006 250);
+  --secondary: oklch(0.24 0.003 88);
   --secondary-foreground: oklch(0.96 0 0);
 
   --muted: oklch(0.25 0.005 250);
-  --muted-foreground: oklch(0.73 0.008 250);
+  --muted-foreground: oklch(0.74 0.008 88);
 
   /* cool blue counterlight */
-  --accent: oklch(0.66 0.16 250);
+  --accent: oklch(0.78 0.1 86);
   --accent-foreground: oklch(0.985 0 0);
 
   --destructive: oklch(0.62 0.21 25);
@@ -103,14 +103,14 @@
 
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.87 0.235 158 / 45%);
+  --ring: oklch(0.84 0.17 88 / 45%);
 
-  --signal: oklch(0.87 0.235 158);
-  --signal-deep: oklch(0.62 0.16 160);
+  --signal: oklch(0.84 0.17 88);
+  --signal-deep: oklch(0.64 0.13 82);
   --alert: oklch(0.78 0.17 62);
   --gold: oklch(0.84 0.16 88);
-  --sky-deep: oklch(0.66 0.16 250);
-  --sky-soft: oklch(0.78 0.1 245);
+  --sky-deep: oklch(0.78 0.1 86);
+  --sky-soft: oklch(0.82 0.05 88);
   --rare: oklch(0.7 0.15 245);
   --epic: oklch(0.7 0.18 312);
   --common: oklch(0.72 0.02 250);
@@ -147,7 +147,7 @@
     font-family: var(--font-display);
     font-weight: 900;
     font-synthesis: none;
-    letter-spacing: 0.01em;
+    letter-spacing: 0;
     line-height: 1.15;
   }
 
@@ -155,7 +155,7 @@
   h4 {
     font-family: var(--font-sans);
     font-weight: 700;
-    letter-spacing: -0.005em;
+    letter-spacing: 0;
     line-height: 1.3;
   }
 
@@ -174,15 +174,12 @@
 
 @utility font-latin {
   font-family: var(--font-latin);
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 
-/* Ambient instrument light: green from top-left, cold blue from bottom-right */
+/* Quiet black field keeps the photography and gold controls in focus. */
 @utility hunt-bg {
   background-color: var(--background);
-  background-image:
-    radial-gradient(900px 620px at 6% -8%, oklch(0.87 0.235 158 / 0.1), transparent 62%),
-    radial-gradient(900px 700px at 96% 104%, oklch(0.66 0.16 250 / 0.12), transparent 64%);
 }
 
 @utility sky-bg {
@@ -289,7 +286,7 @@ html[lang^="zh"] .label-caps {
 
 /* Signal bloom around live elements */
 @utility halation {
-  box-shadow: 0 0 32px -6px oklch(0.87 0.235 158 / 0.45);
+  box-shadow: 0 0 32px -6px oklch(0.84 0.17 88 / 0.45);
 }
 
 @utility text-glossy {
@@ -335,7 +332,7 @@ html[lang^="zh"] .label-caps {
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
-    oklch(0.87 0.235 158 / 0.16) 12deg,
+    oklch(0.84 0.17 88 / 0.16) 12deg,
     transparent 36deg
   );
   animation: sweep 22s linear infinite;
@@ -641,7 +638,7 @@ html[lang^="zh"] .label-caps {
 @utility font-poster {
   font-family: var(--font-poster);
   font-weight: 400;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   line-height: 0.88;
 }
 
@@ -693,14 +690,14 @@ html[lang^="zh"] .label-caps {
     background-color 0.6s var(--ease-cine);
   &:hover {
     transform: translateY(-4px);
-    border-color: oklch(0.87 0.235 158 / 0.5);
+    border-color: oklch(0.84 0.17 88 / 0.5);
   }
 }
 
 /* Bebas has no CJK: Chinese headings fall back to Noto Sans SC at 900 */
 html[lang^="zh"] h1,
 html[lang^="zh"] h2 {
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   line-height: 1.22 !important;
 }
 
@@ -713,4 +710,16 @@ html[lang^="zh"] h2 {
   .marquee-track {
     animation: none;
   }
+}
+
+/* Full-bleed city cover; all treatment is expressed through theme tokens. */
+:root {
+  --hero-shade: linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 88%, transparent) 30%, color-mix(in oklab, var(--background) 22%, transparent) 75%), linear-gradient(0deg, var(--background), transparent 35%);
+  --metallic-gold: linear-gradient(115deg, var(--primary), var(--gold), var(--foreground), var(--gold));
+  --map-coast: oklch(0.84 0.17 88 / 0.35);
+}
+.city-hero-shade { background: var(--hero-shade); }
+.gold-wordmark { background: var(--metallic-gold); background-clip: text; -webkit-background-clip: text; color: transparent; }
+@media (max-width: 639px) {
+  .city-hero-shade { background: linear-gradient(90deg, color-mix(in oklab, var(--background) 92%, transparent), color-mix(in oklab, var(--background) 50%, transparent)), linear-gradient(0deg, var(--background), transparent 50%); }
 }

@@ -10,7 +10,7 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/proof")({
   head: () => ({
     meta: [
-      { title: "Proof of reserves — count the vault yourself" },
+      { title: "CATCH — Proof of reserves — count the vault yourself" },
       {
         name: "description",
         content:
@@ -21,6 +21,8 @@ export const Route = createFileRoute("/proof")({
         property: "og:description",
         content: "Nothing is minted. The vault holds the shares before the drop appears.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Proof,
