@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Restore the approved sequential city-location stock signals and remove the rejected optical-frame scene; verify cycling, pause, sharp background and existing controls.
+- [x] Restore the approved sequential city-location stock signals and remove the rejected optical-frame scene; verify cycling, pause, sharp background and existing controls.
 - [x] Redesign homepage motion as a composed capture sequence; refine hierarchy, whitespace, scroll handoff and micro-interactions; verify desktop/mobile, pause, reduced motion and existing controls.
 - [x] Connect the city scene and homepage content through a shared sticky backdrop and scroll-driven progression; verify forward/backward scrolling, mobile, reduced motion and existing controls.
 - [x] Separate city foreground, midground and distance with stronger smooth pointer parallax; preserve lettering and palette, verify pointer movement, mobile framing and reduced motion.
