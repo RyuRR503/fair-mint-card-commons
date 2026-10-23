@@ -85,7 +85,7 @@
   --popover-foreground: oklch(0.985 0 0);
 
   /* gold signal — the one colour that means "live" */
-  --primary: oklch(0.84 0.17 88);
+  --primary: oklch(0.91 0.018 210);
   --primary-foreground: oklch(0.145 0.002 250);
 
   --secondary: oklch(0.24 0.003 88);
@@ -95,7 +95,7 @@
   --muted-foreground: oklch(0.74 0.008 88);
 
   /* cool blue counterlight */
-  --accent: oklch(0.78 0.1 86);
+  --accent: oklch(0.8 0.095 195);
   --accent-foreground: oklch(0.985 0 0);
 
   --destructive: oklch(0.62 0.21 25);
@@ -103,14 +103,14 @@
 
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.84 0.17 88 / 45%);
+  --ring: oklch(0.8 0.095 195 / 45%);
 
-  --signal: oklch(0.84 0.17 88);
-  --signal-deep: oklch(0.64 0.13 82);
+  --signal: oklch(0.8 0.095 195);
+  --signal-deep: oklch(0.6 0.07 195);
   --alert: oklch(0.78 0.17 62);
   --gold: oklch(0.84 0.16 88);
-  --sky-deep: oklch(0.78 0.1 86);
-  --sky-soft: oklch(0.82 0.05 88);
+  --sky-deep: oklch(0.65 0.055 210);
+  --sky-soft: oklch(0.82 0.035 210);
   --rare: oklch(0.7 0.15 245);
   --epic: oklch(0.7 0.18 312);
   --common: oklch(0.72 0.02 250);
@@ -716,10 +716,49 @@ html[lang^="zh"] h2 {
 :root {
   --hero-shade: linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 88%, transparent) 30%, color-mix(in oklab, var(--background) 22%, transparent) 75%), linear-gradient(0deg, var(--background), transparent 35%);
   --metallic-gold: linear-gradient(115deg, var(--primary), var(--gold), var(--foreground), var(--gold));
-  --map-coast: oklch(0.84 0.17 88 / 0.35);
+  --map-coast: oklch(0.8 0.095 195 / 0.35);
+  --metallic-silver: linear-gradient(110deg, var(--foreground) 15%, var(--sky-soft) 40%, var(--foreground) 55%, var(--muted-foreground) 80%);
+  --signal-glow: 0 0 18px color-mix(in oklab, var(--accent) 25%, transparent);
 }
 .city-hero-shade { background: var(--hero-shade); }
 .gold-wordmark { background: var(--metallic-gold); background-clip: text; -webkit-background-clip: text; color: transparent; }
+.agent-wordmark { background: var(--metallic-silver); background-size: 200% 100%; background-clip: text; -webkit-background-clip: text; color: transparent; animation: silver-pass 9s ease-in-out infinite; }
+.city-cover { animation: city-breathe 22s ease-in-out infinite alternate; transform-origin: 72% 50%; }
+.city-signals { position: absolute; inset: 0; pointer-events: none; z-index: -1; }
+.city-signal { position: absolute; display: grid; grid-template-columns: 24px auto; gap: 6px 10px; color: var(--accent); opacity: 0; animation: city-signal 9s ease-in-out infinite; }
+.city-signal > svg { width: 24px; height: 24px; filter: drop-shadow(var(--signal-glow)); }
+.city-signal > span { display: flex; align-items: center; gap: 14px; padding: 3px 7px; background: color-mix(in oklab, var(--background) 60%, transparent); border-bottom: 1px solid var(--accent); font: 12px var(--font-mono); color: var(--foreground); }
+.city-signal > span svg { width: 12px; height: 12px; color: var(--accent); }
+.city-signal small { grid-column: 2; font: 9px var(--font-mono); color: var(--muted-foreground); }
+.signal-apple { top: 36%; left: 74%; }
+.signal-nvidia { top: 18%; left: 86%; animation-delay: 3s; }
+.signal-tesla { top: 66%; left: 66%; animation-delay: 6s; }
+.city-coordinate { position: absolute; right: max(20px, calc((100% - 1152px) / 2)); bottom: 155px; display: flex; align-items: center; gap: 12px; font: 10px var(--font-mono); color: var(--foreground); }
+.city-coordinate > span:last-child { color: var(--muted-foreground); }
+.signal-dash { width: 30px; height: 1px; background: var(--accent); animation: signal-dash 4s ease-in-out infinite; transform-origin: left; }
+.agent-cta { position: relative; overflow: hidden; transition: box-shadow 350ms, transform 350ms; }
+.agent-cta:hover { box-shadow: var(--signal-glow); transform: translateY(-2px); }
+.agent-steps li { position: relative; transition: background-color 350ms; }
+.agent-steps li::after { content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; animation: flow-trace 12s ease-in-out infinite; }
+.agent-steps li:nth-child(2)::after { animation-delay: 4s; }
+.agent-steps li:nth-child(3)::after { animation-delay: 8s; }
+.agent-steps li:hover { background: color-mix(in oklab, var(--accent) 4%, transparent); }
+.agent-terminal { transition: border-color 400ms; }
+.agent-terminal:hover { border-color: var(--accent); }
+.command-reveal { animation: reveal-focus 500ms var(--ease-cine) both; }
+.terminal-caret { color: var(--accent); animation: caret-blink 1.2s steps(1) infinite; }
+@keyframes silver-pass { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes city-breathe { from { transform: scale(1); } to { transform: scale(1.045); } }
+@keyframes city-signal { 0%, 7%, 48%, 100% { opacity: 0; transform: translateY(6px); } 15%, 38% { opacity: 0.85; transform: translateY(0); } }
+@keyframes signal-dash { 0%, 100% { transform: scaleX(0.4); } 50% { transform: scaleX(1); } }
+@keyframes flow-trace { 0%, 32%, 100% { transform: scaleX(0); opacity: 0; } 4% { opacity: 0.7; } 26% { transform: scaleX(1); opacity: 0.7; } }
+@keyframes caret-blink { 50% { opacity: 0; } }
+@media (max-width: 1023px) { .city-signals { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .city-cover, .agent-wordmark, .city-signal, .signal-dash, .agent-steps li::after, .terminal-caret { animation: none; }
+  .city-signal { opacity: 0.6; transform: none; }
+  .agent-cta:hover { transform: none; }
+}
 @media (max-width: 639px) {
   .city-hero-shade { background: linear-gradient(90deg, color-mix(in oklab, var(--background) 92%, transparent), color-mix(in oklab, var(--background) 50%, transparent)), linear-gradient(0deg, var(--background), transparent 50%); }
 }

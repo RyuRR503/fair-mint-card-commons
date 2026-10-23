@@ -3,7 +3,9 @@ import { useMemo } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
-import cityGold from "@/assets/catch-city-gold.jpg";
+import citySilver from "@/assets/catch-city-silver.jpg";
+import { CitySignals } from "@/components/site/CitySignals";
+import { Reveal } from "@/components/site/Reveal";
 import { Section, Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
 import { type MapPin } from "@/components/site/WorldMap";
@@ -71,9 +73,10 @@ function Home() {
   return (
     <>
       {/* ---------------------------------------------------------- hero */}
-      <section className="relative isolate overflow-hidden px-5 pb-8 pt-6 sm:pt-8">
-        <img src={cityGold} alt="" width={1920} height={1024} fetchPriority="high" className="absolute inset-0 -z-20 size-full object-cover object-[64%_center] sm:object-center" />
+      <section className="agent-hero relative isolate overflow-hidden px-5 pb-6 pt-6 sm:pt-8">
+        <img src={citySilver} alt="" width={1920} height={1024} fetchPriority="high" className="city-cover absolute inset-0 -z-20 size-full object-cover object-[64%_center] sm:object-center" />
         <div aria-hidden className="city-hero-shade absolute inset-0 -z-10" />
+        <CitySignals />
         <div className="mx-auto max-w-6xl">
           <div className="reveal-focus flex items-center justify-between gap-6 border-b border-border pb-5">
             <span className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -85,14 +88,14 @@ function Home() {
             </span>
           </div>
 
-          <div className="py-12 sm:py-16 lg:py-20">
+          <div className="relative py-10 sm:py-12 lg:py-14">
             <div className="reveal-focus min-w-0 max-w-2xl">
               <p className="label-caps text-xs text-primary">
                 {t("Real-world stock fragments × Binance Agentic Wallet", "真实世界美股碎片 × 币安 Agent AI 钱包")}
               </p>
               <p
                 aria-hidden
-                className="gold-wordmark font-poster mt-5 select-none text-[6.5rem] sm:text-[10rem] lg:text-[12rem]"
+                className="agent-wordmark font-poster mt-5 select-none text-[6.5rem] sm:text-[10rem] lg:text-[12rem]"
               >
                 CATCH.
               </p>
@@ -106,7 +109,7 @@ function Home() {
                 )}
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Button asChild size="lg" className="btn-arrow h-12 rounded-sm px-7 font-bold">
+                <Button asChild size="lg" className="btn-arrow agent-cta h-12 rounded-sm px-7 font-bold">
                   <Link to="/app">{t("Explore the Agent map", "打开 Agent 地图")} <ArrowUpRight className="arrow" /></Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="h-12 rounded-sm border-foreground/25 bg-background/35 px-7">
@@ -151,7 +154,7 @@ function Home() {
       </div>
 
 
-      <section className="mx-auto max-w-6xl px-5 py-12 sm:py-16"><AgentJourney /></section>
+      <Reveal as="section" className="mx-auto max-w-6xl px-5 py-12 sm:py-16"><AgentJourney /></Reveal>
 
       {/* ---------------------------------------------------------- map */}
       <section className="mx-auto mt-10 max-w-6xl px-5">
