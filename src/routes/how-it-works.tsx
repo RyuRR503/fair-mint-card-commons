@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
 import { Section, Panel } from "@/components/site/Section";
 import { RULES } from "@/lib/game.functions";
 import { CHAIN, COOLDOWN_MIN, TOKENS, RARITY_LABEL, type Rarity } from "@/lib/tokens";
@@ -7,7 +8,7 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
     meta: [
-      { title: "How CATCH works — close the distance, catch the signal" },
+      { title: "How CATCH works — GPS, AI command and Agent Wallet" },
       {
         name: "description",
         content:
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/how-it-works")({
       {
         property: "og:description",
         content:
-          "Three parts: a signal table, a claim server that proves you were there, and a vault that only pays against a signed voucher.",
+          "Planned Agent-only claim rules, GPS presence checks and 15-minute AI commands. Live integration is pending.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -32,7 +33,7 @@ function HowItWorks() {
   const STEPS = [
     {
       n: "01",
-      h: t("Connect a wallet and open the radar.", "连接钱包，打开雷达。"),
+      h: t("Open the map and prepare an Agent Wallet.", "打开地图，准备 Agent 钱包。"),
       p: t(
         "The app reads your GPS once and draws every catchable signal around you — Apple stores, banks, internet cafés, phone shops, science museums. Nothing is sent anywhere yet.",
         "App 读取一次定位，把周围所有可捕捉信号画出来：Apple 店、银行、网吧、手机店、科技馆。此时什么都不会上传。",
@@ -64,18 +65,18 @@ function HowItWorks() {
     },
     {
       n: "05",
-      h: t("You get a 15-minute voucher.", "你得到一张 15 分钟有效期的凭证。"),
+      h: t("A 15-minute AI command (planned).", "获取 15 分钟有效的 AI 指令（待接通）。"),
       p: t(
-        `The voucher says: "send 0.02 AAPLB to this wallet, for this spawn, this one time." It is signed with EIP-712 and only works on the CATCH vault. A screenshot of the QR code is useless — the nonce is burned the first time it is used.`,
-        `凭证内容类似："把 0.02 AAPLB 发给这个钱包，对应这个点位，只能用一次。" 它用 EIP-712 签名，只在 CATCH 金库有效。截图或二维码都无用——nonce 第一次使用就被烧掉。`,
+        "After GPS and rule checks pass, the planned service issues a single-use command bound to the point and Agent recipient. Send it to your AI within 15 minutes. This preview does not issue real commands.",
+        "接通后，定位与规则通过才会签发一次性指令，绑定点位和 Agent 收款钱包。你把指令发给自己的 AI，15 分钟内使用；当前预览不会签发真实指令。",
       ),
     },
     {
       n: "06",
-      h: t("The chain pays you.", "链上直接打款。"),
+      h: t("Your Agent submits the claim (planned).", "Agent 提交领取（待接通）。"),
       p: t(
-        "The vault checks the signature, marks the nonce as spent, and transfers the fragment to your wallet. You do not need BNB in your wallet — anyone can submit the voucher for you. Every token already sits in the prize pool; nothing is minted on the spot.",
-        "金库验证签名、标记 nonce 已用，然后把碎片转到你的钱包。你钱包里可以没有 BNB——任何人都能替你代交凭证。代币已经在奖池里，不会现场增发。",
+        "Your AI uses its Binance Agentic Wallet to claim the bStocks fragment on BSC. Ordinary wallets cannot claim any rarity under the intended rules. Agent identity checks and transaction submission are not connected yet; gas sponsorship is not promised.",
+        "AI 使用币安 Agent 钱包在 BSC 领取 bStocks 碎片。计划规则下，普通钱包不能领取任何稀有度。Agent 身份校验和交易提交尚未接通，不承诺免 Gas。",
       ),
     },
   ];
@@ -124,7 +125,7 @@ function HowItWorks() {
       t("Caps", "上限"),
       t(
         `${RULES.perWalletPerDay} catches per wallet per day, and the same wallet cannot take the same signal twice within 24 hours. The whole site also has a rolling hourly budget of $${RULES.hourlyUsdCap} (priced at live Chainlink quotes) — once it is spent, catches pause until the next hour.`,
-        `每个钱包每天 ${RULES.perWalletPerDay} 次，且同一钱包 24 小时内不能重复捕捉同一个信号。全站还有每小时 $${RULES.hourlyUsdCap} 的滚动发放预算（按 Chainlink 实时报价折算）——用完即暂停，下一小时自动恢复。`,
+        `每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，且同一钱包 24 小时内不能重复捕捉同一个信号。全站还有每小时 $${RULES.hourlyUsdCap} 的滚动发放预算（按 Chainlink 实时报价折算）——用完即暂停，下一小时自动恢复。`,
       ),
     ],
     [
@@ -140,13 +141,15 @@ function HowItWorks() {
     <>
       <Section hero
         eyebrow={t("how it works", "玩法")}
-        title={t("Close the distance. Catch. The chain does the rest.", "拉近距离，捕捉，剩下的交给链上。")}
+        title={t("You arrive. AI takes the command. Agent claims.", "你到场，AI 接令，Agent 领取。")}
         lead={t(
-          "Three parts make it work: a signal table that says where and how much, a claim server that checks you are really there and signs a voucher, and a vault contract that holds the tokens and only releases them against a valid voucher.",
-          "三个部分构成整套机制：决定「在哪、给多少」的信号表；核验你确实在场并签发凭证的服务器；持有代币、仅凭有效凭证放款的金库合约。",
+          "Every rarity is intended for Agent-only claims: human GPS, AI command, Agent transaction. Live integration is not connected.",
+          "核心规则：所有碎片仅限币安 Agent 钱包领取。真人负责到店定位，AI 接收短时指令，Agent 钱包负责链上领取。当前仅展示流程，真实接入尚未完成。",
         )}
         className="mt-10"
       />
+
+      <section className="mx-auto max-w-6xl px-5 py-8"><AgentStatus /><div className="mt-8"><AgentJourney /></div></section>
 
       <Section title={t("Six steps, four of them invisible.", "六步，其中四步你看不见。")}>
         <div className="mt-8 grid gap-5 md:grid-cols-2">
@@ -200,7 +203,7 @@ function HowItWorks() {
             <h3 className="label-caps text-[11px] text-primary">{t("Refill is automatic", "自动补货")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "Trading tax flows into the vault as BNB, split evenly across the nine districts. The vault then swaps each district's BNB into its bStocks token on PancakeSwap — anyone can press the button, and the contract refuses any swap more than 10% worse than the reference price (Chainlink, or a 30-minute PancakeSwap average for SPYB and QQQB), so a quick pump cannot rob it. Anyone holding bStocks can also sell them to the vault at the Chainlink price plus 2%.",
+                "Trading tax flows into the vault as BNB, split evenly across the nine districts. The vault then swaps each district's BNB into its bStocks token on PancakeSwap — anyone can press the button, and the contract refuses any swap more than 10% worse than the reference price (Chainlink, or a 30-minute PancakeSwap average for SPYB and QQQB), so a quick pump cannot rob it. ",
                 "交易税以 BNB 形式流入金库，平均分配到九个区。随后金库会在 PancakeSwap 上把每个区的 BNB 自动换成对应的 bStocks 股票代币——谁都可以按这个按钮，成交价比参考价差超过 10% 合约就直接拒绝（参考价用 Chainlink；SPYB、QQQB 没有 Chainlink，就用 PancakeSwap 过去 30 分钟的平均价），有人临时砸盘也占不到便宜。",
               )}
             </p>
@@ -278,8 +281,8 @@ function HowItWorks() {
             <h3 className="label-caps text-[11px] text-primary">{t("Wallet caps", "钱包限制")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                `One wallet can catch ${RULES.perWalletPerDay} drops per day, with at least ${RULES.walletCooldownMin} minutes between two catches. The same wallet cannot take the same signal twice within 24 hours.`,
-                `每个钱包每天可捕捉 ${RULES.perWalletPerDay} 次，两次捕捉之间至少间隔 ${RULES.walletCooldownMin} 分钟，且 24 小时内不能重复捕捉同一信号。`,
+                `One Agent Wallet can catch ${RULES.perWalletPerDay} drops per day, with at least ${RULES.walletCooldownMin} minutes between two catches. The same wallet cannot take the same signal twice within 24 hours.`,
+                `每个 Agent 钱包每天可捕捉 ${RULES.perWalletPerDay} 次，两次捕捉之间至少间隔 ${RULES.walletCooldownMin} 分钟，且 24 小时内不能重复捕捉同一信号。`,
               )}
             </p>
           </Panel>
@@ -298,7 +301,7 @@ function HowItWorks() {
       <Section title={t("The voucher", "凭证结构")}>
         <Panel className="mt-6">
           <pre className="overflow-x-auto font-mono text-xs leading-relaxed text-foreground/80">{`GameVoucher {
-  address to;       // your wallet
+  address to;       // your Agent Wallet (planned)
   uint8   district; // 0-8, e.g. the AAPLB district on ${CHAIN.short}
   uint256 amount;   // 0.02 AAPLB = 20000000000000000 (18 decimals)
   bytes32 spawnId;  // keccak256("shanghai-0")

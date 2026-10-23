@@ -17,8 +17,8 @@ export function SiteFooter() {
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
               {t(
-                `Tokenized stock fragments appear at real coordinates. Get within range, catch the signal, and the fragment settles into your wallet on ${CHAIN.name}.`,
-                `代币化的股票碎片出现在真实坐标上。走进范围、捕捉信号，碎片就会进入你在 ${CHAIN.name} 上的钱包。`,
+                `Tokenized stock fragments appear at real coordinates. Planned flow: phone GPS → AI command → Agent Wallet claims on ${CHAIN.name}. Live integration is pending.`,
+                `代币化的股票碎片出现在真实坐标上。真人到店定位，AI 接收指令，Agent 钱包在 ${CHAIN.name} 领取。所有碎片仅限 Agent，真实接入待完成。`,
               )}
             </p>
             <LangToggle className="mt-5 w-fit" />

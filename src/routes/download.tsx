@@ -9,7 +9,7 @@ export const Route = createFileRoute("/download")({
       {
         name: "description",
         content:
-          "Catch stock fragments straight from the browser today. The Android build adds real motion sensors and background GPS; iOS installs from Safari as a home-screen app.",
+          "Explore CATCH in your phone browser and preview GPS to AI command to Agent Wallet claims. Live Agent integration is pending.",
       },
       { property: "og:title", content: "Get CATCH" },
       { property: "og:description", content: "Web app today, Android APK in testing, App Store next." },
@@ -29,8 +29,8 @@ function Download() {
         eyebrow={t("get the app", "下载客户端")}
         title={t("The map fits in a pocket.", "把地图装进口袋。")}
         lead={t(
-          "The browser works everywhere. The app adds real motion sensors, background GPS and a claim button that survives a locked screen.",
-          "浏览器哪里都能用。客户端多了真实运动传感器、后台定位，以及锁屏后依然有效的领取按钮。",
+          "Use your phone for the map and GPS. The planned claim step happens in your AI’s Agent Wallet, not through a browser wallet button.",
+          "手机负责地图与定位，计划中的领取由 AI 的 Agent 钱包完成，而不是在网页里连接普通钱包直接领取。",
         )}
         className="mt-10"
       />
@@ -41,8 +41,8 @@ function Download() {
             <h3 className="text-lg">{t("Android", "安卓")}</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               {t(
-                "The CATCH Android build is in testing: real motion sensors, background GPS, in-app updates. Until the APK is out, the web app has the full catch flow.",
-                "CATCH 安卓客户端正在测试：真实运动传感器、后台定位、应用内更新。APK 发布之前，网页版已经具备完整的捕捉流程。",
+                "The CATCH Android build is in testing: real motion sensors, background GPS, in-app updates. The web map is available; live Agent claims are not connected.",
+                "CATCH 安卓客户端正在测试：真实运动传感器、后台定位、应用内更新。网页版可浏览地图和预览 Agent 流程，真实领取尚未接通。",
               )}
             </p>
             <Link
@@ -57,8 +57,8 @@ function Download() {
             <h3 className="text-lg">iOS</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               {t(
-                "Open the web app in Safari, tap Share, then Add to Home Screen. It behaves like a native app minus background GPS. The store build is in review.",
-                "用 Safari 打开网页版，点分享，再选「添加到主屏幕」。除了后台定位，其余体验与原生应用一致。App Store 版本审核中。",
+                "Open the web app in Safari, tap Share, then Add to Home Screen. It behaves like a native app minus background GPS. Live Agent claims are pending.",
+                "用 Safari 打开网页版，点分享，再选「添加到主屏幕」。除了后台定位，其余体验与原生应用一致。Agent 真实领取尚未接通。",
               )}
             </p>
             <Link

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { AgentStatus } from "@/components/site/AgentJourney";
 import { Section, Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
 import { getLegendary } from "@/lib/game.functions";
@@ -14,12 +15,12 @@ export const Route = createFileRoute("/legendary")({
       {
         name: "description",
         content:
-          "Every day a full SPCXB share sits at one spot for 120 minutes. Announced 24 hours ahead. Be within 25 metres to win.",
+          "Every day a full SPCXB share sits at one spot for 120 minutes. Announced 24 hours ahead. Planned eligibility requires GPS within 25 metres and an Agent Wallet; live claims are pending.",
       },
       { property: "og:title", content: "CATCH legendary drop" },
       {
         property: "og:description",
-        content: "One whole share. One place. One winner. Every day. Bring shoes.",
+        content: "One whole share. One place. One winner. Agent-only claims are planned; live integration is pending.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -90,6 +91,8 @@ function Legendary() {
         )}
         className="mt-10"
       />
+
+      <section className="mx-auto max-w-6xl px-5 py-6"><AgentStatus /></section>
 
       <Section title={next ? t("Next drop", "下一次投放") : t("No drop scheduled", "暂无安排")}>
         <Panel className="mt-6 flex flex-wrap items-center justify-between gap-8">
@@ -165,15 +168,15 @@ function Legendary() {
             [
               t("Stricter GPS check", "更严格的定位校验"),
               t(
-                "No code to type. Your location is verified on the spot with tighter accuracy limits than a normal catch.",
-                "不需要输入任何验证码。到场后由系统校验定位，精度要求比普通抓取更严格。",
+                "No venue code is needed. After stricter GPS checks, the planned flow issues an AI command for the Agent Wallet.",
+                "无需现场验证码。真人到场通过更严格的定位后，接通时会取得 AI 指令，交由 Agent 钱包领取。",
               ),
             ],
             [
-              t("First valid claim wins", "首个有效领取者获胜"),
+              t("First valid Agent claim wins", "首个有效 Agent 领取者获胜"),
               t(
-                "The winner slot is locked the instant a valid claim lands. Everyone else keeps exploring the map for the next drop.",
-                "第一笔有效领取到达时锁定获胜名额，其他人可以继续探索地图，等待下一场活动。",
+                "Planned rule: the first valid Agent Wallet claim wins. Arriving alone does not reserve a prize. Live Agent claims are not connected.",
+                "计划规则：首笔有效 Agent 钱包领取获胜，单纯到场不代表预留奖品；真实领取尚未接通。",
               ),
             ],
           ].map(([h, p]) => (

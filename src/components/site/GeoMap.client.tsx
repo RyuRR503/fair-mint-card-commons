@@ -215,7 +215,7 @@ export default function GeoMap({
         const status = expired
           ? { cls: "is-off", text: tr("Expired", "已过期") }
           : inRange
-            ? { cls: "is-on", text: tr("In range - catchable", "已在范围内，可捕捉") }
+            ? { cls: "is-on", text: tr("Nearby · Agent integration pending", "已接近 · Agent 领取待接通") }
             : dist !== null
               ? { cls: "is-far", text: tr(`${formatDistance(dist)} away`, `距你 ${formatDistance(dist)}`) }
               : { cls: "is-ok", text: tr("Catchable on site", "到现场即可捕捉") };
@@ -233,7 +233,7 @@ export default function GeoMap({
               <div class="catch-pop-geo">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
               <div class="catch-pop-status ${status.cls}">${esc(status.text)}</div>
               ${timeText && !expired ? `<div class="catch-pop-time">${esc(timeText)}</div>` : ""}
-              <div class="catch-pop-hint">${esc(tr("Walk here and tap Catch in the app", "走到这里，在 app 里点 Catch 领取"))}</div>
+              <div class="catch-pop-hint">${esc(tr("Walk here. Planned claims require GPS and an Agent Wallet.", "真人到这里定位，再由 Agent 钱包领取（待接通）"))}</div>
             </div>`,
           )
           .addTo(m);
