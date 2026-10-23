@@ -756,7 +756,8 @@ export const getClaimStatus = createServerFn({ method: "POST" })
     const now = Date.now();
     const statuses = await Promise.all(
       (rows ?? []).map(async (row) => {
-        let catchRow: { id: string; nonce: string | null; tx_hash: string | null; deadline: number | null; symbol: string; amount: number; token_address: string | null } | null = null;
+        type CatchLite = { id: string; nonce: string | null; tx_hash: string | null; deadline: number | null; symbol: string; amount: number; token_address: string | null };
+        let catchRow = null as CatchLite | null;
         if (row.used_at && row.wallet) {
           const { data: c } = await db
             .from("catches")
@@ -767,7 +768,7 @@ export const getClaimStatus = createServerFn({ method: "POST" })
             .order("created_at", { ascending: true })
             .limit(1)
             .maybeSingle();
-          catchRow = c as typeof catchRow;
+          catchRow = c as CatchLite | null;
         }
         let txHash = catchRow?.tx_hash ?? null;
         let nonceUsed = false;
