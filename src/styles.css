@@ -902,10 +902,12 @@ html { scroll-padding-top: 90px; }
 .journey-sticky { position: relative; }
 .journey-scroll-track { height: 1px; margin-top: 32px; background: var(--border); overflow: hidden; }
 .journey-scroll-track span { display: block; height: 100%; background: var(--primary); transform-origin: left; transform: scaleX(var(--agent-scroll-progress, 0)); }
-.home-continuum .agent-steps li { opacity: 0.55; transition: opacity 500ms, background-color 500ms; }
-.home-continuum .agent-steps li[data-step-active], .home-continuum .agent-steps li:hover { opacity: 1; }
-.home-continuum .agent-steps li[data-step-active]::after { transform: scaleX(1); }
-.home-continuum .agent-steps li[data-step-active] > svg { transform: translateY(-3px); }
+.home-continuum .agent-steps li { opacity: calc(0.55 + var(--step-light, 0) * 0.45); transition: background-color 350ms; }
+.home-continuum .agent-steps li:hover { opacity: 1; }
+.home-continuum .agent-steps li::after { transform: scaleX(var(--step-light, 0)); transition: none; }
+.home-continuum .agent-steps li[data-step-current] { background: color-mix(in oklab, var(--primary) 5%, transparent); }
+.home-continuum .agent-steps li[data-step-current] > svg { filter: drop-shadow(0 0 6px var(--primary)); }
+.home-continuum .agent-steps li > svg, .home-continuum .agent-steps li:hover > svg { transform: none; }
 .city-map-arrival .ink-frame { transition: border-color 600ms; }
 .city-map-arrival .ink-frame:focus-within, .city-map-arrival .ink-frame:hover { border-color: color-mix(in oklab, var(--primary) 45%, transparent); }
 
@@ -961,10 +963,11 @@ html { scroll-padding-top: 90px; }
 .city-signals .signal-nvidia { animation-delay: 3s; }
 .city-signals .signal-tesla { animation-delay: 6s; }
 .city-signals .signal-nvidia *, .city-signals .signal-tesla * { animation-delay: inherit; }
-.signal-handoff { position: absolute; left: 74%; top: 36%; z-index: 4; display: flex; align-items: center; gap: 10px; opacity: calc(min(1, var(--journey-progress) * 8) * (1 - var(--journey-progress))); transform: translate(calc(var(--journey-progress) * -62vw), calc(var(--journey-progress) * 52svh)); font: 10px var(--font-mono); letter-spacing: 0.12em; color: var(--primary); }
-.signal-handoff i { width: 10px; height: 10px; border-radius: 999px; background: var(--primary); box-shadow: 0 0 0 6px color-mix(in oklab, var(--primary) 18%, transparent), var(--signal-glow); }
-.signal-handoff::before { content: ""; position: absolute; left: 5px; top: 5px; width: calc(var(--journey-progress) * 38vw); height: 1px; background: var(--motion-divider); transform: rotate(-30deg); transform-origin: left; opacity: 0.45; pointer-events: none; }
-.city-handoff::after { content: ""; position: absolute; top: 24px; left: 15px; width: 11px; height: 11px; border-radius: 999px; background: var(--primary); box-shadow: var(--signal-glow); opacity: clamp(0, calc((var(--journey-progress) - 0.45) * 4), 1); transform: scale(clamp(0.4, calc(var(--journey-progress) * 1.4), 1)); }
+.city-scroll-controller { position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; opacity: var(--signal-opacity, 0); }
+.city-scroll-controller[hidden] { display: none; }
+.agent-signal-route { display: block; width: 100%; height: 100%; overflow: visible; }
+.agent-signal-route path { fill: none; stroke: var(--primary); stroke-width: 1; opacity: 0.35; }
+.agent-signal-dot { fill: var(--primary); stroke: color-mix(in oklab, var(--primary) 22%, transparent); stroke-width: 10; paint-order: stroke; filter: drop-shadow(0 0 8px var(--primary)); }
 @keyframes signal-lock { 0%, 36%, 100% { opacity: 0; transform: scale(1.8); } 4% { opacity: 1; transform: scale(1); } 26% { opacity: 1; transform: scale(1); } 32% { opacity: 0.8; transform: scale(0.3); } }
 @keyframes signal-ping { 0%, 3% { opacity: 0; transform: scale(0.6); } 8% { opacity: 0.8; } 18%, 100% { opacity: 0; transform: scale(1.5); } }
 @keyframes signal-tag { 0%, 5% { clip-path: inset(0 100% 0 0); opacity: 1; } 11%, 24% { clip-path: inset(0 0 0 0); opacity: 1; } 30%, 100% { clip-path: inset(0 0 0 100%); opacity: 0; } }
@@ -973,6 +976,5 @@ html { scroll-padding-top: 90px; }
 .home-continuum[data-motion-paused="true"] :is(.signal-lock, .signal-lock b, .signal-tag, .city-signal small, .city-routes path) { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
   .signal-lock, .signal-lock b, .city-signals .signal-tag, .city-signals .city-signal > small, .city-routes path { animation: none; opacity: 1; clip-path: none; transform: none; }
-  .signal-handoff { display: none; }
-  .city-handoff::after { opacity: 1; transform: none; }
+  .city-scroll-controller { display: none; }
 }

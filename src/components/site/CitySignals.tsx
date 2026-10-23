@@ -20,7 +20,6 @@ export function CitySignals() {
           <small>{s.coord}</small>
         </div>
       ))}
-      <div className="signal-handoff"><i /><span>SIGNAL → AGENT</span></div>
       <div className="city-coordinate"><span className="signal-dash" /> HUMAN × AGENT <span>01 / 03</span></div>
     </div>
   );

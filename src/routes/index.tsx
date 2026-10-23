@@ -83,9 +83,9 @@ function Home() {
         </div>
         <div aria-hidden className="city-hero-shade absolute inset-0" />
         <CitySignals />
-        <CityMarketScene />
         </div>
       </div>
+      <CityMarketScene />
       <section className="agent-hero relative overflow-hidden px-5 pb-6 pt-6 sm:pt-8">
         <div className="mx-auto max-w-6xl">
           <div className="hero-topline flex items-center justify-between gap-6 border-b border-border pb-5">
