@@ -47,7 +47,7 @@ export function AgentJourney({ compact = false }: { compact?: boolean }) {
         <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3"><span className="flex items-center gap-2 text-sm font-semibold"><Bot className="size-4 text-primary" />CATCH / Agent</span><span className="text-[11px] text-muted-foreground">{t("FLOW PREVIEW", "流程预览")}</span></div>
         <div className="space-y-4 p-4 sm:p-5">
           <p className="text-sm text-muted-foreground">{t("Binance Agentic Wallet · planned claim experience", "币安 Agent AI 钱包 · 计划中的领取体验")}</p>
-          <div className="min-h-32">
+          <div className="min-h-32 space-y-4">
           {!preview ? <div className="flex min-h-32 items-center justify-center border-y border-dashed border-border"><Button variant="outline" className="btn-arrow" onClick={() => setPreview(true)}><Terminal />{t("Preview AI command", "预览 AI 指令")}</Button></div> : <>
             <div className="command-reveal flex items-center justify-between gap-2 border-l-2 border-primary bg-secondary/35 p-3"><code className="break-all font-mono text-sm text-primary">{example}<span className="terminal-caret" aria-hidden="true">▍</span></code><Button variant="ghost" size="icon" onClick={copyExample} aria-label={t("Copy example command", "复制示例指令")} title={t("Copy example command", "复制示例指令")}>{copied ? <Check /> : <Copy />}</Button></div>
             <p role="status" className="text-xs text-muted-foreground">{copied ? t("Example copied. It cannot claim tokens.", "已复制示例，不能用于真实领取。") : t("Example only. No GPS proof, voucher, or transaction is generated.", "仅作示例：未签发定位凭证，也不会发送交易。")}</p>
