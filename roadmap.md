@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Preserve the uploaded VaultEx/Trigger contract, generate matching ABIs, verify voucher compatibility, and explain signer setup and remaining live-claim blockers.
 - [x] Revise the 20-second CATCH promo: remove the transition pause near 15 seconds, align music with visual beats, add synthesized transition sounds, and verify all 600 frames play without stalls using a temporary compatible review encode.
 - [ ] Actual listening review of promo v2 remains unavailable: no audio-perception capability; beat alignment and levels are measured, not heard. Small logo-finishing motion at 15.17–15.40 seconds is intentional.
 - [x] Apply the selected clear, steady copy direction throughout the homepage, shared UI and content pages; preserve rules and pending integration status, verify navigation and command preview.
