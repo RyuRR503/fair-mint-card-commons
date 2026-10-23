@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { AgentStatus } from "@/components/site/AgentJourney";
 import { Section, Panel } from "@/components/site/Section";
 import { RULES } from "@/lib/game.functions";

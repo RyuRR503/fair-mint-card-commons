@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { Section, Panel } from "@/components/site/Section";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n";

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { useMemo, useState } from "react";
 import { ArrowDown, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";

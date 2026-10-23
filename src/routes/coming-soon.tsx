@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { useMemo } from "react";
 import { CatchLettering } from "@/components/site/CatchLettering";
 import { LiveMap } from "@/components/site/LiveMap";
