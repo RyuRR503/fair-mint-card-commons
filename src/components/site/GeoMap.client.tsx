@@ -2,6 +2,11 @@ import { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
 import type { Map as MlMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
+
+// Under Vite, maplibre-gl 6 cannot locate its worker on its own and leaves the
+// basemap blank ("Worker failed to load"); point it at the bundled worker.
+maplibregl.setWorkerUrl(maplibreWorkerUrl);
 import { rarityVar, RARITY_LABEL, TOKEN_BY_SYMBOL, type Rarity } from "@/lib/tokens";
 import { useT } from "@/lib/i18n";
 import { CITY_BY_KEY } from "@/lib/cities";
