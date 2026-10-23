@@ -21,6 +21,9 @@ import { AgentStatus } from "@/components/site/AgentJourney";
 import { claimEligibility } from "@/lib/agent-claims";
 import { useT, useLang } from "@/lib/i18n";
 
+/** AI agents call from outside, so always point them at the public site — preview hosts sit behind a login wall (401). */
+const AGENT_CLAIM_API = "https://catch.fun/api/public/agent-claim";
+
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
