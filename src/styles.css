@@ -747,7 +747,6 @@ html[lang^="zh"] h2 {
 .command-reveal { animation: reveal-focus 500ms var(--ease-cine) both; }
 .terminal-caret { color: var(--accent); animation: caret-blink 1.2s steps(1) infinite; }
 @keyframes metallic-pass { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-@keyframes wordmark-light { 0%, 70%, 100% { opacity: 0; transform: translateX(0); } 78% { opacity: 0.45; } 92% { opacity: 0; transform: translateX(60%); } }
 @keyframes city-breathe { from { transform: scale(1); } to { transform: scale(1.045); } }
 @keyframes city-signal { 0%, 7%, 48%, 100% { opacity: 0; transform: translateY(6px); } 15%, 38% { opacity: 0.85; transform: translateY(0); } }
 @keyframes signal-dash { 0%, 100% { transform: scaleX(0.4); } 50% { transform: scaleX(1); } }
@@ -755,10 +754,9 @@ html[lang^="zh"] h2 {
 @keyframes caret-blink { 50% { opacity: 0; } }
 @media (max-width: 1023px) { .city-signals { display: none; } }
 @media (prefers-reduced-motion: reduce) {
-  .city-cover, .agent-wordmark, .city-signal, .signal-dash, .agent-steps li::after, .terminal-caret { animation: none; }
+  .city-cover, .city-signal, .signal-dash, .agent-steps li::after, .terminal-caret { animation: none; }
   .city-signal { opacity: 0.6; transform: none; }
   .agent-cta:hover { transform: none; }
-  .agent-wordmark::after { animation: none; opacity: 0; }
 }
 
 /* Precision details: quiet navigation, clear focus, and composed data bands. */
