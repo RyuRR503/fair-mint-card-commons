@@ -50,7 +50,7 @@ const CHAPTERS: {
     lead: ["Human presence and Agent execution are separate. Map claims are live.", "现场位置验证与 Agent 链上执行分别完成。地图领取已上线。"],
     items: [
       { s: "live", h: ["Flow preview and rules", "流程展示与规则"], p: ["All rarities are Agent Wallet only.", "所有稀有度均仅限 Agent 钱包。"] },
-      { s: "next", h: ["Identity and real commands", "身份验证与真实指令"], p: ["Connect verifiable Agent identity, bind GPS commands to the recipient and implement Agent transaction submission.", "接入可验证的 Agent 身份，绑定定位指令与收款钱包，完成 Agent 交易提交。"] },
+      { s: "live", h: ["Identity and real commands", "身份验证与真实指令"], p: ["On-chain Agent ID check, single-use GPS claim codes, and Agent Wallet submission are live.", "链上 Agent ID 校验、一次性定位领取码与 Agent 钱包提交均已上线。"] },
     ],
   },
   {
@@ -161,7 +161,7 @@ const CHAPTERS: {
     ],
     items: [
       {
-        s: "building",
+        s: "live",
         h: ["Trading tax into the nine districts", "交易税进入九个区"],
         p: [
           "Incoming BNB pays a 10% operating fee, and the rest is split evenly across the nine district buckets. The split is executed by the contract.",
@@ -169,7 +169,7 @@ const CHAPTERS: {
         ],
       },
       {
-        s: "building",
+        s: "live",
         h: ["Permissionless refill transactions", "无需许可的补货"],
         p: [
           "Anyone may trigger refillViaSwap to exchange a district’s BNB for its bStocks token through PancakeSwap V2/V3, subject to the contract’s reference-price checks.",
