@@ -722,6 +722,10 @@ html[lang^="zh"] h2 {
 .city-hero-shade { background: var(--hero-shade); }
 .gold-wordmark { background: var(--metallic-gold); background-clip: text; -webkit-background-clip: text; color: transparent; }
 .hero-wordmark { width: min(100%, 520px); height: auto; filter: drop-shadow(0 0 28px color-mix(in oklab, var(--primary) 20%, transparent)); }
+.site-wordmark { letter-spacing: 0.16em; margin-inline-end: -0.16em; background: var(--metallic-gold); background-size: 220% 100%; background-clip: text; -webkit-background-clip: text; color: transparent; transition: background-position 800ms var(--ease-cine); }
+.site-header a:hover .site-wordmark, .site-header a:focus-visible .site-wordmark { background-position: 100% 50%; }
+@media (prefers-reduced-motion: reduce) { .site-wordmark { transition: none; } }
+
 .city-cover { animation: city-breathe 22s ease-in-out infinite alternate; transform-origin: 72% 50%; }
 .city-signals { position: absolute; inset: 0; pointer-events: none; z-index: -1; }
 .city-signal { position: absolute; display: grid; grid-template-columns: 24px auto; gap: 6px 10px; color: var(--accent); opacity: 0; animation: city-signal 9s ease-in-out infinite; }
