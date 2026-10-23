@@ -22,6 +22,8 @@ export type MapPoint = {
   cityKey?: string;
   amount?: number;
   expiresAt?: string;
+  /** Taken recently; shown greyed until it respawns at this ISO time. */
+  respawnAt?: string;
   lat: number;
   lng: number;
 };
@@ -142,15 +144,17 @@ export default function GeoMap({
         c.legendary,
         c.common,
       ] as unknown as maplibregl.DataDrivenPropertyValueSpecification<string>;
+      const rarityColor = color;
+      const tone = ["case", ["==", ["get", "cooling"], 1], "#5b5f63", rarityColor] as unknown as maplibregl.DataDrivenPropertyValueSpecification<string>;
 
       m.addLayer({
         id: "signal-glow",
         type: "circle",
         source: "signals",
         paint: {
-          "circle-color": color,
+          "circle-color": tone,
           "circle-blur": 1,
-          "circle-opacity": 0.35,
+          "circle-opacity": ["case", ["==", ["get", "cooling"], 1], 0, 0.35],
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 2.5, 5, 4, 12, 12, 16, 22],
         },
       });
@@ -159,7 +163,8 @@ export default function GeoMap({
         type: "circle",
         source: "signals",
         paint: {
-          "circle-color": color,
+          "circle-color": tone,
+          "circle-opacity": ["case", ["==", ["get", "cooling"], 1], 0.55, 1],
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 1.4, 5, 2.2, 10, 3.5, 14, 6, 17, 9],
           "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 10, 0, 13, 1.5],
           "circle-stroke-color": "#0a0d0c",
@@ -219,13 +224,18 @@ export default function GeoMap({
         const here = meRef.current;
         const dist = here ? haversine(here.lat, here.lng, lat, lng) : null;
         const inRange = dist !== null && dist <= catchRadius(20);
-        const status = expired
+        const respawn = p["respawnAt"] ? new Date(p["respawnAt"]).getTime() : 0;
+        const coolMin = respawn ? Math.max(1, Math.ceil((respawn - Date.now()) / 60000)) : 0;
+        const coolText = coolMin >= 60 ? tr(`${Math.floor(coolMin / 60)}h ${coolMin % 60}m`, `${Math.floor(coolMin / 60)} 小时 ${coolMin % 60} 分`) : tr(`${coolMin} min`, `${coolMin} 分钟`);
+        const status = respawn
+          ? { cls: "is-off", text: tr(`Taken · back in about ${coolText}`, `已被领取 · 约 ${coolText}后刷新`) }
+          : expired
           ? { cls: "is-off", text: tr("Expired", "已过期") }
           : inRange
-            ? { cls: "is-on", text: tr("Nearby · Agent integration pending", "已接近 · Agent 领取待接通") }
+            ? { cls: "is-on", text: tr("In range · get the claim code", "已在范围内 · 可获取领取码") }
             : dist !== null
               ? { cls: "is-far", text: tr(`${formatDistance(dist)} away`, `距你 ${formatDistance(dist)}`) }
-              : { cls: "is-ok", text: tr("Location available · Live claims pending", "点位可浏览 · 真实领取待开放") };
+              : { cls: "is-ok", text: tr("Open · claim on site with your Agent Wallet", "开放中 · 到现场用 Agent 钱包领取") };
         popup
           .setLngLat(coords)
           .setHTML(
@@ -240,7 +250,7 @@ export default function GeoMap({
               <div class="catch-pop-geo">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
               <div class="catch-pop-status ${status.cls}">${esc(status.text)}</div>
               ${timeText && !expired ? `<div class="catch-pop-time">${esc(timeText)}</div>` : ""}
-              <div class="catch-pop-hint">${esc(tr("Planned claims require on-site location verification and an eligible Agent Wallet.", "按规划，领取须通过现场定位验证，并由符合资格的 Agent 钱包提交。"))}</div>
+              <div class="catch-pop-hint">${esc(tr("Claims need on-site location verification and an Agent Wallet.", "领取须通过现场定位校验，并由 Agent 钱包提交。"))}</div>
               ${isPreviewHost(window.location.host) ? `<div class="catch-pop-hint">${esc(tr("Preview: after closing this card, use “Test: put me at this point” in the right panel.", "预览版：关掉这张卡片后，在右侧面板点“测试：把我的位置设到这个点位”。"))}</div>` : ""}
             </div>`,
           )
@@ -296,6 +306,8 @@ export default function GeoMap({
             cityKey: p.cityKey ?? "",
             amount: p.amount ?? 0,
             expiresAt: p.expiresAt ?? "",
+            respawnAt: p.respawnAt ?? "",
+            cooling: p.respawnAt ? 1 : 0,
           },
         })),
       });
