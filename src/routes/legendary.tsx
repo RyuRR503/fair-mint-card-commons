@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AgentStatus } from "@/components/site/AgentJourney";
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/legendary")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...SITE_PREVIEW_META,
     ],
   }),
   component: Legendary,

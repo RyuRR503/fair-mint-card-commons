@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { Section, Panel } from "@/components/site/Section";
 import { useT } from "@/lib/i18n";
 
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/download")({
       { property: "og:description", content: "Web app today, Android APK in testing, App Store next." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...SITE_PREVIEW_META,
 
     ],
   }),

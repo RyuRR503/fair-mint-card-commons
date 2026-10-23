@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
 import { Section, Panel } from "@/components/site/Section";
 import { RULES } from "@/lib/game.functions";
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/how-it-works")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...SITE_PREVIEW_META,
     ],
   }),
   component: HowItWorks,

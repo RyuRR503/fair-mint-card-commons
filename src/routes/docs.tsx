@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { AgentStatus } from "@/components/site/AgentJourney";
 import { Section, Panel } from "@/components/site/Section";
 import { RULES } from "@/lib/game.functions";
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/docs")({
       { property: "og:description", content: "CATCH vault interfaces, token parameters and planned Agent-only claim rules. Live Agent integration is pending." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...SITE_PREVIEW_META,
     ],
   }),
   component: Docs,

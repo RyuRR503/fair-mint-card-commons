@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Section, Panel } from "@/components/site/Section";
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/proof")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...SITE_PREVIEW_META,
     ],
   }),
   component: Proof,

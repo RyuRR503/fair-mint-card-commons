@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Panel } from "@/components/site/Section";
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/app")({
       { property: "og:description", content: "Explore real-world stock locations and the planned Binance Agentic Wallet claim experience." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...SITE_PREVIEW_META,
     ],
   }),
   component: AppMap,

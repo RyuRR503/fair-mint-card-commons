@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { Section, Panel } from "@/components/site/Section";
 import { WaitlistForm } from "@/components/site/WaitlistForm";
 import { TokenChip } from "@/components/site/TokenChip";
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/sponsor")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...SITE_PREVIEW_META,
     ],
   }),
   component: Sponsor,
