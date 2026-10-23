@@ -6,12 +6,13 @@ import { Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
 import { type MapPin } from "@/components/site/WorldMap";
 import { LiveMap } from "@/components/site/LiveMap";
-import type { MapPoint } from "@/components/site/GeoMap.client";
+import type { LegendaryPoint, MapPoint } from "@/components/site/GeoMap.client";
 
-import { claimDrop, getClaimStatus, getSpawns, RULES } from "@/lib/game.functions";
+import { claimDrop, getClaimStatus, getLegendary, getSpawns, RULES } from "@/lib/game.functions";
 import { isPending, type ClaimPhase } from "@/lib/claim-status";
 import { buildAgentCommand } from "@/lib/agent-command";
 import { isPreviewHost } from "@/lib/site-gate";
+import { CITY_BY_KEY } from "@/lib/cities";
 import { Input } from "@/components/ui/input";
 import { catchRadius, formatDistance, haversine } from "@/lib/geo";
 import { CHAIN, RARITY_LABEL, rarityVar, TOKEN_BY_SYMBOL, VAULT_ADDRESS } from "@/lib/tokens";
