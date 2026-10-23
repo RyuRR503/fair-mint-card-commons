@@ -808,39 +808,10 @@ html { scroll-padding-top: 90px; }
   .city-scroll-backdrop::after { opacity: 0; }
   .city-handoff::before { transform: none; }
 }
-.city-market-scene {
-  position: absolute;
-  top: 8%;
-  right: 4%;
-  width: 43%;
-  height: 72%;
-  z-index: 2;
-  pointer-events: none;
-  opacity: 0;
-  animation: market-scene-in 1600ms var(--ease-cine) 500ms forwards;
-}
-.city-market-scene canvas { display: block; width: 100%; height: 100%; }
-.agent-hero .signal-apple { top: 31%; left: 77%; }
-.agent-hero .signal-nvidia { top: 18%; left: 85%; }
-.agent-hero .signal-tesla { top: 64%; left: 70%; }
-.agent-hero .reveal-focus { animation-duration: 1200ms; }
 .agent-hero .hero-stats { animation: reveal-focus 1200ms var(--ease-cine) 300ms both; }
-@keyframes market-scene-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-@media (max-width: 1023px) {
-  .city-market-scene { width: 43%; right: 0; }
-}
-@media (max-width: 639px) {
-  .city-market-scene { top: 28px; bottom: auto; right: -12%; width: 58%; height: 235px; animation-name: market-scene-mobile-in; }
-  @keyframes market-scene-mobile-in { from { opacity: 0; } to { opacity: 0.45; } }
-}
-@media (prefers-reduced-motion: reduce) {
-  .city-market-scene { animation: none; opacity: 0.65; }
-  .agent-hero .hero-stats { animation: none; }
-}
 
-/* Optical capture: restrained editorial rhythm rather than unrelated pulses. */
+/* Homepage typography and continuous scroll handoff. */
 :root {
-  --capture-caption-surface: color-mix(in oklab, var(--background) 65%, transparent);
   --capture-scene-shade: linear-gradient(90deg, var(--background), color-mix(in oklab, var(--background) 88%, transparent) 33%, color-mix(in oklab, var(--background) 38%, transparent) 60%, color-mix(in oklab, var(--background) 12%, transparent)), linear-gradient(0deg, var(--background), transparent 42%);
 }
 .home-continuum .city-depth--far { z-index: 0; }
@@ -857,12 +828,6 @@ html { scroll-padding-top: 90px; }
 .hero-scene-controls { margin-block: 0 18px; animation: reveal-focus 1000ms var(--ease-cine) 600ms both; }
 .hero-scroll-link svg { transition: transform 350ms var(--ease-cine); }
 .hero-scroll-link:hover svg, .hero-scroll-link:focus-visible svg { transform: translateY(4px); }
-.capture-caption { position: absolute; inset: auto 12% 10%; display: flex; align-items: center; gap: 14px; padding: 10px 0; color: var(--primary); font: 10px var(--font-mono); }
-.capture-caption-mark { font-size: 22px; }
-.capture-caption > div { display: grid; min-width: 145px; }
-.capture-phase { grid-area: 1 / 1; opacity: 0; transition: opacity 600ms; }
-[data-phase="capture"] .capture-phase--capture, [data-phase="signal"] .capture-phase--signal, [data-phase="agent"] .capture-phase--agent { opacity: 1; }
-.capture-caption-rule { height: 1px; flex: 1; background: var(--primary); opacity: 0.4; }
 .home-continuum .stock-ticker { margin-top: 16px; opacity: 0.65; }
 .home-continuum .marquee-track { animation-duration: 65s; }
 .home-continuum[data-motion-paused="true"] .marquee-track, .home-continuum[data-motion-paused="true"] .agent-steps li::after, .home-continuum[data-motion-paused="true"] .terminal-caret, .home-continuum[data-motion-paused="true"] .city-signal, .home-continuum[data-motion-paused="true"] .signal-dash { animation-play-state: paused; }
@@ -883,17 +848,14 @@ html { scroll-padding-top: 90px; }
   .hero-copy { max-width: 55%; }
   .hero-heading { font-size: 28px; }
   .hero-composition { padding-block: 48px 34px; }
-  .capture-caption { inset-inline: 8%; }
 }
 @media (max-width: 639px) {
-  .city-market-scene { top: 4px; right: -4%; width: 44%; height: 132px; }
   .hero-composition { padding-block: 40px 24px; }
   .hero-copy { max-width: 100%; }
   .hero-kicker { max-width: 230px; }
   .hero-heading { max-width: 330px; font-size: 26px; }
   .hero-description { margin-top: 24px; padding-left: 14px; }
   .hero-lettering img { width: 290px; }
-  .capture-caption { display: none; }
   .home-continuum .city-hero-shade { background: linear-gradient(90deg, color-mix(in oklab, var(--background) 92%, transparent), color-mix(in oklab, var(--background) 55%, transparent)), linear-gradient(0deg, var(--background), transparent 50%); }
   .home-continuum .city-handoff { padding-top: 58px; padding-bottom: 36px; }
   .hero-stats > div { padding-block: 24px; }
@@ -901,7 +863,6 @@ html { scroll-padding-top: 90px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-lettering img, .hero-kicker, .hero-heading, .hero-description, .hero-actions, .hero-scene-controls { animation: none; }
-  .city-market-scene { transform: none; }
   .hero-scroll-link:hover svg, .home-continuum .agent-steps li:hover > svg { transform: none; }
   .scene-playback { display: none; }
 }
