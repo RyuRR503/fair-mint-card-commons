@@ -96,14 +96,14 @@ export function SiteHeader() {
           <span className="font-poster text-3xl text-foreground">CATCH</span>
         </Link>
 
-        <nav aria-label={t("Main navigation", "主导航")} className="hidden flex-1 items-center justify-center gap-0.5 xl:flex">
+        <nav aria-label={t("Main navigation", "主导航")} className="hidden min-w-0 flex-1 items-center justify-center gap-0 lg:flex">
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               activeOptions={{ exact: item.to === "/" }}
               activeProps={{ className: "!text-primary is-active" }}
-              className={`site-nav-link label-caps px-2.5 py-2 ${navText} text-muted-foreground transition-colors hover:text-foreground`}
+              className={`site-nav-link label-caps truncate px-1.5 py-2 lg:px-2 ${navText} text-muted-foreground transition-colors hover:text-foreground`}
             >
               {item.label}
             </Link>
@@ -111,7 +111,7 @@ export function SiteHeader() {
         </nav>
 
 
-        <div className="ml-auto flex items-center gap-2 xl:ml-0">
+        <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-0">
           <LangToggle className="hidden sm:flex" />
           <Button asChild className={`label-caps rounded-sm px-4 py-2.5 ${navText}`}>
             <Link to="/app">{t("Start hunting", "开始抓取")} <span aria-hidden>↗</span></Link>
@@ -123,7 +123,7 @@ export function SiteHeader() {
             size="icon"
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="grid size-10 place-items-center rounded-md border border-border xl:hidden"
+            className="grid size-10 place-items-center rounded-md border border-border lg:hidden"
             aria-label={t("Toggle menu", "菜单")}
             aria-expanded={open}
             aria-controls="mobile-navigation"
@@ -134,7 +134,7 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <nav id="mobile-navigation" aria-label={t("Main navigation", "主导航")} className="mobile-navigation mx-auto mt-3 grid max-h-[calc(100dvh-90px)] max-w-6xl grid-cols-2 gap-1 overflow-y-auto border-t border-border pt-3 xl:hidden">
+        <nav id="mobile-navigation" aria-label={t("Main navigation", "主导航")} className="mobile-navigation mx-auto mt-3 grid max-h-[calc(100dvh-90px)] max-w-6xl grid-cols-2 gap-1 overflow-y-auto border-t border-border pt-3 lg:hidden">
           {NAV.map((item, i) => (
             <Link
               key={item.to}
