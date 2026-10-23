@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as ComingSoonRouteImport } from './routes/coming-soon'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DownloadRouteImport } from './routes/download'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
@@ -28,6 +29,11 @@ const IndexRoute = IndexRouteImport.update({
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComingSoonRoute = ComingSoonRouteImport.update({
+  id: '/coming-soon',
+  path: '/coming-soon',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocsRoute = DocsRouteImport.update({
@@ -74,6 +80,7 @@ const ApiPublicSyncRoute = ApiPublicSyncRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/coming-soon': typeof ComingSoonRoute
   '/docs': typeof DocsRoute
   '/download': typeof DownloadRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/coming-soon': typeof ComingSoonRoute
   '/docs': typeof DocsRoute
   '/download': typeof DownloadRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/coming-soon': typeof ComingSoonRoute
   '/docs': typeof DocsRoute
   '/download': typeof DownloadRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
+    | '/coming-soon'
     | '/docs'
     | '/download'
     | '/how-it-works'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/app'
+    | '/coming-soon'
     | '/docs'
     | '/download'
     | '/how-it-works'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/app'
+    | '/coming-soon'
     | '/docs'
     | '/download'
     | '/how-it-works'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRoute
+  ComingSoonRoute: typeof ComingSoonRoute
   DocsRoute: typeof DocsRoute
   DownloadRoute: typeof DownloadRoute
   HowItWorksRoute: typeof HowItWorksRoute
@@ -174,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coming-soon': {
+      id: '/coming-soon'
+      path: '/coming-soon'
+      fullPath: '/coming-soon'
+      preLoaderRoute: typeof ComingSoonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/docs': {
@@ -238,6 +258,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRoute,
+  ComingSoonRoute: ComingSoonRoute,
   DocsRoute: DocsRoute,
   DownloadRoute: DownloadRoute,
   HowItWorksRoute: HowItWorksRoute,

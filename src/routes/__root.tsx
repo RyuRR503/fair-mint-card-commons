@@ -7,7 +7,9 @@ import {
   useLocation,
   HeadContent,
   Scripts,
+  redirect,
 } from "@tanstack/react-router";
+import { COMING_SOON_PATH, currentHost, isPreviewHost } from "@/lib/site-gate";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
@@ -109,6 +111,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
   }),
 
+  beforeLoad: ({ location }) => {
+    if (location.pathname === COMING_SOON_PATH) return;
+    if (!isPreviewHost(currentHost() ?? "")) throw redirect({ to: COMING_SOON_PATH });
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -138,13 +144,13 @@ function RootComponent() {
       <LangProvider>
         <HuntBackdrop />
         <div className="relative flex min-h-screen flex-col">
-          <SiteHeader />
-          <SiteMotion />
+          {pathname !== COMING_SOON_PATH && <SiteHeader />}
+          {pathname !== COMING_SOON_PATH && <SiteMotion />}
           <main className="flex-1">
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <div key={pathname} className="site-page"><Outlet /></div>
           </main>
-          <SiteFooter />
+          {pathname !== COMING_SOON_PATH && <SiteFooter />}
           {/* global film grain — static, never animated */}
           <div className="pointer-events-none fixed inset-0 z-50 grain" aria-hidden />
         </div>
