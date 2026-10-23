@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { cityByKey, type Spawn } from "./spawns";
+import { isPreviewHost } from "./site-gate";
+import { getRequestHost } from "@tanstack/react-start/server";
 import { TOKEN_BY_SYMBOL, TOKENS, VAULT_ADDRESS, CHAIN, DISTRICT_BY_SYMBOL, type Rarity } from "./tokens";
 import { catchRadius, haversine, MAX_ACCURACY_M } from "./geo";
 import { allocate, claimShares, payableClaims } from "./allocation";
@@ -290,7 +292,6 @@ export const getSpawns = createServerFn({ method: "GET" })
 /* ----------------------------------------------------------------- claims */
 
 const claimInput = z.object({
-  address: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "That is not a wallet address."),
   spawnId: z.string().min(1),
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
@@ -331,8 +332,7 @@ function fail(error: string, errorZh?: string): Fail {
 /** The whole physical check, then a voucher. Never trusts the client. */
 export const claimDrop = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => claimInput.parse(d))
-  .handler(async ({ data }): Promise<Fail | Success> => {
-    const wallet = data.address.toLowerCase();
+  .handler(async ({ data }): Promise<Fail | CodeIssued> => {
     const { data: row } = await (await admin())
       .from("spawns")
       .select(SPAWN_SELECT)
@@ -351,20 +351,8 @@ export const claimDrop = createServerFn({ method: "POST" })
     if (spawn.rarity === "legendary")
       return fail("Legendary drops are only claimable inside their event window, on the spot.", "传奇碎片只能在限时活动期间现场领取。");
 
-    // 0. the vault only pays Agent ID holders claiming for themselves
-    const agent = await hasAgentId(data.address);
-    if (agent === false)
-      return fail(
-        "This wallet has no Binance Agent ID. Only an Agent Wallet can claim.",
-        "这个钱包没有币安 Agent ID，只有 Agent 钱包才能领取。",
-      );
-
-    // Owner-listed test wallets skip the presence checks (still need Agent ID, inventory and signature).
-    const tester = (process.env["TEST_CLAIM_WALLETS"] ?? "")
-      .toLowerCase()
-      .split(",")
-      .map((w) => w.trim())
-      .includes(wallet);
+    // Preview/dev hosts may skip the on-site checks for testing; published hosts never can.
+    const tester = isPreviewHost(getRequestHost());
 
     // 1. accuracy + radius
     if (data.accuracy > RULES.maxAccuracyM)
@@ -409,6 +397,106 @@ export const claimDrop = createServerFn({ method: "POST" })
     }
     const db = await admin();
     const now = Date.now();
+    if (!tester) {
+    // 5. travel: no teleporting, no city hopping
+    const { data: fixes } = await db
+      .from("position_log")
+      .select("lat, lng, city, created_at")
+      .eq("device_id", data.deviceId)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    const last = fixes?.[0];
+    if (last) {
+      const dt = (now - new Date(last.created_at).getTime()) / 1000;
+      const dist = haversine(last.lat, last.lng, data.lat, data.lng);
+      const allowed =
+        dist / 1000 < RULES.flightThresholdKm
+          ? dt * RULES.walkSpeedMs
+          : dt * 250 + RULES.airportMinutes * 60 * 250;
+      if (dist > allowed)
+        return fail("That is further than anybody could have travelled since your last fix.", "和上次定位相比移动距离不合理。");
+      if (
+        last.city !== spawn.city &&
+        now - new Date(last.created_at).getTime() < 3600_000
+      )
+        return fail("Two different cities inside one hour. Not on this device.", "一小时内出现在两个城市，无法领取。");
+    }
+
+    // 6. device clock vs the timezone of where you claim to stand
+    const expectedOffset = (spawn.lng / 15) * 60;
+    if (Math.abs(-data.tzOffsetMin - expectedOffset) > RULES.clockSkewHours * 60)
+      return fail("Your device clock does not match the timezone of that place.", "手机时区与点位所在地不符。");
+
+    }
+    const code = `CATCH-${[...crypto.getRandomValues(new Uint8Array(6))].map((b) => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 32]).join("")}`;
+    const expiresAt = new Date(now + RULES.voucherTtlMin * 60000);
+    const { error: codeErr } = await db.from("claim_codes").insert({
+      code,
+      spawn_id: spawn.id,
+      device_id: data.deviceId,
+      lat: data.lat,
+      lng: data.lng,
+      accuracy: data.accuracy,
+      expires_at: expiresAt.toISOString(),
+    });
+    if (codeErr) return fail("Could not issue a claim code. Try again.", "领取码生成失败，请重试。");
+    return {
+      ok: true as const,
+      code,
+      expiresAt: Math.floor(expiresAt.getTime() / 1000),
+      spawn: { ...spawn, amount: book.shares[spawn.symbol] ?? spawn.amount },
+      vault: vaultAddress(),
+      chainId: CHAIN.id,
+    };
+  });
+
+type CodeIssued = {
+  ok: true;
+  code: string;
+  expiresAt: number;
+  spawn: Spawn;
+  vault: string;
+  chainId: number;
+};
+
+/**
+ * Step two, called by the user's AI with its own wallet: trades a fresh claim code
+ * for a signed voucher bound to that Agent wallet. Single use.
+ */
+export async function redeemClaimCode(codeIn: string, address: string): Promise<Fail | Success> {
+  if (!/^0x[a-fA-F0-9]{40}$/.test(address)) return fail("That is not a wallet address.", "钱包地址格式不正确。");
+  const wallet = address.toLowerCase();
+  const db = await admin();
+  const now = Date.now();
+  const { data: codeRow } = await db.from("claim_codes").select("*").eq("code", codeIn.trim().toUpperCase()).maybeSingle();
+  if (!codeRow) return fail("Unknown claim code.", "领取码不存在。");
+  if (codeRow.used_at) return fail("This claim code was already used.", "这个领取码已经用过了。");
+  if (new Date(codeRow.expires_at).getTime() < now) return fail("This claim code has expired. Get a new one on site.", "领取码已过期，请到现场重新获取。");
+
+  const agent = await hasAgentId(wallet);
+  if (agent !== true)
+    return fail("This wallet has no Binance Agent ID. Only an Agent Wallet can claim.", "这个钱包没有币安 Agent ID，只有 Agent 钱包才能领取。");
+
+  const { data: row } = await db.from("spawns").select(SPAWN_SELECT).eq("id", codeRow.spawn_id).maybeSingle();
+  if (!row) return fail("That drop does not exist any more.", "这个点位已不存在。");
+  const spawnRow = row as unknown as SpawnRow;
+  if (spawnRow.respawn_at && new Date(spawnRow.respawn_at).getTime() > now)
+    return fail("Someone claimed this point first.", "这个点位已被别人先领走了。");
+  const book = await liveBook();
+  if (!book.live.has(spawnRow.id))
+    return fail("This point is not active right now.", "这个点位当前未开放。");
+  const spawn = toSpawn(spawnRow);
+  const data = { address, spawnId: spawnRow.id, deviceId: codeRow.device_id, lat: codeRow.lat, lng: codeRow.lng, accuracy: codeRow.accuracy };
+
+  // burn the code first so two AIs cannot race the same one
+  const { data: burned } = await db
+    .from("claim_codes")
+    .update({ used_at: new Date(now).toISOString(), wallet })
+    .eq("code", codeRow.code)
+    .is("used_at", null)
+    .select("code");
+  if (!burned || burned.length === 0) return fail("This claim code was already used.", "这个领取码已经用过了。");
+
     const dayAgo = new Date(now - 864e5).toISOString();
 
     if (!tester) {
@@ -469,37 +557,6 @@ export const claimDrop = createServerFn({ method: "POST" })
         );
     }
 
-    if (!tester) {
-    // 5. travel: no teleporting, no city hopping
-    const { data: fixes } = await db
-      .from("position_log")
-      .select("lat, lng, city, created_at")
-      .or(`wallet.eq.${wallet},device_id.eq.${data.deviceId}`)
-      .order("created_at", { ascending: false })
-      .limit(20);
-    const last = fixes?.[0];
-    if (last) {
-      const dt = (now - new Date(last.created_at).getTime()) / 1000;
-      const dist = haversine(last.lat, last.lng, data.lat, data.lng);
-      const allowed =
-        dist / 1000 < RULES.flightThresholdKm
-          ? dt * RULES.walkSpeedMs
-          : dt * 250 + RULES.airportMinutes * 60 * 250;
-      if (dist > allowed)
-        return fail("That is further than anybody could have travelled since your last fix.", "和上次定位相比移动距离不合理。");
-      if (
-        last.city !== spawn.city &&
-        now - new Date(last.created_at).getTime() < 3600_000
-      )
-        return fail("Two different cities inside one hour. Not on this device.", "一小时内出现在两个城市，无法领取。");
-    }
-
-    // 6. device clock vs the timezone of where you claim to stand
-    const expectedOffset = (spawn.lng / 15) * 60;
-    if (Math.abs(-data.tzOffsetMin - expectedOffset) > RULES.clockSkewHours * 60)
-      return fail("Your device clock does not match the timezone of that place.", "手机时区与点位所在地不符。");
-
-    }
     // record the fix, then the catch
     await db.from("position_log").insert({
       wallet,
@@ -621,7 +678,7 @@ export const claimDrop = createServerFn({ method: "POST" })
       contract,
       chainId: CHAIN.id,
     };
-  });
+}
 
 /* ------------------------------------------------- settlement bookkeeping */
 
