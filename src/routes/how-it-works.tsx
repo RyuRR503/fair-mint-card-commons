@@ -310,8 +310,8 @@ function HowItWorks() {
         <Panel className="mt-6">
           <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
             {t(
-              "The website verifies your location and issues claim authorization. Your Agent Wallet submits the transaction, and rewards move directly from the vault to that wallet. The signing key authorizes claims; it is not a withdrawal button. If the key is misused, improper rewards can still be authorized, so signing security remains important. Confirm receipt using the transaction link in this browser's claim history.",
-              "网站验证到场情况并签发领取凭证，由 Agent 钱包提交交易，奖励直接从金库转入该钱包。签名密钥用于批准领取，不是直接提款按钮；若被滥用，仍可能批准不当奖励，因此签名安全依然重要。是否到账，可通过本机领取记录中的交易链接核对。",
+              "The website verifies your location and issues claim authorization. Your Agent Wallet submits the transaction, and rewards move directly from the vault to that wallet. The signing key authorizes claims; it is not a withdrawal button. Confirm receipt using the transaction link in this browser's claim history.",
+              "网站验证到场情况并签发领取凭证，由 Agent 钱包提交交易，奖励直接从金库转入该钱包。签名密钥用于批准领取，不是直接提款按钮。是否到账，可通过本机领取记录中的交易链接核对。",
             )}
           </p>
 

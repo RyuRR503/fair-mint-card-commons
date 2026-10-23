@@ -211,14 +211,6 @@ const CHAPTERS: {
           "每一次领取、每一张凭证、每一笔转账，链上可查，并同步在储备证明页。",
         ],
       },
-      {
-        s: "open",
-        h: ["Claim authorization security", "领取授权安全"],
-        p: [
-          "The signing key authorizes rewards; misuse could authorize improper claims, so its security remains important. This is not a direct owner withdrawal power. The supplied contract revision assigns emergency withdrawals to the Flap Guardian, not the owner; active deployed permissions need on-chain verification.",
-          "签名密钥用于批准奖励领取，若被滥用，可能批准不当领取，因此需要妥善保护。这不等于 Owner 可以直接提走奖池。现有合约资料将紧急提款权限赋予 Flap Guardian，而非 Owner；实际部署权限仍需链上核验。",
-        ],
-      },
     ],
   },
 
