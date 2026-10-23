@@ -736,12 +736,26 @@ async function voucherOnChain(nonce: string, wallet: string): Promise<{ used: bo
   const latest = await chainRpc<string>("eth_blockNumber", []);
   if (!latest) return { used, txHash: null };
   const topics = encodeEventTopics({ abi: VAULT_ABI as never, eventName: "GameRewardClaimed", args: { to: wallet } } as never);
-  const from = BigInt(latest) - 40000n;
-  const logs = await chainRpc<{ data: string; transactionHash: string }[]>("eth_getLogs", [
-    { address: vaultAddress(), topics, fromBlock: `0x${(from > 0n ? from : 0n).toString(16)}`, toBlock: "latest" },
-  ]);
-  const hit = (logs ?? []).find((l) => l.data.length >= 194 && BigInt(`0x${l.data.slice(-64)}`) === BigInt(nonce));
-  return { used, txHash: hit?.transactionHash ?? null };
+  // public nodes cap log ranges, so walk back in 5,000-block windows (about the last few hours)
+  const LOG_RPC = "https://bsc-rpc.publicnode.com";
+  let to = BigInt(latest);
+  for (let i = 0; i < 6 && to > 0n; i++) {
+    const from = to > 4999n ? to - 4999n : 0n;
+    try {
+      const res = await fetch(LOG_RPC, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getLogs", params: [{ address: vaultAddress(), topics, fromBlock: `0x${from.toString(16)}`, toBlock: `0x${to.toString(16)}` }] }),
+      });
+      const logs = ((await res.json()) as { result?: { data: string; transactionHash: string }[] }).result ?? [];
+      const hit = logs.find((l) => l.data.length >= 194 && BigInt(`0x${l.data.slice(-64)}`) === BigInt(nonce));
+      if (hit) return { used, txHash: hit.transactionHash };
+    } catch {
+      break;
+    }
+    to = from - 1n;
+  }
+  return { used, txHash: null };
 }
 
 /** The site's own view of claim codes it issued on this device: did the AI claim yet? */
