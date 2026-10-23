@@ -69,14 +69,12 @@ function AppMap() {
   const { lang } = useLang();
   const fetchSpawns = useServerFn(getSpawns);
   const requestClaim = useServerFn(claimDrop);
-  const [wallet, setWallet] = useState("");
   const [busy, setBusy] = useState(false);
   const [claimError, setClaimError] = useState<{ en: string; zh: string } | null>(null);
   const [copied, setCopied] = useState(false);
-  const [issued, setIssued] = useState<null | { spawnId: string; vault: string; inputData: string; amount: number; symbol: string; place: string; deadline: number; chainId: number; wallet: string }>(null);
+  const [issued, setIssued] = useState<null | { spawnId: string; code: string; amount: number; symbol: string; place: string; deadline: number; chainId: number }>(null);
   const [testMode, setTestMode] = useState(false);
   useEffect(() => {
-    setWallet(localStorage.getItem("catch.agentWallet") ?? "");
     setTestMode(isPreviewHost(window.location.host));
   }, []);
 
@@ -182,16 +180,13 @@ function AppMap() {
   const active = nearby.find((s) => s.id === selected) ?? null;
   const radius = fix ? catchRadius(fix.accuracy) : RULES.baseRadiusM;
   const inRange = !!(active && fix && (active.distance ?? Infinity) <= radius);
-  const walletOk = /^0x[a-fA-F0-9]{40}$/.test(wallet.trim());
-  const command = issued && issued.spawnId === active?.id ? buildAgentCommand({ lang: lang === "zh" ? "zh" : "en", ...issued }) : null;
+  const command = issued && issued.spawnId === active?.id ? buildAgentCommand({ lang: lang === "zh" ? "zh" : "en", api: `${window.location.origin}/api/public/agent-claim`, ...issued }) : null;
 
   async function getCommand() {
-    if (!active || !fix || !walletOk) return;
+    if (!active || !fix) return;
     setBusy(true);
     setClaimError(null);
     setCopied(false);
-    const address = wallet.trim();
-    localStorage.setItem("catch.agentWallet", address);
     let deviceId = localStorage.getItem("catch.deviceId");
     if (!deviceId) {
       deviceId = crypto.randomUUID();
@@ -200,7 +195,6 @@ function AppMap() {
     try {
       const r = await requestClaim({
         data: {
-          address,
           spawnId: active.id,
           lat: fix.lat,
           lng: fix.lng,
@@ -212,9 +206,7 @@ function AppMap() {
         },
       });
       if (!r.ok) setClaimError({ en: r.error, zh: r.errorZh ?? r.error });
-      else if (!r.inputData) setClaimError({ en: "Live claims are not switched on yet.", zh: "真实领取尚未开启。" });
-      else
-        setIssued({ spawnId: active.id, vault: r.contract, inputData: r.inputData, amount: r.spawn.amount, symbol: r.spawn.symbol, place: r.spawn.place, deadline: r.voucher.deadline, chainId: r.chainId, wallet: address });
+      else setIssued({ spawnId: active.id, code: r.code, amount: r.spawn.amount, symbol: r.spawn.symbol, place: r.spawn.place, deadline: r.expiresAt, chainId: r.chainId });
     } catch {
       setClaimError({ en: "Could not reach the claim server. Try again.", zh: "无法连接领取服务，请重试。" });
     } finally {
@@ -303,8 +295,8 @@ function AppMap() {
             <p className="mt-3 text-sm">{t("Binance Agentic Wallet", "币安 Agent AI 钱包")}</p>
             <ol className="mt-3 space-y-1.5 text-xs text-muted-foreground">
               <li>{t("1. Walk to a live point and enable location.", "1. 走到开放中的点位，开启定位。")}</li>
-              <li>{t("2. Keep the page open 20 s, enter your Agent Wallet address, get the command.", "2. 保持页面 20 秒，填写 Agent 钱包地址，获取指令。")}</li>
-              <li>{t("3. Paste it to your AI. It previews, you confirm, it claims on BSC.", "3. 把指令发给 AI：先预览，你确认后它在 BSC 上领取。")}</li>
+              <li>{t("2. Keep the page open 20 s, then get the claim code.", "2. 保持页面 20 秒，获取领取码。")}</li>
+              <li>{t("3. Paste the instruction to your AI. It adds its own wallet, previews, and claims on BSC after you confirm.", "3. 把指令发给 AI：它自动带上自己的钱包地址，先预览，你确认后在 BSC 上领取。")}</li>
             </ol>
             <p className="mt-3 text-xs text-muted-foreground">{t("The vault only pays wallets holding a Binance Agent ID, and only to themselves.", "金库只向持有币安 Agent ID 的钱包付款，且只能领给自己。")}</p>
             <Link to="/agent-guide" className="mt-3 inline-block text-xs text-primary underline">{t("First time? Set up your Agent Wallet →", "第一次用？查看 Agent 钱包设置教程 →")}</Link>
@@ -361,16 +353,14 @@ function AppMap() {
                     <MapPinIcon />{t("Test: put me at this point", "测试：把我的位置设到这个点位")}
                   </Button>
                 )}
-                <label className="mt-4 block text-xs text-muted-foreground" htmlFor="agent-wallet">{t("Your Agent Wallet address", "你的 Agent 钱包地址")}</label>
-                <Input id="agent-wallet" value={wallet} onChange={(e) => setWallet(e.target.value)} placeholder="0x…" className="mt-1 font-mono text-xs" autoComplete="off" spellCheck={false} />
-                <Button
-                  disabled={busy || !fix || !walletOk || claimEligibility(active.rarity, "agent") !== "ready"}
+<Button
+                  disabled={busy || !fix || claimEligibility(active.rarity, "agent") !== "ready"}
                   onClick={getCommand}
-                  className="mt-3 w-full"
+                  className="mt-4 w-full"
                 >
-                  <Bot />{busy ? t("Verifying location…", "正在校验定位…") : t("Get Agent command", "获取 Agent 指令")}
+                  <Bot />{busy ? t("Verifying location…", "正在校验定位…") : t("Get claim code", "获取领取码")}
                 </Button>
-                <p className="mt-2 text-xs text-muted-foreground">{!fix ? t("Enable location first and keep this page open for 20 seconds.", "请先开启定位，并保持页面打开 20 秒。") : !walletOk ? t("Enter the address of your Binance Agent Wallet. Only that wallet can use the command.", "请填写你的币安 Agent 钱包地址，指令只能由这个钱包使用。") : inRange ? t("You are in range. Get the command, then send it to your AI.", "你已在领取范围内。获取指令后发给你的 AI 即可。") : t("Walk closer to the venue. AI cannot replace your presence.", "请走到点位附近；现场定位须由你本人完成。")}</p>
+                <p className="mt-2 text-xs text-muted-foreground">{!fix ? t("Enable location first and keep this page open for 20 seconds.", "请先开启定位，并保持页面打开 20 秒。") : inRange ? t("You are in range. Get the code and paste the whole instruction to your AI.", "你已在领取范围内。获取领取码后，把整段指令发给你的 AI 即可。") : t("Walk closer to the venue. AI cannot replace your presence.", "请走到点位附近；现场定位须由你本人完成。")}</p>
                 {claimError && <p role="alert" className="mt-2 text-xs text-destructive">{lang === "zh" ? claimError.zh : claimError.en}</p>}
                 {command && (
                   <div className="mt-3 space-y-2">
@@ -378,7 +368,7 @@ function AppMap() {
                       <code className="max-h-48 flex-1 overflow-y-auto whitespace-pre-wrap break-all font-mono text-[11px] leading-relaxed text-primary">{command}</code>
                       <Button variant="ghost" size="icon" onClick={copyCommand} aria-label={t("Copy Agent command", "复制 Agent 指令")}>{copied ? <Check /> : <Copy />}</Button>
                     </div>
-                    <p role="status" className="text-xs text-muted-foreground">{copied ? t("Copied. Paste it to your AI; it previews first, then executes after you confirm.", "已复制。发给你的 AI，它会先预览，你确认后再执行。") : t(`Valid for ${RULES.voucherTtlMin} minutes, single use.`, `${RULES.voucherTtlMin} 分钟内有效，只能用一次。`)}</p>
+                    <p role="status" className="text-xs text-muted-foreground">{copied ? t("Copied. Paste it to your AI; it previews first, then executes after you confirm.", "已复制。发给你的 AI，它会先预览，你确认后再执行。") : t(`Valid for ${RULES.voucherTtlMin} minutes, single use. Don't share it — whoever's AI uses it first gets the reward.`, `${RULES.voucherTtlMin} 分钟内有效，只能用一次。请勿外传，谁的 AI 先用就归谁。`)}</p>
                   </div>
                 )}
               </>
