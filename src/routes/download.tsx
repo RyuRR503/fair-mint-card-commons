@@ -27,10 +27,10 @@ function Download() {
     <>
       <Section hero
         eyebrow={t("get the app", "下载客户端")}
-        title={t("The map fits in a pocket.", "把地图装进口袋。")}
+        title={t("Access CATCH on your device", "选择适合您的访问方式")}
         lead={t(
           "Use your phone for the map and GPS. The planned claim step happens in your AI’s Agent Wallet, not through a browser wallet button.",
-          "手机负责地图与定位，计划中的领取由 AI 的 Agent 钱包完成，而不是在网页里连接普通钱包直接领取。",
+          "当前可通过手机浏览地图与预览领取流程。按规划，用户完成现场定位验证后，由 AI 通过 Agent 钱包提交领取，普通钱包不具备领取资格。",
         )}
         className="mt-10"
       />
@@ -49,7 +49,7 @@ function Download() {
               to="/app"
               className="label-caps mt-5 inline-block rounded-md bg-primary px-6 py-3 text-xs text-primary-foreground shadow-[var(--shadow-glossy)]"
             >
-              {t("APK soon — open the web app", "APK 即将发布 · 先用网页版")}
+              {t("APK soon — open the web app", "客户端测试中 · 浏览网页版")}
             </Link>
 
           </Panel>
@@ -72,8 +72,8 @@ function Download() {
             <h3 className="text-lg">{t("Desktop", "桌面端")}</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               {t(
-                "You can browse the whole world map and the vault from a laptop. You cannot catch anything — the accuracy check will refuse a wifi fix, on purpose.",
-                "你可以在电脑上浏览整张世界地图和金库，但抓不到任何东西——精度校验会主动拒绝 Wi-Fi 定位。",
+                "Desktop users can browse locations and vault information. The claim rules require accurate on-site location verification; browsing alone does not establish eligibility.",
+                "桌面端可浏览点位地图与金库信息。按领取规则，用户须在现场完成高精度定位验证；电脑端浏览不代表具备领取资格。",
               )}
             </p>
             <Link
@@ -86,14 +86,14 @@ function Download() {
         </div>
       </Section>
 
-      <Section title={t("Permissions we ask for, and why", "我们申请哪些权限，为什么")}>
+      <Section title={t("Permissions we ask for, and why", "权限用途说明")}>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {[
             [
               t("Precise location", "精确定位"),
               t(
                 "The whole game. Coarse location is refused because it cannot tell a door from a block.",
-                "游戏的全部。粗略定位会被拒绝，因为它分不清一扇门和一整个街区。",
+                "用于识别用户与指定点位的距离。粗略定位无法准确区分具体场所，不满足现场验证要求。",
               ),
             ],
             [
@@ -104,17 +104,17 @@ function Download() {
               ),
             ],
             [
-              t("Nothing else", "别的都不要"),
+              t("Nothing else", "其他权限"),
               t(
                 "No contacts, no photos, no ad id. The app has no account, only a wallet.",
-                "不要通讯录、不要相册、不要广告标识。没有账号体系，只有钱包。",
+                "不申请通讯录、相册与广告标识权限。领取身份以符合资格的 Agent 钱包为依据。",
               ),
             ],
             [
-              t("What we store", "我们存什么"),
+              t("What we store", "数据存储范围"),
               t(
                 "Your position log for the anti-cheat window, your catches, and your wallet address. That is the list.",
-                "反作弊时间窗内的定位日志、你的领取记录、你的钱包地址。就这些。",
+                "存储范围包括反作弊时间窗内的定位日志、领取记录与钱包地址。",
               ),
             ],
           ].map(([h, p]) => (

@@ -11,7 +11,7 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/legendary")({
   head: () => ({
     meta: [
-      { title: "CATCH — The legendary drop — one whole share, one place, one winner" },
+      { title: "CATCH — 传奇活动与限时领取规则" },
       {
         name: "description",
         content:
@@ -83,10 +83,10 @@ function Legendary() {
     <>
       <Section hero
         eyebrow={t("the legendary", "传奇掉落")}
-        title={t("One whole share. One place. One winner.", "一整股。一个地点。一个赢家。")}
+        title={t("Legendary event: one full share", "传奇活动：一整股限时领取")}
         lead={t(
-          "Fragments are the everyday loot. Every single day, one full SPCXB share sits at exactly one spot for 120 minutes.",
-          "碎片是日常掉落。而每一天，都有一整股 SPCXB 停在某个确切地点，开放 120 分钟。",
+          "Under the planned rules, a daily legendary event offers one full SPCXB share at a designated location for 120 minutes. Live Agent claims are not available yet.",
+          "按计划规则，传奇活动每日在指定地点投放一整股 SPCXB，开放 120 分钟。真实 Agent 领取功能尚未开放。",
 
         )}
         className="mt-10"
@@ -155,21 +155,21 @@ function Legendary() {
               t("24 hours notice", "提前 24 小时公布"),
               t(
                 "The exact spot and the exact minute go public a day early. Everybody gets the same head start.",
-                "确切地点和确切时间提前一天公开，所有人起跑线相同。",
+                "活动地点与开始时间提前 24 小时公开，便于用户安排参与。",
               ),
             ],
             [
               t(`${LEGENDARY_RADIUS_M} metre radius`, `${LEGENDARY_RADIUS_M} 米半径`),
               t(
                 "Tighter than a normal signal. You have to be at the spot, not near it.",
-                "比普通信号更严格。你必须站在点上，而不是附近。",
+                "传奇活动采用更严格的距离要求，用户须进入指定点位的验证范围。",
               ),
             ],
             [
               t("Stricter GPS check", "更严格的定位校验"),
               t(
                 "No venue code is needed. After stricter GPS checks, the planned flow issues an AI command for the Agent Wallet.",
-                "无需现场验证码。真人到场通过更严格的定位后，接通时会取得 AI 指令，交由 Agent 钱包领取。",
+                "无需现场验证码。接入完成后，用户抵达现场并通过定位验证，即可获取一次性指令，由 Agent 钱包提交领取。",
               ),
             ],
             [

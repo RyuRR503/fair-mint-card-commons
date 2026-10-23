@@ -15,7 +15,7 @@ export const Route = createFileRoute("/docs")({
           "The vault contract interface, the claim endpoints, the spawn rules, the token list and the fee split, on BNB Smart Chain.",
       },
       { property: "og:title", content: "CATCH docs" },
-      { property: "og:description", content: "Everything an integrator or a sceptic needs." },
+      { property: "og:description", content: "CATCH vault interfaces, token parameters and planned Agent-only claim rules. Live Agent integration is pending." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -41,7 +41,7 @@ function Docs() {
     <>
       <Section hero
         eyebrow={tr("docs", "文档")}
-        title={tr("The whole machine, written down.", "整台机器，全部写下来。")}
+        title={tr("CATCH interfaces and operating rules", "CATCH 接口与运行规则")}
         lead={tr(
           "Current vault interfaces and planned Agent claim rules are documented separately. The Agent integration is not connected.",
           "这里区分现有金库接口与计划中的 Agent 领取规则。Agent 真实接入尚未完成，页面展示不代表链上已限制普通钱包。",
@@ -52,8 +52,8 @@ function Docs() {
       <section className="mx-auto max-w-6xl px-5 py-6"><AgentStatus /></section>
       <Section title={tr("Agent-only claims · planned", "Agent 专属领取 · 计划规则")}>
         <div className="grid gap-6 border-b border-border py-6 md:grid-cols-2">
-          <div><h3 className="text-lg">{tr("Every fragment requires an Agent Wallet", "任何碎片都必须由 Agent 钱包领取")}</h3><p className="mt-3 text-sm text-muted-foreground">{tr("Common, rare, epic and legendary all follow the same rule. Ordinary wallets cannot claim. Intended flow: phone GPS → single-use 15-minute command → AI → Binance Agentic Wallet submits on BSC.", "普通、稀有、史诗、传奇全部采用同一规则，普通钱包不能领。计划流程：手机 GPS → 一次性 15 分钟指令 → AI → 币安 Agent 钱包提交 BSC 领取。")}</p></div>
-          <div><h3 className="text-lg">{tr("Not implemented in the current contract", "现有合约尚未加入这项限制")}</h3><p className="mt-3 text-sm text-muted-foreground">{tr("Agent identity verification, command issuance and wallet submission still require implementation. The existing voucher interface below permits relaying; it is not proof of Agent-only enforcement. This preview does not call it to claim.", "Agent 身份验证、指令签发和钱包提交仍需实现。下方现有凭证接口允许代交，并不代表已经实现 Agent 专属限制。本预览不会调用它领奖。")}</p></div>
+          <div><h3 className="text-lg">{tr("Every fragment requires an Agent Wallet", "任何碎片都必须由 Agent 钱包领取")}</h3><p className="mt-3 text-sm text-muted-foreground">{tr("Common, rare, epic and legendary all follow the same rule. Ordinary wallets cannot claim. Intended flow: phone GPS → single-use 15-minute command → AI → Binance Agentic Wallet submits on BSC.", "普通、稀有、史诗、传奇全部采用同一规则，普通钱包不具备领取资格。计划流程：手机 GPS → 一次性 15 分钟指令 → AI → 币安 Agent 钱包提交 BSC 领取。")}</p></div>
+          <div><h3 className="text-lg">{tr("Not implemented in the current contract", "现有合约尚未加入这项限制")}</h3><p className="mt-3 text-sm text-muted-foreground">{tr("Agent identity verification, command issuance and wallet submission still require implementation. The existing voucher interface below permits relaying; it is not proof of Agent-only enforcement. This preview does not call it to claim.", "Agent 身份验证、指令签发和钱包提交仍需实现。下方现有凭证接口允许代交，并不代表已经实现 Agent 专属限制。当前预览不调用该接口发起领取。")}</p></div>
         </div>
       </Section>
       <Section title={tr("Coverage", "覆盖范围")}>
@@ -73,18 +73,18 @@ function Docs() {
             </p>
           </Panel>
           <Panel>
-            <p className="label-caps text-[10px] text-muted-foreground">{tr("Permanent drops", "永久掉落点")}</p>
+            <p className="label-caps text-[10px] text-muted-foreground">{tr("Permanent drops", "固定点位")}</p>
             <p className="mt-2 font-display text-4xl">{totalSpawns.toLocaleString()}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {tr("Each one sleeps after a catch and respawns automatically.", "每个点位被捡走后会进入冷却，时间一到自动复活。")}
+              {tr("Each one sleeps after a catch and respawns automatically.", "点位完成领取后进入冷却，结束后按规则重新开放。")}
             </p>
           </Panel>
         </div>
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "Think of it like a nationwide scavenger hunt with 938 fixed coordinates. Beijing has 67 drops, Shanghai 63, Shenzhen 59, and Chengdu 56. Smaller cities still have dozens: a 24-hour trip can cover banks in Beijing, internet cafés in Chengdu, and Tesla chargers in Shenzhen. The numbers are not decoration — they come from OpenStreetMap and are written into the database as real latitude and longitude.",
-              "可以理解为一场覆盖全国 938 个固定坐标的寻宝。北京有 67 个掉落点，上海 63 个，深圳 59 个，成都 56 个；小一些的城市也有几十个：24 小时内你可以在北京的银行、成都的网吧、深圳的超充站之间切换。这些数字不是装饰，全部来自 OpenStreetMap，以真实经纬度写进数据库。",
+              "The location dataset contains 938 fixed coordinates across China: 67 in Beijing, 63 in Shanghai, 59 in Shenzhen and 56 in Chengdu. Venues include banks, internet cafés and superchargers, based on OpenStreetMap coordinates. Claims remain subject to travel and timing checks.",
+              "当前点位数据覆盖全国 938 个固定坐标，其中北京 67 个、上海 63 个、深圳 59 个、成都 56 个。点位包括银行、网吧与超充站等真实场所，依据 OpenStreetMap 经纬度数据建立。参与领取仍须遵守移动轨迹与时间限制。",
             )}
           </p>
         </Panel>
@@ -147,7 +147,7 @@ function refillViaSwap(uint8 district, uint256 bnbIn, uint256 callerMinOut) exte
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {tr(
                   "You visit an Apple store with your phone. Once the integration is ready and GPS checks pass, a command bound to your Agent recipient is issued. Your AI submits the claim through its Agent Wallet. Today this is a design example, not a live payout.",
-                  "你带手机走到 Apple 店。接通后，GPS 通过才会得到绑定 Agent 收款钱包的指令，再由 AI 使用 Agent 钱包提交领取。目前只是设计例子，并非真实发放。",
+                  "以 Apple 门店为例，接入完成后，用户通过现场定位验证，可获取绑定 Agent 收款钱包的一次性指令，由 AI 使用 Agent 钱包提交领取。当前仅为规划示例，尚未开放真实发放。",
                 )}
               </p>
             </Panel>
@@ -197,12 +197,12 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         </Panel>
       </Section>
 
-      <Section title={tr("How rarity works", "稀有度是怎么划分的")}>
+      <Section title={tr("How rarity works", "稀有度划分依据")}>
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
               "Rarity is a property of the token, not the number of pins. It decides three things: how long a point sleeps after a catch, how dense its venues are, and how much a single catch is worth. Value rises with rarity — a common catch is worth about $2, a rare one about $3.5, an epic one about $5.5, and the legendary SPCXB pays one whole share (about $150). QQQB (banks) is common: banks are everywhere, they respawn in 20 minutes, and each catch is a modest slice. AAPLB (Apple stores) is epic: fewer doors, 90 minutes of cooldown, and a catch worth almost three times a common one.",
-              "稀有度是代币本身的属性，不是地图上点位的数量。它决定三件事：点位冷却多久、门店密度多大、以及单次抓取值多少钱。价值随稀有度递增——普通约 $2，稀有约 $3.5，史诗约 $5.5，传奇 SPCXB 是 1 整股（约 $150）。QQQB（银行）是普通：网点到处都是、20 分钟复活、单次价值较小；AAPLB（Apple 店）是史诗：门店少、90 分钟冷却、单次价值差不多是普通的三倍。",
+              "稀有度是代币本身的属性，不是地图上点位的数量。它决定三件事：点位冷却多久、门店密度多大、以及单次领取的参考价值。价值随稀有度递增——普通约 $2，稀有约 $3.5，史诗约 $5.5，传奇 SPCXB 是 1 整股（约 $150）。QQQB（银行）是普通：网点分布广、20 分钟冷却、单次价值较小；AAPLB（Apple 店）是史诗：门店少、90 分钟冷却、单次参考价值约为普通的三倍。",
             )}
           </p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -262,16 +262,16 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         <p className="mt-4 text-sm text-muted-foreground">
           {tr(
             `Agent Wallet caps (planned): ${RULES.perWalletPerDay} catches per day, ${RULES.walletCooldownMin} minutes between catches, and the same signal cannot be caught twice within 24 hours. Site-wide, payouts are capped at $${RULES.hourlyUsdCap} per rolling hour, valued at live Chainlink quotes — when the budget is spent, claims pause until the window refills.`,
-            `钱包限制：每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，两次捕捉间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复捕捉。全站层面，每个滚动小时的发放总额封顶 $${RULES.hourlyUsdCap}（按 Chainlink 实时报价折算）——预算用完即暂停，窗口滚动后自动恢复。`,
+            `计划中的钱包限制：每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，两次领取间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复领取。全站层面，每个滚动小时的发放总额封顶 $${RULES.hourlyUsdCap}（按 Chainlink 实时报价折算）——预算用完即暂停，窗口滚动后自动恢复。`,
           )}
         </p>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <Panel>
-            <h3 className="label-caps text-[11px] text-primary">{tr("A day of catching", "一天能抓多少")}</h3>
+            <h3 className="label-caps text-[11px] text-primary">{tr("A day of catching", "每日领取示例")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {tr(
                 `Imagine you are in Shanghai. At 9:00 you catch a bank drop (QQQB, 20-minute cooldown). At 11:00 you catch an internet café (NVDAB). At 14:00 you hit a Tesla charger (TSLAB, 45-minute cooldown). By 18:00 you have used ${RULES.perWalletPerDay} of your ${RULES.perWalletPerDay} daily catches. The same Apple store cannot be used again until tomorrow, but other Apple stores are still live.`,
-                `假设你在上海。9:00 抓了一个银行网点（QQQB，20 分钟冷却）；11:00 抓了一个网吧（NVDAB）；14:00 抓了一个特斯拉超充站（TSLAB，45 分钟冷却）。到 18:00 你已经用完当天 ${RULES.perWalletPerDay} 次机会。同一个 Apple 店明天才能再抓，但别的 Apple 店仍然有效。`,
+                `假设你在上海。9:00 在银行网点领取（QQQB，20 分钟冷却）；11:00 在网吧领取（NVDAB）；14:00 在特斯拉超充站领取（TSLAB，45 分钟冷却）。到 18:00 你已经用完当天 ${RULES.perWalletPerDay} 次机会。同一 Apple 门店在 24 小时内不可重复领取；其他门店仍须满足领取规则。`,
               )}
             </p>
           </Panel>
@@ -280,7 +280,7 @@ POST early-access    { email, kind, city?, company? }`}</Code>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {tr(
                 `The site pays out at most $${RULES.hourlyUsdCap} worth of fragments every rolling hour. If the first ${RULES.perWalletPerDay} people in Beijing each claim $5 in a 10-minute window, the remaining 50 minutes pause until the hour rolls forward. This protects the prize pool from bursts, not from normal use.`,
-                `全站每小时滚动发放不超过 $${RULES.hourlyUsdCap}。如果北京前 ${RULES.perWalletPerDay} 个人在 10 分钟内各领走约 $5，剩下 50 分钟会暂停发放，直到滚动窗口推进。这是防突发，不是防正常玩家。`,
+                `全站每小时滚动发放不超过 $${RULES.hourlyUsdCap}。如果北京前 ${RULES.perWalletPerDay} 个人在 10 分钟内各领走约 $5，剩下 50 分钟会暂停发放，直到滚动窗口推进。该限制用于控制短时间集中发放对奖池的影响。`,
               )}
             </p>
           </Panel>
@@ -292,7 +292,7 @@ POST early-access    { email, kind, city?, company? }`}</Code>
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
               "Every token has one fixed fragment size — the same amount at every pin on the map. The vault aims to keep 25 payable catches per token in stock (2 for the legendary SPCXB). Trading tax arrives as BNB, 10% goes to operations, and the rest is split evenly across the nine districts. Restocking has one road: refillViaSwap — anyone can trigger a PancakeSwap V3/V2 swap of a district's BNB into its bStocks token, guarded by a price ruler — Chainlink, or a 30-minute PancakeSwap TWAP for SPYB/QQQB (max 10% worse, max 2 BNB per swap). Every token bought goes 100% into the map prize pool — player claims use signatures, while the owner retains full withdrawal permissions.",
-              "每种代币的碎片大小固定，地图上所有同类点位数量一致。金库为每种代币维持 25 次可领取库存（传奇 SPCXB 为 2 次）。交易税以 BNB 流入，10% 归运营，其余平均分到九个区。补货只有一条路：refillViaSwap——任何人都能触发，金库把该区 BNB 在 PancakeSwap V3/V2 上换成 bStocks，有参考价把关——Chainlink，SPYB/QQQB 用 PancakeSwap 30 分钟平均价（比参考价差超过 10% 就拒绝，单笔最多 2 BNB）。买入的代币 100% 进入地图奖池——玩家通过签名领取；owner 仍保留全部提款权限。",
+              "每种代币的碎片大小固定，地图上所有同类点位数量一致。金库为每种代币维持 25 次可领取库存（传奇 SPCXB 为 2 次）。交易税以 BNB 流入，10% 归运营，其余平均分到九个区。补货只有一条路：refillViaSwap——任何人都能触发，金库把该区 BNB 在 PancakeSwap V3/V2 上换成 bStocks，有参考价格校验——Chainlink，SPYB/QQQB 用 PancakeSwap 30 分钟平均价（比参考价差超过 10% 就拒绝，单笔最多 2 BNB）。买入的代币 100% 进入地图奖池——玩家通过签名领取；owner 仍保留全部提款权限。",
             )}
           </p>
         </Panel>
@@ -329,7 +329,7 @@ POST early-access    { email, kind, city?, company? }`}</Code>
           <Link to="/proof" className="text-primary underline underline-offset-4">
             {tr("The proof page", "储备证明页")}
           </Link>{" "}
-          {tr("always shows what is really there.", "永远显示真实存在的东西。")}
+          {tr("reports inventory and data sources; actual reserves must be verified on-chain.", "展示库存及其数据来源，实际储备以链上余额为准。")}
         </p>
       </Section>
 
