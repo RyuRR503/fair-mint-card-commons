@@ -1,4 +1,6 @@
 # Roadmap
+- [x] Animate the shared CATCH lettering as five individual letters with a staggered rise-in and a masked gold sheen sweep; verify sweep travel, pause toggle, reduced motion, coming-soon sizing and build OK.
+
 - [x] Explain device-based claim records and recipient wallets; simplify restocking and inventory-based rollout copy; correct Owner versus Guardian withdrawal assertions; verify four pages and thirteen existing tests (no new payout submitted).
 - [x] Clarify current per-claim reward targets and future updates; complete genuine stock/ETF brand marks and verify shared rendering on homepage/rules pages, with seven allocation tests passing.
 - [x] Apply the newly uploaded single-row CATCH logo to the header and browser favicon; verify displayed assets and build OK.
