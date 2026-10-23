@@ -83,6 +83,45 @@ export type Database = {
         }
         Relationships: []
       }
+      claim_codes: {
+        Row: {
+          accuracy: number
+          code: string
+          created_at: string
+          device_id: string
+          expires_at: string
+          lat: number
+          lng: number
+          spawn_id: string
+          used_at: string | null
+          wallet: string | null
+        }
+        Insert: {
+          accuracy: number
+          code: string
+          created_at?: string
+          device_id: string
+          expires_at: string
+          lat: number
+          lng: number
+          spawn_id: string
+          used_at?: string | null
+          wallet?: string | null
+        }
+        Update: {
+          accuracy?: number
+          code?: string
+          created_at?: string
+          device_id?: string
+          expires_at?: string
+          lat?: number
+          lng?: number
+          spawn_id?: string
+          used_at?: string | null
+          wallet?: string | null
+        }
+        Relationships: []
+      }
       legendary_events: {
         Row: {
           amount: number
