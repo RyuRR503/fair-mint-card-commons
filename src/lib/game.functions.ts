@@ -377,25 +377,26 @@ export const claimDrop = createServerFn({ method: "POST" })
     if (data.samples.length < RULES.minFixSamples)
       return fail(
         `Keep the app open for ${RULES.minFixSeconds} seconds first — we need at least ${RULES.minFixSamples} readings behind your fix.`,
+        `请先保持页面打开 ${RULES.minFixSeconds} 秒，至少需要 ${RULES.minFixSamples} 次定位采样。`,
       );
     const span =
       (Math.max(...data.samples.map((s) => s[3])) -
         Math.min(...data.samples.map((s) => s[3]))) /
       1000;
     if (span < RULES.minFixSeconds - 2)
-      return fail(`Your GPS log only covers ${Math.round(span)} s. Stand still for 20 seconds.`);
+      return fail(`Your GPS log only covers ${Math.round(span)} s. Stand still for 20 seconds.`, `定位记录只有 ${Math.round(span)} 秒，请原地停留 20 秒。`);
     const jitter = Math.max(
       ...data.samples.map((s) => haversine(s[0], s[1], data.lat, data.lng)),
     );
     const accSet = new Set(data.samples.map((s) => Math.round(s[2] * 10)));
     if (jitter < 0.3 || accSet.size < 2)
-      return fail("That position does not move like a real GPS chipset. Mock locations are refused.");
+      return fail("That position does not move like a real GPS chipset. Mock locations are refused.", "定位数据不像真实手机 GPS，模拟定位无法领取。");
     if (distance < 0.5)
-      return fail("Your fix lands on the pin to the centimetre. No phone does that.");
+      return fail("Your fix lands on the pin to the centimetre. No phone does that.", "定位与点位完全重合，不像真实手机定位。");
 
     // 3. motion: emulators sit perfectly still
     if (data.motion === 0)
-      return fail("No motion at all from the device. Hold the phone in your hand and try again.");
+      return fail("No motion at all from the device. Hold the phone in your hand and try again.", "未检测到手机晃动，请拿着手机再试一次。");
 
     const db = await admin();
     const now = Date.now();
@@ -409,15 +410,16 @@ export const claimDrop = createServerFn({ method: "POST" })
       .gte("created_at", dayAgo);
     const mine = walletDay ?? [];
     if (mine.length >= RULES.perWalletPerDay)
-      return fail(`You have caught ${RULES.perWalletPerDay} drops today. Come back after midnight UTC.`);
+      return fail(`You have caught ${RULES.perWalletPerDay} drops today. Come back after midnight UTC.`, `今天已领 ${RULES.perWalletPerDay} 次，明天早上 8 点（北京时间）后再来。`);
     if (mine.some((c) => c.spawn_id === data.spawnId))
-      return fail("You already caught this drop in the last 24 hours. Find another one.");
+      return fail("You already caught this drop in the last 24 hours. Find another one.", "24 小时内已领过这个点位，换一个吧。");
     const lastMine = mine
       .map((c) => new Date(c.created_at).getTime())
       .sort((a, b) => b - a)[0];
     if (lastMine && now - lastMine < RULES.walletCooldownMin * 60000)
       return fail(
         `Cooldown: ${Math.ceil((RULES.walletCooldownMin * 60000 - (now - lastMine)) / 60000)} minutes before your next catch.`,
+        `冷却中：还需 ${Math.ceil((RULES.walletCooldownMin * 60000 - (now - lastMine)) / 60000)} 分钟才能再领。`,
       );
 
     // the drop's own cooldown is authoritative and was checked above (respawn_at)
@@ -452,6 +454,7 @@ export const claimDrop = createServerFn({ method: "POST" })
       if (!unknown && spentUsd + thisUsd > RULES.hourlyUsdCap)
         return fail(
           "This hour's prize budget is used up. New budget unlocks within the hour — try again soon.",
+          "本小时奖励额度已用完，一小时内会恢复，请稍后再试。",
         );
     }
 
@@ -471,18 +474,18 @@ export const claimDrop = createServerFn({ method: "POST" })
           ? dt * RULES.walkSpeedMs
           : dt * 250 + RULES.airportMinutes * 60 * 250;
       if (dist > allowed)
-        return fail("That is further than anybody could have travelled since your last fix.");
+        return fail("That is further than anybody could have travelled since your last fix.", "和上次定位相比移动距离不合理。");
       if (
         last.city !== spawn.city &&
         now - new Date(last.created_at).getTime() < 3600_000
       )
-        return fail("Two different cities inside one hour. Not on this device.");
+        return fail("Two different cities inside one hour. Not on this device.", "一小时内出现在两个城市，无法领取。");
     }
 
     // 6. device clock vs the timezone of where you claim to stand
     const expectedOffset = (spawn.lng / 15) * 60;
     if (Math.abs(-data.tzOffsetMin - expectedOffset) > RULES.clockSkewHours * 60)
-      return fail("Your device clock does not match the timezone of that place.");
+      return fail("Your device clock does not match the timezone of that place.", "手机时区与点位所在地不符。");
 
     // record the fix, then the catch
     await db.from("position_log").insert({
@@ -549,7 +552,7 @@ export const claimDrop = createServerFn({ method: "POST" })
           },
         });
       } catch (e) {
-        return fail("The claim server could not sign your voucher. Nothing was spent.");
+        return fail("The claim server could not sign your voucher. Nothing was spent.", "后台签发凭证失败，未产生任何花费。");
       }
     }
 
