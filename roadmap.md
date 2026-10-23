@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Clarify current per-claim reward targets and future updates; complete genuine stock/ETF brand marks and verify shared rendering.
 - [x] Apply the newly uploaded single-row CATCH logo to the header and browser favicon; verify displayed assets and build OK.
 - [x] Replace the promo's old chart-frame logo with the approved single-row CATCH lettering; inspect full timeline and ending, validate 600 frames and identical audio, deliver v3 in the existing video collection.
 - [x] Preserve the uploaded VaultEx/Trigger contract verbatim, generate matching ABIs with Solidity 0.8.24, and run 13 voucher/interface and Agent-presentation checks; document signer setup and integration gaps without enabling payouts.

@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
 import { Section, Panel } from "@/components/site/Section";
+import { TokenChip } from "@/components/site/TokenChip";
 import { RULES } from "@/lib/game.functions";
 import { CHAIN, COOLDOWN_MIN, TOKENS, RARITY_LABEL, type Rarity } from "@/lib/tokens";
 import { useT } from "@/lib/i18n";
@@ -166,23 +167,23 @@ function HowItWorks() {
         </div>
       </Section>
 
-      <Section title={t("Claim amounts by token", "各类代币的单次领取数量")}>
+      <Section title={t("Current reward standards by token", "各类代币的当前奖励标准")}>
         <Panel className="mt-6 overflow-x-auto p-0 sm:p-0">
           <table className="w-full min-w-[520px] text-left text-sm">
             <thead>
               <tr className="label-caps border-b border-border text-[10px] text-muted-foreground">
                 <th className="px-6 py-4">{t("Token", "代币")}</th>
                 <th className="px-6 py-4">{t("Where you catch it", "领取地点")}</th>
-                <th className="px-6 py-4">{t("Per catch", "单次数量")}</th>
+                <th className="px-6 py-4">{t("Reference value per claim", "单次参考价值")}</th>
                 <th className="px-6 py-4">{t("Vault target", "目标库存")}</th>
               </tr>
             </thead>
             <tbody>
               {TOKENS.map((tk) => (
                 <tr key={tk.symbol} className="border-b border-border/60 last:border-0">
-                  <td className="px-6 py-3 label-caps text-xs">{tk.symbol}</td>
+                  <td className="px-6 py-3 label-caps text-xs"><span className="flex items-center gap-3"><TokenChip symbol={tk.symbol} size={34} />{tk.symbol}</span></td>
                   <td className="px-6 py-3 text-muted-foreground">{t(tk.venue, tk.venueZh)}</td>
-                  <td className="px-6 py-3 font-mono text-xs">≈${TIER_USD[tk.rarity]} {tk.symbol}</td>
+                  <td className="px-6 py-3 font-mono text-xs">≈${TIER_USD[tk.rarity]}{tk.eventOnly && <span className="mt-1 block text-muted-foreground">{t("Not open", "暂未开放")}</span>}</td>
                   <td className="px-6 py-3 font-mono text-xs">
                     {tk.targetDrops} {t("catches", "次")}
                   </td>
@@ -196,8 +197,8 @@ function HowItWorks() {
             <h3 className="label-caps text-[11px] text-primary">{t("Value by rarity, amount by price", "价值按稀有度，数量按实时价格")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "Every point of the same token pays the same amount. Value follows rarity: about $2 a catch for common, $3.5 for rare, $7 for epic and about $150 for the legendary SPCXB; the token amount is converted from the live on-chain price.",
-                "同种代币的所有点位，单次数量相同。价值按稀有度递增：普通约 $2 一次，稀有约 $3.5，史诗约 $7，传奇 SPCXB 约 $150；具体数量按链上实时价格换算。",
+                "Current reward targets are approximately $2 for common, $3.5 for rare and $7 for epic claims. Token amounts are calculated from live on-chain prices, not fixed token quantities. If these targets change, this page and the claim rules will be updated. SPCXB legendary events are not open; the $150 target is reserved for future events.",
+                "目前单次奖励按稀有度设置参考价值：普通约 2 美元、稀有约 3.5 美元、史诗约 7 美元。实际代币数量按链上实时价格换算，并非固定股数。后续如调整奖励标准，本页与领取规则将同步更新。传奇 SPCXB 暂未开放，约 150 美元为后续活动的预设标准。",
               )}
             </p>
 
