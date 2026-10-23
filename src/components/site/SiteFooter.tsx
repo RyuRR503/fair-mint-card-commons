@@ -12,7 +12,7 @@ export function SiteFooter() {
         <div className="flex flex-wrap items-start justify-between gap-8">
           <div className="max-w-sm">
             <div className="flex items-center gap-3">
-              <CatchMark className="h-6" />
+              <CatchMark className="!size-12" />
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
               {t(
