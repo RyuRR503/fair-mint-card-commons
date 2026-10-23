@@ -6,12 +6,13 @@ import { Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
 import { type MapPin } from "@/components/site/WorldMap";
 import { LiveMap } from "@/components/site/LiveMap";
-import type { MapPoint } from "@/components/site/GeoMap.client";
+import type { LegendaryPoint, MapPoint } from "@/components/site/GeoMap.client";
 
-import { claimDrop, getClaimStatus, getSpawns, RULES } from "@/lib/game.functions";
+import { claimDrop, getClaimStatus, getLegendary, getSpawns, RULES } from "@/lib/game.functions";
 import { isPending, type ClaimPhase } from "@/lib/claim-status";
 import { buildAgentCommand } from "@/lib/agent-command";
 import { isPreviewHost } from "@/lib/site-gate";
+import { CITY_BY_KEY } from "@/lib/cities";
 import { Input } from "@/components/ui/input";
 import { catchRadius, formatDistance, haversine } from "@/lib/geo";
 import { CHAIN, RARITY_LABEL, rarityVar, TOKEN_BY_SYMBOL, VAULT_ADDRESS } from "@/lib/tokens";
@@ -111,6 +112,35 @@ function AppMap() {
   const [claimStates, setClaimStates] = useState<Record<string, ClaimState>>({});
   const [celebrate, setCelebrate] = useState<null | { amount: number; symbol: string }>(null);
   const [spawnTick, setSpawnTick] = useState(0);
+
+  /* ------------------------------------------------- next legendary drop */
+  const fetchLegendary = useServerFn(getLegendary);
+  const [legendary, setLegendary] = useState<LegendaryPoint | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetchLegendary()
+      .then((r: { next?: { place: string; city: string; lat: number; lng: number; starts_at: string; duration_min: number } | null }) => {
+        if (!alive) return;
+        const n = r?.next;
+        setLegendary(
+          n
+            ? {
+                id: "legendary-event",
+                place: n.place,
+                city: n.city,
+                lat: n.lat,
+                lng: n.lng,
+                startsAt: n.starts_at,
+                durationMin: n.duration_min,
+              }
+            : null,
+        );
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [fetchLegendary]);
   const fetchStatus = useServerFn(getClaimStatus);
   useEffect(() => setMyClaims(loadMyClaims()), []);
   const [fix, setFix] = useState<Fix | null>(null);
@@ -349,6 +379,7 @@ function AppMap() {
           <LiveMap
             pins={pins}
             points={points}
+            legendary={legendary}
             me={fix ? { lat: fix.lat, lng: fix.lng } : null}
             meRadiusM={radius}
             selected={selected}
@@ -436,7 +467,35 @@ function AppMap() {
 
           <Panel>
             <h2 className="label-caps text-xs text-muted-foreground">{t("Selected signal", "已选点位")}</h2>
-            {active ? (
+            {legendary && selected === legendary.id ? (
+              <>
+                <div className="mt-3 flex items-center gap-3">
+                  <TokenChip symbol="SPCXB" size={54} />
+                  <div>
+                    <p className="font-display text-lg">1 SPCXB</p>
+                    <p className="text-xs text-muted-foreground">
+                      {legendary.place},{" "}
+                      {lang === "zh"
+                        ? CITY_BY_KEY[legendary.city]?.nameZh ?? legendary.city
+                        : CITY_BY_KEY[legendary.city]?.name ?? legendary.city}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {new Date(legendary.startsAt).toLocaleString(lang === "zh" ? "zh-CN" : "en-US")} ·{" "}
+                  {t(`open for ${legendary.durationMin} minutes`, `开放 ${legendary.durationMin} 分钟`)}
+                </p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {t(
+                    "Legendary is a timed event: it has no permanent pins and no map claim code. See the legendary page for the rules.",
+                    "传奇是限时活动：无常驻点位，不使用地图领取码，规则见「传奇活动」页。",
+                  )}
+                </p>
+                <Link to="/legendary" className="mt-3 inline-block text-xs text-primary underline">
+                  {t("Open the legendary page →", "打开传奇活动页 →")}
+                </Link>
+              </>
+            ) : active ? (
               <>
                 <div className="mt-3 flex items-center gap-3">
                   <TokenChip symbol={active.symbol} size={54} />

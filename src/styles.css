@@ -496,6 +496,60 @@ html[lang^="zh"] .label-caps {
   border-color: var(--pin);
 }
 
+/* next legendary drop: one pulsing gold marker */
+.catch-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+.catch-legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--gold);
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--background) 80%, transparent),
+    0 0 12px var(--gold);
+}
+
+.catch-legend-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: var(--gold);
+  background: color-mix(in oklab, var(--card) 88%, transparent);
+  border: 1px solid color-mix(in oklab, var(--gold) 60%, var(--border));
+  border-radius: 4px;
+  padding: 2px 6px;
+  backdrop-filter: blur(6px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .catch-legend-dot {
+    animation: catch-legend-glow 2.4s ease-in-out infinite;
+  }
+
+  @keyframes catch-legend-glow {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 2px color-mix(in oklab, var(--background) 80%, transparent),
+        0 0 8px var(--gold);
+    }
+    50% {
+      box-shadow:
+        0 0 0 2px color-mix(in oklab, var(--background) 80%, transparent),
+        0 0 22px var(--gold);
+    }
+  }
+}
+
 .catch-me {
   width: 16px;
   height: 16px;
