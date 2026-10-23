@@ -895,7 +895,7 @@ html { scroll-padding-top: 90px; }
 .hero-scroll-link:hover svg, .hero-scroll-link:focus-visible svg { transform: translateY(4px); }
 .home-continuum .stock-ticker { margin-top: 16px; opacity: 0.65; }
 .home-continuum .marquee-track { animation-duration: 65s; }
-.home-continuum[data-motion-paused="true"] .marquee-track, .home-continuum[data-motion-paused="true"] .agent-steps li::after, .home-continuum[data-motion-paused="true"] .terminal-caret, .home-continuum[data-motion-paused="true"] .city-signal, .home-continuum[data-motion-paused="true"] .signal-dash { animation-play-state: paused; }
+.home-continuum[data-motion-paused="true"] .marquee-track, .home-continuum[data-motion-paused="true"] .agent-steps li::after, .home-continuum[data-motion-paused="true"] .terminal-caret, .home-continuum[data-motion-paused="true"] .city-signal, .home-continuum[data-motion-paused="true"] .signal-dash, .home-continuum[data-motion-paused="true"] .catch-sheen { animation-play-state: paused; }
 .home-continuum .city-handoff { padding-top: 90px; padding-bottom: 72px; }
 .home-continuum .agent-steps li::after { animation: none; transform: scaleX(0); opacity: 0.55; transition: transform 500ms var(--ease-cine); }
 .home-continuum .agent-steps li:hover::after { transform: scaleX(1); }
