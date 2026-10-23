@@ -305,7 +305,7 @@ const claimInput = z.object({
   tzOffsetMin: z.number().min(-900).max(900).default(0),
 });
 
-type Fail = { ok: false; error: string; errorZh?: string };
+type Fail = { ok: false; error: string; errorZh?: string | undefined };
 type Success = {
   ok: true;
   mode: "demo" | "live";
