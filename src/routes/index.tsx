@@ -95,7 +95,7 @@ function Home() {
               >
                 CATCH.
               </p>
-              <h1 className="mt-5 max-w-xl text-[1.75rem] leading-[1.3] sm:text-[2.5rem]">
+              <h1 className="mt-5 max-w-xl text-balance text-[1.75rem] leading-[1.3] sm:text-[2.5rem]">
                 {t("Walk the city. Catch the market.", "走到街上，把市场装进口袋。")}
               </h1>
               <p className="mt-6 max-w-lg border-l-2 border-primary pl-5 text-sm leading-[1.9] text-foreground/75 sm:text-base">
