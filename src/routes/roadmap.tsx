@@ -44,6 +44,14 @@ const CHAPTERS: {
   items: { s: Status; h: Pair; p: Pair }[];
 }[] = [
   {
+    title: ["Agent-first claims", "Agent 专属领取"],
+    lead: ["Human presence and Agent execution are separate. Live integration is pending.", "真人负责到场，Agent 负责执行。真实接入尚未完成。"],
+    items: [
+      { s: "live", h: ["Flow preview and rules", "流程展示与规则"], p: ["All rarities are intended for Agent Wallets only. Preview does not issue vouchers or tokens.", "所有稀有度均计划仅限 Agent 钱包。预览不签发凭证、不发放代币。"] },
+      { s: "next", h: ["Identity and real commands", "身份验证与真实指令"], p: ["Connect verifiable Agent identity, bind GPS commands to the recipient and implement Agent transaction submission.", "接入可验证的 Agent 身份，绑定定位指令与收款钱包，完成 Agent 交易提交。"] },
+    ],
+  },
+  {
     title: ["The phone", "手机端"],
     lead: [
       "A browser can tell you where you are. A phone can prove you stood there.",
@@ -53,7 +61,7 @@ const CHAPTERS: {
       {
         s: "live",
         h: ["The web app", "网页版"],
-        p: ["Full map, full claim flow, works on any modern browser.", "完整地图、完整领取流程，任何现代浏览器都能用。"],
+        p: ["Map browsing and Agent flow preview. Live Agent claims are not connected.", "可浏览地图与预览 Agent 流程；真实 Agent 领取尚未接通。"],
       },
       {
         s: "building",
@@ -175,8 +183,8 @@ const CHAPTERS: {
         s: "open",
         h: ["Catching with an empty wallet", "空钱包也能领"],
         p: [
-          "The voucher can be relayed by anyone, so we want a public relayer so a wallet with zero BNB still gets paid.",
-          "凭证可以由任何人代为提交，所以我们想做一个公开的代提交服务，让零 BNB 的钱包也能拿到奖励。",
+          "Agent gas sponsorship remains undecided. The intended rules still require Agent identity; ordinary relaying does not qualify.",
+          "Agent Gas 代付尚待确定；领取仍须 Agent 身份，普通钱包代交不等于具备资格。",
         ],
       },
     ],

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { AgentStatus } from "@/components/site/AgentJourney";
 import { Section, Panel } from "@/components/site/Section";
 import { RULES } from "@/lib/game.functions";
 import { CHAIN, TOKENS, VAULT_ADDRESS, COOLDOWN_MIN, RARITY_LABEL, type Rarity } from "@/lib/tokens";
@@ -42,12 +43,19 @@ function Docs() {
         eyebrow={tr("docs", "文档")}
         title={tr("The whole machine, written down.", "整台机器，全部写下来。")}
         lead={tr(
-          "Nothing here needs an account. Everything on this page can be checked against the chain.",
-          "这里不需要任何账号。本页所有内容都可以直接拿去链上核对。",
+          "Current vault interfaces and planned Agent claim rules are documented separately. The Agent integration is not connected.",
+          "这里区分现有金库接口与计划中的 Agent 领取规则。Agent 真实接入尚未完成，页面展示不代表链上已限制普通钱包。",
         )}
         className="mt-10"
       />
 
+      <section className="mx-auto max-w-6xl px-5 py-6"><AgentStatus /></section>
+      <Section title={tr("Agent-only claims · planned", "Agent 专属领取 · 计划规则")}>
+        <div className="grid gap-6 border-b border-border py-6 md:grid-cols-2">
+          <div><h3 className="text-lg">{tr("Every fragment requires an Agent Wallet", "任何碎片都必须由 Agent 钱包领取")}</h3><p className="mt-3 text-sm text-muted-foreground">{tr("Common, rare, epic and legendary all follow the same rule. Ordinary wallets cannot claim. Intended flow: phone GPS → single-use 15-minute command → AI → Binance Agentic Wallet submits on BSC.", "普通、稀有、史诗、传奇全部采用同一规则，普通钱包不能领。计划流程：手机 GPS → 一次性 15 分钟指令 → AI → 币安 Agent 钱包提交 BSC 领取。")}</p></div>
+          <div><h3 className="text-lg">{tr("Not implemented in the current contract", "现有合约尚未加入这项限制")}</h3><p className="mt-3 text-sm text-muted-foreground">{tr("Agent identity verification, command issuance and wallet submission still require implementation. The existing voucher interface below permits relaying; it is not proof of Agent-only enforcement. This preview does not call it to claim.", "Agent 身份验证、指令签发和钱包提交仍需实现。下方现有凭证接口允许代交，并不代表已经实现 Agent 专属限制。本预览不会调用它领奖。")}</p></div>
+        </div>
+      </Section>
       <Section title={tr("Coverage", "覆盖范围")}>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <Panel>
@@ -135,11 +143,11 @@ function refillViaSwap(uint8 district, uint256 bnbIn, uint256 callerMinOut) exte
           function setGameSigner(address signer) external;  // guardian only`}</Code>
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <Panel>
-              <h3 className="label-caps text-[11px] text-primary">{tr("A concrete example", "一个具体例子")}</h3>
+              <h3 className="label-caps text-[11px] text-primary">{tr("Planned Agent example", "计划中的 Agent 例子")}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {tr(
-                  "You stand in front of the Apple store on Shanghai Nanjing East Road. The server checks your GPS, signs a voucher for 0.02 AAPLB, and gives it a 15-minute deadline. You submit it to the contract. The contract checks the signature against the game signer, makes sure the nonce has never been used, and transfers 0.02 AAPLB to your wallet. The server cannot take the money back, and the voucher cannot be reused tomorrow.",
-                  "你站在上海南京东路 Apple 店门口。服务器校验 GPS 后，签发一张 0.02 AAPLB 的凭证，有效期 15 分钟。你把凭证提交给合约，合约用 gameSigner 验签、确认 nonce 没被用过，然后把 0.02 AAPLB 转到你的钱包。服务器拿不回这笔钱，这张凭证明天也不能再用。",
+                  "You visit an Apple store with your phone. Once the integration is ready and GPS checks pass, a command bound to your Agent recipient is issued. Your AI submits the claim through its Agent Wallet. Today this is a design example, not a live payout.",
+                  "你带手机走到 Apple 店。接通后，GPS 通过才会得到绑定 Agent 收款钱包的指令，再由 AI 使用 Agent 钱包提交领取。目前只是设计例子，并非真实发放。",
                 )}
               </p>
             </Panel>
@@ -156,7 +164,7 @@ function refillViaSwap(uint8 district, uint256 bnbIn, uint256 callerMinOut) exte
         </Panel>
       </Section>
 
-      <Section title={tr("Endpoints", "接口")}>
+      <Section title={tr("Existing service interfaces · not an Agent API", "现有服务接口 · 非 Agent 接入接口")}>
         <Panel className="mt-6">
           <Code>{`GET  spawns   { lat, lng, limit? }
      -> { spawns: [{ id, symbol, amount, rarity, city, place, lat, lng }], total }
@@ -253,8 +261,8 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         </Panel>
         <p className="mt-4 text-sm text-muted-foreground">
           {tr(
-            `Wallet caps: ${RULES.perWalletPerDay} catches per day, ${RULES.walletCooldownMin} minutes between catches, and the same signal cannot be caught twice within 24 hours. Site-wide, payouts are capped at $${RULES.hourlyUsdCap} per rolling hour, valued at live Chainlink quotes — when the budget is spent, claims pause until the window refills.`,
-            `钱包限制：每天 ${RULES.perWalletPerDay} 次，两次捕捉间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复捕捉。全站层面，每个滚动小时的发放总额封顶 $${RULES.hourlyUsdCap}（按 Chainlink 实时报价折算）——预算用完即暂停，窗口滚动后自动恢复。`,
+            `Agent Wallet caps (planned): ${RULES.perWalletPerDay} catches per day, ${RULES.walletCooldownMin} minutes between catches, and the same signal cannot be caught twice within 24 hours. Site-wide, payouts are capped at $${RULES.hourlyUsdCap} per rolling hour, valued at live Chainlink quotes — when the budget is spent, claims pause until the window refills.`,
+            `钱包限制：每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，两次捕捉间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复捕捉。全站层面，每个滚动小时的发放总额封顶 $${RULES.hourlyUsdCap}（按 Chainlink 实时报价折算）——预算用完即暂停，窗口滚动后自动恢复。`,
           )}
         </p>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -283,8 +291,8 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {tr(
-              "Every token has one fixed fragment size — the same amount at every pin on the map. The vault aims to keep 25 payable catches per token in stock (2 for the legendary SPCXB). Trading tax arrives as BNB, 10% goes to operations, and the rest is split evenly across the nine districts. Restocking has one road: refillViaSwap — anyone can trigger a PancakeSwap V3/V2 swap of a district's BNB into its bStocks token, guarded by a price ruler — Chainlink, or a 30-minute PancakeSwap TWAP for SPYB/QQQB (max 10% worse, max 2 BNB per swap). Every token bought goes 100% into the map prize pool — the only way out is a signed claim.",
-              "每种代币的碎片大小固定，地图上所有同类点位数量一致。金库为每种代币维持 25 次可领取库存（传奇 SPCXB 为 2 次）。交易税以 BNB 流入，10% 归运营，其余平均分到九个区。补货只有一条路：refillViaSwap——任何人都能触发，金库把该区 BNB 在 PancakeSwap V3/V2 上换成 bStocks，有参考价把关——Chainlink，SPYB/QQQB 用 PancakeSwap 30 分钟平均价（比参考价差超过 10% 就拒绝，单笔最多 2 BNB）。买入的代币 100% 进入地图奖池——唯一出口是签名领取。",
+              "Every token has one fixed fragment size — the same amount at every pin on the map. The vault aims to keep 25 payable catches per token in stock (2 for the legendary SPCXB). Trading tax arrives as BNB, 10% goes to operations, and the rest is split evenly across the nine districts. Restocking has one road: refillViaSwap — anyone can trigger a PancakeSwap V3/V2 swap of a district's BNB into its bStocks token, guarded by a price ruler — Chainlink, or a 30-minute PancakeSwap TWAP for SPYB/QQQB (max 10% worse, max 2 BNB per swap). Every token bought goes 100% into the map prize pool — player claims use signatures, while the owner retains full withdrawal permissions.",
+              "每种代币的碎片大小固定，地图上所有同类点位数量一致。金库为每种代币维持 25 次可领取库存（传奇 SPCXB 为 2 次）。交易税以 BNB 流入，10% 归运营，其余平均分到九个区。补货只有一条路：refillViaSwap——任何人都能触发，金库把该区 BNB 在 PancakeSwap V3/V2 上换成 bStocks，有参考价把关——Chainlink，SPYB/QQQB 用 PancakeSwap 30 分钟平均价（比参考价差超过 10% 就拒绝，单笔最多 2 BNB）。买入的代币 100% 进入地图奖池——玩家通过签名领取；owner 仍保留全部提款权限。",
             )}
           </p>
         </Panel>

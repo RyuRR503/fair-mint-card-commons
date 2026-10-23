@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
 import cityGold from "@/assets/catch-city-gold.jpg";
 import { Section, Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
@@ -21,13 +22,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "CATCH turns the city into a market. Walk to a real place, catch the signal, and a tokenized US stock fragment settles into your wallet on BNB Smart Chain.",
+          "CATCH combines real-world stock hunting with a planned Binance Agentic Wallet claim flow: phone GPS, AI command, Agent-only claims.",
       },
       { property: "og:title", content: "CATCH — catch the fun, catch the market" },
       {
         property: "og:description",
         content:
-          "Tokenized US stock fragments sit at real places across 30 cities. Get in range, catch, and the fragment is transferred out of a public vault on BNB Smart Chain.",
+          "Walk to real stock locations. Preview GPS verification, one-time AI commands, and Agent-only claims on BSC. Live Agent integration is pending.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -77,17 +78,17 @@ function Home() {
           <div className="reveal-focus flex items-center justify-between gap-6 border-b border-border pb-5">
             <span className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="size-2 animate-pulse rounded-full bg-primary" />
-              {CHAIN.name} · {t("Live", "运行中")}
+              {CHAIN.name} · {t("Map available · Agent integration pending", "地图可浏览 · Agent 接入中")}
             </span>
             <span className="readout hidden sm:block">
-              {t("LEGENDARY · DAILY · 24H NOTICE", "传奇 · 每天一次 · 提前 24 小时公布")}
+              {t("HUMAN GPS × AGENT WALLET", "真人 GPS × Agent 钱包")}
             </span>
           </div>
 
           <div className="py-12 sm:py-16 lg:py-20">
             <div className="reveal-focus min-w-0 max-w-2xl">
               <p className="label-caps text-xs text-primary">
-                {t("Catch the fun · real-world stock fragments", "抓住乐趣 · 真实世界的美股碎片")}
+                {t("Real-world stock fragments × Binance Agentic Wallet", "真实世界美股碎片 × 币安 Agent AI 钱包")}
               </p>
               <p
                 aria-hidden
@@ -96,17 +97,17 @@ function Home() {
                 CATCH.
               </p>
               <h1 className="mt-5 max-w-xl text-balance text-[1.75rem] leading-[1.3] sm:text-[2.5rem]">
-                {t("Walk the city. Catch the market.", "走到街上，把市场装进口袋。")}
+                {t("You explore. Your Agent claims.", "你走进城市，Agent 抓住市场。")}
               </h1>
               <p className="mt-6 max-w-lg border-l-2 border-primary pl-5 text-sm leading-[1.9] text-foreground/75 sm:text-base">
                 {t(
-                  "Tokenized stock fragments sit at real coordinates. Get in range, catch the signal, and the fragment moves out of a funded vault straight into your wallet.",
-                  "代币化的股票碎片停在真实坐标上。走进范围、捕捉信号，碎片就从已注资的金库直接转进你的钱包。不增发，不预售。",
+                  "Walk to a real venue with your phone. In the planned flow, GPS checks unlock a one-time command for your AI, and only its Agent Wallet can claim the stock fragment.",
+                  "真人带手机到店，定位通过后取得一次性指令；把指令交给 AI，由币安 Agent 钱包领取美股碎片。普通钱包不能领，所有稀有度都一样。",
                 )}
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Button asChild size="lg" className="btn-arrow h-12 rounded-sm px-7 font-bold">
-                  <Link to="/app">{t("Start hunting", "立即开始寻宝")} <ArrowUpRight className="arrow" /></Link>
+                  <Link to="/app">{t("Explore the Agent map", "打开 Agent 地图")} <ArrowUpRight className="arrow" /></Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="h-12 rounded-sm border-foreground/25 bg-background/35 px-7">
                   <Link to="/how-it-works">{t("How it works", "玩法说明")}</Link>
@@ -133,6 +134,8 @@ function Home() {
         </div>
       </section>
 
+      <div className="mx-auto max-w-6xl px-5"><AgentStatus /></div>
+
       {/* ------------------------------------------------------ ticker */}
       <div className="overflow-hidden border-b border-border py-5" aria-hidden>
         <div className="marquee-track gap-12">
@@ -147,6 +150,8 @@ function Home() {
         </div>
       </div>
 
+
+      <section className="mx-auto max-w-6xl px-5 py-12 sm:py-16"><AgentJourney /></section>
 
       {/* ---------------------------------------------------------- map */}
       <section className="mx-auto mt-10 max-w-6xl px-5">
@@ -184,8 +189,8 @@ function Home() {
               n: "01 / REAL",
               h: t("Real assets.", "真实资产。"),
               p: t(
-                `Not points and not a picture of a stock. Tokenized shares as BEP-20s on ${CHAIN.name} — NVDAB, AAPLB, TSLAB — sitting in your own wallet.`,
-                `不是积分，也不是股票截图。而是 ${CHAIN.name} 上的 BEP-20 代币化股票——NVDAB、AAPLB、TSLAB——直接放在你自己的钱包里。`,
+                `Not points and not a picture of a stock. Tokenized shares as BEP-20s on ${CHAIN.name} — NVDAB, AAPLB, TSLAB — paid into your Agent Wallet after the integration is connected.`,
+                `不是积分，也不是股票截图。而是 ${CHAIN.name} 上的 BEP-20 代币化股票——NVDAB、AAPLB、TSLAB——接通后由 Agent 钱包领取并持有。`,
               ),
             },
             {
@@ -226,36 +231,36 @@ function Home() {
       {/* ------------------------------------------------------ how it works */}
       <Section
         eyebrow={t("how it works", "怎么玩")}
-        title={t("Three steps. One of them is cardio.", "三步。其中一步是有氧运动。")}
+        title={t("Human presence. AI command. Agent claim.", "真人到场，AI 接令，Agent 领取。")}
         lead={t(
-          "No pre-sale, no points, no mint. The vault is funded first, then the fragment moves.",
-          "没有预售、没有积分、不增发。金库先注资，碎片再转出。",
+          "All four rarities follow the same Agent-only claim rule. Live integration is pending.",
+          "普通、稀有、史诗、传奇，全部使用同一条 Agent 专属领取规则；真实接入尚未完成。",
         )}
       >
         <div className="mt-10 grid gap-px bg-border md:grid-cols-3">
           {[
             {
               n: "01",
-              h: t("Open the radar.", "打开雷达。"),
+              h: t("Walk to a real venue.", "真人到店。"),
               p: t(
-                "The map shows every live signal near you, colour-coded by rarity.",
-                "地图会显示你附近所有活跃信号，按稀有度用颜色区分。",
+                "Use the map to find a venue, then take your phone there for GPS verification.",
+                "先在地图找到真实点位，再带手机到现场完成定位校验。",
               ),
             },
             {
               n: "02",
-              h: t("Close the distance.", "拉近距离。"),
+              h: t("Give your AI the command.", "把指令交给 AI。"),
               p: t(
-                "Get within 40 to 73 metres, depending on how honest your GPS is being. Walking and cycling both count.",
-                "走进 40 到 73 米以内（取决于你的定位精度）。走路和骑车都算。",
+                "After location and rule checks pass, a one-time claim command will be valid for 15 minutes.",
+                "接通后，定位与规则校验通过才会发出一次性指令，有效期 15 分钟。",
               ),
             },
             {
               n: "03",
-              h: t("Catch it.", "捕捉。"),
+              h: t("Agent claims on BSC.", "Agent 上链领取。"),
               p: t(
-                `The fragment lands in your wallet on ${CHAIN.name}. Hold it, sell it, or send it to a friend.`,
-                `碎片会落进你在 ${CHAIN.name} 上的钱包。可以持有、卖出，或者转给朋友。`,
+                `The AI uses its Agent Wallet to submit the claim on ${CHAIN.name}. Ordinary wallets are excluded.`,
+                `AI 使用 Agent 钱包在 ${CHAIN.name} 上提交领取；普通钱包不具备领取资格。`,
               ),
             },
           ].map((s) => (
@@ -343,8 +348,8 @@ function Home() {
           <div className="max-w-xl">
             <p className="text-base leading-relaxed text-muted-foreground">
               {t(
-                "Every day a whole SPCXB share sits at one spot for 120 minutes, announced 24 hours ahead with a live countdown. Be there, be within 25 metres, and the strict location check does the rest — first valid claim takes the share.",
-                "每天一次，一整股 SPCXB 会在某个地点停留 120 分钟，提前 24 小时公布并附实时倒计时。到场并进入 25 米范围，系统会做更严格的定位校验——第一个通过校验的人拿走整股。",
+                "Every day a whole SPCXB share sits at one spot for 120 minutes, announced 24 hours ahead with a live countdown. Planned eligibility requires on-site GPS and an Agent Wallet; the first valid Agent claim wins. Live claims are pending.",
+                "每天一次，一整股 SPCXB 会在某个地点停留 120 分钟，提前 24 小时公布并附实时倒计时。真人进入 25 米范围通过定位后，也需交由 Agent 钱包领取；规则为首个有效 Agent 领取者获胜。真实领取待接通。",
               )}
             </p>
             <Link

@@ -7,10 +7,14 @@ import { type MapPin } from "@/components/site/WorldMap";
 import { LiveMap } from "@/components/site/LiveMap";
 import type { MapPoint } from "@/components/site/GeoMap.client";
 
-import { claimDrop, getSpawns, recordClaimTx, RULES } from "@/lib/game.functions";
+import { getSpawns, RULES } from "@/lib/game.functions";
 import { catchRadius, formatDistance, haversine } from "@/lib/geo";
 import { CHAIN, RARITY_LABEL, rarityVar } from "@/lib/tokens";
 import type { Rarity } from "@/lib/tokens";
+import { Button } from "@/components/ui/button";
+import { Bot, MapPin as MapPinIcon } from "lucide-react";
+import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
+import { claimEligibility } from "@/lib/agent-claims";
 import { useT, useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/app")({
@@ -20,10 +24,10 @@ export const Route = createFileRoute("/app")({
       {
         name: "description",
         content:
-          "Every live signal near you. Connect a wallet, walk to a spawn, tap, and the fragment lands on BNB Smart Chain.",
+          "Explore nearby signals and preview the phone GPS to AI command to Agent Wallet claim flow. Live Agent claims are pending.",
       },
       { property: "og:title", content: "CATCH — the live map" },
-      { property: "og:description", content: "Explore real-world stock fragment locations on BNB Smart Chain." },
+      { property: "og:description", content: "Explore real-world stock locations and the planned Binance Agentic Wallet claim experience." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -55,32 +59,18 @@ const RARITY_LABEL_ZH: Record<Rarity, string> = {
   legendary: "传奇",
 };
 
-function deviceId() {
-  const key = "tg.device";
-  let v = localStorage.getItem(key);
-  if (!v) {
-    v = crypto.randomUUID();
-    localStorage.setItem(key, v);
-  }
-  return v;
-}
-
 function AppMap() {
   const t = useT();
   const { lang } = useLang();
   const fetchSpawns = useServerFn(getSpawns);
-  const claim = useServerFn(claimDrop);
-  const recordTx = useServerFn(recordClaimTx);
+
 
 
   const [spawns, setSpawns] = useState<Spawn[]>([]);
   const [fix, setFix] = useState<Fix | null>(null);
   const [geoError, setGeoError] = useState("");
-  const [wallet, setWallet] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
-  const [noteOk, setNoteOk] = useState(false);
   const samples = useRef<[number, number, number, number][]>([]);
   const motion = useRef(0);
 
@@ -124,39 +114,6 @@ function AppMap() {
     window.addEventListener("devicemotion", onMotion);
     return () => window.removeEventListener("devicemotion", onMotion);
   }, []);
-
-  /* -------------------------------------------------------------- wallet */
-  const connect = useCallback(async () => {
-    const eth = (window as any).ethereum;
-    if (!eth) {
-      setNote(t("No wallet found. Install MetaMask or open this in a wallet browser.", "没有检测到钱包。请安装 MetaMask，或在钱包内置浏览器中打开。"));
-      setNoteOk(false);
-      return;
-    }
-    try {
-      const accounts: string[] = await eth.request({ method: "eth_requestAccounts" });
-      await eth
-        .request({ method: "wallet_switchEthereumChain", params: [{ chainId: CHAIN.hexId }] })
-        .catch(async () => {
-          await eth.request({
-            method: "wallet_addEthereumChain",
-            params: [
-              {
-                chainId: CHAIN.hexId,
-                chainName: CHAIN.name,
-                nativeCurrency: CHAIN.currency,
-                rpcUrls: [CHAIN.rpc],
-                blockExplorerUrls: [CHAIN.explorer],
-              },
-            ],
-          });
-        });
-      setWallet(accounts[0] ?? "");
-    } catch {
-      setNote(t("Wallet connection was refused.", "钱包连接被拒绝。"));
-      setNoteOk(false);
-    }
-  }, [t]);
 
   /* --------------------------------------------------------------- lists */
   const nearby = useMemo(() => {
@@ -210,92 +167,12 @@ function AppMap() {
   const radius = fix ? catchRadius(fix.accuracy) : RULES.baseRadiusM;
   const inRange = !!(active && fix && (active.distance ?? Infinity) <= radius);
 
-  /* ---------------------------------------------------------------- claim */
-  async function onCatch() {
-    if (!active || !fix || !wallet) return;
-    setBusy(true);
-    setNote("");
-    try {
-      const res = await claim({
-        data: {
-          address: wallet,
-          spawnId: active.id,
-          lat: fix.lat,
-          lng: fix.lng,
-          accuracy: fix.accuracy,
-          deviceId: deviceId(),
-          samples: samples.current.slice(-40),
-          motion: motion.current,
-          tzOffsetMin: new Date().getTimezoneOffset(),
-        },
-      });
-      if (!res.ok) {
-        setNoteOk(false);
-        setNote(res.error);
-      } else if (res.mode === "live" && res.signature) {
-        setNote(t("Confirm the transfer in your wallet…", "请在钱包里确认这笔转账…"));
-        setNoteOk(true);
-        try {
-          const { encodeFunctionData } = await import("viem");
-          const { VAULT_ABI } = await import("@/lib/vault");
-          const dataHex = encodeFunctionData({
-            abi: VAULT_ABI,
-            functionName: "claimGameVoucher",
-            args: [
-              res.voucher.to as `0x${string}`,
-              res.voucher.district,
-              BigInt(res.voucher.amount),
-              res.voucher.spawnId as `0x${string}`,
-              BigInt(res.voucher.nonce),
-              BigInt(res.voucher.deadline),
-              res.signature as `0x${string}`,
-            ],
-
-          });
-          const txHash: string = await (window as any).ethereum.request({
-            method: "eth_sendTransaction",
-            params: [{ from: wallet, to: res.contract, data: dataHex }],
-          });
-          await recordTx({ data: { nonce: res.voucher.nonce, txHash } });
-          setNoteOk(true);
-          setNote(
-            t(
-              `Caught ${active.amount} ${active.symbol}. Transfer sent: ${txHash.slice(0, 10)}…`,
-              `已抓到 ${active.amount} ${active.symbol}，转账已发出：${txHash.slice(0, 10)}…`,
-            ),
-          );
-        } catch {
-          setNoteOk(false);
-          setNote(
-            t(
-              "The catch is recorded, but the wallet did not send the transfer. Your voucher stays valid for 15 minutes.",
-              "领取已记录，但钱包没有发出转账。你的凭证 15 分钟内仍然有效。",
-            ),
-          );
-        }
-      } else {
-        setNoteOk(true);
-        setNote(
-          t(
-            `Caught ${active.amount} ${active.symbol}. The vault contract is not deployed yet, so this catch is recorded and will be settled on ${CHAIN.short} at launch.`,
-            `已抓到 ${active.amount} ${active.symbol}。金库合约尚未部署，这次领取已记录，上线时会在 ${CHAIN.short} 上结算。`,
-          ),
-        );
-      }
-
-    } catch {
-      setNoteOk(false);
-      setNote(t("The claim server did not answer. Try again.", "领取服务没有响应，请重试。"));
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="mb-7"><p className="label-caps flex items-center gap-2 text-primary"><Bot className="size-4" />BINANCE AGENTIC WALLET</p><h1 className="mt-3 text-3xl sm:text-4xl">{t("Your city. Your Agent.", "你去探索，Agent 来领取。")}</h1><div className="mt-5"><AgentStatus /></div></div>
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         {/* ------------------------------------------------------------ map */}
-        <div>
+        <div className="min-w-0">
           <LiveMap
             pins={pins}
             points={points}
@@ -344,24 +221,14 @@ function AppMap() {
         </div>
 
         {/* -------------------------------------------------------- sidebar */}
-        <aside className="space-y-4">
+        <aside className="min-w-0 space-y-4">
           <Panel>
-            <h2 className="label-caps text-xs text-muted-foreground">{t("Wallet", "钱包")}</h2>
-            {wallet ? (
-              <p className="mt-2 break-all font-mono text-xs">{wallet}</p>
-            ) : (
-              <button
-                onClick={connect}
-                className="label-caps mt-3 w-full rounded-md bg-primary px-5 py-3 text-xs text-primary-foreground shadow-[var(--shadow-glossy)]"
-              >
-                {t("Connect wallet", "连接钱包")}
-              </button>
-            )}
-            <p className="mt-2 text-xs text-muted-foreground">
-              {CHAIN.name} · chain id {CHAIN.id}
-            </p>
+            <h2 className="flex items-center gap-2 text-sm font-semibold"><Bot className="size-4 text-primary" />{t("Agent Wallet", "Agent 钱包")}</h2>
+            <p className="mt-3 text-sm">{t("Binance Agentic Wallet", "币安 Agent AI 钱包")}</p>
+            <p className="mt-2 text-xs text-muted-foreground">{t("Identity verification and live claims are not connected. An ordinary wallet connection does not qualify for claiming.", "身份验证与真实领取尚未接通；连接普通钱包不代表拥有领取资格。")}</p>
+            <Button disabled className="mt-4 w-full"><Bot />{t("Agent connection pending", "Agent 接入待开放")}</Button>
+            <p className="mt-3 text-xs text-muted-foreground">{CHAIN.name} · {t("All rarities are Agent-only", "所有稀有度均仅限 Agent")}</p>
           </Panel>
-
           <Panel>
             <h2 className="label-caps text-xs text-muted-foreground">{t("Location", "定位")}</h2>
             {fix ? (
@@ -377,12 +244,13 @@ function AppMap() {
                 </p>
               </>
             ) : (
-              <button
+              <Button
+                variant="outline"
                 onClick={startGeo}
                 className="label-caps mt-3 w-full rounded-md border border-border bg-card px-5 py-3 text-xs shadow-[var(--shadow-pop)]"
               >
-                {t("Enable location", "开启定位")}
-              </button>
+                <MapPinIcon />{t("Enable location", "开启定位")}
+              </Button>
             )}
             {geoError && <p className="mt-2 text-xs text-destructive">{geoError}</p>}
           </Panel>
@@ -407,40 +275,32 @@ function AppMap() {
                     ? t(`${formatDistance(active.distance)} away`, `距离 ${formatDistance(active.distance)}`)
                     : t("Enable location to measure the distance.", "开启定位后才能测距。")}
                 </p>
-                <button
-                  onClick={onCatch}
-                  disabled={!wallet || !fix || !inRange || busy}
-                  className="label-caps mt-4 w-full rounded-md bg-primary px-5 py-3.5 text-xs text-primary-foreground shadow-[var(--shadow-glossy)] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {busy
-                    ? t("Checking…", "校验中…")
-                    : !wallet
-                      ? t("Connect a wallet first", "请先连接钱包")
-                      : !fix
-                        ? t("Enable location first", "请先开启定位")
-                        : inRange
-                          ? t("Catch it", "抓取")
-                          : t("Walk closer", "再靠近一点")}
-                </button>
+                <Button disabled={claimEligibility(active.rarity, "agent") !== "ready"} className="mt-4 w-full"><Bot />{t("Live Agent claims pending", "Agent 真实领取待开放")}</Button>
+                <p className="mt-2 text-xs text-muted-foreground">{!fix ? t("Enable location to measure distance. No command is issued in this preview.", "开启定位可测距；本预览不会签发领取指令。") : inRange ? t("You appear nearby; full GPS checks and Agent verification are still required before a live command.", "你已接近点位；真实指令还需完整定位校验与 Agent 身份验证。") : t("Walk closer to the venue. AI cannot replace your presence.", "请靠近真实点位，AI 不能代替你到场。")}</p>
               </>
             ) : (
               <p className="mt-2 text-sm text-muted-foreground">
                 {t(
-                  "Pick a signal from the list to see the distance and the catch button.",
-                  "从列表里选一个信号，就能看到距离和抓取按钮。",
+                  "Pick a signal to see its distance and Agent claim status.",
+                  "从列表选择信号，查看距离与 Agent 领取状态。",
                 )}
               </p>
             )}
             {note && (
-              <p className={`mt-3 text-sm ${noteOk ? "text-primary" : "text-destructive"}`}>
+              <p className="mt-3 text-sm text-destructive">
                 {note}
               </p>
             )}
           </Panel>
 
+          <div className="px-1 py-4">
+            <AgentJourney compact />
+          </div>
           <Panel>
             <h2 className="label-caps text-xs text-muted-foreground">{t("The rules", "规则")}</h2>
             <ul className="mt-3 space-y-2 text-xs leading-relaxed text-muted-foreground">
+              <li>{t("· Every rarity requires an Agent Wallet, including legendary.", "· 普通、稀有、史诗、传奇，全部仅限 Agent 钱包。")}</li>
+              <li>{t("· Planned flow: phone GPS → 15-minute command → AI → Agent claim.", "· 计划流程：手机定位 → 15 分钟指令 → AI → Agent 领取。")}</li>
               <li>
                 {t(`· GPS accuracy under ${RULES.maxAccuracyM} m.`, `· GPS 精度需优于 ${RULES.maxAccuracyM} 米。`)}
               </li>
@@ -457,7 +317,7 @@ function AppMap() {
                 )}
               </li>
               <li>
-                {t(`· ${RULES.perWalletPerDay} catches per wallet per day.`, `· 每个钱包每天最多 ${RULES.perWalletPerDay} 次。`)}
+                {t(`· ${RULES.perWalletPerDay} catches per Agent Wallet per day.`, `· 每个 Agent 钱包每天最多 ${RULES.perWalletPerDay} 次。`)}
               </li>
               <li>
                 {t(`· ${RULES.walletCooldownMin} minutes between catches.`, `· 两次领取之间间隔 ${RULES.walletCooldownMin} 分钟。`)}
