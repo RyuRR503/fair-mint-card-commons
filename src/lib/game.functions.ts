@@ -254,11 +254,6 @@ async function liveBook(): Promise<Book> {
   const live = new Set<string>();
   for (const [sym, cands] of bySym)
     for (const id of allocate(cands, budget[sym] ?? 0, `${day}:${sym}`)) live.add(id);
-  // temporary owner drain test: "test-" points stay open while their token has any inventory
-  if (process.env["TEST_CLAIM_DRAIN"] === "1")
-    for (const [sym, cands] of bySym)
-      for (const c of cands)
-        if (c.id.startsWith("test-") && (inventory[sym] ?? 0) > 0) live.add(c.id);
   bookCache = { shares, budget, inventory, price, live, day, at: Date.now() };
   return bookCache;
 }
@@ -500,8 +495,8 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
   const spawn = toSpawn(spawnRow);
   const data = { address, spawnId: spawnRow.id, deviceId: codeRow.device_id, lat: codeRow.lat, lng: codeRow.lng, accuracy: codeRow.accuracy };
 
-  // owner-listed test wallets skip the per-wallet daily caps and cooldown
-  const tester = (process.env["TEST_CLAIM_WALLETS"] ?? "").toLowerCase().split(",").map((w) => w.trim()).includes(wallet);
+  // every wallet follows the same caps and cooldown (test whitelist removed)
+  const tester = false as boolean;
 
     const dayAgo = new Date(now - 864e5).toISOString();
 
@@ -547,9 +542,7 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
         if (p != null) prices.set(sym, p);
       }),
     );
-    // temporary owner test: a whitelisted wallet takes the token's whole vault balance (TEST_CLAIM_DRAIN=1)
-    const drain = tester && process.env["TEST_CLAIM_DRAIN"] === "1";
-    if (!drain && prices.has(hourlyToken.symbol)) {
+    if (prices.has(hourlyToken.symbol)) {
       let spentUsd = 0;
       let unknown = false;
       for (const c of hourCatches ?? []) {
@@ -600,16 +593,8 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
     const spawnIdHash = keccak256(toHex(spawn.id));
     // One drop rule per token, everywhere on the map: the token's fragment size
     // is authoritative, never a per-pin number.
-    let payout = book.shares[token.symbol] ?? token.fragment;
-    let amountWei = parseUnits(payout.toString(), token.decimals).toString();
-    if (drain) {
-      const r = await chainRpc<string>("eth_call", [{ to: tokenAddress, data: `0x70a08231000000000000000000000000${contract.slice(2).toLowerCase()}` }, "latest"]);
-      const bal = r && r !== "0x" ? BigInt(r) : 0n;
-      if (bal === 0n) return fail("The vault holds none of this token right now.", "金库里暂时没有这个代币。");
-      amountWei = bal.toString();
-      payout = Number(bal) / 10 ** token.decimals;
-      bookCache = null;
-    }
+    const payout = book.shares[token.symbol] ?? token.fragment;
+    const amountWei = parseUnits(payout.toString(), token.decimals).toString();
 
     const voucher = {
       to: data.address,
