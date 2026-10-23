@@ -727,7 +727,12 @@ html[lang^="zh"] h2 {
 .site-header a:hover .site-wordmark, .site-header a:focus-visible .site-wordmark { background-position: 100% 50%; }
 @media (prefers-reduced-motion: reduce) { .site-wordmark { transition: none; } }
 
-.city-cover { animation: city-breathe 22s ease-in-out infinite alternate; transform-origin: 72% 50%; }
+.city-cover { transform: scale(1.12); transform-origin: 72% 50%; }
+/* The original photograph stays aligned at rest; feathered depth slices move independently. */
+.city-depth { position: absolute; inset: 0; pointer-events: none; }
+.city-depth--far { z-index: -20; }
+.city-depth--mid { z-index: -19; mask-image: linear-gradient(90deg, transparent 32%, var(--background) 70%), linear-gradient(180deg, transparent 18%, var(--background) 48%, transparent 88%); mask-composite: intersect; }
+.city-depth--near { z-index: -18; mask-image: linear-gradient(90deg, transparent 38%, var(--background) 72%), linear-gradient(180deg, transparent 48%, var(--background) 80%); mask-composite: intersect; }
 .city-signals { position: absolute; inset: 0; pointer-events: none; z-index: -1; }
 .city-signal { position: absolute; display: grid; grid-template-columns: 24px auto; gap: 6px 10px; color: var(--accent); opacity: 0; animation: city-signal 9s ease-in-out infinite; }
 .city-signal > svg { width: 24px; height: 24px; filter: drop-shadow(var(--signal-glow)); }

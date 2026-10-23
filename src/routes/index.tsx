@@ -76,7 +76,15 @@ function Home() {
     <>
       {/* ---------------------------------------------------------- hero */}
       <section className="agent-hero relative isolate overflow-hidden px-5 pb-6 pt-6 sm:pt-8">
-        <img src={cityGold} alt="" width={1920} height={1024} fetchPriority="high" className="city-cover absolute inset-0 -z-20 size-full object-cover object-[64%_center] sm:object-center" />
+        <div className="city-depth city-depth--far" data-city-depth="far" aria-hidden="true">
+          <img src={cityGold} alt="" width={1920} height={1024} fetchPriority="high" className="city-cover size-full object-cover object-[64%_center] sm:object-center" />
+        </div>
+        <div className="city-depth city-depth--mid" data-city-depth="mid" aria-hidden="true">
+          <img src={cityGold} alt="" width={1920} height={1024} className="city-cover size-full object-cover object-[64%_center] sm:object-center" />
+        </div>
+        <div className="city-depth city-depth--near" data-city-depth="near" aria-hidden="true">
+          <img src={cityGold} alt="" width={1920} height={1024} className="city-cover size-full object-cover object-[64%_center] sm:object-center" />
+        </div>
         <div aria-hidden className="city-hero-shade absolute inset-0 -z-10" />
         <CitySignals />
         <CityMarketScene />
