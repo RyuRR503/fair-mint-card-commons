@@ -467,7 +467,35 @@ function AppMap() {
 
           <Panel>
             <h2 className="label-caps text-xs text-muted-foreground">{t("Selected signal", "已选点位")}</h2>
-            {active ? (
+            {legendary && selected === legendary.id ? (
+              <>
+                <div className="mt-3 flex items-center gap-3">
+                  <TokenChip symbol="SPCXB" size={54} />
+                  <div>
+                    <p className="font-display text-lg">1 SPCXB</p>
+                    <p className="text-xs text-muted-foreground">
+                      {legendary.place},{" "}
+                      {lang === "zh"
+                        ? CITY_BY_KEY[legendary.city]?.nameZh ?? legendary.city
+                        : CITY_BY_KEY[legendary.city]?.name ?? legendary.city}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {new Date(legendary.startsAt).toLocaleString(lang === "zh" ? "zh-CN" : "en-US")} ·{" "}
+                  {t(`open for ${legendary.durationMin} minutes`, `开放 ${legendary.durationMin} 分钟`)}
+                </p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {t(
+                    "Legendary is a timed event: it has no permanent pins and no map claim code. See the legendary page for the rules.",
+                    "传奇是限时活动：无常驻点位，不使用地图领取码，规则见「传奇活动」页。",
+                  )}
+                </p>
+                <Link to="/legendary" className="mt-3 inline-block text-xs text-primary underline">
+                  {t("Open the legendary page →", "打开传奇活动页 →")}
+                </Link>
+              </>
+            ) : active ? (
               <>
                 <div className="mt-3 flex items-center gap-3">
                   <TokenChip symbol={active.symbol} size={54} />
