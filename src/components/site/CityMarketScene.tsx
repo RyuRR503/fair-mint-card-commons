@@ -116,7 +116,7 @@ export function CityMarketScene() {
         pointer.x += ((reduced.matches || !finePointer.matches ? 0 : mouse.x) - pointer.x) * ease;
         pointer.y += ((reduced.matches || !finePointer.matches ? 0 : mouse.y) - pointer.y) * ease;
         for (const layer of photoLayers) {
-          const key = layer.dataset.cityDepth;
+          const key = layer.dataset['cityDepth'];
           const strength = key === "near" ? depthStrength.near : key === "mid" ? depthStrength.mid : depthStrength.far;
           layer.style.transform = reduced.matches ? "none" : `translate3d(${-pointer.x * strength}px, ${-pointer.y * strength * 0.55}px, 0)`;
         }
