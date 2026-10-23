@@ -91,6 +91,7 @@ export default function GeoMap({
   me,
   meRadiusM,
   onSelect,
+  onSelectPoint,
   selected,
   center,
   zoom,
@@ -196,6 +197,7 @@ export default function GeoMap({
         const f = e.features?.[0];
         if (!f) return;
         const p = f.properties as Record<string, string>;
+        if (p["id"]) onSelectPoint?.(p["id"]);
         const tr = tRef.current;
         const tok = TOKEN_BY_SYMBOL[p["symbol"] ?? ""];
         const rarity = (p["rarity"] ?? "common") as Rarity;
