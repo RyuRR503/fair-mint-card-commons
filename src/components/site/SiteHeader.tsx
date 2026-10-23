@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useLang, useT } from "@/lib/i18n";
 import catchLogo from "@/assets/catch-logo.png";
+import { CatchLettering } from "@/components/site/CatchLettering";
 
 function useNav() {
   const t = useT();
@@ -63,13 +64,11 @@ export function CatchMark({ className = "" }: { className?: string }) {
 }
 
 /**
- * The CATCH letters, set in the same poster face and gradient as the hero title.
+ * The approved banner lettering, shared with the hero title.
  */
 export function CatchWordmark({ className = "" }: { className?: string }) {
   return (
-    <span aria-hidden className={`site-wordmark font-poster text-[28px] ${className}`}>
-      CATCH
-    </span>
+    <CatchLettering className={`w-[88px] sm:w-[104px] ${className}`} />
   );
 }
 

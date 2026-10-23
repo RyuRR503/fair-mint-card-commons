@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Use the shared CatchLettering image component for homepage and navigation brand lettering so approved letter shapes remain identical across sizes.
 - Vault inventory is the live bStocks balance (`gamePool` = balanceOf), never a counter — bStocks can rebase.
 - Vault refills BNB->bStocks via per-district PancakeSwap V3/V2 routes stored on-chain, permissionless and guarded by a per-district price ruler; tokens without Chainlink use contracts/TwapUsdFeed.sol (immutable V3 TWAP) so every district stays swappable by anyone.
 - District order in contracts/MapCityVault.sol is fixed and must match DISTRICT_BY_SYMBOL in src/lib/tokens.ts.
