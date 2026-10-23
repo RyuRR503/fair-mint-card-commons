@@ -11,7 +11,6 @@ import type { LegendaryPoint, MapPoint } from "@/components/site/GeoMap.client";
 import { claimDrop, getClaimStatus, getLegendary, getSpawns, RULES } from "@/lib/game.functions";
 import { isPending, type ClaimPhase } from "@/lib/claim-status";
 import { buildAgentCommand } from "@/lib/agent-command";
-import { isPreviewHost } from "@/lib/site-gate";
 import { CITY_BY_KEY } from "@/lib/cities";
 import { Input } from "@/components/ui/input";
 import { catchRadius, formatDistance, haversine } from "@/lib/geo";
