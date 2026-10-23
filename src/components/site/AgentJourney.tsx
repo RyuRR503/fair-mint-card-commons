@@ -9,7 +9,7 @@ export function AgentStatus() {
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-primary/20 py-4 text-xs">
       <span className="flex items-center gap-2 font-semibold text-primary"><Bot className="size-4" />{t("Agent-only claims", "所有碎片 · 仅限 Agent 钱包领取")}</span>
-      <span className="text-muted-foreground">{t("Integration pending · No live claims", "接入尚未完成 · 暂未开放真实领取")}</span>
+      <span className="text-muted-foreground">{t("Live on BSC · Agent ID required", "已在 BSC 开放 · 需持有 Agent ID")}</span>
     </div>
   );
 }

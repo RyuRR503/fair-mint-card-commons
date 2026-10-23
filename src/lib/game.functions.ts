@@ -100,12 +100,31 @@ function tokenAddressFor(symbol: string, fallback: string) {
   return v && v !== ZERO ? v : fallback;
 }
 
+function signerKey(): string | undefined {
+  return process.env["GAME_SIGNER_PRIVATE_KEY"] || process.env["CLAIM_SIGNER_KEY"] || undefined;
+}
+
 function liveMode() {
-  return (
-    !!process.env["CLAIM_SIGNER_KEY"] &&
-    vaultAddress() !== ZERO &&
-    vaultAddress() !== VAULT_ADDRESS
-  );
+  return !!signerKey() && vaultAddress() !== ZERO;
+}
+
+/** Same check the vault runs on-chain: msg.sender must hold an Agent ID. */
+async function hasAgentId(wallet: string): Promise<boolean | null> {
+  try {
+    const res = await fetch(CHAIN.rpc, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0", id: 1, method: "eth_call",
+        params: [{ to: vaultAddress(), data: `0x4eab3ef2000000000000000000000000${wallet.slice(2).toLowerCase()}` }, "latest"],
+      }),
+    });
+    const json = (await res.json()) as { result?: string };
+    if (!json.result || json.result === "0x") return null;
+    return BigInt(json.result) !== 0n;
+  } catch {
+    return null;
+  }
 }
 
 
@@ -286,7 +305,7 @@ const claimInput = z.object({
   tzOffsetMin: z.number().min(-900).max(900).default(0),
 });
 
-type Fail = { ok: false; error: string };
+type Fail = { ok: false; error: string; errorZh?: string | undefined };
 type Success = {
   ok: true;
   mode: "demo" | "live";
@@ -300,12 +319,13 @@ type Success = {
     deadline: number;
   };
   signature: string | null;
+  inputData: string | null;
   contract: string;
   chainId: number;
 };
 
-function fail(error: string): Fail {
-  return { ok: false, error };
+function fail(error: string, errorZh?: string): Fail {
+  return { ok: false, error, errorZh };
 }
 
 /** The whole physical check, then a voucher. Never trusts the client. */
@@ -318,54 +338,65 @@ export const claimDrop = createServerFn({ method: "POST" })
       .select(SPAWN_SELECT)
       .eq("id", data.spawnId)
       .maybeSingle();
-    if (!row) return fail("That drop does not exist any more.");
+    if (!row) return fail("That drop does not exist any more.", "这个点位已不存在。");
     const spawnRow = row as unknown as SpawnRow;
     if (spawnRow.respawn_at && new Date(spawnRow.respawn_at).getTime() > Date.now()) {
       const mins = Math.ceil((new Date(spawnRow.respawn_at).getTime() - Date.now()) / 60000);
-      return fail(`Someone just took this one. It comes back in ${mins} min.`);
+      return fail(`Someone just took this one. It comes back in ${mins} min.`, `这个点位刚被领走，${mins} 分钟后重新出现。`);
     }
     const book = await liveBook();
     if (!book.live.has(spawnRow.id))
-      return fail("This point is not active right now. Points follow the vault's real inventory.");
+      return fail("This point is not active right now. Points follow the vault's real inventory.", "这个点位当前未开放，点位随金库实际库存开放。");
     const spawn = toSpawn(row as unknown as SpawnRow);
     if (spawn.rarity === "legendary")
-      return fail("Legendary drops are only claimable inside their event window, on the spot.");
+      return fail("Legendary drops are only claimable inside their event window, on the spot.", "传奇碎片只能在限时活动期间现场领取。");
+
+    // 0. the vault only pays Agent ID holders claiming for themselves
+    const agent = await hasAgentId(data.address);
+    if (agent === false)
+      return fail(
+        "This wallet has no Binance Agent ID. Only an Agent Wallet can claim.",
+        "这个钱包没有币安 Agent ID，只有 Agent 钱包才能领取。",
+      );
 
     // 1. accuracy + radius
     if (data.accuracy > RULES.maxAccuracyM)
       return fail(
         `Your GPS is off by ${Math.round(data.accuracy)} m. It has to be under ${RULES.maxAccuracyM} m — step outside and wait a few seconds.`,
+        `当前定位误差 ${Math.round(data.accuracy)} 米，需小于 ${RULES.maxAccuracyM} 米。请到室外稍等几秒。`,
       );
     const distance = haversine(data.lat, data.lng, spawn.lat, spawn.lng);
     const radius = catchRadius(data.accuracy);
     if (distance > radius)
       return fail(
         `You are ${Math.round(distance)} m away. Get within ${Math.round(radius)} m of ${spawn.place}.`,
+        `你距离点位还有 ${Math.round(distance)} 米，请走到 ${spawn.place} ${Math.round(radius)} 米以内。`,
       );
 
     // 2. proof of presence: a real chipset wobbles
     if (data.samples.length < RULES.minFixSamples)
       return fail(
         `Keep the app open for ${RULES.minFixSeconds} seconds first — we need at least ${RULES.minFixSamples} readings behind your fix.`,
+        `请先保持页面打开 ${RULES.minFixSeconds} 秒，至少需要 ${RULES.minFixSamples} 次定位采样。`,
       );
     const span =
       (Math.max(...data.samples.map((s) => s[3])) -
         Math.min(...data.samples.map((s) => s[3]))) /
       1000;
     if (span < RULES.minFixSeconds - 2)
-      return fail(`Your GPS log only covers ${Math.round(span)} s. Stand still for 20 seconds.`);
+      return fail(`Your GPS log only covers ${Math.round(span)} s. Stand still for 20 seconds.`, `定位记录只有 ${Math.round(span)} 秒，请原地停留 20 秒。`);
     const jitter = Math.max(
       ...data.samples.map((s) => haversine(s[0], s[1], data.lat, data.lng)),
     );
     const accSet = new Set(data.samples.map((s) => Math.round(s[2] * 10)));
     if (jitter < 0.3 || accSet.size < 2)
-      return fail("That position does not move like a real GPS chipset. Mock locations are refused.");
+      return fail("That position does not move like a real GPS chipset. Mock locations are refused.", "定位数据不像真实手机 GPS，模拟定位无法领取。");
     if (distance < 0.5)
-      return fail("Your fix lands on the pin to the centimetre. No phone does that.");
+      return fail("Your fix lands on the pin to the centimetre. No phone does that.", "定位与点位完全重合，不像真实手机定位。");
 
     // 3. motion: emulators sit perfectly still
     if (data.motion === 0)
-      return fail("No motion at all from the device. Hold the phone in your hand and try again.");
+      return fail("No motion at all from the device. Hold the phone in your hand and try again.", "未检测到手机晃动，请拿着手机再试一次。");
 
     const db = await admin();
     const now = Date.now();
@@ -379,15 +410,16 @@ export const claimDrop = createServerFn({ method: "POST" })
       .gte("created_at", dayAgo);
     const mine = walletDay ?? [];
     if (mine.length >= RULES.perWalletPerDay)
-      return fail(`You have caught ${RULES.perWalletPerDay} drops today. Come back after midnight UTC.`);
+      return fail(`You have caught ${RULES.perWalletPerDay} drops today. Come back after midnight UTC.`, `今天已领 ${RULES.perWalletPerDay} 次，明天早上 8 点（北京时间）后再来。`);
     if (mine.some((c) => c.spawn_id === data.spawnId))
-      return fail("You already caught this drop in the last 24 hours. Find another one.");
+      return fail("You already caught this drop in the last 24 hours. Find another one.", "24 小时内已领过这个点位，换一个吧。");
     const lastMine = mine
       .map((c) => new Date(c.created_at).getTime())
       .sort((a, b) => b - a)[0];
     if (lastMine && now - lastMine < RULES.walletCooldownMin * 60000)
       return fail(
         `Cooldown: ${Math.ceil((RULES.walletCooldownMin * 60000 - (now - lastMine)) / 60000)} minutes before your next catch.`,
+        `冷却中：还需 ${Math.ceil((RULES.walletCooldownMin * 60000 - (now - lastMine)) / 60000)} 分钟才能再领。`,
       );
 
     // the drop's own cooldown is authoritative and was checked above (respawn_at)
@@ -422,6 +454,7 @@ export const claimDrop = createServerFn({ method: "POST" })
       if (!unknown && spentUsd + thisUsd > RULES.hourlyUsdCap)
         return fail(
           "This hour's prize budget is used up. New budget unlocks within the hour — try again soon.",
+          "本小时奖励额度已用完，一小时内会恢复，请稍后再试。",
         );
     }
 
@@ -441,18 +474,18 @@ export const claimDrop = createServerFn({ method: "POST" })
           ? dt * RULES.walkSpeedMs
           : dt * 250 + RULES.airportMinutes * 60 * 250;
       if (dist > allowed)
-        return fail("That is further than anybody could have travelled since your last fix.");
+        return fail("That is further than anybody could have travelled since your last fix.", "和上次定位相比移动距离不合理。");
       if (
         last.city !== spawn.city &&
         now - new Date(last.created_at).getTime() < 3600_000
       )
-        return fail("Two different cities inside one hour. Not on this device.");
+        return fail("Two different cities inside one hour. Not on this device.", "一小时内出现在两个城市，无法领取。");
     }
 
     // 6. device clock vs the timezone of where you claim to stand
     const expectedOffset = (spawn.lng / 15) * 60;
     if (Math.abs(-data.tzOffsetMin - expectedOffset) > RULES.clockSkewHours * 60)
-      return fail("Your device clock does not match the timezone of that place.");
+      return fail("Your device clock does not match the timezone of that place.", "手机时区与点位所在地不符。");
 
     // record the fix, then the catch
     await db.from("position_log").insert({
@@ -496,7 +529,7 @@ export const claimDrop = createServerFn({ method: "POST" })
     if (mode === "live") {
       try {
         const { privateKeyToAccount } = await import("viem/accounts");
-        const raw = process.env["CLAIM_SIGNER_KEY"]!;
+        const raw = signerKey()!;
         const account = privateKeyToAccount(
           (raw.startsWith("0x") ? raw : `0x${raw}`) as `0x${string}`,
         );
@@ -519,7 +552,7 @@ export const claimDrop = createServerFn({ method: "POST" })
           },
         });
       } catch (e) {
-        return fail("The claim server could not sign your voucher. Nothing was spent.");
+        return fail("The claim server could not sign your voucher. Nothing was spent.", "后台签发凭证失败，未产生任何花费。");
       }
     }
 
@@ -554,9 +587,21 @@ export const claimDrop = createServerFn({ method: "POST" })
       })
       .eq("id", spawn.id);
 
+    let inputData: string | null = null;
+    if (signature) {
+      const { encodeFunctionData } = await import("viem");
+      const { VAULT_ABI } = await import("./vault");
+      inputData = encodeFunctionData({
+        abi: VAULT_ABI as never,
+        functionName: "claimGameVoucher",
+        args: [voucher.to, voucher.district, BigInt(voucher.amount), voucher.spawnId, BigInt(voucher.nonce), BigInt(voucher.deadline), signature],
+      } as never);
+    }
+
     return {
       ok: true,
       mode,
+      inputData,
       spawn: { ...spawn, amount: payout },
       voucher,
       signature,
