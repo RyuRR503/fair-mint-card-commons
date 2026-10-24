@@ -1,0 +1,10 @@
+# Flap 沙箱专用（零图片文件、零外网）
+
+- `inline-assets.ts`：CATCH 原版字标五个字母切片 + 光泽遮罩 + 上海夜景原图，全部以内嵌数据写在代码里，不是图片文件，也不需要上传密钥。
+- `FlapArtwork.tsx`：
+  - `<FlapCatchLettering />` 替换原来的 `CatchLettering`（原图、逐字升起和金色扫光完全一致）。
+  - `<FlapCityBackdrop />` 放在首页背景层，替换金色光晕。
+- `FlapOfflineMap.tsx`：可拖动、滚轮/双指缩放的离线地图，不用地图库、不拉瓦片、不调用逐帧测量接口。
+  - `points` 传点位（id、lat、lng、label、cooling），`me` 传 `useGeolocation()` 的坐标，`onSelect` 点击点位。
+  - 点城市自动放大到街区级，「我」按钮直接定位到用户。
+  - 说明：没有街道底图（街道需要瓦片），放大后显示的是点位与用户的精确相对位置和店名。
