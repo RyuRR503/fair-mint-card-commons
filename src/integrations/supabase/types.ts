@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      behavior_flags: {
+        Row: {
+          action: string
+          created_at: string
+          device_id: string
+          id: number
+          reasons: string[]
+          score: number
+          wallet: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          device_id: string
+          id?: never
+          reasons?: string[]
+          score: number
+          wallet?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          device_id?: string
+          id?: never
+          reasons?: string[]
+          score?: number
+          wallet?: string | null
+        }
+        Relationships: []
+      }
       catches: {
         Row: {
           accuracy: number
