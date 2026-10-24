@@ -19,3 +19,9 @@
 
 参数：`spawns`（点位）、`me`（定位）、`wallet`（钱包地址）、`onCatch`（调用我们后端拿领取码）。不传时用内置上海演示数据，方便直接看效果。
 股票图标用品牌色圆章 + 代号，纯代码，无图片。
+
+## 怎么用（给 Flap）
+1. 把整个 `src/flap/` 复制进 MiniApp 模板，入口页直接渲染 `<FlapMiniApp />`，外层不要再套官网的顶栏/页脚。
+2. `me` 接 `useGeolocation()` 返回的 latitude/longitude。
+3. `onCatch` 里调用 catch.fun 后端拿 15 分钟领取码（签名私钥只在我们后端）。
+4. `spawns` 换成后端点位接口数据；不传时显示上海演示数据。
