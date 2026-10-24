@@ -4,6 +4,7 @@ import { cityByKey, type Spawn } from "./spawns";
 import { TOKEN_BY_SYMBOL, TOKENS, VAULT_ADDRESS, CHAIN, DISTRICT_BY_SYMBOL, type Rarity } from "./tokens";
 import { catchRadius, haversine, MAX_ACCURACY_M } from "./geo";
 import { allocate, claimShares, payableClaims } from "./allocation";
+import { scoreBehavior } from "./behavior";
 import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES, VOUCHER_PRIMARY_TYPE } from "./vault";
 
 
