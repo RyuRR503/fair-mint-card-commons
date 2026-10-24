@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { BEHAVIOR_LIMITS, scoreBehavior } from "./behavior";
 
 const clean = {
@@ -13,19 +14,19 @@ const clean = {
 describe("scoreBehavior", () => {
   it("allows a normal player", () => {
     const v = scoreBehavior(clean);
-    expect(v.action).toBe("allow");
-    expect(v.score).toBe(0);
+    assert.equal(v.action, "allow");
+    assert.equal(v.score, 0);
   });
 
   it("flags a device feeding a second wallet but does not block", () => {
     const v = scoreBehavior({ ...clean, walletsPerDevice24h: 2 });
-    expect(v.action).toBe("flag");
-    expect(v.score).toBeGreaterThanOrEqual(BEHAVIOR_LIMITS.flagScore);
+    assert.equal(v.action, "flag");
+    assert.ok(v.score >= BEHAVIOR_LIMITS.flagScore);
   });
 
   it("hard-blocks a device feeding 3+ wallets in 24h even with no other signal", () => {
     const v = scoreBehavior({ ...clean, walletsPerDevice24h: BEHAVIOR_LIMITS.maxWalletsPerDevice24h });
-    expect(v.action).toBe("block");
+    assert.equal(v.action, "block");
   });
 
   it("blocks when combined soft signals reach the block score", () => {
@@ -34,28 +35,28 @@ describe("scoreBehavior", () => {
       walletsPerDevice24h: 2, // 40
       devicesPerWallet7d: 3, // 30
     });
-    expect(v.action).toBe("block");
+    assert.equal(v.action, "block");
   });
 
   it("scores machine-regular claim intervals (weak alone, stacks with others)", () => {
     const v = scoreBehavior({ ...clean, intervalMinutes: [120, 120, 120, 120] });
-    expect(v.score).toBe(25);
-    expect(v.reasons.join(" ")).toContain("machine-regular");
+    assert.equal(v.score, 25);
+    assert.ok(v.reasons.join(" ").includes("machine-regular"));
     const combined = scoreBehavior({
       ...clean,
       intervalMinutes: [120, 120, 120, 120], // 25
       citiesPerDevice7d: 3, // 30
     });
-    expect(combined.action).toBe("flag");
+    assert.equal(combined.action, "flag");
   });
 
   it("flags a device seen in 3+ cities in a week", () => {
     const v = scoreBehavior({ ...clean, citiesPerDevice7d: 3 });
-    expect(v.action).toBe("flag");
+    assert.equal(v.action, "flag");
   });
 
   it("scores heavy single-device claim volume (weak alone, stacks with others)", () => {
     const v = scoreBehavior({ ...clean, deviceClaims24h: 8 });
-    expect(v.score).toBe(25);
+    assert.equal(v.score, 25);
   });
 });
