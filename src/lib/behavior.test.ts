@@ -37,10 +37,16 @@ describe("scoreBehavior", () => {
     expect(v.action).toBe("block");
   });
 
-  it("flags machine-regular claim intervals", () => {
+  it("scores machine-regular claim intervals (weak alone, stacks with others)", () => {
     const v = scoreBehavior({ ...clean, intervalMinutes: [120, 120, 120, 120] });
-    expect(v.action).toBe("flag");
+    expect(v.score).toBe(25);
     expect(v.reasons.join(" ")).toContain("machine-regular");
+    const combined = scoreBehavior({
+      ...clean,
+      intervalMinutes: [120, 120, 120, 120], // 25
+      citiesPerDevice7d: 3, // 30
+    });
+    expect(combined.action).toBe("flag");
   });
 
   it("flags a device seen in 3+ cities in a week", () => {
@@ -48,8 +54,8 @@ describe("scoreBehavior", () => {
     expect(v.action).toBe("flag");
   });
 
-  it("flags heavy single-device claim volume", () => {
+  it("scores heavy single-device claim volume (weak alone, stacks with others)", () => {
     const v = scoreBehavior({ ...clean, deviceClaims24h: 8 });
-    expect(v.action).toBe("flag");
+    expect(v.score).toBe(25);
   });
 });
