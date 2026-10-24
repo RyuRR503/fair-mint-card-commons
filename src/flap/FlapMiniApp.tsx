@@ -75,7 +75,7 @@ export function FlapMiniApp({
         .sort((a, b) => (a.dist ?? 1e12) - (b.dist ?? 1e12)),
     [spawns, me],
   );
-  const mapPoints: FlapMapPoint[] = spawns.map((s) => ({ id: s.id, lat: s.lat, lng: s.lng, label: s.place, cooling: s.cooling }));
+  const mapPoints: FlapMapPoint[] = spawns.map((s) => ({ id: s.id, lat: s.lat, lng: s.lng, label: s.place, cooling: !!s.cooling }));
 
   const open = (s: FlapSpawn) => {
     setSelected(s);
