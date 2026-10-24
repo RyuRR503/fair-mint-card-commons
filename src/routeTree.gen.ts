@@ -15,7 +15,6 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as ComingSoonRouteImport } from './routes/coming-soon'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DownloadRouteImport } from './routes/download'
-import { Route as FlapPreviewRouteImport } from './routes/flap-preview'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as LegendaryRouteImport } from './routes/legendary'
 import { Route as ProofRouteImport } from './routes/proof'
@@ -52,11 +51,6 @@ const DocsRoute = DocsRouteImport.update({
 const DownloadRoute = DownloadRouteImport.update({
   id: '/download',
   path: '/download',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FlapPreviewRoute = FlapPreviewRouteImport.update({
-  id: '/flap-preview',
-  path: '/flap-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HowItWorksRoute = HowItWorksRouteImport.update({
@@ -102,7 +96,6 @@ export interface FileRoutesByFullPath {
   '/coming-soon': typeof ComingSoonRoute
   '/docs': typeof DocsRoute
   '/download': typeof DownloadRoute
-  '/flap-preview': typeof FlapPreviewRoute
   '/how-it-works': typeof HowItWorksRoute
   '/legendary': typeof LegendaryRoute
   '/proof': typeof ProofRoute
@@ -118,7 +111,6 @@ export interface FileRoutesByTo {
   '/coming-soon': typeof ComingSoonRoute
   '/docs': typeof DocsRoute
   '/download': typeof DownloadRoute
-  '/flap-preview': typeof FlapPreviewRoute
   '/how-it-works': typeof HowItWorksRoute
   '/legendary': typeof LegendaryRoute
   '/proof': typeof ProofRoute
@@ -135,7 +127,6 @@ export interface FileRoutesById {
   '/coming-soon': typeof ComingSoonRoute
   '/docs': typeof DocsRoute
   '/download': typeof DownloadRoute
-  '/flap-preview': typeof FlapPreviewRoute
   '/how-it-works': typeof HowItWorksRoute
   '/legendary': typeof LegendaryRoute
   '/proof': typeof ProofRoute
@@ -153,7 +144,6 @@ export interface FileRouteTypes {
     | '/coming-soon'
     | '/docs'
     | '/download'
-    | '/flap-preview'
     | '/how-it-works'
     | '/legendary'
     | '/proof'
@@ -169,7 +159,6 @@ export interface FileRouteTypes {
     | '/coming-soon'
     | '/docs'
     | '/download'
-    | '/flap-preview'
     | '/how-it-works'
     | '/legendary'
     | '/proof'
@@ -185,7 +174,6 @@ export interface FileRouteTypes {
     | '/coming-soon'
     | '/docs'
     | '/download'
-    | '/flap-preview'
     | '/how-it-works'
     | '/legendary'
     | '/proof'
@@ -202,7 +190,6 @@ export interface RootRouteChildren {
   ComingSoonRoute: typeof ComingSoonRoute
   DocsRoute: typeof DocsRoute
   DownloadRoute: typeof DownloadRoute
-  FlapPreviewRoute: typeof FlapPreviewRoute
   HowItWorksRoute: typeof HowItWorksRoute
   LegendaryRoute: typeof LegendaryRoute
   ProofRoute: typeof ProofRoute
@@ -254,13 +241,6 @@ declare module '@tanstack/react-router' {
       path: '/download'
       fullPath: '/download'
       preLoaderRoute: typeof DownloadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/flap-preview': {
-      id: '/flap-preview'
-      path: '/flap-preview'
-      fullPath: '/flap-preview'
-      preLoaderRoute: typeof FlapPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/how-it-works': {
@@ -322,7 +302,6 @@ const rootRouteChildren: RootRouteChildren = {
   ComingSoonRoute: ComingSoonRoute,
   DocsRoute: DocsRoute,
   DownloadRoute: DownloadRoute,
-  FlapPreviewRoute: FlapPreviewRoute,
   HowItWorksRoute: HowItWorksRoute,
   LegendaryRoute: LegendaryRoute,
   ProofRoute: ProofRoute,
