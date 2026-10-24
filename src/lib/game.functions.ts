@@ -4,6 +4,7 @@ import { cityByKey, type Spawn } from "./spawns";
 import { TOKEN_BY_SYMBOL, TOKENS, VAULT_ADDRESS, CHAIN, DISTRICT_BY_SYMBOL, type Rarity } from "./tokens";
 import { catchRadius, haversine, MAX_ACCURACY_M } from "./geo";
 import { allocate, claimShares, payableClaims } from "./allocation";
+import { scoreBehavior } from "./behavior";
 import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES, VOUCHER_PRIMARY_TYPE } from "./vault";
 
 
@@ -495,6 +496,47 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
 
   // every wallet follows the same caps and cooldown (test whitelist removed)
   const tester = false as boolean;
+
+  // 3b. behaviour profile: long-window patterns a single GPS fix cannot show.
+  // Soft signals only flag; a device farming codes for 3+ wallets in 24h blocks.
+  {
+    const dayAgoIso = new Date(now - 864e5).toISOString();
+    const weekAgoIso = new Date(now - 7 * 864e5).toISOString();
+    const [devCodes24, devCodes7, walletCodes7, devPositions7, devCatches24, walletCatches] = await Promise.all([
+      db.from("claim_codes").select("wallet").eq("device_id", data.deviceId).not("used_at", "is", null).gte("used_at", dayAgoIso),
+      db.from("claim_codes").select("wallet").eq("device_id", data.deviceId).not("used_at", "is", null).gte("used_at", weekAgoIso),
+      db.from("claim_codes").select("device_id").eq("wallet", wallet).not("used_at", "is", null).gte("used_at", weekAgoIso),
+      db.from("position_log").select("city").eq("device_id", data.deviceId).gte("created_at", weekAgoIso),
+      db.from("claim_codes").select("code").eq("device_id", data.deviceId).not("used_at", "is", null).gte("used_at", dayAgoIso),
+      db.from("catches").select("created_at").eq("wallet", wallet).order("created_at", { ascending: true }).limit(20),
+    ]);
+    const uniq = (rows: { [k: string]: string | null }[] | null, key: string) =>
+      new Set((rows ?? []).map((r) => r[key]).filter(Boolean)).size;
+    const times = (walletCatches.data ?? []).map((c) => new Date(c.created_at).getTime() / 60000);
+    const intervals = times.slice(1).map((t, i) => t - times[i]!);
+    const verdict = scoreBehavior({
+      walletsPerDevice24h: uniq(devCodes24.data, "wallet"),
+      walletsPerDevice7d: uniq(devCodes7.data, "wallet"),
+      devicesPerWallet7d: uniq(walletCodes7.data, "device_id"),
+      citiesPerDevice7d: uniq(devPositions7.data, "city"),
+      deviceClaims24h: (devCatches24.data ?? []).length,
+      intervalMinutes: intervals,
+    });
+    if (verdict.action !== "allow") {
+      await db.from("behavior_flags").insert({
+        device_id: data.deviceId,
+        wallet,
+        score: verdict.score,
+        action: verdict.action,
+        reasons: verdict.reasons,
+      });
+    }
+    if (verdict.action === "block")
+      return fail(
+        "This device shows an abuse pattern and cannot claim right now.",
+        "该设备存在异常领取行为，暂时无法领取。",
+      );
+  }
 
     const dayAgo = new Date(now - 864e5).toISOString();
 
