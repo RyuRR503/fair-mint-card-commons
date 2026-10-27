@@ -22,7 +22,7 @@ The calling address must equal `to`, and its NFT balance at the hardcoded `AGENT
 
 ## Outstanding end-to-end work
 
-1. Deployed vault proxy verified on-chain 2026-10-23: `0x699ffc34719d992fa14b2b6e3da1ebd083797beb` (project token `0x6c44d8dc4d384a99c2fa7da58aba1611f6257777`, CATCHTEST). Owner `0xD60d847c18610dB29d48d6181bc3D55E30cA0Aa5`, gameSigner = `DEFAULT_GAME_SIGNER`, 9 districts match `DISTRICT_BY_SYMBOL` in `src/lib/tokens.ts`. Factory address still unverified.
+1. Deployed vault proxy verified on-chain 2026-10-23: `0x699ffc34719d992fa14b2b6e3da1ebd083797beb` (project token `0x6c44d8dc4d384a99c2fa7da58aba1611f6257777`, CATCHTEST). Owner `0xD60d847c18610dB29d48d6181bc3D55E30cA0Aa5`, gameSigner = `DEFAULT_GAME_SIGNER`, 9 districts match `DISTRICT_BY_SYMBOL` in `src/lib/tokens.ts`. Factory address read on-chain 2026-10-27 from the proxy's ERC-1967 beacon slot: beacon `0xf9e0fefa1fd41115ccbe1b4b36580333329959f5`, beacon owner / factory `0x2d0ce35193bd150c5a8e57f6fe6557a228978c86`, implementation `0x9c3d1846e9731ef30f0e75308dbb8b8a4b5ef7b2`.
 2. Prove the claimant controls the Agent recipient; do not trust a client-supplied address or a label saying "Agent".
 3. Apply server-side location/rate-limit checks and atomically reserve each point/voucher before signing. GPS is not verified by this contract.
 4. Provide a short-lived command resolved by an authenticated Agent caller, bound to the same recipient. Submit the voucher from that exact Agent address.
