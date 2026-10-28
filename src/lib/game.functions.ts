@@ -9,7 +9,7 @@ import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES, VOUCHER_PRIMARY_TYPE } from
 import { receiptMatchesClaim, type ClaimReceipt } from "./claim-receipt";
 import { dbSnapshotStore, readSnapshot } from "@/lib/display-snapshot";
 import { createBoundedRead } from "./bounded-read";
-import { hourlyCapCheck } from "./hourly-cap";
+import { hourlyCapCheck, payoutCapCheck } from "./hourly-cap";
 import { networkTravelBlocked } from "./network-travel";
 import { catchHolding, holdOk } from "./catch-hold";
 import { MIN_REDEEM_WAIT_S, pinSnapped, redeemTooSoon } from "./claim-guards";
@@ -75,7 +75,9 @@ export const RULES = {
   walletCooldownMin: 120,
   dropCooldownMin: 10,
   /** Whole-site payout ceiling per rolling hour, priced in USD. */
-  hourlyUsdCap: 500,
+  hourlyUsdCap: 50,
+  /** Whole-site payout ceiling per rolling 24 hours, priced in USD. */
+  dailyUsdCap: 500,
   voucherTtlMin: 15,
   minFixSamples: 4,
   minFixSeconds: 20,

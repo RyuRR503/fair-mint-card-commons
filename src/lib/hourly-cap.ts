@@ -1,8 +1,9 @@
 /**
- * Whole-site hourly payout ceiling. Prices come from the same on-chain book that
- * sizes claims (Chainlink or PancakeSwap pool). A missing price fails closed.
+ * Whole-site payout ceiling over a time window (rolling hour or rolling 24h).
+ * Prices come from the same on-chain book that sizes claims (Chainlink or
+ * PancakeSwap pool). A missing price fails closed.
  */
-export function hourlyCapCheck(
+export function payoutCapCheck(
   recent: { symbol: string; amount: number | string }[],
   next: { symbol: string; amount: number },
   price: Record<string, number | null | undefined>,
@@ -16,3 +17,6 @@ export function hourlyCapCheck(
   }
   return spentUsd > capUsd ? { ok: false, reason: "cap", spentUsd } : { ok: true, spentUsd };
 }
+
+/** Back-compat alias: the hourly window uses the same spend-cap check. */
+export const hourlyCapCheck = payoutCapCheck;
