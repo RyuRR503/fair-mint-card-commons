@@ -438,21 +438,12 @@ export const claimDrop = createServerFn({ method: "POST" })
     if (data.accuracy < 1.5)
       return fail("That GPS accuracy is not possible on a phone. Mock locations are refused.", "定位精度异常，模拟定位无法领取。");
 
-    // 8. one network cannot farm with fresh device ids
+    // Network metadata is for investigation only. Shared Wi-Fi must not cap claims.
     const { getRequestHeader } = await import("@tanstack/react-start/server");
     const ip =
       getRequestHeader("cf-connecting-ip") ||
-      (getRequestHeader("x-forwarded-for") || "").split(",")[0]!.trim() ||
+      (getRequestHeader("x-forwarded-for") || "").split(",")[0]?.trim() ||
       null;
-    if (ip) {
-      const { count } = await db
-        .from("claim_codes")
-        .select("code", { count: "exact", head: true })
-        .eq("ip", ip)
-        .gte("created_at", new Date(now - 24 * 3600_000).toISOString());
-      if ((count ?? 0) >= 2)
-        return fail("This network has already claimed today. Try again tomorrow.", "该网络今天已领取过，请明天再来。");
-    }
 
     const code = `CATCH-${[...crypto.getRandomValues(new Uint8Array(6))].map((b) => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 32]).join("")}`;
     const expiresAt = new Date(now + RULES.voucherTtlMin * 60000);

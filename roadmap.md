@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Remove the shared-network two-claims-per-day rejection; 17 regression checks pass and preview build is OK. Draft an accurate anti-spoofing tweet; no live payout submitted or publication performed.
 - [x] Verify the Flap handover ZIP carries every website animation (29 keyframes + all scene components byte-identical to live), bundle the 18 hosted image pointers as real files so the package runs offline, and deliver catch-fullstack-v2.zip.
 
 - [x] Animate the shared CATCH lettering as five individual letters with a staggered rise-in and a masked gold sheen sweep; verify sweep travel, pause toggle, reduced motion, coming-soon sizing and build OK.
