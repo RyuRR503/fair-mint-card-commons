@@ -10,6 +10,7 @@ import { LiveMap } from "@/components/site/LiveMap";
 import type { LegendaryPoint, MapPoint } from "@/components/site/GeoMap.client";
 
 import { claimDrop, getClaimStatus, getHumanCheckKey, getLegendary, getSpawns, RULES } from "@/lib/game.functions";
+import { ClaimedFeed } from "@/components/site/ClaimedFeed";
 import { HumanCheck, type HumanCheckHandle } from "@/components/site/HumanCheck";
 import { isPending, type ClaimPhase } from "@/lib/claim-status";
 import { buildAgentCommand } from "@/lib/agent-command";
@@ -429,6 +430,10 @@ function AppMap() {
                 </li>
               ))}
             </ul>
+          </Panel>
+
+          <Panel className="mt-4">
+            <ClaimedFeed zh={lang === "zh"} />
           </Panel>
         </div>
 
