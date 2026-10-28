@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { readSnapshot, type SnapshotStore } from "./display-snapshot";
 
 function store(row: { payload: number; builtAt: number } | null, leaseWins: boolean) {

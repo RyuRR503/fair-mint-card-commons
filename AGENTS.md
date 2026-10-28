@@ -11,7 +11,7 @@
 
 ## Architecture rules
 - Catch insertion atomically locks the wallet and point and reserves cooldown in a database trigger; callers must check insert failure before returning a voucher. Settlement recording and display require a successful vault receipt matching recipient, asset, amount and nonce, never a caller-supplied hash alone.
-- Public map display reads use bounded, abortable per-isolate caching and in-flight coalescing; unavailable summaries must not block the homepage or imply zero inventory, and claim/payout validation must remain uncached by this display layer.
+- Public map display reads come from a shared display_snapshots row rebuilt only by the holder of a short database lease (src/lib/display-snapshot.ts), fronted by bounded per-isolate caching, so visitor count does not multiply full spawn reads; snapshots past the max age count as unavailable, unavailable summaries must not block the homepage or imply zero inventory, and claim/payout validation must remain uncached by this display layer.
 - Failed display reads get bounded cancellable browser retries; GPS jitter updates distances locally without refetching all spawns, and public app spawn reads share a display-only cache to reduce load.
 - Stock company and ETF logos are centrally mapped in brandMarks and rendered by TokenChip using static asset pointers (Apple/Tesla retain vector marks), so all pages share consistent identities without runtime logo lookup.
 - Keep the uploaded VaultEx/Trigger revision verbatim in contracts/reference/MapCityBeaconFactory.flat.sol and generate its vault/factory ABIs with Solidity 0.8.24; legacy contracts/MapCityVault.sol and its fork tests remain separate because this revision is not a validated storage-compatible upgrade.
