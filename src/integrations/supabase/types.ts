@@ -120,6 +120,7 @@ export type Database = {
           created_at: string
           device_id: string
           expires_at: string
+          ip: string | null
           lat: number
           lng: number
           spawn_id: string
@@ -132,6 +133,7 @@ export type Database = {
           created_at?: string
           device_id: string
           expires_at: string
+          ip?: string | null
           lat: number
           lng: number
           spawn_id: string
@@ -144,6 +146,7 @@ export type Database = {
           created_at?: string
           device_id?: string
           expires_at?: string
+          ip?: string | null
           lat?: number
           lng?: number
           spawn_id?: string
