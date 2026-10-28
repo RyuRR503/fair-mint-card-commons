@@ -4,23 +4,23 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Section, Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
-import { getVault, getClaims } from "@/lib/game.functions";
+import { getVault } from "@/lib/game.functions";
 import { CHAIN, TREASURY_ADDRESS, VAULT_ADDRESS, ZERO_ADDRESS } from "@/lib/tokens";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/proof")({
   head: () => ({
     meta: [
-      { title: "CATCH — 金库余额与链上记录" },
+      { title: "CATCH — 金库余额与库存" },
       {
         name: "description",
         content:
-          "查看 CATCH 金库代币余额、库存状态与领取记录。数据实时读取链上余额。",
+          "查看 CATCH 金库代币余额与库存状态。数据实时读取链上余额。",
       },
       { property: "og:title", content: "CATCH proof of reserves" },
       {
         property: "og:description",
-        content: "查看金库储备与公开链上记录。领取不增发代币，余额实时读取链上数据。",
+        content: "查看金库储备与库存状态。领取不增发代币，余额实时读取链上数据。",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -39,24 +39,13 @@ type VaultRow = {
   onChain: boolean;
   pendingBnb: number | null;
 };
-type Claim = {
-  wallet: string;
-  symbol: string;
-  amount: number;
-  place: string;
-  city: string;
-  created_at: string;
-};
-
 function Proof() {
   const t = useT();
   const vault = useServerFn(getVault);
-  const claims = useServerFn(getClaims);
   const [rows, setRows] = useState<VaultRow[] | null>(null);
   const [onChain, setOnChain] = useState(true);
   const [vaultBnb, setVaultBnb] = useState<number | null>(null);
   const [checkedAt, setCheckedAt] = useState("");
-  const [feed, setFeed] = useState<Claim[]>([]);
 
   useEffect(() => {
     let alive = true;
@@ -79,19 +68,6 @@ function Proof() {
       clearInterval(t);
     };
   }, [vault]);
-
-  useEffect(() => {
-    let alive = true;
-    claims({ data: {} })
-      .then((r) => {
-        if (alive) setFeed(r as Claim[]);
-      })
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
-  }, [claims]);
-
 
   return (
     <>
@@ -223,36 +199,6 @@ function Proof() {
         </Panel>
       </Section>
 
-      <Section
-        title={t("Recent catches", "最近的领取")}
-        lead={t("Every claim is a public transfer out of the vault.", "每一次领取都是一笔从金库转出的公开交易。")}
-      >
-        <Panel className="mt-6">
-          {feed.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {t("No claim records yet.", "暂无领取记录。")}
-            </p>
-          ) : (
-            <ul className="divide-y divide-border/60">
-              {feed.map((c, i) => (
-                <li key={i} className="flex flex-wrap items-center gap-3 py-3 text-sm">
-                  <TokenChip symbol={c.symbol} size={28} />
-                  <span className="font-mono text-xs">{c.wallet}</span>
-                  <span className="text-muted-foreground">
-                    {t(
-                      `caught ${c.amount} ${c.symbol} at ${c.place}, ${c.city}`,
-                      `在${c.city} ${c.place} 领取 ${c.amount} ${c.symbol}`,
-                    )}
-                  </span>
-                  <span className="label-caps ml-auto text-[10px] text-muted-foreground">
-                    {new Date(c.created_at).toLocaleString()}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-      </Section>
     </>
   );
 }
