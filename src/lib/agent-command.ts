@@ -35,3 +35,21 @@ export function buildAgentCommand(c: AgentCommandInput): string {
     `2. The "next" field in the reply is the contract-call preview command. Check Developer Mode is on in the Binance App, run the preview, show me the result, and execute only after I confirm.`,
   ].join("\n");
 }
+
+/** Command asking the AI to top the Agent Wallet up to the CATCH holding threshold before claiming. */
+export function buildBuyCatchCommand(lang: "zh" | "en", catchToken: string): string {
+  if (lang === "zh") {
+    return [
+      `请帮我的币安 Agent 钱包准备 CATCH 领取门槛：`,
+      `1. 用 baw 查出我在 BSC 上的 Agent 钱包地址，查询 CATCH（合约 ${catchToken}）余额和 BNB 余额。`,
+      `2. 如果 CATCH 少于 100,000 个，用 BNB 在 BSC 上买入 CATCH，补到略多于 100,000 个（建议 105,000，留出滑点）。先给我看 swap 预览（花费 BNB、得到数量、滑点），我确认后再 execute。`,
+      `3. 保留足够 BNB 做 gas。买完后等约 10 分钟再去领取，持仓需满 10 分钟才生效。`,
+    ].join("\n");
+  }
+  return [
+    `Prepare my Binance Agentic Wallet for the CATCH claim threshold:`,
+    `1. Use baw to get my Agent Wallet address on BSC and check its CATCH (contract ${catchToken}) and BNB balances.`,
+    `2. If it holds less than 100,000 CATCH, swap BNB for CATCH on BSC to bring it slightly above 100,000 (about 105,000 to cover slippage). Show me the swap preview (BNB spent, CATCH received, slippage) and execute only after I confirm.`,
+    `3. Keep enough BNB for gas. After buying, wait about 10 minutes before claiming — holdings count only after 10 minutes.`,
+  ].join("\n");
+}
