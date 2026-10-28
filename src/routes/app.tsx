@@ -11,6 +11,7 @@ import type { LegendaryPoint, MapPoint } from "@/components/site/GeoMap.client";
 
 import { claimDrop, getClaimStatus, getHumanCheckKey, getLegendary, getSpawns, RULES } from "@/lib/game.functions";
 import { ClaimedFeed } from "@/components/site/ClaimedFeed";
+import { BudgetCountdown } from "@/components/site/BudgetCountdown";
 import { HumanCheck, type HumanCheckHandle } from "@/components/site/HumanCheck";
 import { isPending, type ClaimPhase } from "@/lib/claim-status";
 import { buildAgentCommand, buildBuyCatchCommand } from "@/lib/agent-command";
@@ -443,6 +444,9 @@ function AppMap() {
 
         {/* -------------------------------------------------------- sidebar */}
         <aside className="min-w-0 space-y-4">
+          <Panel>
+            <BudgetCountdown zh={lang === "zh"} />
+          </Panel>
           <Panel>
             <h2 className="flex items-center gap-2 text-sm font-semibold"><Bot className="size-4 text-primary" />{t("Agent Wallet", "Agent 钱包")}</h2>
             <p className="mt-3 text-sm">{t("Binance Agentic Wallet", "币安 Agent AI 钱包")}</p>

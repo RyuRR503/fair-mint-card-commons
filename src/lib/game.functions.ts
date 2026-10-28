@@ -9,7 +9,7 @@ import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES, VOUCHER_PRIMARY_TYPE } from
 import { receiptMatchesClaim, type ClaimReceipt } from "./claim-receipt";
 import { dbSnapshotStore, readSnapshot } from "@/lib/display-snapshot";
 import { createBoundedRead } from "./bounded-read";
-import { hourlyCapCheck, payoutCapCheck } from "./hourly-cap";
+import { budgetStatus, hourlyCapCheck, payoutCapCheck } from "./hourly-cap";
 import { networkTravelBlocked } from "./network-travel";
 import { catchHolding, holdOk } from "./catch-hold";
 import { MIN_REDEEM_WAIT_S, pinSnapped, redeemTooSoon } from "./claim-guards";
@@ -1070,6 +1070,31 @@ export const getClaimedFeed = createServerFn({ method: "GET" }).handler(async ()
     });
   } catch {
     return [] as ClaimedRow[];
+  }
+});
+
+type BudgetView = { hour: ReturnType<typeof budgetStatus>; day: ReturnType<typeof budgetStatus> } | null;
+const readBudget = createBoundedRead<BudgetView>(20_000, 6_000, 10_000);
+
+/** Display-only: site-wide hourly/daily payout budget and when it frees up. */
+export const getBudget = createServerFn({ method: "GET" }).handler(async () => {
+  try {
+    return await readBudget(async () => {
+      const db = await admin();
+      const now = Date.now();
+      const [{ data: rows }, book] = await Promise.all([
+        db.from("catches").select("symbol, amount, created_at").gte("created_at", new Date(now - 86400e3).toISOString()),
+        liveBook(),
+      ]);
+      const all = rows ?? [];
+      const hourRows = all.filter((r) => new Date(r.created_at).getTime() >= now - 3600e3);
+      return {
+        hour: budgetStatus(hourRows, book.price, RULES.hourlyUsdCap, 3600e3, 5),
+        day: budgetStatus(all, book.price, RULES.dailyUsdCap, 86400e3, 5),
+      };
+    });
+  } catch {
+    return null as BudgetView;
   }
 });
 
