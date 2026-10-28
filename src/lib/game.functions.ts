@@ -509,6 +509,55 @@ type CodeIssued = {
  * Step two, called by the user's AI with its own wallet: trades a fresh claim code
  * for a signed voucher bound to that Agent wallet. Single use.
  */
+/** Rebuilds the exact voucher already recorded for a redeemed code, if still unexpired. */
+async function replayVoucher(
+  db: Awaited<ReturnType<typeof admin>>,
+  codeRow: { spawn_id: string; used_at: string | null },
+  wallet: string,
+  now: number,
+): Promise<Success | null> {
+  const since = new Date(new Date(codeRow.used_at!).getTime() - 60000).toISOString();
+  const { data: c } = await db
+    .from("catches")
+    .select("*")
+    .eq("wallet", wallet)
+    .eq("spawn_id", codeRow.spawn_id)
+    .gte("created_at", since)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (!c || !c.signature || !c.nonce || !c.deadline || !c.amount_wei) return null;
+  if (Number(c.deadline) * 1000 <= now) return null;
+  const { data: row } = await db.from("spawns").select(SPAWN_SELECT).eq("id", codeRow.spawn_id).maybeSingle();
+  if (!row) return null;
+  const spawn = toSpawn(row as unknown as SpawnRow);
+  const { keccak256, toHex, encodeFunctionData, getAddress } = await import("viem");
+  const { VAULT_ABI } = await import("./vault");
+  const voucher = {
+    to: getAddress(wallet),
+    district: DISTRICT_BY_SYMBOL[c.symbol] ?? 0,
+    amount: String(c.amount_wei),
+    spawnId: keccak256(toHex(spawn.id)),
+    nonce: String(c.nonce),
+    deadline: Number(c.deadline),
+  };
+  const inputData = encodeFunctionData({
+    abi: VAULT_ABI as never,
+    functionName: "claimGameVoucher",
+    args: [voucher.to, voucher.district, BigInt(voucher.amount), voucher.spawnId, BigInt(voucher.nonce), BigInt(voucher.deadline), c.signature],
+  } as never);
+  return {
+    ok: true,
+    mode: c.mode as "demo" | "live",
+    inputData,
+    spawn: { ...spawn, amount: Number(c.amount) },
+    voucher,
+    signature: c.signature,
+    contract: vaultAddress(),
+    chainId: CHAIN.id,
+  };
+}
+
 export async function redeemClaimCode(codeIn: string, address: string): Promise<Fail | Success> {
   if (!/^0x[a-fA-F0-9]{40}$/.test(address)) return fail("That is not a wallet address.", "钱包地址格式不正确。");
   const wallet = address.toLowerCase();
@@ -516,7 +565,12 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
   const now = Date.now();
   const { data: codeRow } = await db.from("claim_codes").select("*").eq("code", codeIn.trim().toUpperCase()).maybeSingle();
   if (!codeRow) return fail("Unknown claim code.", "领取码不存在。");
-  if (codeRow.used_at) return fail("This claim code was already used.", "这个领取码已经用过了。");
+  if (codeRow.used_at) {
+    // Same wallet asking again (AI retry): hand back the voucher already issued, never a new one.
+    const replay = codeRow.wallet === wallet ? await replayVoucher(db, codeRow, wallet, now) : null;
+    if (replay) return replay;
+    return fail("This claim code was already used.", "这个领取码已经用过了。");
+  }
   if (new Date(codeRow.expires_at).getTime() < now) return fail("This claim code has expired. Get a new one on site.", "领取码已过期，请到现场重新获取。");
 
   const agent = await hasAgentId(wallet);
