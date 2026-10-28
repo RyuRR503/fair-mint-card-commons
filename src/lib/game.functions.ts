@@ -325,6 +325,8 @@ const claimInput = z.object({
     .default([]),
   motion: z.number().min(0).max(100).default(0),
   tzOffsetMin: z.number().min(-900).max(900).default(0),
+  /** Cloudflare Turnstile token proving a human passed the check. */
+  humanToken: z.string().max(4096).optional(),
 });
 
 type Fail = { ok: false; error: string; errorZh?: string | undefined };
@@ -354,6 +356,17 @@ function fail(error: string, errorZh?: string): Fail {
 export const claimDrop = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => claimInput.parse(d))
   .handler(async ({ data }): Promise<Fail | CodeIssued> => {
+    // Human check first, so scripts are refused before any database work.
+    {
+      const { getRequestHeader, getRequestHost } = await import("@tanstack/react-start/server");
+      const { isPreviewHost } = await import("@/lib/site-gate");
+      if (!isPreviewHost(getRequestHost())) {
+        const { verifyTurnstile } = await import("@/lib/turnstile.server");
+        const reqIp = getRequestHeader("cf-connecting-ip") || null;
+        if (!(await verifyTurnstile(data.humanToken, reqIp)))
+          return fail("Please complete the human check, then try again.", "请先完成真人验证，再点领取。");
+      }
+    }
     const { data: row } = await (await admin())
       .from("spawns")
       .select(SPAWN_SELECT)
@@ -1114,3 +1127,9 @@ export const earlyAccess = createServerFn({ method: "POST" })
     if (error && !error.message.includes("duplicate")) return fail("Could not save that. Try again.");
     return { ok: true as const };
   });
+
+
+/** Public: the Turnstile site key is publishable and safe to send to browsers. */
+export const getHumanCheckKey = createServerFn({ method: "GET" }).handler(async () => {
+  return { siteKey: process.env["TURNSTILE_SITE_KEY"] ?? null };
+});
