@@ -9,6 +9,7 @@ import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES, VOUCHER_PRIMARY_TYPE } from
 import { receiptMatchesClaim, type ClaimReceipt } from "./claim-receipt";
 import { dbSnapshotStore, readSnapshot } from "@/lib/display-snapshot";
 import { createBoundedRead } from "./bounded-read";
+import { hourlyCapCheck } from "./hourly-cap";
 
 
 
@@ -427,8 +428,8 @@ export const claimDrop = createServerFn({ method: "POST" })
       return fail("Your fix lands on the pin to the centimetre. No phone does that.", "定位与点位完全重合，不像真实手机定位。");
 
     // 3. motion: emulators sit perfectly still
-    if (data.motion === 0)
-      return fail("No motion at all from the device. Hold the phone in your hand and try again.", "未检测到手机晃动，请拿着手机再试一次。");
+    // Motion is client-reported and many phones (iOS without permission, in-app browsers)
+    // expose no sensor, so it is never a hard block: it only blocked real users.
 
     }
     const db = await admin();
@@ -690,32 +691,21 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
       .select("symbol, amount")
       .gte("created_at", hourAgo);
     const hourlyToken = TOKEN_BY_SYMBOL[spawn.symbol]!;
-    const symbols = new Set((hourCatches ?? []).map((c) => c.symbol));
-    symbols.add(hourlyToken.symbol);
-    const prices = new Map<string, number>();
-    await Promise.all(
-      [...symbols].map(async (sym) => {
-        const t = TOKEN_BY_SYMBOL[sym];
-        if (!t) return;
-        const p = await feedPriceUsd(t.feed);
-        if (p != null) prices.set(sym, p);
-      }),
+    const cap = hourlyCapCheck(
+      hourCatches ?? [],
+      { symbol: hourlyToken.symbol, amount: book.shares[hourlyToken.symbol] ?? hourlyToken.fragment },
+      book.price,
+      RULES.hourlyUsdCap,
     );
-    if (prices.has(hourlyToken.symbol)) {
-      let spentUsd = 0;
-      let unknown = false;
-      for (const c of hourCatches ?? []) {
-        const p = prices.get(c.symbol);
-        if (p == null) unknown = true;
-        else spentUsd += Number(c.amount) * p;
-      }
-      const thisUsd = (book.shares[hourlyToken.symbol] ?? hourlyToken.fragment) * prices.get(hourlyToken.symbol)!;
-      if (!unknown && spentUsd + thisUsd > RULES.hourlyUsdCap)
-        return fail(
-          "This hour's prize budget is used up. New budget unlocks within the hour — try again soon.",
-          "本小时奖励额度已用完，一小时内会恢复，请稍后再试。",
-        );
-    }
+    if (!cap.ok)
+      return fail(
+        cap.reason === "cap"
+          ? "This hour's prize budget is used up. New budget unlocks within the hour — try again soon."
+          : "Live prices are unavailable right now, so claims are paused. Try again in a minute.",
+        cap.reason === "cap"
+          ? "本小时奖励额度已用完，一小时内会恢复，请稍后再试。"
+          : "暂时读不到链上价格，领取暂停，请一分钟后再试。",
+      );
 
   // burn the code first so two AIs cannot race the same one
   const { data: burned } = await db
