@@ -9,6 +9,7 @@ describe("claimPhase", () => {
   it("unused code after 15 minutes is expired", () => assert.equal(claimPhase({ ...base, now: 3000 }), "expired"));
   it("redeemed code without a chain claim is processing", () => assert.equal(claimPhase({ ...base, codeUsed: true, voucherDeadline: 5000 }), "processing"));
   it("nonce burned on chain counts as received", () => assert.equal(claimPhase({ ...base, codeUsed: true, nonceUsedOnChain: true }), "claimed"));
+  it("an unverified transaction hash alone never counts as received", () => assert.equal(claimPhase({ ...base, codeUsed: true, txHash: `0x${"ab".repeat(32)}`, voucherDeadline: 5000 }), "processing"));
   it("voucher past its deadline and never used has lapsed", () => assert.equal(claimPhase({ ...base, codeUsed: true, now: 6000, voucherDeadline: 5000 }), "lapsed"));
   it("only waiting and processing keep polling", () => {
     assert.equal(isPending("processing"), true);

@@ -10,7 +10,7 @@ export function claimPhase(s: {
   voucherDeadline: number | null; // ms
 }): ClaimPhase {
   if (!s.codeUsed) return s.now > s.codeExpiresAt ? "expired" : "waiting";
-  if (s.txHash || s.nonceUsedOnChain) return "claimed";
+  if (s.nonceUsedOnChain) return "claimed";
   if (s.voucherDeadline != null && s.now > s.voucherDeadline) return "lapsed";
   return "processing";
 }
