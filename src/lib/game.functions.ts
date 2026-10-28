@@ -382,6 +382,8 @@ export const claimDrop = createServerFn({ method: "POST" })
     if (!book.live.has(spawnRow.id))
       return fail("This point is not active right now. Points follow the vault's real inventory.", "这个点位当前未开放，点位随金库实际库存开放。");
     const spawn = toSpawn(row as unknown as SpawnRow);
+    if (spawn.symbol === "SPCXB")
+      return fail("SPCXB is not open for claims yet.", "SPCXB 暂未开放领取。");
     if (spawn.rarity === "legendary")
       return fail("Legendary drops are only claimable inside their event window, on the spot.", "传奇碎片只能在限时活动期间现场领取。");
 
@@ -472,6 +474,29 @@ export const claimDrop = createServerFn({ method: "POST" })
       getRequestHeader("cf-connecting-ip") ||
       (getRequestHeader("x-forwarded-for") || "").split(",")[0]?.trim() ||
       null;
+
+    // 8. one network cannot be in two far-apart cities faster than travel allows.
+    // Same-city sharing (offices, cafés, dorms) is never limited here.
+    if (ip) {
+      const { data: netCodes } = await db
+        .from("claim_codes")
+        .select("lat, lng, created_at")
+        .eq("ip", ip)
+        .gte("created_at", new Date(now - 6 * 3600_000).toISOString())
+        .order("created_at", { ascending: false })
+        .limit(50);
+      for (const c of netCodes ?? []) {
+        const dist = haversine(c.lat, c.lng, data.lat, data.lng);
+        if (dist < 30_000) continue;
+        const dt = Math.max(0, (now - new Date(c.created_at).getTime()) / 1000);
+        const allowed = Math.max(0, dt - RULES.airportMinutes * 60) * 250;
+        if (dist > allowed)
+          return fail(
+            "This network was just used in another city. Claims must be made on the spot.",
+            "这个网络刚刚在另一个城市使用过，无法领取。请在现场用自己的网络领取。",
+          );
+      }
+    }
 
     const code = `CATCH-${[...crypto.getRandomValues(new Uint8Array(6))].map((b) => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 32]).join("")}`;
     const expiresAt = new Date(now + RULES.voucherTtlMin * 60000);
@@ -979,6 +1004,8 @@ export const getClaims = createServerFn({ method: "GET" })
     }));
   });
 
+/** Public launch; earlier rows are the owner's own tests. */
+const FEED_SINCE = "2026-10-28T00:00:00Z";
 type ClaimedRow = { wallet: string; symbol: string; amount: number; city: string; place: string; at: string; tx: string };
 const readClaimedFeed = createBoundedRead<ClaimedRow[]>(30_000, 6_000, 10_000);
 
@@ -993,6 +1020,7 @@ export const getClaimedFeed = createServerFn({ method: "GET" }).handler(async ()
         .not("tx_hash", "is", null)
         .not("settled_at", "is", null)
         .eq("mode", "live")
+        .gte("created_at", FEED_SINCE)
         .order("settled_at", { ascending: false })
         .limit(30);
       return (rows ?? []).map((r) => ({
