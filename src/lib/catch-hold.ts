@@ -7,7 +7,12 @@ export const CATCH_TOKEN = "0x8344e021edfe72a8aa8382328edd096565487777";
 export const MIN_CATCH_HOLD = 100_000n * 10n ** 18n; // 100,000 CATCH (18 decimals)
 /** ~10 minutes of BSC blocks; public RPCs only keep this much recent history. */
 export const HOLD_LOOKBACK_BLOCKS = 1200;
-const RPCS = ["https://bsc-rpc.publicnode.com", "https://bsc.drpc.org"];
+const RPCS = [
+  "https://bsc-rpc.publicnode.com",
+  "https://bsc-mainnet.public.blastapi.io",
+  "https://bsc-rpc.publicnode.com",
+  "https://bsc.drpc.org",
+];
 
 export function holdOk(now: bigint | null, earlier: bigint | null, min = MIN_CATCH_HOLD): boolean {
   return now != null && earlier != null && now >= min && earlier >= min;
