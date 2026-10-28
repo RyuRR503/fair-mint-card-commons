@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { hourlyCapCheck } from "./hourly-cap";
 
 const price = { AAPLB: 345, GOOGLB: 325, NOFEED: null };
