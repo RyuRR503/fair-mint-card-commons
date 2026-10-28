@@ -489,7 +489,7 @@ export const claimDrop = createServerFn({ method: "POST" })
         const dist = haversine(c.lat, c.lng, data.lat, data.lng);
         if (dist < 30_000) continue;
         const dt = Math.max(0, (now - new Date(c.created_at).getTime()) / 1000);
-        const allowed = dt * 250 + RULES.airportMinutes * 60 * 250;
+        const allowed = Math.max(0, dt - RULES.airportMinutes * 60) * 250;
         if (dist > allowed)
           return fail(
             "This network was just used in another city. Claims must be made on the spot.",
