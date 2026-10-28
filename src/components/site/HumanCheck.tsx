@@ -33,6 +33,7 @@ export const HumanCheck = forwardRef<HumanCheckHandle, { siteKey: string; lang: 
     const widget = useRef<string | null>(null);
     const tokenRef = useRef<string | null>(null);
     const [failed, setFailed] = useState(false);
+    const [hint, setHint] = useState(false);
 
     useImperativeHandle(ref, () => ({
       token: () => tokenRef.current,
@@ -51,9 +52,22 @@ export const HumanCheck = forwardRef<HumanCheckHandle, { siteKey: string; lang: 
             sitekey: siteKey,
             theme: "dark",
             language: lang === "zh" ? "zh-cn" : "en",
-            callback: (t: string) => { tokenRef.current = t; },
+            retry: "auto",
+            "retry-interval": 4000,
+            "refresh-expired": "auto",
+            "refresh-timeout": "auto",
+            callback: (t: string) => { tokenRef.current = t; setHint(false); },
             "expired-callback": () => { tokenRef.current = null; },
-            "error-callback": () => { tokenRef.current = null; },
+            "timeout-callback": () => { tokenRef.current = null; },
+            "error-callback": () => {
+              tokenRef.current = null;
+              setHint(true);
+              // Retry quietly instead of leaving the visitor on a "refresh" message.
+              window.setTimeout(() => {
+                if (alive && widget.current && window.turnstile) window.turnstile.reset(widget.current);
+              }, 3000);
+              return true;
+            },
           });
         })
         .catch(() => alive && setFailed(true));
@@ -67,6 +81,13 @@ export const HumanCheck = forwardRef<HumanCheckHandle, { siteKey: string; lang: 
     return (
       <div className="mt-3">
         <div ref={box} />
+        {hint && !failed && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {lang === "zh"
+              ? "验证正在自动重试。若一直不过，请用系统浏览器（Chrome / Safari）打开，并关闭 VPN 或广告拦截。"
+              : "Retrying the check automatically. If it keeps failing, open in Chrome/Safari and turn off VPN or ad blockers."}
+          </p>
+        )}
         {failed && (
           <p className="mt-2 text-xs text-destructive">
             {lang === "zh" ? "真人验证加载失败，请刷新页面。" : "Human check failed to load. Refresh the page."}
