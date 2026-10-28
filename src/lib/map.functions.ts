@@ -100,8 +100,8 @@ const readSummary = createBoundedRead<Awaited<ReturnType<typeof loadMapSummary>>
 export const getMapSummary = createServerFn({ method: "GET" }).handler(async () => {
   try {
     return await readSummary(loadMapSummary);
-  } catch {
-    console.warn("[map-summary] Public data unavailable; serving homepage without live counters");
+  } catch (error) {
+    console.warn("[map-summary] Public data unavailable", error instanceof Error ? error.name : "ReadFailure");
     return { pins: [] as CityPin[], totalSpawns: 0, totalCities: 0, totalPlaces: 0,
       tokens: Object.keys(TOKEN_BY_SYMBOL).length, day: today(), available: false };
   }
