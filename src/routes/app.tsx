@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { isPreviewHost } from "@/lib/site-gate";
 import { useServerFn } from "@tanstack/react-start";
 import { Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
@@ -8,7 +9,8 @@ import { type MapPin } from "@/components/site/WorldMap";
 import { LiveMap } from "@/components/site/LiveMap";
 import type { LegendaryPoint, MapPoint } from "@/components/site/GeoMap.client";
 
-import { claimDrop, getClaimStatus, getLegendary, getSpawns, RULES } from "@/lib/game.functions";
+import { claimDrop, getClaimStatus, getHumanCheckKey, getLegendary, getSpawns, RULES } from "@/lib/game.functions";
+import { HumanCheck, type HumanCheckHandle } from "@/components/site/HumanCheck";
 import { isPending, type ClaimPhase } from "@/lib/claim-status";
 import { buildAgentCommand } from "@/lib/agent-command";
 import { CITY_BY_KEY } from "@/lib/cities";
@@ -95,6 +97,13 @@ function AppMap() {
   const { lang } = useLang();
   const fetchSpawns = useServerFn(getSpawns);
   const requestClaim = useServerFn(claimDrop);
+  const loadHumanKey = useServerFn(getHumanCheckKey);
+  const human = useRef<HumanCheckHandle>(null);
+  const [humanKey, setHumanKey] = useState<string | null>(null);
+  useEffect(() => {
+    if (isPreviewHost(window.location.host)) return;
+    loadHumanKey().then((r) => setHumanKey(r.siteKey)).catch(() => {});
+  }, [loadHumanKey]);
   const [busy, setBusy] = useState(false);
   const [claimError, setClaimError] = useState<{ en: string; zh: string } | null>(null);
   const [copied, setCopied] = useState(false);
@@ -312,6 +321,11 @@ function AppMap() {
 
   async function getCommand() {
     if (!active || !fix) return;
+    const humanToken = human.current?.token() ?? undefined;
+    if (humanKey && !humanToken) {
+      setClaimError({ en: "Please complete the human check below first.", zh: "请先完成下方的真人验证。" });
+      return;
+    }
     setBusy(true);
     setClaimError(null);
     setCopied(false);
@@ -331,6 +345,7 @@ function AppMap() {
           samples: samples.current,
           motion: Math.round(motion.current),
           tzOffsetMin: new Date().getTimezoneOffset(),
+          humanToken,
         },
       });
       if (!r.ok) setClaimError({ en: r.error, zh: r.errorZh ?? r.error });
@@ -346,6 +361,7 @@ function AppMap() {
     } catch {
       setClaimError({ en: "Could not reach the claim server. Try again.", zh: "无法连接领取服务，请重试。" });
     } finally {
+      human.current?.reset();
       setBusy(false);
     }
   }
@@ -511,6 +527,7 @@ function AppMap() {
                 >
                   <Bot />{busy ? t("Verifying location…", "正在校验定位…") : t("Get claim code", "获取领取码")}
                 </Button>
+                {humanKey && <HumanCheck ref={human} siteKey={humanKey} lang={lang === "zh" ? "zh" : "en"} />}
                 <p className="mt-2 text-xs text-muted-foreground">{!fix ? t("Enable location first and keep this page open for 20 seconds.", "请先开启定位，并保持页面打开 20 秒。") : inRange ? t("You are in range. Get the code and paste the whole instruction to your AI.", "你已在领取范围内。获取领取码后，把整段指令发给你的 AI 即可。") : t("Walk closer to the venue. AI cannot replace your presence.", "请走到点位附近；现场定位须由你本人完成。")}</p>
                 {activeCooling && (
                   <p className="mt-2 text-xs text-muted-foreground">
