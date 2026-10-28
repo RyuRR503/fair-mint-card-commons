@@ -23,11 +23,10 @@ export function BudgetCountdown({ zh }: { zh: boolean }) {
     return () => { live = false; clearInterval(poll); clearInterval(tick); };
   }, []);
   useEffect(() => {
-    const f = [b?.hour.freesAtMs, b?.day.freesAtMs].filter((x): x is number => !!x);
-    if (f.some((x) => x <= now)) getBudget().then(setB).catch(() => {});
+    if (b?.day.freesAtMs && b.day.freesAtMs <= now) getBudget().then(setB).catch(() => {});
   }, [now, b]);
   if (!b) return null;
-  const row = (label: string, s: NonNullable<B>["hour"]) => {
+  const row = (label: string, s: NonNullable<B>["day"]) => {
     const left = Math.max(0, s.capUsd - s.spentUsd);
     return (
       <div className="flex items-center justify-between gap-2 text-xs">
