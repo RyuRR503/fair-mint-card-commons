@@ -7,9 +7,8 @@ import {
   useLocation,
   HeadContent,
   Scripts,
-  redirect,
 } from "@tanstack/react-router";
-import { COMING_SOON_PATH, currentHost, isPreviewHost } from "@/lib/site-gate";
+import { COMING_SOON_PATH } from "@/lib/site-gate";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
