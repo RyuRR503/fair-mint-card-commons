@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SITE_PREVIEW_META } from "@/lib/site-preview";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { isPreviewHost } from "@/lib/site-gate";
 import { useServerFn } from "@tanstack/react-start";
 import { Panel } from "@/components/site/Section";
 import { TokenChip } from "@/components/site/TokenChip";
