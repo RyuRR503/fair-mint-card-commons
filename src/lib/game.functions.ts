@@ -9,6 +9,8 @@ import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES, VOUCHER_PRIMARY_TYPE } from
 import { receiptMatchesClaim, type ClaimReceipt } from "./claim-receipt";
 import { dbSnapshotStore, readSnapshot } from "@/lib/display-snapshot";
 import { createBoundedRead } from "./bounded-read";
+import { hourlyCapCheck } from "./hourly-cap";
+import { networkTravelBlocked } from "./network-travel";
 
 
 
@@ -427,8 +429,8 @@ export const claimDrop = createServerFn({ method: "POST" })
       return fail("Your fix lands on the pin to the centimetre. No phone does that.", "定位与点位完全重合，不像真实手机定位。");
 
     // 3. motion: emulators sit perfectly still
-    if (data.motion === 0)
-      return fail("No motion at all from the device. Hold the phone in your hand and try again.", "未检测到手机晃动，请拿着手机再试一次。");
+    // Motion is client-reported and many phones (iOS without permission, in-app browsers)
+    // expose no sensor, so it is never a hard block: it only blocked real users.
 
     }
     const db = await admin();
@@ -485,17 +487,15 @@ export const claimDrop = createServerFn({ method: "POST" })
         .gte("created_at", new Date(now - 6 * 3600_000).toISOString())
         .order("created_at", { ascending: false })
         .limit(50);
-      for (const c of netCodes ?? []) {
-        const dist = haversine(c.lat, c.lng, data.lat, data.lng);
-        if (dist < 30_000) continue;
-        const dt = Math.max(0, (now - new Date(c.created_at).getTime()) / 1000);
-        const allowed = Math.max(0, dt - RULES.airportMinutes * 60) * 250;
-        if (dist > allowed)
-          return fail(
-            "This network was just used in another city. Claims must be made on the spot.",
-            "这个网络刚刚在另一个城市使用过，无法领取。请在现场用自己的网络领取。",
-          );
-      }
+      const earlier = (netCodes ?? []).map((c) => ({
+        distanceM: haversine(c.lat, c.lng, data.lat, data.lng),
+        ageS: Math.max(0, (now - new Date(c.created_at).getTime()) / 1000),
+      }));
+      if (networkTravelBlocked(earlier))
+        return fail(
+          "This network was just used in another city. Claims must be made on the spot.",
+          "这个网络刚刚在另一个城市使用过，无法领取。请在现场用自己的网络领取。",
+        );
     }
 
     const code = `CATCH-${[...crypto.getRandomValues(new Uint8Array(6))].map((b) => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 32]).join("")}`;
@@ -685,37 +685,27 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
 
     // 4b. whole-site hourly payout ceiling, priced in USD (Grass-style)
     const hourAgo = new Date(now - 3600e3).toISOString();
-    const { data: hourCatches } = await db
+    const { data: hourCatches, error: hourErr } = await db
       .from("catches")
       .select("symbol, amount")
       .gte("created_at", hourAgo);
+    if (hourErr) return fail("Could not check this hour's budget. Try again.", "暂时无法核对本小时额度，请稍后再试。");
     const hourlyToken = TOKEN_BY_SYMBOL[spawn.symbol]!;
-    const symbols = new Set((hourCatches ?? []).map((c) => c.symbol));
-    symbols.add(hourlyToken.symbol);
-    const prices = new Map<string, number>();
-    await Promise.all(
-      [...symbols].map(async (sym) => {
-        const t = TOKEN_BY_SYMBOL[sym];
-        if (!t) return;
-        const p = await feedPriceUsd(t.feed);
-        if (p != null) prices.set(sym, p);
-      }),
+    const cap = hourlyCapCheck(
+      hourCatches ?? [],
+      { symbol: hourlyToken.symbol, amount: book.shares[hourlyToken.symbol] ?? hourlyToken.fragment },
+      book.price,
+      RULES.hourlyUsdCap,
     );
-    if (prices.has(hourlyToken.symbol)) {
-      let spentUsd = 0;
-      let unknown = false;
-      for (const c of hourCatches ?? []) {
-        const p = prices.get(c.symbol);
-        if (p == null) unknown = true;
-        else spentUsd += Number(c.amount) * p;
-      }
-      const thisUsd = (book.shares[hourlyToken.symbol] ?? hourlyToken.fragment) * prices.get(hourlyToken.symbol)!;
-      if (!unknown && spentUsd + thisUsd > RULES.hourlyUsdCap)
-        return fail(
-          "This hour's prize budget is used up. New budget unlocks within the hour — try again soon.",
-          "本小时奖励额度已用完，一小时内会恢复，请稍后再试。",
-        );
-    }
+    if (!cap.ok)
+      return fail(
+        cap.reason === "cap"
+          ? "This hour's prize budget is used up. New budget unlocks within the hour — try again soon."
+          : "Live prices are unavailable right now, so claims are paused. Try again in a minute.",
+        cap.reason === "cap"
+          ? "本小时奖励额度已用完，一小时内会恢复，请稍后再试。"
+          : "暂时读不到链上价格，领取暂停，请一分钟后再试。",
+      );
 
   // burn the code first so two AIs cannot race the same one
   const { data: burned } = await db
