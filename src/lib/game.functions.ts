@@ -9,7 +9,7 @@ import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES, VOUCHER_PRIMARY_TYPE } from
 import { receiptMatchesClaim, type ClaimReceipt } from "./claim-receipt";
 import { dbSnapshotStore, readSnapshot } from "@/lib/display-snapshot";
 import { createBoundedRead } from "./bounded-read";
-import { hourlyCapCheck } from "./hourly-cap";
+import { hourlyCapCheck, payoutCapCheck } from "./hourly-cap";
 import { networkTravelBlocked } from "./network-travel";
 import { catchHolding, holdOk } from "./catch-hold";
 import { MIN_REDEEM_WAIT_S, pinSnapped, redeemTooSoon } from "./claim-guards";
@@ -75,7 +75,9 @@ export const RULES = {
   walletCooldownMin: 120,
   dropCooldownMin: 10,
   /** Whole-site payout ceiling per rolling hour, priced in USD. */
-  hourlyUsdCap: 500,
+  hourlyUsdCap: 50,
+  /** Whole-site payout ceiling per rolling 24 hours, priced in USD. */
+  dailyUsdCap: 500,
   voucherTtlMin: 15,
   minFixSamples: 4,
   minFixSeconds: 20,
@@ -725,6 +727,28 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
           : "Live prices are unavailable right now, so claims are paused. Try again in a minute.",
         cap.reason === "cap"
           ? "本小时奖励额度已用完，一小时内会恢复，请稍后再试。"
+          : "暂时读不到链上价格，领取暂停，请一分钟后再试。",
+      );
+
+    // 4c. whole-site daily payout ceiling (rolling 24h), priced in USD
+    const { data: dayCatches, error: dayErr } = await db
+      .from("catches")
+      .select("symbol, amount")
+      .gte("created_at", dayAgo);
+    if (dayErr) return fail("Could not check today's budget. Try again.", "暂时无法核对今日额度，请稍后再试。");
+    const dailyCap = payoutCapCheck(
+      dayCatches ?? [],
+      { symbol: hourlyToken.symbol, amount: book.shares[hourlyToken.symbol] ?? hourlyToken.fragment },
+      book.price,
+      RULES.dailyUsdCap,
+    );
+    if (!dailyCap.ok)
+      return fail(
+        dailyCap.reason === "cap"
+          ? "Today's site-wide prize budget is used up. Budget frees up as the 24-hour window rolls — try again later."
+          : "Live prices are unavailable right now, so claims are paused. Try again in a minute.",
+        dailyCap.reason === "cap"
+          ? "今日全站奖励额度已用完，24 小时内会陆续恢复，请稍后再试。"
           : "暂时读不到链上价格，领取暂停，请一分钟后再试。",
       );
 
