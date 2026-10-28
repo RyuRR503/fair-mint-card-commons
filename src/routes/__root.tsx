@@ -7,9 +7,8 @@ import {
   useLocation,
   HeadContent,
   Scripts,
-  redirect,
 } from "@tanstack/react-router";
-import { COMING_SOON_PATH, currentHost, isPreviewHost } from "@/lib/site-gate";
+import { COMING_SOON_PATH } from "@/lib/site-gate";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
@@ -116,9 +115,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
   }),
 
-  beforeLoad: ({ location }) => {
-    if (location.pathname === COMING_SOON_PATH) return;
-    if (!isPreviewHost(currentHost() ?? "")) throw redirect({ to: COMING_SOON_PATH });
+  beforeLoad: () => {
+    // Coming-soon gate removed: the published site now serves the full experience.
   },
   shellComponent: RootShell,
   component: RootComponent,
