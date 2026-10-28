@@ -39,6 +39,7 @@ type VaultRow = {
   onChain: boolean;
   pendingBnb: number | null;
 };
+
 function Proof() {
   const t = useT();
   const vault = useServerFn(getVault);
