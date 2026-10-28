@@ -6,6 +6,7 @@ import { catchRadius, haversine, MAX_ACCURACY_M } from "./geo";
 import { allocate, claimShares, payableClaims } from "./allocation";
 import { scoreBehavior } from "./behavior";
 import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES, VOUCHER_PRIMARY_TYPE } from "./vault";
+import { receiptMatchesClaim, type ClaimReceipt } from "./claim-receipt";
 
 
 
@@ -305,7 +306,7 @@ const claimInput = z.object({
   deviceId: z.string().min(6).max(80),
   /** Raw GPS log behind the fix: [lat, lng, accuracy, epochMs] */
   samples: z
-    .array(z.tuple([z.number(), z.number(), z.number(), z.number()]))
+    .array(z.tuple([z.number().min(-90).max(90), z.number().min(-180).max(180), z.number().min(0).max(5000), z.number().int().nonnegative()]))
     .max(200)
     .default([]),
   motion: z.number().min(0).max(100).default(0),
@@ -335,7 +336,7 @@ function fail(error: string, errorZh?: string): Fail {
   return { ok: false, error, errorZh };
 }
 
-/** The whole physical check, then a voucher. Never trusts the client. */
+/** Checks submitted location plausibility; client samples are not independent presence proof. */
 export const claimDrop = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => claimInput.parse(d))
   .handler(async ({ data }): Promise<Fail | CodeIssued> => {
@@ -689,7 +690,7 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
     }
 
 
-    await db.from("catches").insert({
+    const { error: catchError } = await db.from("catches").insert({
       wallet,
       device_id: data.deviceId,
       spawn_id: spawn.id,
@@ -708,16 +709,9 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
       amount_wei: amountWei,
     });
 
-    // the drop goes on cooldown and respawns by itself
-    const cooldown = spawnRow.cooldown_min ?? RULES.dropCooldownMin;
-    await db
-      .from("spawns")
-      .update({
-        claimed_by: wallet,
-        claimed_at: new Date().toISOString(),
-        respawn_at: new Date(now + cooldown * 60000).toISOString(),
-      })
-      .eq("id", spawn.id);
+    // The insert trigger locks the wallet and point, rechecks limits, and
+    // reserves the cooldown in the same transaction. Never return an unrecorded voucher.
+    if (catchError) return fail("This claim could not be reserved. The point may have been taken or a claim limit reached. Get a fresh code after the cooldown.", "领取未能确认，点位可能已被领走或已触发领取限制。请在冷却结束后重新获取领取码。");
 
     let inputData: string | null = null;
     if (signature) {
@@ -755,12 +749,19 @@ export const recordClaimTx = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const db = await admin();
-    await db
+    const { data: row, error } = await db.from("catches")
+      .select("id, wallet, nonce, token_address, amount_wei")
+      .eq("nonce", data.nonce).maybeSingle();
+    if (error || !row?.nonce || !row.token_address || !row.amount_wei) return { ok: false as const };
+    const receipt = await chainRpc<ClaimReceipt>("eth_getTransactionReceipt", [data.txHash]);
+    if (!receiptMatchesClaim(receipt, vaultAddress(), {
+      wallet: row.wallet, nonce: row.nonce, tokenAddress: row.token_address, amountWei: row.amount_wei,
+    })) return { ok: false as const };
+    const { error: updateError } = await db
       .from("catches")
       .update({ tx_hash: data.txHash, settled_at: new Date().toISOString() })
-      .eq("nonce", data.nonce)
-      .is("tx_hash", null);
-    return { ok: true as const };
+      .eq("id", row.id);
+    return { ok: !updateError };
   });
 
 async function chainRpc<T>(method: string, params: unknown[]): Promise<T | null> {
@@ -768,6 +769,7 @@ async function chainRpc<T>(method: string, params: unknown[]): Promise<T | null>
     const res = await fetch(CHAIN.rpc, {
       method: "POST",
       headers: { "content-type": "application/json" },
+      signal: AbortSignal.timeout(8000),
       body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
     });
     const json = (await res.json()) as { result?: T };
@@ -822,12 +824,12 @@ export const getClaimStatus = createServerFn({ method: "POST" })
     const now = Date.now();
     const statuses = await Promise.all(
       (rows ?? []).map(async (row) => {
-        type CatchLite = { id: string; nonce: string | null; tx_hash: string | null; deadline: number | null; symbol: string; amount: number; token_address: string | null };
+        type CatchLite = { id: string; nonce: string | null; tx_hash: string | null; deadline: number | null; symbol: string; amount: number; token_address: string | null; amount_wei: string | null };
         let catchRow = null as CatchLite | null;
         if (row.used_at && row.wallet) {
           const { data: c } = await db
             .from("catches")
-            .select("id, nonce, tx_hash, deadline, symbol, amount, token_address")
+            .select("id, nonce, tx_hash, deadline, symbol, amount, token_address, amount_wei")
             .eq("spawn_id", row.spawn_id)
             .eq("wallet", row.wallet)
             .gte("created_at", new Date(new Date(row.used_at).getTime() - 60000).toISOString())
@@ -836,13 +838,20 @@ export const getClaimStatus = createServerFn({ method: "POST" })
             .maybeSingle();
           catchRow = c as CatchLite | null;
         }
-        let txHash = catchRow?.tx_hash ?? null;
+        let txHash: string | null = null;
         let nonceUsed = false;
-        if (catchRow && !txHash && catchRow.nonce) {
-          const onChain = await voucherOnChain(catchRow.nonce, row.wallet!);
-          nonceUsed = onChain.used;
-          if (onChain.used) {
-            txHash = onChain.txHash;
+        if (catchRow?.nonce && row.wallet && catchRow.token_address && catchRow.amount_wei) {
+          const expected = { wallet: row.wallet, nonce: catchRow.nonce, tokenAddress: catchRow.token_address, amountWei: catchRow.amount_wei };
+          let candidate = catchRow.tx_hash;
+          let verified = candidate ? receiptMatchesClaim(await chainRpc<ClaimReceipt>("eth_getTransactionReceipt", [candidate]), vaultAddress(), expected) : false;
+          if (!verified) {
+            const onChain = await voucherOnChain(catchRow.nonce, row.wallet);
+            candidate = onChain.txHash;
+            verified = candidate ? receiptMatchesClaim(await chainRpc<ClaimReceipt>("eth_getTransactionReceipt", [candidate]), vaultAddress(), expected) : false;
+          }
+          nonceUsed = verified;
+          if (verified) {
+            txHash = candidate;
             await db.from("catches").update({ tx_hash: txHash, settled_at: new Date().toISOString() }).eq("id", catchRow.id).is("tx_hash", null);
           }
         }
