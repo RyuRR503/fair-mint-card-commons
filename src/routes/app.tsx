@@ -108,6 +108,7 @@ function AppMap() {
   const [busy, setBusy] = useState(false);
   const [claimError, setClaimError] = useState<{ en: string; zh: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [buyCopied, setBuyCopied] = useState(false);
   const [issued, setIssued] = useState<null | { spawnId: string; code: string; amount: number; symbol: string; place: string; deadline: number; chainId: number }>(null);
 
 
