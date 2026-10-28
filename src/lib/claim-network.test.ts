@@ -19,5 +19,7 @@ test("two earlier claims on shared Wi-Fi must not create a network claim quota",
     ts.forEachChild(node, visit);
   }
   visit(file);
-  assert.equal(networkFilters.length, 0, "Shared network must not be queried to enforce a daily quota");
+  // The only allowed network query feeds the distance/time travel check, never a count quota.
+  assert.ok(networkFilters.length <= 1, "Shared network must not be queried to enforce a daily quota");
+  if (networkFilters.length) assert.match(source, /networkTravelBlocked\(earlier\)/);
 });

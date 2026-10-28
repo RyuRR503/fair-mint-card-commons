@@ -10,6 +10,7 @@ import { receiptMatchesClaim, type ClaimReceipt } from "./claim-receipt";
 import { dbSnapshotStore, readSnapshot } from "@/lib/display-snapshot";
 import { createBoundedRead } from "./bounded-read";
 import { hourlyCapCheck } from "./hourly-cap";
+import { networkTravelBlocked } from "./network-travel";
 
 
 
@@ -486,17 +487,15 @@ export const claimDrop = createServerFn({ method: "POST" })
         .gte("created_at", new Date(now - 6 * 3600_000).toISOString())
         .order("created_at", { ascending: false })
         .limit(50);
-      for (const c of netCodes ?? []) {
-        const dist = haversine(c.lat, c.lng, data.lat, data.lng);
-        if (dist < 30_000) continue;
-        const dt = Math.max(0, (now - new Date(c.created_at).getTime()) / 1000);
-        const allowed = Math.max(0, dt - RULES.airportMinutes * 60) * 250;
-        if (dist > allowed)
-          return fail(
-            "This network was just used in another city. Claims must be made on the spot.",
-            "这个网络刚刚在另一个城市使用过，无法领取。请在现场用自己的网络领取。",
-          );
-      }
+      const earlier = (netCodes ?? []).map((c) => ({
+        distanceM: haversine(c.lat, c.lng, data.lat, data.lng),
+        ageS: Math.max(0, (now - new Date(c.created_at).getTime()) / 1000),
+      }));
+      if (networkTravelBlocked(earlier))
+        return fail(
+          "This network was just used in another city. Claims must be made on the spot.",
+          "这个网络刚刚在另一个城市使用过，无法领取。请在现场用自己的网络领取。",
+        );
     }
 
     const code = `CATCH-${[...crypto.getRandomValues(new Uint8Array(6))].map((b) => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 32]).join("")}`;
