@@ -643,7 +643,11 @@ function AppMap() {
                   {t("Copy the “buy 100,000 CATCH” command for your AI", "复制「买入 10 万 CATCH」AI 指令")}
                 </button>
               </li>
-              <li>{t("· Flow: phone GPS → 15-minute command → AI → Agent claim.", "· 流程：手机定位 → 15 分钟指令 → AI → Agent 领取。")}</li>
+              <li>{t("· Codes last 15 minutes. Wait at least 20 seconds after issuance before redemption.", "· 领取码 15 分钟有效，生成后至少等待 20 秒再兑换。")}</li>
+              <li>{t(`· Site-wide: $${RULES.hourlyUsdCap} per rolling hour, $${RULES.dailyUsdCap} per rolling 24 hours; either limit pauses claims.`, `· 全站每滚动 1 小时上限 $${RULES.hourlyUsdCap}，每滚动 24 小时上限 $${RULES.dailyUsdCap}；任一额度用完即暂停领取。`)}</li>
+              <li>{t("· No phone shaking is required. SPCXB claims remain closed.", "· 无需晃动手机；SPCXB 暂未开放领取。")}</li>
+              <li>{t("· Fast travel between distant locations on the same network is checked; same-area shared Wi-Fi alone does not block claims.", "· 同一网络短时间远距离跨城会被检查；同区域共用 Wi-Fi 不会仅因此被拒绝。")}</li>
+              <li>{t("· The same wallet cannot claim the same point twice within 24 hours.", "· 同一钱包 24 小时内不能重复领取同一点位。")}</li>
               <li>
                 {t(`· GPS accuracy under ${RULES.maxAccuracyM} m.`, `· GPS 精度需优于 ${RULES.maxAccuracyM} 米。`)}
               </li>
@@ -660,7 +664,7 @@ function AppMap() {
                 )}
               </li>
               <li>
-                {t(`· ${RULES.perWalletPerDay} catches per Agent Wallet per day.`, `· 每个 Agent 钱包每天最多 ${RULES.perWalletPerDay} 次。`)}
+                {t(`· ${RULES.perWalletPerDay} catches per Agent Wallet per rolling 24 hours.`, `· 每个 Agent 钱包每滚动 24 小时最多 ${RULES.perWalletPerDay} 次。`)}
               </li>
               <li>
                 {t(`· ${RULES.walletCooldownMin} minutes between catches.`, `· 两次领取之间间隔 ${RULES.walletCooldownMin} 分钟。`)}
