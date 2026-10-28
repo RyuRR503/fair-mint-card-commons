@@ -730,6 +730,28 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
           : "暂时读不到链上价格，领取暂停，请一分钟后再试。",
       );
 
+    // 4c. whole-site daily payout ceiling (rolling 24h), priced in USD
+    const { data: dayCatches, error: dayErr } = await db
+      .from("catches")
+      .select("symbol, amount")
+      .gte("created_at", dayAgo);
+    if (dayErr) return fail("Could not check today's budget. Try again.", "暂时无法核对今日额度，请稍后再试。");
+    const dailyCap = payoutCapCheck(
+      dayCatches ?? [],
+      { symbol: hourlyToken.symbol, amount: book.shares[hourlyToken.symbol] ?? hourlyToken.fragment },
+      book.price,
+      RULES.dailyUsdCap,
+    );
+    if (!dailyCap.ok)
+      return fail(
+        dailyCap.reason === "cap"
+          ? "Today's site-wide prize budget is used up. Budget frees up as the 24-hour window rolls — try again later."
+          : "Live prices are unavailable right now, so claims are paused. Try again in a minute.",
+        dailyCap.reason === "cap"
+          ? "今日全站奖励额度已用完，24 小时内会陆续恢复，请稍后再试。"
+          : "暂时读不到链上价格，领取暂停，请一分钟后再试。",
+      );
+
   // burn the code first so two AIs cannot race the same one
   const { data: burned } = await db
     .from("claim_codes")

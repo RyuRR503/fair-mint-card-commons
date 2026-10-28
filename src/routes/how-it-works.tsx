@@ -128,8 +128,8 @@ function HowItWorks() {
     [
       t("Caps", "上限"),
       t(
-        `${RULES.perWalletPerDay} catches per wallet per day, and the same wallet cannot take the same signal twice within 24 hours. The whole site also has a rolling hourly budget of $${RULES.hourlyUsdCap} (priced at live Chainlink quotes) — once it is spent, catches pause until the next hour.`,
-        `每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，且同一钱包 24 小时内不能重复领取同一个信号。全站还有每小时 $${RULES.hourlyUsdCap} 的滚动发放预算（按 Chainlink 实时报价折算）——用完即暂停，下一小时自动恢复。`,
+        `${RULES.perWalletPerDay} catches per wallet per day, and the same wallet cannot take the same signal twice within 24 hours. The whole site also has a rolling hourly budget of $${RULES.hourlyUsdCap} and a rolling 24-hour budget of $${RULES.dailyUsdCap} (priced at live on-chain quotes) — once a budget is spent, catches pause until the window rolls on.`,
+        `每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，且同一钱包 24 小时内不能重复领取同一个信号。全站还有每小时 $${RULES.hourlyUsdCap} 和每滚动 24 小时 $${RULES.dailyUsdCap} 的发放预算（按链上实时报价折算）——任一用完即暂停，窗口滚动后自动恢复。`,
       ),
     ],
     [

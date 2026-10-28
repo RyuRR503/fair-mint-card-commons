@@ -271,8 +271,8 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         </Panel>
         <p className="mt-4 text-sm text-muted-foreground">
           {tr(
-            `Agent Wallet caps: ${RULES.perWalletPerDay} catches per day, ${RULES.walletCooldownMin} minutes between catches, and the same signal cannot be caught twice within 24 hours. Site-wide, payouts are capped at $${RULES.hourlyUsdCap} per rolling hour, valued at live Chainlink quotes — when the budget is spent, claims pause until the window refills.`,
-            `钱包限制：每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，两次领取间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复领取。全站层面，每个滚动小时的发放总额封顶 $${RULES.hourlyUsdCap}（按 Chainlink 实时报价折算）——预算用完即暂停，窗口滚动后自动恢复。`,
+            `Agent Wallet caps: ${RULES.perWalletPerDay} catches per day, ${RULES.walletCooldownMin} minutes between catches, and the same signal cannot be caught twice within 24 hours. Site-wide, payouts are capped at $${RULES.hourlyUsdCap} per rolling hour and $${RULES.dailyUsdCap} per rolling 24 hours, valued at live on-chain quotes — when a budget is spent, claims pause until the window refills.`,
+            `钱包限制：每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，两次领取间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复领取。全站层面，每个滚动小时的发放总额封顶 $${RULES.hourlyUsdCap}，每滚动 24 小时封顶 $${RULES.dailyUsdCap}（按链上实时报价折算）——任一预算用完即暂停，窗口滚动后自动恢复。`,
           )}
         </p>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -286,11 +286,11 @@ POST early-access    { email, kind, city?, company? }`}</Code>
             </p>
           </Panel>
           <Panel>
-            <h3 className="label-caps text-[11px] text-primary">{tr("Why the rolling hour cap", "为什么有每小时滚动上限")}</h3>
+            <h3 className="label-caps text-[11px] text-primary">{tr("Why the rolling payout caps", "为什么有滚动发放上限")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {tr(
-                `The site pays out at most $${RULES.hourlyUsdCap} worth of fragments every rolling hour. If a burst of claims uses up the budget early in the hour, new claims pause until the rolling hour frees budget again. This protects the prize pool from bursts, not from normal use.`,
-                `全站每小时滚动发放不超过 $${RULES.hourlyUsdCap}。如果一小时内领取集中、提前用完额度，之后的领取会暂停，直到滚动窗口推进、额度恢复。该限制用于控制短时间集中发放对奖池的影响。`,
+                `The site pays out at most $${RULES.hourlyUsdCap} worth of fragments every rolling hour, and at most $${RULES.dailyUsdCap} every rolling 24 hours. If a burst of claims uses up a budget early in its window, new claims pause until the window rolls on again. This protects the prize pool from bursts, not from normal use.`,
+                `全站每小时滚动发放不超过 $${RULES.hourlyUsdCap}，每滚动 24 小时不超过 $${RULES.dailyUsdCap}。如果领取集中、提前用完额度，之后的领取会暂停，直到滚动窗口推进、额度恢复。该限制用于控制短时间集中发放对奖池的影响。`,
               )}
             </p>
           </Panel>
