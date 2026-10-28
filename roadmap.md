@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Audit real duplicate and falsely reported claims; make code redemption, wallet limits and point reservation atomic, verify settlement on-chain, and test without changing shared-network policy or submitting payouts.
 - [x] Resize the Lovable Cloud instance at the user's request (size picker approved "Small"); backend status healthy afterwards and the live map verified showing real city points with no browser errors. Health metrics readout still returns no numbers, and live payout remains untested.
 - [x] Restore homepage access during backend outages: abortable 4-second display reads, short fresh cache/coalescing and failure backoff shipped; backend restart recovered data access; production homepage 200 and map points verified with no browser errors. 11 tests and build pass. Current connections 7/60, pool 1/200, memory 75%, disk 14%, no exhaustion alerts; no paid resize. Live payout not tested.
 - [x] Remove the shared-network two-claims-per-day rejection; 17 regression checks pass and preview build is OK. Draft an accurate anti-spoofing tweet; no live payout submitted or publication performed.
