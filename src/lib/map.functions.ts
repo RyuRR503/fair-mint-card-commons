@@ -3,6 +3,7 @@ import { CN_CITIES } from "@/lib/cities";
 import { TOKEN_BY_SYMBOL } from "@/lib/tokens";
 import type { CityPin, Rarity } from "@/lib/spawns";
 import { createBoundedRead } from "@/lib/bounded-read";
+import { dbSnapshotStore, readSnapshot } from "@/lib/display-snapshot";
 
 const RANK: Record<Rarity, number> = { common: 0, rare: 1, epic: 2, legendary: 3 };
 
@@ -96,11 +97,11 @@ async function loadMapSummary(signal: AbortSignal) {
   };
 }
 
-const readSummary = createBoundedRead<Awaited<ReturnType<typeof loadMapSummary>>>(30_000, 4_000, 15_000);
+const readSummary = createBoundedRead<Awaited<ReturnType<typeof loadMapSummary>>>(20_000, 15_000, 5_000);
 
 export const getMapSummary = createServerFn({ method: "GET" }).handler(async () => {
   try {
-    return await readSummary(loadMapSummary);
+    return await readSummary((sig) => readSnapshot(dbSnapshotStore(), "map-summary", loadMapSummary, sig));
   } catch (error) {
     console.warn("[map-summary] Public data unavailable", error instanceof Error ? error.name : "ReadFailure");
     return { pins: [] as CityPin[], totalSpawns: 0, totalCities: 0, totalPlaces: 0,
@@ -136,7 +137,7 @@ async function loadMapPoints(signal: AbortSignal) {
   }));
 }
 
-const readPoints = createBoundedRead<Awaited<ReturnType<typeof loadMapPoints>>>(30_000, 4_000, 15_000);
+const readPoints = createBoundedRead<Awaited<ReturnType<typeof loadMapPoints>>>(20_000, 15_000, 5_000);
 export const getMapPoints = createServerFn({ method: "GET" }).handler(async () => {
-  return readPoints(loadMapPoints);
+  return readPoints((sig) => readSnapshot(dbSnapshotStore(), "map-points", loadMapPoints, sig));
 });
