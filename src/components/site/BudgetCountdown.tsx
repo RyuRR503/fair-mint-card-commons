@@ -42,7 +42,6 @@ export function BudgetCountdown({ zh }: { zh: boolean }) {
   return (
     <div className="space-y-2">
       <h3 className="flex items-center gap-2 text-sm font-semibold"><Timer className="size-4 text-primary" />{zh ? "全站领取额度" : "Site-wide claim budget"}</h3>
-      {row(zh ? "本小时" : "This hour", b.hour)}
       {row(zh ? "24 小时" : "24 hours", b.day)}
       <p className="text-[11px] text-muted-foreground">{zh ? "额度用完时倒计时结束即可再领，每 30 秒自动刷新。" : "When used up, claims reopen as the countdown ends. Refreshes every 30s."}</p>
     </div>
