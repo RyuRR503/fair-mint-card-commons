@@ -62,8 +62,8 @@ function Home() {
   const [motionPaused, setMotionPaused] = useState(false);
   const summary = Route.useLoaderData();
   const points = useMapPoints();
-  const TOTAL_SPAWNS = summary.totalSpawns;
-  const TOTAL_CITIES = summary.totalCities;
+  const TOTAL_SPAWNS = summary.available ? summary.totalSpawns : "—";
+  const TOTAL_CITIES = summary.available ? summary.totalCities : "—";
 
   const pins: MapPin[] = useMemo(
     () =>
@@ -182,10 +182,10 @@ function Home() {
             </h2>
           </div>
           <p className="readout">
-            {t(
+            {summary.available ? t(
               `${TOTAL_CITIES} CITIES / ${TOTAL_SPAWNS} SPAWNS / SYNCED`,
               `${TOTAL_CITIES} 城 / ${TOTAL_SPAWNS} 点 / 已同步`,
-            )}
+            ) : t("Live point data temporarily unavailable", "实时点位数据暂时无法加载")}
           </p>
         </Reveal>
 

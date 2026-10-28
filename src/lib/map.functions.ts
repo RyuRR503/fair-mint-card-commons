@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { CN_CITIES } from "@/lib/cities";
 import { TOKEN_BY_SYMBOL } from "@/lib/tokens";
 import type { CityPin, Rarity } from "@/lib/spawns";
+import { createBoundedRead } from "@/lib/bounded-read";
 
 const RANK: Record<Rarity, number> = { common: 0, rare: 1, epic: 2, legendary: 3 };
 
@@ -19,7 +20,7 @@ async function admin() {
  * PostgREST caps a single response at 1000 rows, so page through the open
  * spawns instead of trusting one .limit() call.
  */
-async function allOpenSpawns(select: string, max = 6000) {
+async function allOpenSpawns(select: string, signal: AbortSignal, max = 6000) {
   const supabaseAdmin = await admin();
   const page = 1000;
   const out: unknown[] = [];
@@ -28,7 +29,9 @@ async function allOpenSpawns(select: string, max = 6000) {
       .from("spawns")
       .select(select)
       .or(OPEN_FILTER())
-      .range(from, from + page - 1);
+      .order("id")
+      .range(from, from + page - 1)
+      .abortSignal(signal);
     if (error) throw new Error(error.message);
     const rows = data ?? [];
     out.push(...rows);
@@ -42,12 +45,12 @@ async function allOpenSpawns(select: string, max = 6000) {
  * The per-store signals are a separate, bigger payload (getMapPoints) so the
  * page can render before they arrive.
  */
-export const getMapSummary = createServerFn({ method: "GET" }).handler(async () => {
+async function loadMapSummary(signal: AbortSignal) {
   const supabaseAdmin = await admin();
   const day = today();
 
   type Row = { symbol: string; rarity: string | null; places: { city: string } };
-  const rows = (await allOpenSpawns("symbol, rarity, places!inner(city)")) as unknown as Row[];
+  const rows = (await allOpenSpawns("symbol, rarity, places!inner(city)", signal)) as unknown as Row[];
 
   const byCity = new Map<string, { count: number; symbols: Set<string>; rarity: Rarity }>();
   for (const row of rows) {
@@ -60,9 +63,10 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
     byCity.set(city, entry);
   }
 
-  const pins: CityPin[] = CN_CITIES.filter((c) => byCity.has(c.key)).map((c) => {
-    const e = byCity.get(c.key)!;
-    return {
+  const pins: CityPin[] = CN_CITIES.flatMap((c) => {
+    const e = byCity.get(c.key);
+    if (!e) return [];
+    return [{
       key: c.key,
       name: c.name,
       nameZh: c.nameZh,
@@ -71,12 +75,14 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
       count: e.count,
       symbols: [...e.symbols].slice(0, 3),
       rarity: e.rarity,
-    };
+    }];
   });
 
-  const { count: placeCount } = await supabaseAdmin
+  const { count: placeCount, error } = await supabaseAdmin
     .from("places")
-    .select("id", { count: "exact", head: true });
+    .select("id", { count: "exact", head: true })
+    .abortSignal(signal);
+  if (error) throw new Error(error.message);
 
   return {
     pins,
@@ -85,11 +91,24 @@ export const getMapSummary = createServerFn({ method: "GET" }).handler(async () 
     totalPlaces: placeCount ?? 0,
     tokens: Object.keys(TOKEN_BY_SYMBOL).length,
     day,
+    available: true,
   };
+}
+
+const readSummary = createBoundedRead<Awaited<ReturnType<typeof loadMapSummary>>>(30_000, 4_000, 15_000);
+
+export const getMapSummary = createServerFn({ method: "GET" }).handler(async () => {
+  try {
+    return await readSummary(loadMapSummary);
+  } catch {
+    console.warn("[map-summary] Public data unavailable; serving homepage without live counters");
+    return { pins: [] as CityPin[], totalSpawns: 0, totalCities: 0, totalPlaces: 0,
+      tokens: Object.keys(TOKEN_BY_SYMBOL).length, day: today(), available: false };
+  }
 });
 
 /** Every individual signal, fetched by the browser once the map is on screen. */
-export const getMapPoints = createServerFn({ method: "GET" }).handler(async () => {
+async function loadMapPoints(signal: AbortSignal) {
   type Row = {
     id: string;
     symbol: string;
@@ -100,6 +119,7 @@ export const getMapPoints = createServerFn({ method: "GET" }).handler(async () =
 
   const rows = (await allOpenSpawns(
     "id, symbol, amount, rarity, respawn_at, places!inner(name, city, lat, lng)",
+    signal,
   )) as unknown as Row[];
 
   return rows.map((r) => ({
@@ -113,4 +133,9 @@ export const getMapPoints = createServerFn({ method: "GET" }).handler(async () =
     lat: r.places.lat,
     lng: r.places.lng,
   }));
+}
+
+const readPoints = createBoundedRead<Awaited<ReturnType<typeof loadMapPoints>>>(30_000, 4_000, 15_000);
+export const getMapPoints = createServerFn({ method: "GET" }).handler(async () => {
+  return readPoints(loadMapPoints);
 });
