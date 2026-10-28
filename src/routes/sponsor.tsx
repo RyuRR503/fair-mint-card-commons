@@ -95,8 +95,8 @@ function Sponsor() {
       <Section
         title={t("Talk to us", "联系我们")}
         lead={t(
-          "The self-serve dashboard is the next thing we build. Until then, leave an email or DM @catchonchain on X.",
-          "品牌自助管理功能在开发计划中。当前可提交邮箱与合作意向，或通过 X 联系 @catchonchain。",
+          "The self-serve dashboard is the next thing we build. Until then, leave an email or DM @CATCHFUN_BSC on X.",
+          "品牌自助管理功能在开发计划中。当前可提交邮箱与合作意向，或通过 X 联系 @CATCHFUN_BSC。",
         )}
       >
         <Panel className="mt-6">

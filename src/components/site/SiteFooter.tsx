@@ -34,7 +34,7 @@ export function SiteFooter() {
             <FooterLink to="/docs">{t("Docs", "开发文档")}</FooterLink>
 
             <a
-              href="https://x.com/catchonchain"
+              href="https://x.com/CATCHFUN_BSC"
               target="_blank"
               rel="noreferrer noopener"
               className="text-muted-foreground transition-colors hover:text-foreground"
