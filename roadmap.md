@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Restore homepage access during backend outages; bound and coalesce public map reads, restart the unresponsive backend, verify production recovery, and assess capacity without paid resizing.
+- [x] Restore homepage access during backend outages: abortable 4-second display reads, short fresh cache/coalescing and failure backoff shipped; backend restart recovered data access; production homepage 200 and map points verified with no browser errors. 11 tests and build pass. Current connections 7/60, pool 1/200, memory 75%, disk 14%, no exhaustion alerts; no paid resize. Live payout not tested.
 - [x] Remove the shared-network two-claims-per-day rejection; 17 regression checks pass and preview build is OK. Draft an accurate anti-spoofing tweet; no live payout submitted or publication performed.
 - [x] Verify the Flap handover ZIP carries every website animation (29 keyframes + all scene components byte-identical to live), bundle the 18 hosted image pointers as real files so the package runs offline, and deliver catch-fullstack-v2.zip.
 
