@@ -450,6 +450,23 @@ function AppMap() {
               <li>{t("2. Keep the page open 20 s, then get the claim code.", "2. 保持页面 20 秒，获取领取码。")}</li>
               <li>{t("3. Paste the instruction to your AI. It adds its own wallet, previews, and claims on BSC after you confirm.", "3. 把指令发给 AI：它自动带上自己的钱包地址，先预览，你确认后在 BSC 上领取。")}</li>
             </ol>
+            <Button
+              variant="outline"
+              className="mt-4 w-full"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(buildBuyCatchCommand(lang === "zh" ? "zh" : "en", "0x8344e021edfe72a8aa8382328edd096565487777"));
+                  setBuyCopied(true);
+                  window.setTimeout(() => setBuyCopied(false), 2500);
+                } catch {
+                  alert(t("Copy unavailable. Select the text instead.", "无法复制，请手动选中文字复制。"));
+                }
+              }}
+            >
+              {buyCopied ? <Check /> : <Copy />}
+              {buyCopied ? t("Buy command copied — paste it to your AI", "已复制买入指令，发给你的 AI 即可") : t("Wallet short on CATCH? Copy the buy command", "钱包 CATCH 不够？复制买入指令")}
+            </Button>
+            <p className="mt-2 text-xs text-muted-foreground">{t("Buying needs BNB in the Agent Wallet. Wait about 10 minutes after buying before claiming.", "买币需要 Agent 钱包里有 BNB。买完请等约 10 分钟再去领。")}</p>
             <p className="mt-3 text-xs text-muted-foreground">{t("The vault only pays wallets holding a Binance Agent ID, and only to themselves.", "金库只向持有币安 Agent ID 的钱包付款，且只能领给自己。")}</p>
             <Link to="/agent-guide" className="mt-3 inline-block text-xs text-primary underline">{t("First time? Set up your Agent Wallet →", "第一次用？查看 Agent 钱包设置教程 →")}</Link>
             <p className="mt-3 text-xs text-muted-foreground">{CHAIN.name} · {t("All rarities are Agent-only", "所有稀有度均仅限 Agent")}</p>
