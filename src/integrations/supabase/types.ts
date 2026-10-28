@@ -155,6 +155,27 @@ export type Database = {
         }
         Relationships: []
       }
+      display_snapshots: {
+        Row: {
+          built_at: string
+          key: string
+          lease_until: string
+          payload: Json
+        }
+        Insert: {
+          built_at?: string
+          key: string
+          lease_until?: string
+          payload: Json
+        }
+        Update: {
+          built_at?: string
+          key?: string
+          lease_until?: string
+          payload?: Json
+        }
+        Relationships: []
+      }
       legendary_events: {
         Row: {
           amount: number
@@ -372,6 +393,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_display_lease: {
+        Args: { _key: string; _lease_seconds: number; _stale_seconds: number }
+        Returns: boolean
+      }
       schedule_daily_legendary: { Args: never; Returns: undefined }
     }
     Enums: {
