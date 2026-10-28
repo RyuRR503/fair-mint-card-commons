@@ -50,7 +50,14 @@ async function loadMapSummary(signal: AbortSignal) {
   const day = today();
 
   type Row = { symbol: string; rarity: string | null; places: { city: string } };
-  const rows = (await allOpenSpawns("symbol, rarity, places!inner(city)", signal)) as unknown as Row[];
+  // These independent reads share the deadline; serial network round trips
+  // previously exhausted it even when each query itself was fast.
+  const [openRows, places] = await Promise.all([
+    allOpenSpawns("symbol, rarity, places!inner(city)", signal),
+    supabaseAdmin.from("places").select("id", { count: "exact", head: true }).abortSignal(signal),
+  ]);
+  if (places.error) throw new Error("Place count unavailable");
+  const rows = openRows as unknown as Row[];
 
   const byCity = new Map<string, { count: number; symbols: Set<string>; rarity: Rarity }>();
   for (const row of rows) {
@@ -78,17 +85,11 @@ async function loadMapSummary(signal: AbortSignal) {
     }];
   });
 
-  const { count: placeCount, error } = await supabaseAdmin
-    .from("places")
-    .select("id", { count: "exact", head: true })
-    .abortSignal(signal);
-  if (error) throw new Error(error.message);
-
   return {
     pins,
     totalSpawns: rows.length,
     totalCities: pins.length,
-    totalPlaces: placeCount ?? 0,
+    totalPlaces: places.count ?? 0,
     tokens: Object.keys(TOKEN_BY_SYMBOL).length,
     day,
     available: true,
