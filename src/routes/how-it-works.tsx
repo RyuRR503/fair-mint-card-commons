@@ -55,24 +55,24 @@ function HowItWorks() {
       n: "03",
       h: t("Hold still for a few seconds.", "完成连续定位采样。"),
       p: t(
-        `The app records at least ${RULES.minFixSamples} readings over ${RULES.minFixSeconds} seconds and reads your accelerometer. A real hand holding a real phone shakes; a mocked location sits perfectly still. That is how it tells the difference.`,
-        `App 会在 ${RULES.minFixSeconds} 秒内记录至少 ${RULES.minFixSamples} 次定位，并读取加速度计。系统结合定位波动与运动数据，辅助识别异常定位；单项数据并不等同于到场证明。`,
+        `The app records at least ${RULES.minFixSamples} location readings over ${RULES.minFixSeconds} seconds. You do not need to shake your phone; unavailable motion data does not block claims.`,
+        `App 会在至少 ${RULES.minFixSeconds} 秒内记录不少于 ${RULES.minFixSamples} 次定位。无需晃动手机；手机无法提供运动数据，不会因此被拒绝领取。`,
       ),
     },
     {
       n: "04",
       h: t("The server runs the checks.", "验证位置与领取资格。"),
       p: t(
-        "It measures distance, accuracy, jitter, and whether your travel since the last catch is physically possible. It also checks the site-wide hourly budget and your daily cap. If anything fails, you see a plain reason and pay zero gas.",
-        "服务器会计算距离、精度、抖动，以及距上次领取的移动在现实里是否可能（比如一小时内在两座城市出现会被拒绝）；同时检查全站每小时预算和你的每日上限。任何一项未通过，系统都会说明原因，且不会产生链上交易费用。",
+        "Location checks cover distance, accuracy, consecutive readings and travel. When your AI redeems the code, wallet eligibility and site-wide rolling payout budgets are checked before a voucher is issued. A failed check does not submit a transaction.",
+        "获取领取码时检查距离、精度、连续定位与跨城移动；AI 兑换时再检查钱包资格和全站滚动发放额度。未通过会显示原因，不会提交链上交易。",
       ),
     },
     {
       n: "05",
       h: t("A 15-minute claim code.", "获取 15 分钟有效的领取码。"),
       p: t(
-        "After GPS and rule checks pass, the site issues a single-use claim code bound to the point. You don't enter a wallet: send the instruction to your AI within 15 minutes and it adds its own Agent Wallet.",
-        "定位与规则通过后，网站签发绑定点位的一次性领取码，无需填写钱包。15 分钟内把指令发给 AI，它会自动带上自己的 Agent 钱包。",
+        "After location checks pass, the site issues a single-use code valid for 15 minutes. Wait at least 20 seconds after the code is issued before redemption. Send the instruction to your AI; no wallet address entry is needed.",
+        "定位通过后，网站签发绑定点位、15 分钟有效的一次性领取码。获取后至少等待 20 秒再兑换；把指令发给 AI 即可，无需填写钱包。",
       ),
     },
     {
@@ -86,6 +86,22 @@ function HowItWorks() {
   ];
 
   const ANTICHEAT: [string, string][] = [
+    [
+      t("CATCH holding requirement", "持币要求"),
+      t("The claiming Agent Wallet must hold at least 100,000 CATCH now and about 10 minutes earlier. Prepare your balance before getting a claim code, and keep BNB for transaction fees.", "领取的 Agent 钱包当前及约 10 分钟前均需持有至少 10 万个 CATCH。请先备好持仓，再获取领取码，并留足 BNB 支付交易手续费。"),
+    ],
+    [
+      t("Claim code wait", "领取码等待时间"),
+      t("A code is valid for 15 minutes. Redemption is allowed at least 20 seconds after issuance; an early attempt can be retried without losing the code.", "领取码有效期为 15 分钟，生成后至少等待 20 秒才能兑换。提前兑换会提示等待，等够时间后可用原码重试。"),
+    ],
+    [
+      t("Network travel", "同一网络跨城检查"),
+      t("Implausibly fast travel between distant locations on the same network is refused. Sharing Wi-Fi in the same area does not impose a daily claim quota.", "同一网络在相距较远的地点间短时间跳转，会被拒绝。同区域多人共用 Wi-Fi，不会仅因此受到每日领取次数限制。"),
+    ],
+    [
+      t("Location anomalies", "异常定位提示"),
+      t("A fix less than 3 metres from the pin with whole-metre accuracy is refused. This can also affect real visitors; move slightly away from the centre, stay within range and retry.", "定位距离点位中心不足 3 米、且精度为整数时会被拒绝，也可能误判现场用户。可稍微离开中心、保持在领取范围内后重新定位。"),
+    ],
     [
       t("Radius and accuracy", "半径与精度"),
       t(
@@ -109,7 +125,7 @@ function HowItWorks() {
     ],
     [
       t("Motion", "运动数据"),
-      t("Hands shake, emulators do not. A perfect zero is refused.", "系统检查运动数据；完全为零的数据会被判定为异常并拒绝请求。"),
+      t("No phone shaking is required. Missing or zero motion readings do not block claims.", "无需晃动手机；运动数据缺失或为零，不会因此拒绝领取。"),
     ],
     [
       t("Clock and timezone", "时钟与时区"),
@@ -121,22 +137,22 @@ function HowItWorks() {
     [
       t("Cooldowns", "冷却时间"),
       t(
-        `${RULES.walletCooldownMin} minutes between two catches by the same wallet. Each signal sleeps 20–120 minutes after it is caught, depending on rarity, then wakes up by itself.`,
-        `同一钱包两次领取间隔 ${RULES.walletCooldownMin} 分钟。点位完成领取后，根据稀有度进入 20–120 分钟冷却，结束后按规则重新开放。`,
+        `${RULES.walletCooldownMin} minutes between two catches by the same wallet. Open signals sleep 20–90 minutes after it is caught, depending on rarity, then wakes up by itself.`,
+        `同一钱包两次领取间隔 ${RULES.walletCooldownMin} 分钟。点位完成领取后，根据稀有度进入 20–90 分钟冷却，结束后按规则重新开放。`,
       ),
     ],
     [
       t("Caps", "上限"),
       t(
-        `${RULES.perWalletPerDay} catches per wallet per day, and the same wallet cannot take the same signal twice within 24 hours. The whole site also has a rolling hourly budget of $${RULES.hourlyUsdCap} and a rolling 24-hour budget of $${RULES.dailyUsdCap} (priced at live on-chain quotes) — once a budget is spent, catches pause until the window rolls on.`,
-        `每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，且同一钱包 24 小时内不能重复领取同一个信号。全站还有每小时 $${RULES.hourlyUsdCap} 和每滚动 24 小时 $${RULES.dailyUsdCap} 的发放预算（按链上实时报价折算）——任一用完即暂停，窗口滚动后自动恢复。`,
+        `${RULES.perWalletPerDay} catches per wallet per rolling 24 hours, and the same wallet cannot take the same signal twice within 24 hours. The whole site also has a rolling hourly budget of $${RULES.hourlyUsdCap} and a rolling 24-hour budget of $${RULES.dailyUsdCap} (priced at live on-chain quotes) — once a budget is spent, catches pause until the window rolls on.`,
+        `每个 Agent 钱包每滚动 24 小时 ${RULES.perWalletPerDay} 次，且同一钱包 24 小时内不能重复领取同一个信号。全站还有每小时 $${RULES.hourlyUsdCap} 和每滚动 24 小时 $${RULES.dailyUsdCap} 的发放预算（按链上实时报价折算）——任一用完即暂停，窗口滚动后自动恢复。`,
       ),
     ],
     [
       t("Nonces and deadlines", "Nonce 与有效期"),
       t(
-        `A voucher is single-use and expires in ${RULES.voucherTtlMin} minutes. Replays are impossible.`,
-        `凭证一次性使用，${RULES.voucherTtlMin} 分钟后失效，无法重放。`,
+        `A voucher is single-use and expires in ${RULES.voucherTtlMin} minutes. The same wallet can retry to retrieve its unexpired original voucher, never a second reward.`,
+        `凭证一次性使用，${RULES.voucherTtlMin} 分钟后失效。同一钱包重试可取回尚未过期的原凭证，但不会多发一份奖励。`,
       ),
     ],
   ];
@@ -147,11 +163,20 @@ function HowItWorks() {
         eyebrow={t("how it works", "玩法")}
         title={t("Location verification and Agent claim rules", "定位验证与 Agent 领取规则")}
         lead={t(
-          "Every rarity is intended for Agent-only claims: human GPS, AI command, Agent transaction. Map claims are live; the legendary event claim is not connected yet.",
-          "所有稀有度的碎片均仅限币安 Agent 钱包领取。用户抵达指定地点并通过定位验证后，获取一次性指令，由 AI 通过 Agent 钱包提交链上领取。地图点位已可真实领取，传奇活动的领取暂未接通。",
+          "Every rarity is intended for Agent-only claims: human GPS, AI command, Agent transaction. Map claims are live; legendary SPCXB claims remain closed.",
+          "所有稀有度的碎片均仅限币安 Agent 钱包领取。用户抵达指定地点并通过定位验证后，获取一次性指令，由 AI 通过 Agent 钱包提交链上领取。地图点位已开放领取；传奇 SPCXB 暂未开放。",
         )}
         className="mt-10"
       />
+
+      <section className="mx-auto max-w-6xl px-5 py-6" aria-label={t("Current claim requirements", "当前领取要求")}>
+        <h2 className="text-lg">{t("Current claim requirements", "当前领取要求")}</h2>
+        <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
+          <li>{t("Agent Wallet: hold at least 100,000 CATCH for about 10 minutes; keep BNB for fees.", "Agent 钱包需持有至少 10 万个 CATCH，且已持有约 10 分钟；另需 BNB 支付手续费。")}</li>
+          <li>{t(`Site-wide limits: $${RULES.hourlyUsdCap} per rolling hour and $${RULES.dailyUsdCap} per rolling 24 hours. Claims pause when either limit is reached.`, `全站上限：每滚动 1 小时 $${RULES.hourlyUsdCap}，每滚动 24 小时 $${RULES.dailyUsdCap}；任一额度用完即暂停领取。`)}</li>
+          <li>{t("Claim codes last 15 minutes; wait at least 20 seconds after issuance before redemption. No phone shaking is required. SPCXB remains closed.", "领取码 15 分钟有效，生成后至少等待 20 秒再兑换。无需晃动手机，SPCXB 暂未开放。")}</li>
+        </ul>
+      </section>
 
       <section className="mx-auto max-w-6xl px-5 py-8"><AgentStatus /><div className="mt-8"><AgentJourney /></div></section>
 
@@ -289,8 +314,8 @@ function HowItWorks() {
             <h3 className="label-caps text-[11px] text-primary">{t("Wallet caps", "钱包限制")}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                `One Agent Wallet can catch ${RULES.perWalletPerDay} drops per day, with at least ${RULES.walletCooldownMin} minutes between two catches. The same wallet cannot take the same signal twice within 24 hours.`,
-                `每个 Agent 钱包每天可领取 ${RULES.perWalletPerDay} 次，两次领取之间至少间隔 ${RULES.walletCooldownMin} 分钟，且 24 小时内不能重复领取同一信号。`,
+                `One Agent Wallet can catch ${RULES.perWalletPerDay} drops per rolling 24 hours, with at least ${RULES.walletCooldownMin} minutes between two catches. The same wallet cannot take the same signal twice within 24 hours.`,
+                `每个 Agent 钱包每滚动 24 小时可领取 ${RULES.perWalletPerDay} 次，两次领取之间至少间隔 ${RULES.walletCooldownMin} 分钟，且 24 小时内不能重复领取同一信号。`,
               )}
             </p>
           </Panel>

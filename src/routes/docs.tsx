@@ -59,6 +59,14 @@ function Docs() {
           <div><h3 className="text-lg">{tr("Enforced by the contract", "由合约强制执行")}</h3><p className="mt-3 text-sm text-muted-foreground">{tr("claimGameVoucher requires the caller to hold a Binance Agent ID and pays only the caller itself. Legendary event claims are not connected yet.", "claimGameVoucher 要求调用者持有币安 Agent ID，奖励只转给调用者本人。传奇活动的领取暂未接通。")}</p></div>
         </div>
       </Section>
+      <Section title={tr("Current claim requirements", "当前领取要求")}>
+        <ul className="mt-4 space-y-2 text-sm leading-relaxed text-muted-foreground">
+          <li>{tr("The claiming Agent Wallet must hold at least 100,000 CATCH now and about 10 minutes earlier, and keep BNB for fees.", "领取的 Agent 钱包当前及约 10 分钟前均需持有至少 10 万个 CATCH，并留足 BNB 支付手续费。")}</li>
+          <li>{tr(`Site-wide payouts: at most $${RULES.hourlyUsdCap} per rolling hour and $${RULES.dailyUsdCap} per rolling 24 hours. Either limit pauses new vouchers.`, `全站每滚动 1 小时最多发放 $${RULES.hourlyUsdCap}，每滚动 24 小时最多 $${RULES.dailyUsdCap}；任一额度用完即暂停签发新凭证。`)}</li>
+          <li>{tr("Codes are valid for 15 minutes and may be redeemed at least 20 seconds after issuance. Early requests can retry with the same code.", "领取码有效期 15 分钟，生成后至少等待 20 秒才能兑换；提前请求可等待后用原码重试。")}</li>
+          <li>{tr("No phone shaking is required. Location and travel checks still apply; SPCXB claims remain closed.", "无需晃动手机；仍须通过定位与跨城移动检查。SPCXB 暂未开放领取。")}</li>
+        </ul>
+      </Section>
       <Section title={tr("Coverage", "覆盖范围")}>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <Panel>
@@ -271,8 +279,8 @@ POST early-access    { email, kind, city?, company? }`}</Code>
         </Panel>
         <p className="mt-4 text-sm text-muted-foreground">
           {tr(
-            `Agent Wallet caps: ${RULES.perWalletPerDay} catches per day, ${RULES.walletCooldownMin} minutes between catches, and the same signal cannot be caught twice within 24 hours. Site-wide, payouts are capped at $${RULES.hourlyUsdCap} per rolling hour and $${RULES.dailyUsdCap} per rolling 24 hours, valued at live on-chain quotes — when a budget is spent, claims pause until the window refills.`,
-            `钱包限制：每个 Agent 钱包每天 ${RULES.perWalletPerDay} 次，两次领取间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复领取。全站层面，每个滚动小时的发放总额封顶 $${RULES.hourlyUsdCap}，每滚动 24 小时封顶 $${RULES.dailyUsdCap}（按链上实时报价折算）——任一预算用完即暂停，窗口滚动后自动恢复。`,
+            `Agent Wallet caps: ${RULES.perWalletPerDay} catches per rolling 24 hours, ${RULES.walletCooldownMin} minutes between catches, and the same signal cannot be caught twice within 24 hours. Site-wide, payouts are capped at $${RULES.hourlyUsdCap} per rolling hour and $${RULES.dailyUsdCap} per rolling 24 hours, valued at live on-chain quotes — when a budget is spent, claims pause until the window refills.`,
+            `钱包限制：每个 Agent 钱包每滚动 24 小时 ${RULES.perWalletPerDay} 次，两次领取间隔 ${RULES.walletCooldownMin} 分钟，同一信号 24 小时内不可重复领取。全站层面，每个滚动小时的发放总额封顶 $${RULES.hourlyUsdCap}，每滚动 24 小时封顶 $${RULES.dailyUsdCap}（按链上实时报价折算）——任一预算用完即暂停，窗口滚动后自动恢复。`,
           )}
         </p>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
