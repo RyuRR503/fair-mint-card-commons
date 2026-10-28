@@ -13,7 +13,7 @@ import { claimDrop, getClaimStatus, getHumanCheckKey, getLegendary, getSpawns, R
 import { ClaimedFeed } from "@/components/site/ClaimedFeed";
 import { HumanCheck, type HumanCheckHandle } from "@/components/site/HumanCheck";
 import { isPending, type ClaimPhase } from "@/lib/claim-status";
-import { buildAgentCommand } from "@/lib/agent-command";
+import { buildAgentCommand, buildBuyCatchCommand } from "@/lib/agent-command";
 import { CITY_BY_KEY } from "@/lib/cities";
 import { Input } from "@/components/ui/input";
 import { catchRadius, formatDistance, haversine } from "@/lib/geo";
@@ -611,6 +611,20 @@ function AppMap() {
             <ul className="mt-3 space-y-2 text-xs leading-relaxed text-muted-foreground">
               <li>{t("· Every rarity requires an Agent Wallet, including legendary.", "· 普通、稀有、史诗、传奇，全部仅限 Agent 钱包。")}</li>
               <li>{t("· The Agent Wallet must hold at least 100,000 CATCH, held for about 10 minutes.", "· Agent 钱包需持有至少 10 万个 CATCH，且已持有约 10 分钟。")}</li>
+              <li>
+                <button
+                  type="button"
+                  className="text-primary underline underline-offset-4"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(buildBuyCatchCommand(lang === "zh" ? "zh" : "en", "0x8344e021edfe72a8aa8382328edd096565487777"));
+                      alert(t("Buy command copied. Paste it to your AI.", "买入指令已复制，粘贴给你的 AI 即可。"));
+                    } catch {}
+                  }}
+                >
+                  {t("Copy the “buy 100,000 CATCH” command for your AI", "复制「买入 10 万 CATCH」AI 指令")}
+                </button>
+              </li>
               <li>{t("· Flow: phone GPS → 15-minute command → AI → Agent claim.", "· 流程：手机定位 → 15 分钟指令 → AI → Agent 领取。")}</li>
               <li>
                 {t(`· GPS accuracy under ${RULES.maxAccuracyM} m.`, `· GPS 精度需优于 ${RULES.maxAccuracyM} 米。`)}
