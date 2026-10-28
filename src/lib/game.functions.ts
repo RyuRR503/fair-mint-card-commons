@@ -11,6 +11,7 @@ import { dbSnapshotStore, readSnapshot } from "@/lib/display-snapshot";
 import { createBoundedRead } from "./bounded-read";
 import { hourlyCapCheck } from "./hourly-cap";
 import { networkTravelBlocked } from "./network-travel";
+import { MIN_REDEEM_WAIT_S, pinSnapped, redeemTooSoon } from "./claim-guards";
 
 
 
@@ -427,6 +428,11 @@ export const claimDrop = createServerFn({ method: "POST" })
       return fail("That position does not move like a real GPS chipset. Mock locations are refused.", "定位数据不像真实手机 GPS，模拟定位无法领取。");
     if (distance < 0.5)
       return fail("Your fix lands on the pin to the centimetre. No phone does that.", "定位与点位完全重合，不像真实手机定位。");
+    if (pinSnapped(distance, data.accuracy))
+      return fail(
+        "Your fix sits on the pin centre with a rounded accuracy, which matches mock-location tools. Move a little and try again.",
+        "定位正好落在点位中心且精度为整数，与模拟定位特征一致，无法领取。请稍微走动后重试。",
+      );
 
     // 3. motion: emulators sit perfectly still
     // Motion is client-reported and many phones (iOS without permission, in-app browsers)
@@ -597,6 +603,11 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
     return fail("This claim code was already used.", "这个领取码已经用过了。");
   }
   if (new Date(codeRow.expires_at).getTime() < now) return fail("This claim code has expired. Get a new one on site.", "领取码已过期，请到现场重新获取。");
+  if (redeemTooSoon(new Date(codeRow.created_at).getTime(), now))
+    return fail(
+      `This code was issued moments ago. Wait ${MIN_REDEEM_WAIT_S} seconds after getting it, then send it again.`,
+      `领取码刚生成，请在获取后等待 ${MIN_REDEEM_WAIT_S} 秒再兑换。`,
+    );
 
   const agent = await hasAgentId(wallet);
   if (agent !== true)
