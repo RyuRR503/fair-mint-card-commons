@@ -29,3 +29,18 @@ test("daily cap refuses instead of skipping when a price is missing", () => {
   const r = payoutCapCheck([{ symbol: "NOFEED", amount: 0.01 }], { symbol: "AAPLB", amount: 0.01 }, price, 500);
   assert.equal(!r.ok && r.reason, "price");
 });
+
+import { budgetStatus } from "./hourly-cap";
+test("budget frees when the oldest payout leaves the hour window", () => {
+  const rows = [
+    { symbol: "A", amount: 3, created_at: "2026-10-28T10:00:00Z" },
+    { symbol: "A", amount: 2, created_at: "2026-10-28T10:20:00Z" },
+  ];
+  const s = budgetStatus(rows, { A: 10 }, 50, 3600e3, 5);
+  assert.equal(s.spentUsd, 50);
+  assert.equal(s.freesAtMs, new Date("2026-10-28T11:00:00Z").getTime());
+});
+test("budget with room has no countdown", () => {
+  const s = budgetStatus([{ symbol: "A", amount: 1, created_at: "2026-10-28T10:00:00Z" }], { A: 10 }, 50, 3600e3, 5);
+  assert.equal(s.freesAtMs, null);
+});
