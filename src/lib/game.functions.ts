@@ -7,6 +7,7 @@ import { allocate, claimShares, payableClaims } from "./allocation";
 import { scoreBehavior } from "./behavior";
 import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES, VOUCHER_PRIMARY_TYPE } from "./vault";
 import { receiptMatchesClaim, type ClaimReceipt } from "./claim-receipt";
+import { dbSnapshotStore, readSnapshot } from "@/lib/display-snapshot";
 import { createBoundedRead } from "./bounded-read";
 
 
@@ -270,7 +271,7 @@ async function liveBook(): Promise<Book> {
 /* ----------------------------------------------------------------- spawns */
 
 // Display only: fresh bounded/coalesced reads; redemption never uses this cache.
-const readSpawnDisplay = createBoundedRead<{ all: Spawn[]; cooling: (Spawn & { respawnAt: string })[] }>(30_000, 12_000, 15_000);
+const readSpawnDisplay = createBoundedRead<{ all: Spawn[]; cooling: (Spawn & { respawnAt: string })[] }>(20_000, 15_000, 5_000);
 async function loadSpawnDisplay(signal: AbortSignal) {
   const book = await liveBook();
   const all = (await openSpawns(signal)).filter((s) => book.live.has(s.id))
@@ -293,7 +294,7 @@ export const getSpawns = createServerFn({ method: "GET" })
       .parse(d ?? {}),
   )
   .handler(async ({ data }) => {
-    const { all, cooling } = await readSpawnDisplay(loadSpawnDisplay);
+    const { all, cooling } = await readSpawnDisplay((sig) => readSnapshot(dbSnapshotStore(), "app-spawns", loadSpawnDisplay, sig));
     const lat = data.lat;
     const lng = data.lng;
     const list: Spawn[] =
