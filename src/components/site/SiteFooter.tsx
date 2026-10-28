@@ -39,7 +39,7 @@ export function SiteFooter() {
               rel="noreferrer noopener"
               className="text-muted-foreground transition-colors hover:text-foreground"
             >
-              𝕏 catchonchain
+              𝕏 CATCHFUN_BSC
             </a>
           </div>
         </div>
