@@ -43,7 +43,7 @@ export const CHAIN = {
 } as const;
 
 /** Deployed MapCity vault proxy on BSC (verified on-chain 2026-10-23). */
-export const VAULT_ADDRESS = "0x699ffc34719d992fa14b2b6e3da1ebd083797beb";
+export const VAULT_ADDRESS = "0x1f1491a47de4b53d0b5890d16f62aea9775cd00e";
 
 /** Treasury / ops wallet that receives fees and refills the vault (opsTreasury on-chain). */
 export const TREASURY_ADDRESS = "0xD60d847c18610dB29d48d6181bc3D55E30cA0Aa5";

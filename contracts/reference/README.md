@@ -36,3 +36,9 @@ The calling address must equal `to`, and its NFT balance at the hardcoded `AGENT
 - Guardian has fund-withdrawal control; the owner does **not**. This conflicts with the user's previously requested owner-full-control policy. Preserve the upload and ask for a decision before changing those permissions.
 - Factory upgrades affect every proxy using its beacon. Owner/Guardian factory upgrade permission does not establish storage compatibility with older vaults.
 - The contract enforces identity, recipient, signature, expiry, nonce and inventory checks, not GPS, per-user daily rules, or truth of AI execution. A compromised signer can authorize payouts to eligible Agent ID holders up to available stock.
+## Production deployment (CATCH, 2026-10-28)
+- Token (CA): 0x8344e021edfe72a8aa8382328edd096565487777
+- Factory: 0xD3A0353d0F0B9B7aE1C77B8C2bfd6959c16aF414
+- Beacon: 0xb1491d2a6c3e618f360b3f0533f2e649d0f19fc7
+- Implementation: 0xc0b778ecec4dc85a2fb2824302d3ade18a19db72
+- Vault (proxy, used by site): 0x1f1491a47de4b53d0b5890d16f62aea9775cd00e

@@ -8,7 +8,7 @@ const base = {
   amount: 0.00942,
   symbol: "NVDAB",
   tokenAddress: "0x02Fca66C1D1aFB4E2A7884261eB00F63598a7436",
-  vaultAddress: "0x699ffc34719d992fa14b2b6e3da1ebd083797beb",
+  vaultAddress: "0x1f1491a47de4b53d0b5890d16f62aea9775cd00e",
   place: "网吧",
   deadline: 1_800_000_000,
   chainId: 56,
