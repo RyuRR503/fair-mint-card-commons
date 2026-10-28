@@ -979,6 +979,37 @@ export const getClaims = createServerFn({ method: "GET" })
     }));
   });
 
+type ClaimedRow = { wallet: string; symbol: string; amount: number; city: string; place: string; at: string; tx: string };
+const readClaimedFeed = createBoundedRead<ClaimedRow[]>(30_000, 6_000, 10_000);
+
+/** Public feed of on-chain verified claims only (settled with a matching receipt). Display only. */
+export const getClaimedFeed = createServerFn({ method: "GET" }).handler(async () => {
+  try {
+    return await readClaimedFeed(async () => {
+      const db = await admin();
+      const { data: rows } = await db
+        .from("catches")
+        .select("wallet, symbol, amount, city, place, settled_at, tx_hash")
+        .not("tx_hash", "is", null)
+        .not("settled_at", "is", null)
+        .eq("mode", "live")
+        .order("settled_at", { ascending: false })
+        .limit(30);
+      return (rows ?? []).map((r) => ({
+        wallet: shortAddress(r.wallet),
+        symbol: r.symbol,
+        amount: Number(r.amount),
+        city: r.city,
+        place: r.place,
+        at: r.settled_at!,
+        tx: r.tx_hash!,
+      }));
+    });
+  } catch {
+    return [] as ClaimedRow[];
+  }
+});
+
 /* ---------------------------------------------------------------- reserves */
 
 export const getVault = createServerFn({ method: "GET" }).handler(async () => {
