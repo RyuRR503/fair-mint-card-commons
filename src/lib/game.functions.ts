@@ -7,6 +7,7 @@ import { allocate, claimShares, payableClaims } from "./allocation";
 import { scoreBehavior } from "./behavior";
 import { EIP712_NAME, EIP712_VERSION, VOUCHER_TYPES, VOUCHER_PRIMARY_TYPE } from "./vault";
 import { receiptMatchesClaim, type ClaimReceipt } from "./claim-receipt";
+import { createBoundedRead } from "./bounded-read";
 
 
 
@@ -44,13 +45,15 @@ const SPAWN_SELECT =
   "id, symbol, amount, rarity, claimed_by, respawn_at, cooldown_min, places!inner(name, city, country, lat, lng)";
 
 /** Live signals: never caught, or their cooldown already ran out. */
-async function openSpawns(): Promise<Spawn[]> {
+async function openSpawns(signal?: AbortSignal): Promise<Spawn[]> {
   const supabase = await admin();
-  const { data, error } = await supabase
+  let query = supabase
     .from("spawns")
     .select(SPAWN_SELECT)
     .or(`respawn_at.is.null,respawn_at.lte.${new Date().toISOString()}`)
     .limit(4000);
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query;
   if (error) throw new Error(error.message);
   return (data as unknown as SpawnRow[]).map(toSpawn);
 }
@@ -116,6 +119,7 @@ async function hasAgentId(wallet: string): Promise<boolean | null> {
     const res = await fetch(CHAIN.rpc, {
       method: "POST",
       headers: { "content-type": "application/json" },
+      signal: AbortSignal.timeout(6000),
       body: JSON.stringify({
         jsonrpc: "2.0", id: 1, method: "eth_call",
         params: [{ to: vaultAddress(), data: `0x4eab3ef2000000000000000000000000${wallet.slice(2).toLowerCase()}` }, "latest"],
@@ -136,6 +140,7 @@ async function feedPriceUsd(feed: string): Promise<number | null> {
     const res = await fetch(CHAIN.rpc, {
       method: "POST",
       headers: { "content-type": "application/json" },
+      signal: AbortSignal.timeout(6000),
       body: JSON.stringify({
         jsonrpc: "2.0",
         id: 1,
@@ -175,6 +180,7 @@ async function poolPriceUsd(token: string, decimals: number): Promise<number | n
         const res = await fetch(CHAIN.rpc, {
           method: "POST",
           headers: { "content-type": "application/json" },
+          signal: AbortSignal.timeout(6000),
           body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: "0x10ED43C718714eb63d5aA57B78B54704E256024E", data }, "latest"] }),
         });
         const json = (await res.json()) as { result?: `0x${string}` };
@@ -208,6 +214,7 @@ async function vaultTokenBalance(tokenAddress: string, decimals: number): Promis
     const res = await fetch(CHAIN.rpc, {
       method: "POST",
       headers: { "content-type": "application/json" },
+      signal: AbortSignal.timeout(6000),
       body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: tokenAddress, data: `0x70a08231000000000000000000000000${vault.slice(2)}` }, "latest"] }),
     });
     const json = (await res.json()) as { result?: string };
@@ -245,7 +252,8 @@ async function liveBook(): Promise<Book> {
     }),
   );
   const db = await admin();
-  const { data } = await db.from("spawns").select("id, symbol, places!inner(city)").limit(4000);
+  const { data, error } = await db.from("spawns").select("id, symbol, places!inner(city)").limit(4000).abortSignal(AbortSignal.timeout(6000));
+  if (error) throw new Error("Live allocation data unavailable");
   const bySym = new Map<string, { id: string; city: string }[]>();
   for (const r of (data ?? []) as unknown as { id: string; symbol: string; places: { city: string } }[]) {
     const l = bySym.get(r.symbol) ?? [];
@@ -261,6 +269,19 @@ async function liveBook(): Promise<Book> {
 
 /* ----------------------------------------------------------------- spawns */
 
+// Display only: fresh bounded/coalesced reads; redemption never uses this cache.
+const readSpawnDisplay = createBoundedRead<{ all: Spawn[]; cooling: (Spawn & { respawnAt: string })[] }>(30_000, 12_000, 15_000);
+async function loadSpawnDisplay(signal: AbortSignal) {
+  const book = await liveBook();
+  const all = (await openSpawns(signal)).filter((s) => book.live.has(s.id))
+    .map((s) => ({ ...s, amount: book.shares[s.symbol] ?? s.amount }));
+  const { data, error } = await (await admin()).from("spawns").select(SPAWN_SELECT)
+    .gt("respawn_at", new Date().toISOString()).limit(300).abortSignal(signal);
+  if (error) throw new Error("Cooling points unavailable");
+  const cooling = ((data ?? []) as unknown as SpawnRow[]).flatMap((r) => r.respawn_at ? [{ ...toSpawn(r), respawnAt: r.respawn_at }] : []);
+  return { all, cooling };
+}
+
 export const getSpawns = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) =>
     z
@@ -272,26 +293,18 @@ export const getSpawns = createServerFn({ method: "GET" })
       .parse(d ?? {}),
   )
   .handler(async ({ data }) => {
-    const book = await liveBook();
-    const all = (await openSpawns())
-      .filter((s) => book.live.has(s.id))
-      .map((s) => ({ ...s, amount: book.shares[s.symbol] ?? s.amount }));
+    const { all, cooling } = await readSpawnDisplay(loadSpawnDisplay);
+    const lat = data.lat;
+    const lng = data.lng;
     const list: Spawn[] =
-      data.lat != null && data.lng != null
+      lat != null && lng != null
         ? all
             .map((s) => ({
               ...s,
-              distance: haversine(data.lat!, data.lng!, s.lat, s.lng),
+              distance: haversine(lat, lng, s.lat, s.lng),
             }))
             .sort((a, b) => (a.distance ?? 0) - (b.distance ?? 0))
         : all.map((s) => ({ ...s, distance: null }));
-    // recently taken points stay on the map, greyed, until they respawn
-    const { data: coolRows } = await (await admin())
-      .from("spawns")
-      .select(SPAWN_SELECT)
-      .gt("respawn_at", new Date().toISOString())
-      .limit(300);
-    const cooling = ((coolRows ?? []) as unknown as SpawnRow[]).map((r) => ({ ...toSpawn(r), respawnAt: r.respawn_at! }));
     return { spawns: list.slice(0, data.limit ?? 400), total: all.length, cooling };
   });
 
