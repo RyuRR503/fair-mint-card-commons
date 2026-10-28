@@ -1,7 +1,9 @@
 import { TIER_USD } from "@/lib/allocation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SITE_PREVIEW_META } from "@/lib/site-preview";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { retryDisplay } from "@/lib/display-retry";
 import { ArrowDown, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
@@ -60,7 +62,22 @@ export const Route = createFileRoute("/")({
 function Home() {
   const t = useT();
   const [motionPaused, setMotionPaused] = useState(false);
-  const summary = Route.useLoaderData();
+  const initialSummary = Route.useLoaderData();
+  const [recoveredSummary, setRecoveredSummary] = useState<typeof initialSummary | null>(null);
+  const summary = recoveredSummary ?? initialSummary;
+  const refreshSummary = useServerFn(getMapSummary);
+  useEffect(() => {
+    if (initialSummary.available) return;
+    const controller = new AbortController();
+    retryDisplay(async () => {
+      const result = await refreshSummary();
+      if (!result.available) throw new Error("Summary temporarily unavailable");
+      return result;
+    }, controller.signal).then((result) => {
+      if (!controller.signal.aborted) setRecoveredSummary(result);
+    }).catch(() => {});
+    return () => controller.abort();
+  }, [initialSummary.available, refreshSummary]);
   const points = useMapPoints();
   const TOTAL_SPAWNS = summary.available ? summary.totalSpawns : "—";
   const TOTAL_CITIES = summary.available ? summary.totalCities : "—";

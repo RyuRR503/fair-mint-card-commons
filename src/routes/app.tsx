@@ -21,6 +21,7 @@ import { Bot, Check, CircleCheck, Copy, ExternalLink, Loader2, MapPin as MapPinI
 import { AgentStatus } from "@/components/site/AgentJourney";
 import { claimEligibility } from "@/lib/agent-claims";
 import { useT, useLang } from "@/lib/i18n";
+import { retryDisplay } from "@/lib/display-retry";
 
 /** AI agents call from outside, so always point them at the public site — preview hosts sit behind a login wall (401). */
 const AGENT_CLAIM_API = "https://catch.fun/api/public/agent-claim";
@@ -147,13 +148,18 @@ function AppMap() {
 
   /* ------------------------------------------------------------- spawns */
   useEffect(() => {
-    fetchSpawns({ data: fix ? { lat: fix.lat, lng: fix.lng, limit: 600 } : { limit: 600 } })
+    const controller = new AbortController();
+    // Distances already update locally. GPS jitter must not reload the whole map.
+    retryDisplay(() => fetchSpawns({ data: { limit: 600 } }), controller.signal)
       .then((r) => {
+        if (controller.signal.aborted) return;
         setSpawns(r.spawns as Spawn[]);
         setCooling((r.cooling ?? []) as (Spawn & { respawnAt: string })[]);
+        setNote("");
       })
-      .catch(() => setNote(t("Could not load the map. Try again in a moment.", "地图加载失败，请稍后再试。")));
-  }, [fetchSpawns, fix?.lat, fix?.lng, t, spawnTick]);
+      .catch(() => { if (!controller.signal.aborted) setNote(t("Could not load the map. Try again in a moment.", "地图加载失败，请稍后再试。")); });
+    return () => controller.abort();
+  }, [fetchSpawns, t, spawnTick]);
 
   /* ------------------------------------------------ follow my claim codes */
   const pendingCodes = myClaims.filter((c) => {
