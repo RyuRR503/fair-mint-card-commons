@@ -610,6 +610,7 @@ function AppMap() {
             <h2 className="label-caps text-xs text-muted-foreground">{t("The rules", "规则")}</h2>
             <ul className="mt-3 space-y-2 text-xs leading-relaxed text-muted-foreground">
               <li>{t("· Every rarity requires an Agent Wallet, including legendary.", "· 普通、稀有、史诗、传奇，全部仅限 Agent 钱包。")}</li>
+              <li>{t("· The Agent Wallet must hold at least 100,000 CATCH, held for about 10 minutes.", "· Agent 钱包需持有至少 10 万个 CATCH，且已持有约 10 分钟。")}</li>
               <li>{t("· Flow: phone GPS → 15-minute command → AI → Agent claim.", "· 流程：手机定位 → 15 分钟指令 → AI → Agent 领取。")}</li>
               <li>
                 {t(`· GPS accuracy under ${RULES.maxAccuracyM} m.`, `· GPS 精度需优于 ${RULES.maxAccuracyM} 米。`)}

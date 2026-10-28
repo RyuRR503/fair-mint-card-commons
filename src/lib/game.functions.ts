@@ -11,6 +11,7 @@ import { dbSnapshotStore, readSnapshot } from "@/lib/display-snapshot";
 import { createBoundedRead } from "./bounded-read";
 import { hourlyCapCheck } from "./hourly-cap";
 import { networkTravelBlocked } from "./network-travel";
+import { catchHolding, holdOk } from "./catch-hold";
 import { MIN_REDEEM_WAIT_S, pinSnapped, redeemTooSoon } from "./claim-guards";
 
 
@@ -612,6 +613,15 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
   const agent = await hasAgentId(wallet);
   if (agent !== true)
     return fail("This wallet has no Binance Agent ID. Only an Agent Wallet can claim.", "这个钱包没有币安 Agent ID，只有 Agent 钱包才能领取。");
+
+  const hold = await catchHolding(wallet);
+  if (!hold)
+    return fail("Could not read this wallet's CATCH balance. Try again in a minute.", "暂时读不到钱包的 CATCH 持仓，请一分钟后再试。");
+  if (!holdOk(hold.now, hold.earlier))
+    return fail(
+      "This wallet must hold at least 100,000 CATCH, and have held it for about 10 minutes, to claim.",
+      "钱包需持有至少 10 万个 CATCH，且已持有约 10 分钟以上，才能领取。",
+    );
 
   const { data: row } = await db.from("spawns").select(SPAWN_SELECT).eq("id", codeRow.spawn_id).maybeSingle();
   if (!row) return fail("That drop does not exist any more.", "这个点位已不存在。");
