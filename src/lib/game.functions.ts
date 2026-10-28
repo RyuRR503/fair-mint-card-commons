@@ -686,10 +686,11 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
 
     // 4b. whole-site hourly payout ceiling, priced in USD (Grass-style)
     const hourAgo = new Date(now - 3600e3).toISOString();
-    const { data: hourCatches } = await db
+    const { data: hourCatches, error: hourErr } = await db
       .from("catches")
       .select("symbol, amount")
       .gte("created_at", hourAgo);
+    if (hourErr) return fail("Could not check this hour's budget. Try again.", "暂时无法核对本小时额度，请稍后再试。");
     const hourlyToken = TOKEN_BY_SYMBOL[spawn.symbol]!;
     const cap = hourlyCapCheck(
       hourCatches ?? [],

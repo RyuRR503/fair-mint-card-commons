@@ -221,6 +221,9 @@ function AppMap() {
       setGeoError(t("This browser has no location support.", "当前浏览器不支持定位。"));
       return;
     }
+    // iPhone only reports motion after an explicit permission prompt from a tap.
+    const DM = (window as unknown as { DeviceMotionEvent?: { requestPermission?: () => Promise<string> } }).DeviceMotionEvent;
+    DM?.requestPermission?.().catch(() => {});
     navigator.geolocation.watchPosition(
       (p) => {
         setGeoError("");
