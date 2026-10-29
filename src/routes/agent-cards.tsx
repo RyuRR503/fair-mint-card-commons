@@ -79,7 +79,7 @@ function AgentCards() {
           <div className="ac-intro-copy">
             <p className="mb-5 flex items-center gap-2 font-mono text-xs text-primary"><span className="h-px w-7 bg-primary" /> FAIR MINT · 公平铸造 · 币安 Agent 钱包专属</p>
             <h1 className="py-2"><FagentLogo square={false} className="h-auto w-44 sm:w-52" /></h1>
-            <h2 className="mt-5 text-xl font-bold sm:text-2xl">一张卡，接住 AI 时代的每一笔税收。</h2>
+            <h2 className="mt-5 text-xl font-bold sm:text-2xl">一张卡，接住 .AI 时代的每一笔税收。</h2>
             <div className="mt-4 max-w-md space-y-3 text-sm leading-7 text-muted-foreground"><p><span className="block">交易在发生，税收在累积。</span><span className="block text-foreground">而这张卡，替你记下属于你的那一份。</span></p><p>持有，就参与每一次分配；销毁，就兑换卡上记下的代币。</p></div>
             <div className="mt-7 flex flex-wrap items-center gap-3"><Button className="h-11 px-6" onClick={() => { setTab("mint"); document.getElementById("card-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>开始铸造<ArrowUpRight /></Button><Button asChild variant="ghost" className="h-11 text-muted-foreground"><Link to="/agent-cards/rules">合约规则<ChevronRight /></Link></Button></div>
             <div className="mt-8 flex items-center gap-3 text-xs text-muted-foreground"><ShieldCheck className="size-4 text-primary" /><span>仅币安 Agent 钱包（Agent ID）可铸造</span><span className="text-border">/</span><span>市场交易不限身份</span></div>
