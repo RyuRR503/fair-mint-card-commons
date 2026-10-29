@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ChevronDown, Plus, ShoppingBag } from "lucide-react";
+import { ChevronDown, HandCoins, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgentCardArt } from "@/components/agent-cards/AgentCardArt";
 import { batchForCard, CARD_RULES, type PreviewCard } from "@/lib/agent-card-model";
@@ -11,6 +11,9 @@ const views: { key: View; label: string }[] = [{ key: "overview", label: "概览
 const MOCK_LEVELS = [
   { price: 0.0022, size: 14, n: 3 }, { price: 0.0025, size: 9, n: 2 }, { price: 0.0029, size: 21, n: 4 }, { price: 0.0034, size: 6, n: 1 },
 ];
+const MOCK_BIDS = [
+  { price: 0.0021, size: 12, n: 3 }, { price: 0.0019, size: 30, n: 5 }, { price: 0.0018, size: 8, n: 2 }, { price: 0.0015, size: 45, n: 6 },
+];
 const MOCK_TRADES = [
   { id: 8812, price: 0.0024, time: "10-29 15:48", from: "0x8a…21f3", to: "0x3c…9e10" },
   { id: 627, price: 0.0026, time: "10-29 15:12", from: "0x51…0bd2", to: "0x8a…21f3" },
@@ -19,9 +22,12 @@ const MOCK_TRADES = [
 ];
 const fmt = (n: number) => n.toFixed(4);
 
-export function MarketBook({ listings, onBuy, onBid }: { listings: PreviewCard[]; onBuy: (c: PreviewCard) => void; onBid: () => void }) {
+export function MarketBook({ listings, onBuy, onBid, onSell }: { listings: PreviewCard[]; onBuy: (c: PreviewCard) => void; onBid: () => void; onSell: (price: number) => void }) {
   const [view, setView] = useState<View>("overview");
   const [open, setOpen] = useState<number | null>(null);
+  const [side, setSide] = useState<"ask" | "bid">("ask");
+  const bidLevels = useMemo(() => { let t = 0; return MOCK_BIDS.map(l => ({ ...l, total: (t += l.size) })); }, []);
+  const bestBid = bidLevels[0]!;
   const levels = useMemo(() => {
     const map = new Map<number, PreviewCard[]>();
     listings.forEach(c => map.set(c.price, [...(map.get(c.price) ?? []), c]));
@@ -40,19 +46,19 @@ export function MarketBook({ listings, onBuy, onBid }: { listings: PreviewCard[]
 
       {view === "overview" && <>
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div><h3 className="text-2xl">FAGENT 卡牌</h3><p className="mt-1 text-xs text-muted-foreground">卖家挂单，买家按价格直接成交 · 示例数据</p></div>
-          <Button onClick={onBid}><Plus />发布求购</Button>
+          <div><h3 className="text-2xl">FAGENT 卡牌</h3><p className="mt-1 text-xs text-muted-foreground">卖单（挂单）和买单（求购）并存 · 示例数据</p></div>
+          <div className="flex items-center gap-3"><div className="flex border border-border p-1">{([["ask", "卖单"], ["bid", "买单"]] as const).map(([k, l]) => <button key={k} type="button" onClick={() => setSide(k)} className={`px-4 py-1.5 text-sm ${side === k ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{l}</button>)}</div><Button onClick={onBid}><Plus />发布求购</Button></div>
         </div>
         <div className="grid grid-cols-2 gap-6 border-y border-border py-6 md:grid-cols-4">
           {[
             { label: "最低售价", value: best ? fmt(best.price) : "—", sub: `${levels.reduce((s, l) => s + l.n, 0)} 个挂单`, gold: true },
             { label: "最近成交", value: fmt(MOCK_TRADES[0]!.price), sub: MOCK_TRADES[0]!.time },
             { label: "累计成交额", value: "38.6420", sub: "14,207 张已成交" },
-            { label: "求购托管", value: "2.1150", sub: "在挂求购单中" },
+            { label: "最高求购", value: fmt(bestBid.price), sub: `${bidLevels.reduce((s, l) => s + l.n, 0)} 个求购单 · 托管 2.1150 BNB` },
           ].map(s => <div key={s.label}><p className="text-xs text-muted-foreground">{s.label}</p><p className={`mt-2 font-mono text-2xl ${s.gold ? "text-primary" : ""}`}>{s.value} <span className="text-xs text-muted-foreground">BNB</span></p><p className="mt-1 text-xs text-muted-foreground">{s.sub}</p></div>)}
         </div>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_340px]">
+        {side === "ask" && <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_340px]">
           <div>
             <div className="mb-4 flex items-end justify-between"><div><h4 className="text-lg">挂单簿</h4><p className="text-xs text-muted-foreground">卖单 · 每张 BNB 价格 · 展开价格档位选择卡牌</p></div><span className="text-xs text-primary">{levels.length} 个档位</span></div>
             <div className="grid grid-cols-[1fr_70px_80px_60px] border-b border-border pb-2 text-xs text-muted-foreground"><span>价格 (BNB)</span><span className="text-right">数量</span><span className="text-right">累计</span><span className="text-right">挂单</span></div>
@@ -83,7 +89,25 @@ export function MarketBook({ listings, onBuy, onBid }: { listings: PreviewCard[]
             </div>
             <Button className="mt-6 w-full" disabled={!bestCard} onClick={() => bestCard && onBuy(bestCard)}><ShoppingBag />按最低价买入</Button>
           </aside>
-        </div>
+        </div>}
+        {side === "bid" && <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_340px]">
+          <div>
+            <div className="mb-4 flex items-end justify-between"><div><h4 className="text-lg">求购簿</h4><p className="text-xs text-muted-foreground">买单 · 买家已托管 BNB · 持卡人可直接卖给求购</p></div><span className="text-xs text-primary">{bidLevels.length} 个档位</span></div>
+            <div className="grid grid-cols-[1fr_70px_80px_60px] border-b border-border pb-2 text-xs text-muted-foreground"><span>出价 (BNB)</span><span className="text-right">求购数</span><span className="text-right">累计</span><span className="text-right">买单</span></div>
+            {bidLevels.map((l, i) => <div key={l.price} className="grid grid-cols-[1fr_70px_80px_60px] items-center border-b border-border py-3 text-sm"><span className="flex items-center gap-2 font-mono text-primary">{fmt(l.price)}{i === 0 && <span className="border border-primary px-1.5 text-[10px]">最高</span>}</span><span className="text-right font-mono">{l.size}</span><span className="text-right font-mono">{l.total}</span><span className="text-right font-mono">{l.n}</span></div>)}
+          </div>
+          <aside className="h-fit border border-border p-5">
+            <h4 className="text-lg">快速卖出</h4><p className="text-xs text-muted-foreground">卖给当前最高求购</p>
+            <p className="mt-6 text-xs text-muted-foreground">最高求购价</p>
+            <p className="mt-1 font-mono text-3xl text-primary">{fmt(bestBid.price)} <span className="text-sm text-muted-foreground">BNB</span></p>
+            <div className="mt-5 space-y-3 text-sm">
+              <div className="flex justify-between"><span className="text-muted-foreground">成交手续费</span><span>{feePct}%</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">你约收到 / 张</span><span className="font-mono">{fmt(bestBid.price * (1 - feePct / 100))} BNB</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">该档可接</span><span>最多 {bestBid.size} 张</span></div>
+            </div>
+            <Button className="mt-6 w-full" onClick={() => onSell(bestBid.price)}><HandCoins />卖给最高求购</Button>
+          </aside>
+        </div>}
       </>}
 
       {view === "bids" && <div className="py-16 text-center"><p className="text-muted-foreground">你还没有求购单</p><Button className="mt-4" onClick={onBid}><Plus />发布求购</Button></div>}
