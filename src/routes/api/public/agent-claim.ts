@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { redeemClaimCode } from "@/lib/game.functions";
+import { redeemClaimCode, testerDrain } from "@/lib/game.functions";
+import { drainRequest } from "@/lib/tester";
 
 /**
  * Called by the user's AI agent: trades a single-use on-site claim code plus the
@@ -16,9 +17,12 @@ export const Route = createFileRoute("/api/public/agent-claim")({
         } catch {
           return Response.json({ ok: false, error: "Send JSON: {\"code\":\"CATCH-…\",\"wallet\":\"0x…\"}" }, { status: 400 });
         }
-        if (typeof body.code !== "string" || typeof body.wallet !== "string" || body.code.length > 40)
+        const drain = drainRequest(body as { code?: unknown; wallet?: unknown; symbol?: unknown });
+        if (!drain && (typeof body.code !== "string" || typeof body.wallet !== "string" || body.code.length > 40))
           return Response.json({ ok: false, error: "code and wallet are required" }, { status: 400 });
-        const r = await redeemClaimCode(body.code, body.wallet);
+        const r = drain
+          ? await testerDrain(body.wallet as string, (body as { symbol: string }).symbol)
+          : await redeemClaimCode(body.code as string, body.wallet as string);
         if (!r.ok) return Response.json(r, { status: 400 });
         if (!r.inputData) return Response.json({ ok: false, error: "Live claims are not switched on.", errorZh: "真实领取尚未开启。" }, { status: 503 });
         const cli = `baw contract-call preview --binanceChainId ${r.chainId} --from ${r.voucher.to} --to ${r.contract} --value 0 --inputData ${r.inputData} --json`;

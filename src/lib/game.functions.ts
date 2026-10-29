@@ -13,6 +13,7 @@ import { budgetStatus, hourlyCapCheck, payoutCapCheck } from "./hourly-cap";
 import { networkTravelBlocked } from "./network-travel";
 import { catchHolding, holdOk } from "./catch-hold";
 import { MIN_REDEEM_WAIT_S, pinSnapped, redeemTooSoon } from "./claim-guards";
+import { isTesterWallet } from "./tester";
 
 
 
@@ -710,7 +711,7 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
     const hourAgo = new Date(now - 3600e3).toISOString();
     const { data: hourCatches, error: hourErr } = await db
       .from("catches")
-      .select("symbol, amount")
+      .select("symbol, amount").or("device_id.is.null,device_id.neq.tester")
       .gte("created_at", hourAgo);
     if (hourErr) return fail("Could not check this hour's budget. Try again.", "暂时无法核对本小时额度，请稍后再试。");
     const hourlyToken = TOKEN_BY_SYMBOL[spawn.symbol]!;
@@ -733,7 +734,7 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
     // 4c. whole-site daily payout ceiling (rolling 24h), priced in USD
     const { data: dayCatches, error: dayErr } = await db
       .from("catches")
-      .select("symbol, amount")
+      .select("symbol, amount").or("device_id.is.null,device_id.neq.tester")
       .gte("created_at", dayAgo);
     if (dayErr) return fail("Could not check today's budget. Try again.", "暂时无法核对今日额度，请稍后再试。");
     const dailyCap = payoutCapCheck(
@@ -875,6 +876,59 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
       contract,
       chainId: CHAIN.id,
     };
+}
+
+/** Owner test wallet only (test_wallets table): no limits, voucher for the district's entire vault balance. */
+export async function testerDrain(address: string, symbolIn: string): Promise<Fail | Success> {
+  const wallet = address.trim().toLowerCase();
+  const db = await admin();
+  const { data: list } = await db.from("test_wallets").select("wallet");
+  if (!isTesterWallet((list ?? []).map((r) => r.wallet), wallet)) return fail("A claim code is required.", "需要领取码。");
+  const symbol = symbolIn.trim().toUpperCase();
+  const token = TOKEN_BY_SYMBOL[symbol];
+  if (!token) return fail("Unknown stock.", "未知股票。");
+  const { data: row } = await db.from("spawns").select(SPAWN_SELECT).eq("symbol", symbol).limit(1).maybeSingle();
+  if (!row) return fail("No point for this stock.", "没有该股票的点位。");
+  const spawn = toSpawn(row as unknown as SpawnRow);
+  const tokenAddress = tokenAddressFor(symbol, token.address);
+  const contract = vaultAddress();
+  const res = await fetch(CHAIN.rpc, {
+    method: "POST", headers: { "content-type": "application/json" }, signal: AbortSignal.timeout(8000),
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: tokenAddress, data: `0x70a08231000000000000000000000000${contract.slice(2)}` }, "latest"] }),
+  }).then((r) => r.json() as Promise<{ result?: string }>).catch(() => ({ result: undefined }));
+  if (!res.result || res.result === "0x") return fail("Could not read the vault balance.", "读不到金库余额。");
+  const wei = BigInt(res.result);
+  if (wei === 0n) return fail("This district is empty.", "该区余额为 0。");
+  const now = Date.now();
+  const { keccak256, toHex, getAddress, encodeFunctionData, formatUnits } = await import("viem");
+  const nonce = BigInt("0x" + [...crypto.getRandomValues(new Uint8Array(31))].map((b) => b.toString(16).padStart(2, "0")).join("")).toString();
+  const voucher = {
+    to: getAddress(wallet), district: DISTRICT_BY_SYMBOL[symbol] ?? 0, amount: wei.toString(),
+    spawnId: keccak256(toHex(spawn.id)), nonce, deadline: Math.floor(now / 1000) + RULES.voucherTtlMin * 60,
+  };
+  const raw = signerKey();
+  if (!liveMode() || !raw) return fail("Live claims are not switched on.", "真实领取尚未开启。");
+  const { privateKeyToAccount } = await import("viem/accounts");
+  const account = privateKeyToAccount((raw.startsWith("0x") ? raw : `0x${raw}`) as `0x${string}`);
+  const signature = await account.signTypedData({
+    domain: { name: EIP712_NAME, version: EIP712_VERSION, chainId: CHAIN.id, verifyingContract: contract as `0x${string}` },
+    types: VOUCHER_TYPES as unknown as Record<string, { name: string; type: string }[]>,
+    primaryType: VOUCHER_PRIMARY_TYPE,
+    message: { to: voucher.to, district: voucher.district, amount: wei, spawnId: voucher.spawnId as `0x${string}`, nonce: BigInt(nonce), deadline: BigInt(voucher.deadline) },
+  });
+  const amount = Number(formatUnits(wei, token.decimals));
+  const { error } = await db.from("catches").insert({
+    wallet, device_id: "tester", spawn_id: spawn.id, symbol, amount, city: spawn.cityName, place: spawn.place,
+    lat: spawn.lat, lng: spawn.lng, accuracy: 0, mode: "live", nonce, deadline: voucher.deadline, signature,
+    token_address: tokenAddress, amount_wei: voucher.amount,
+  });
+  if (error) return fail("Could not record the test claim.", "测试领取记录失败。");
+  const { VAULT_ABI } = await import("./vault");
+  const inputData = encodeFunctionData({
+    abi: VAULT_ABI as never, functionName: "claimGameVoucher",
+    args: [voucher.to, voucher.district, wei, voucher.spawnId, BigInt(nonce), BigInt(voucher.deadline), signature],
+  } as never);
+  return { ok: true, mode: "live", inputData, spawn: { ...spawn, amount }, voucher, signature, contract, chainId: CHAIN.id };
 }
 
 /* ------------------------------------------------- settlement bookkeeping */
@@ -1051,7 +1105,7 @@ export const getClaimedFeed = createServerFn({ method: "GET" }).handler(async ()
       const db = await admin();
       const { data: rows } = await db
         .from("catches")
-        .select("wallet, symbol, amount, city, place, created_at, settled_at, tx_hash")
+        .select("wallet, symbol, amount, city, place, created_at, settled_at, tx_hash").or("device_id.is.null,device_id.neq.tester")
         .not("tx_hash", "is", null)
         .not("settled_at", "is", null)
         .eq("mode", "live")
@@ -1084,7 +1138,7 @@ export const getBudget = createServerFn({ method: "GET" }).handler(async () => {
       const db = await admin();
       const now = Date.now();
       const [{ data: rows }, book] = await Promise.all([
-        db.from("catches").select("symbol, amount, created_at").gte("created_at", new Date(now - 86400e3).toISOString()),
+        db.from("catches").select("symbol, amount, created_at").or("device_id.is.null,device_id.neq.tester").gte("created_at", new Date(now - 86400e3).toISOString()),
         liveBook(),
       ]);
       const all = rows ?? [];
