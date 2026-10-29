@@ -31,7 +31,7 @@ export function MarketBook({ listings, onBuy, onBid }: { listings: PreviewCard[]
     return all.map(l => ({ ...l, total: (total += l.size) }));
   }, [listings]);
   const best = levels[0];
-  const bestCard = best?.cards[0] ?? listings[0];
+  const bestCard = [...listings].sort((a, b) => a.price - b.price)[0];
   const feePct = CARD_RULES.marketFeeBps ? CARD_RULES.marketFeeBps / 100 : 1;
 
   return (
@@ -74,11 +74,11 @@ export function MarketBook({ listings, onBuy, onBid }: { listings: PreviewCard[]
 
           <aside className="h-fit border border-border p-5">
             <h4 className="text-lg">快速买入</h4><p className="text-xs text-muted-foreground">按当前最低价成交</p>
-            <p className="mt-6 text-xs text-muted-foreground">最低可买价格</p>
-            <p className="mt-1 font-mono text-3xl text-primary">{best ? fmt(best.price) : "—"} <span className="text-sm text-muted-foreground">BNB</span></p>
+            <p className="mt-6 text-xs text-muted-foreground">当前可买最低价</p>
+            <p className="mt-1 font-mono text-3xl text-primary">{bestCard ? fmt(bestCard.price) : "—"} <span className="text-sm text-muted-foreground">BNB</span></p>
             <div className="mt-5 space-y-3 text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">卡牌</span><span className="font-mono">{bestCard ? `#${String(bestCard.id).padStart(6, "0")}` : "—"}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">成交手续费</span><span>{feePct}%（卖家承担）</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">成交手续费</span><span>{feePct}%</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">成交前未领分红</span><span>归卖家</span></div>
             </div>
             <Button className="mt-6 w-full" disabled={!bestCard} onClick={() => bestCard && onBuy(bestCard)}><ShoppingBag />按最低价买入</Button>
