@@ -82,8 +82,8 @@ function AgentCards() {
           <div className="ac-intro-copy">
             <p className="mb-5 flex items-center gap-2 font-mono text-xs text-primary"><span className="h-px w-7 bg-primary" /> FAIR MINT · 公平铸造</p>
             <h1 className="py-2"><FagentLogo square={false} className="h-auto w-44 sm:w-52" /></h1>
-            <h2 className="mt-5 text-xl font-bold sm:text-2xl">公平铸造，每张卡都一样。</h2>
-            <div className="mt-4 max-w-md space-y-2 text-sm leading-7 text-muted-foreground"><p>共 77 批，每批 1 万张（9,500 张公开铸造 + 500 张团队自留）。<span className="text-foreground">每满 1 万张分一次红</span>，交易税按卡平分，有几张卡拿几份。</p><p>铸造费 80% 全部回购代币，记在 NFT 名下。一直持有就一直拿分红；不想要了，燃烧 NFT 换回代币。</p></div>
+            <h2 className="mt-5 text-xl font-bold sm:text-2xl">每一笔交易税，最后都记在一张卡上。</h2>
+            <div className="mt-4 max-w-md space-y-3 text-sm leading-7 text-muted-foreground"><p>Flap 上每发生一笔交易，都会留下一笔税。<span className="text-foreground">FAGENT 把它分给持有卡牌的人。</span></p><p>共 77 批，每批 1 万张（9,500 张公开铸造 + 500 张团队自留）。每满 1 万张结算一次，攒下的交易税按卡平分<span className="text-foreground">，有几张卡，就拿几份</span>。</p><p>铸造费的 80% 用于回购代币，记在 NFT 名下。持有期间，分红照拿；不想要了，燃烧 NFT 换回代币。</p></div>
             <div className="mt-7 flex flex-wrap items-center gap-3"><Button className="h-11 px-6" onClick={() => { setTab("mint"); document.getElementById("card-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>开始铸造<ArrowUpRight /></Button><Button asChild variant="ghost" className="h-11 text-muted-foreground"><Link to="/agent-cards/rules">合约规则<ChevronRight /></Link></Button></div>
             <div className="mt-8 flex items-center gap-3 text-xs text-muted-foreground"><ShieldCheck className="size-4 text-primary" /><span>币安 Agent 钱包的 Agent ID</span><span className="text-border">/</span><span>市场交易不限 Agent ID</span></div>
           </div>
