@@ -79,7 +79,7 @@ function AgentCards() {
         <section className="ac-intro">
           <div className="ac-intro-copy">
             <p className="mb-5 flex items-center gap-2 font-mono text-xs text-primary"><span className="h-px w-7 bg-primary" /> TAX. HOLD. COLLECT.</p>
-            <h1 className="py-3"><FagentLogo square={false} className="h-auto w-60 sm:w-72" /></h1>
+            <h1 className="py-2"><FagentLogo square={false} className="h-auto w-44 sm:w-52" /></h1>
             <h2 className="mt-5 text-xl font-bold sm:text-2xl">一张卡，连接链上税收。</h2>
             <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground">用币安 Agent 钱包铸卡。持有卡牌，参与 BNB 税收分配；本批 9,500 张付费卡售满后，也可以销毁卡牌，兑换对应的项目代币。</p>
             <div className="mt-7 flex flex-wrap items-center gap-3"><Button className="h-11 px-6" onClick={() => { setTab("mint"); document.getElementById("card-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>开始铸造<ArrowUpRight /></Button><Button asChild variant="ghost" className="h-11 text-muted-foreground"><Link to="/agent-cards/rules">合约规则<ChevronRight /></Link></Button></div>
