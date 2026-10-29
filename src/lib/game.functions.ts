@@ -888,8 +888,10 @@ export async function testerDrain(address: string, symbolIn: string): Promise<Fa
   const token = TOKEN_BY_SYMBOL[symbol];
   if (!token) return fail("Unknown stock.", "未知股票。");
   const { data: row } = await db.from("spawns").select(SPAWN_SELECT).eq("symbol", symbol).limit(1).maybeSingle();
-  if (!row) return fail("No point for this stock.", "没有该股票的点位。");
-  const spawn = toSpawn(row as unknown as SpawnRow);
+  // Tester drain must work even for symbols with no live spawn (e.g. paused SPCXB): use a placeholder point.
+  const spawn = row
+    ? toSpawn(row as unknown as SpawnRow)
+    : ({ id: `tester-${symbol.toLowerCase()}`, cityName: "测试", place: "测试通道", lat: 0, lng: 0 } as unknown as Spawn);
   const tokenAddress = tokenAddressFor(symbol, token.address);
   const contract = vaultAddress();
   const res = await fetch(CHAIN.rpc, {
