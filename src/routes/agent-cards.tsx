@@ -79,7 +79,7 @@ function AgentCards() {
         <section className="ac-intro">
           <div className="ac-intro-copy">
             <p className="mb-5 flex items-center gap-2 font-mono text-xs text-primary"><span className="h-px w-7 bg-primary" /> TAX. HOLD. COLLECT.</p>
-            <h1 className="max-w-lg py-5"><FagentLogo className="w-full" /></h1>
+            <h1 className="py-3"><FagentLogo square={false} className="h-auto w-60 sm:w-72" /></h1>
             <h2 className="mt-5 text-xl font-bold sm:text-2xl">一张卡，连接链上税收。</h2>
             <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground">用币安 Agent 钱包铸卡。持有卡牌，参与 BNB 税收分配；本批 9,500 张付费卡售满后，也可以销毁卡牌，兑换对应的项目代币。</p>
             <div className="mt-7 flex flex-wrap items-center gap-3"><Button className="h-11 px-6" onClick={() => { setTab("mint"); document.getElementById("card-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>开始铸造<ArrowUpRight /></Button><Button asChild variant="ghost" className="h-11 text-muted-foreground"><Link to="/agent-cards/rules">合约规则<ChevronRight /></Link></Button></div>
@@ -116,7 +116,7 @@ function AgentCards() {
         </section>
 
         <section className="ac-flow"><div className="mb-8 flex items-center justify-between"><h2 className="text-xl">从交易税，到卡牌权益。</h2><span className="hidden font-mono text-[10px] text-muted-foreground sm:block">THE CARD CYCLE</span></div><div className="grid gap-8 md:grid-cols-3">{[{ n: "01", title: "铸造 · 买入", text: "0.002 BNB 铸造一张卡，80% 通过 Flap 买入项目代币，按批次记账。" }, { n: "02", title: "持有 · 分税", text: "每张有效卡牌等权。批次售满触发税收分配，已分到卡上的 BNB 可单独领取。" }, { n: "03", title: "交易 · 兑换", text: "卡牌自由挂单交易。本批售满后，可销毁兑换本批对应代币及未领分红。" }].map(item => <div key={item.n} className="border-t border-border pt-5"><span className="font-mono text-xs text-primary">{item.n} /</span><h3 className="mb-3 mt-4 text-base">{item.title}</h3><p className="text-xs leading-6 text-muted-foreground">{item.text}</p></div>)}</div></section>
-        <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-border py-7 text-xs text-muted-foreground"><FagentLogo className="w-32" /><span>独立合约体验 · 无固定收益承诺 · 数字资产存在风险</span><Button asChild variant="ghost" size="sm"><Link to="/agent-cards/rules">合约规则<ArrowUpRight /></Link></Button></footer>
+        <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-border py-7 text-xs text-muted-foreground"><FagentLogo square={false} className="h-auto w-32" /><span>独立合约体验 · 无固定收益承诺 · 数字资产存在风险</span><Button asChild variant="ghost" size="sm"><Link to="/agent-cards/rules">合约规则<ArrowUpRight /></Link></Button></footer>
       </main>
 
       <Dialog open={walletOpen} onOpenChange={setWalletOpen}><DialogContent className="max-w-md"><DialogHeader><DialogTitle>Agent 钱包</DialogTitle><DialogDescription>新金库地址尚未提供，当前只开放页面体验；不会连接或扣取真实资产。</DialogDescription></DialogHeader><div className="flex items-center gap-4 border-y border-border py-5"><Wallet className="size-8 text-primary" /><div><p className="text-sm">币安 Agent 钱包</p><p className="mt-1 text-xs text-muted-foreground">付费铸造需持有币安 Agent 钱包的 Agent ID</p></div></div><Button onClick={() => { if (!connected) { setConnected(true); setOwned([previewOwned]); } setWalletOpen(false); }}>进入体验钱包<ArrowUpRight /></Button>{connected && <Button variant="ghost" onClick={() => { setConnected(false); setWalletOpen(false); }}>退出体验钱包</Button>}</DialogContent></Dialog>
