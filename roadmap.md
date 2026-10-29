@@ -7,5 +7,6 @@
 - [x] Verify updated rules and navigation without waking Cloud.
 
 # FAGENT visual exploration
+- [ ] Create four genuinely different F-led black-and-gold logo concepts, not font variations; inspect and present without adopting.
 - [x] Create multiple distinct butterfly-related logo concepts using the supplied Flap reference and a conventional crossbar A.
 - [x] Inspect and present concepts for selection; do not replace website branding before approval.
