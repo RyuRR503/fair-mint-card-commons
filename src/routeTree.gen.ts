@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AgentCardsRouteImport } from './routes/agent-cards'
 import { Route as AgentGuideRouteImport } from './routes/agent-guide'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as ComingSoonRouteImport } from './routes/coming-soon'
@@ -26,6 +27,11 @@ import { Route as ApiPublicSyncRouteImport } from './routes/api/public/sync'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentCardsRoute = AgentCardsRouteImport.update({
+  id: '/agent-cards',
+  path: '/agent-cards',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentGuideRoute = AgentGuideRouteImport.update({
@@ -91,6 +97,7 @@ const ApiPublicSyncRoute = ApiPublicSyncRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agent-cards': typeof AgentCardsRoute
   '/agent-guide': typeof AgentGuideRoute
   '/app': typeof AppRoute
   '/coming-soon': typeof ComingSoonRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agent-cards': typeof AgentCardsRoute
   '/agent-guide': typeof AgentGuideRoute
   '/app': typeof AppRoute
   '/coming-soon': typeof ComingSoonRoute
@@ -122,6 +130,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/agent-cards': typeof AgentCardsRoute
   '/agent-guide': typeof AgentGuideRoute
   '/app': typeof AppRoute
   '/coming-soon': typeof ComingSoonRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/agent-cards'
     | '/agent-guide'
     | '/app'
     | '/coming-soon'
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/agent-cards'
     | '/agent-guide'
     | '/app'
     | '/coming-soon'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/agent-cards'
     | '/agent-guide'
     | '/app'
     | '/coming-soon'
@@ -185,6 +197,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AgentCardsRoute: typeof AgentCardsRoute
   AgentGuideRoute: typeof AgentGuideRoute
   AppRoute: typeof AppRoute
   ComingSoonRoute: typeof ComingSoonRoute
@@ -206,6 +219,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent-cards': {
+      id: '/agent-cards'
+      path: '/agent-cards'
+      fullPath: '/agent-cards'
+      preLoaderRoute: typeof AgentCardsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agent-guide': {
@@ -297,6 +317,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgentCardsRoute: AgentCardsRoute,
   AgentGuideRoute: AgentGuideRoute,
   AppRoute: AppRoute,
   ComingSoonRoute: ComingSoonRoute,

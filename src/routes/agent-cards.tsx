@@ -1,0 +1,124 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { ArrowDownLeft, ArrowUpRight, Check, CheckCheck, ChevronRight, Copy, Flame, Layers, Minus, Plus, Search, ShieldCheck, ShoppingBag, Wallet, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AgentCardArt } from "@/components/agent-cards/AgentCardArt";
+import { batchForCard, CARD_RULES, mintRemaining, PREVIEW_LISTINGS, type PreviewCard } from "@/lib/agent-card-model";
+
+export const Route = createFileRoute("/agent-cards")({
+  head: () => ({ meta: [
+    { title: "Agent Card — Flap 税收分红卡牌" },
+    { name: "description", content: "币安 Agent 钱包铸造 Agent Card，参与 Flap BNB 税收分配、卡牌交易与批次代币兑换。" },
+    { property: "og:title", content: "Agent Card — 一张卡，连接链上税收" },
+    { property: "og:description", content: "77 批黑金卡牌，铸造、持有、交易与兑换。基于 AgentCardVault 合约的独立体验。" },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
+  component: AgentCards,
+});
+
+type Tab = "mint" | "market" | "collection" | "vault";
+type Action = { kind: "mint" | "buy" | "claim" | "redeem" | "bid" | "list"; card?: PreviewCard; price?: number };
+const tabs: { key: Tab; label: string }[] = [{ key: "mint", label: "铸造卡牌" }, { key: "market", label: "卡牌市场" }, { key: "collection", label: "我的卡牌" }, { key: "vault", label: "金库账本" }];
+const previewOwned: PreviewCard = { id: 751, price: 0.002, dividend: 0.00021, closed: true };
+
+function AgentCards() {
+  const [tab, setTab] = useState<Tab>("mint");
+  const [connected, setConnected] = useState(false);
+  const [walletOpen, setWalletOpen] = useState(false);
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const [action, setAction] = useState<Action | null>(null);
+  const [owned, setOwned] = useState<PreviewCard[]>([]);
+  const [used, setUsed] = useState(0);
+  const [completed, setCompleted] = useState(false);
+  const [query, setQuery] = useState("");
+  const [batch, setBatch] = useState("all");
+  const [sort, setSort] = useState("id");
+  const [price, setPrice] = useState("0.003");
+  const [quantity, setQuantity] = useState(1);
+  const [copied, setCopied] = useState(false);
+  const [listed, setListed] = useState<number[]>([]);
+  const [notice, setNotice] = useState("");
+  const listings = useMemo(() => PREVIEW_LISTINGS.filter(c => !owned.some(o => o.id === c.id) && String(c.id).includes(query) && (batch === "all" || batchForCard(c.id) === Number(batch))).sort((a, b) => sort === "price" ? a.price - b.price : a.id - b.id), [owned, query, batch, sort]);
+
+  function openAction(next: Action) {
+    if (!connected) { setWalletOpen(true); return; }
+    setCompleted(false);
+    setAction(next);
+  }
+  function confirmAction() {
+    if (!action) return;
+    if (action.kind === "mint" && mintRemaining(used) > 0) {
+      setOwned(cards => [...cards, { id: 12950 + used, price: 0.002, dividend: 0, closed: false }]);
+      setUsed(n => n + 1);
+    }
+    if (action.kind === "buy" && action.card) { const card = action.card; setOwned(cards => [...cards, { ...card, dividend: 0 }]); }
+    if (action.kind === "claim" && action.card) setOwned(cards => cards.map(c => c.id === action.card?.id ? { ...c, dividend: 0 } : c));
+    if (action.kind === "redeem" && action.card) setOwned(cards => cards.filter(c => c.id !== action.card?.id));
+    if (action.kind === "list" && action.card) { const id = action.card.id; setListed(ids => [...ids, id]); }
+    setCompleted(true);
+  }
+
+  return (
+    <div className="ac-page">
+      <header className="ac-header">
+        <div className="ac-container flex h-20 items-center justify-between gap-4">
+          <div className="flex items-center gap-3"><div className="ac-brand-icon"><Layers className="size-6" /></div><div><p className="font-poster text-3xl">AGENT CARD<span className="text-primary">.</span></p><p className="text-[10px] text-muted-foreground">POWERED BY FLAP</p></div></div>
+          <nav className="hidden items-center gap-7 md:flex" aria-label="卡牌导航">{tabs.slice(0, 3).map(item => <Button key={item.key} variant="ghost" className={`h-10 rounded-none px-0 ${tab === item.key ? "text-primary" : "text-muted-foreground"}`} onClick={() => setTab(item.key)}>{item.label}</Button>)}</nav>
+          <Button variant="outline" className="h-10 border-primary/40 text-primary" onClick={() => setWalletOpen(true)}><Wallet />{connected ? "体验钱包" : "Agent 钱包"}<ArrowUpRight /></Button>
+        </div>
+      </header>
+
+      <main className="ac-container">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border py-4 text-[11px] text-muted-foreground"><span className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-primary" />BNB CHAIN <span className="mx-1 text-border">/</span> GENESIS COLLECTION</span><span className="flex items-center gap-2"><ShieldCheck className="size-3.5" />体验版 · 尚未连接新金库</span></div>
+
+        <section className="ac-intro">
+          <div className="ac-intro-copy">
+            <p className="mb-5 flex items-center gap-2 font-mono text-xs text-primary"><span className="h-px w-7 bg-primary" /> TAX. HOLD. COLLECT.</p>
+            <h1 className="ac-title">AGENT<br /><span className="text-primary">CARD</span><span className="ac-title-dot">.</span></h1>
+            <h2 className="mt-5 text-xl font-bold sm:text-2xl">一张卡，连接链上税收。</h2>
+            <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground">用币安 Agent 钱包铸卡。持有卡牌，参与 BNB 税收分配；批次售满后，也可以销毁卡牌，兑换对应的项目代币。</p>
+            <div className="mt-7 flex flex-wrap items-center gap-3"><Button className="h-11 px-6" onClick={() => { setTab("mint"); document.getElementById("card-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>开始铸造<ArrowUpRight /></Button><Button variant="ghost" className="h-11 text-muted-foreground" onClick={() => setRulesOpen(true)}>合约规则<ChevronRight /></Button></div>
+            <div className="mt-8 flex items-center gap-3 text-xs text-muted-foreground"><ShieldCheck className="size-4 text-primary" /><span>Agent ID 铸造门槛</span><span className="text-border">/</span><span>市场交易不限 Agent ID</span></div>
+          </div>
+          <div className="ac-collectible"><div className="ac-edition"><span>EDITION 001</span><span>THE GENESIS</span></div><AgentCardArt /><div className="ac-art-caption"><span>每张等权 · 分红不保本</span><span className="text-primary">ACARD ↗</span></div></div>
+          <div className="ac-side-code" aria-hidden>77 BATCHES / ONE COLLECTION</div>
+        </section>
+
+        <section className="ac-stats" aria-label="合约固定参数">{[{ value: "770,000", unit: "张", label: "卡牌总量" }, { value: "0.002", unit: "BNB", label: "单张铸造价格" }, { value: "77", unit: "批", label: "每批 10,000 张" }, { value: "7", unit: "张", label: "每地址终身付费铸造上限" }].map(s => <div key={s.label}><p className="flex flex-wrap items-baseline gap-2"><span className="font-poster text-4xl sm:text-5xl">{s.value}</span><span className="text-xs text-primary">{s.unit}</span></p><p className="mt-3 text-xs text-muted-foreground">{s.label}</p></div>)}</section>
+
+        <section id="card-workspace" className="scroll-mt-6 pb-16 pt-9">
+          <div className="ac-tabs" role="tablist" aria-label="卡牌操作">{tabs.map(item => <Button key={item.key} id={`tab-${item.key}`} role="tab" aria-selected={tab === item.key} aria-controls="card-panel" variant="ghost" className={`ac-tab ${tab === item.key ? "ac-tab-active" : ""}`} onClick={() => setTab(item.key)}>{item.label}{item.key === "collection" && connected && <span className="font-mono text-xs">{owned.length}</span>}</Button>)}<span className="ml-auto hidden items-center gap-2 text-xs text-muted-foreground sm:flex"><span className="size-1 rounded-full bg-primary" />合约驱动</span></div>
+          <div id="card-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} className="pt-7">
+            {tab === "mint" && <div className="ac-mint-grid">
+              <div><div className="mb-7 flex items-end justify-between gap-4"><div><p className="mb-2 font-mono text-[10px] text-muted-foreground">CURRENT BATCH</p><h3 className="text-xl">创世铸造 <span className="ml-2 font-mono text-sm text-primary">02 / 77</span></h3></div><span className="text-xs text-muted-foreground">示例进度</span></div>
+                <div className="flex items-baseline justify-between"><span className="font-poster text-4xl">{(2450 + used).toLocaleString()}<span className="text-xl text-muted-foreground"> / 9,500</span></span><span className="font-mono text-sm text-primary">{((2450 + used) / 9500 * 100).toFixed(1)}%</span></div>
+                <progress className="ac-progress mt-4" value={2450 + used} max={9500} aria-label="示例批次铸造进度" />
+                <div className="mt-3 flex justify-between text-xs text-muted-foreground"><span>付费卡售满，结算本批</span><span>团队预留 500 张 / 批</span></div>
+                <div className="mt-8 grid grid-cols-2 gap-6 border-t border-border pt-6"><div><p className="font-poster text-3xl text-primary">80%</p><p className="mt-2 text-sm">买入项目代币</p><p className="mt-1 text-xs text-muted-foreground">每张 0.0016 BNB · Flap Portal</p></div><div><p className="font-poster text-3xl">20%</p><p className="mt-2 text-sm">运营费用</p><p className="mt-1 text-xs text-muted-foreground">每张 0.0004 BNB</p></div></div>
+              </div>
+              <div className="ac-mint-tool"><div className="mb-6 flex items-center justify-between"><span className="flex items-center gap-2 text-sm"><Layers className="size-4 text-primary" />铸造 Agent Card</span><span className="font-mono text-xs text-muted-foreground">× 1</span></div><div className="flex items-baseline gap-2"><strong className="font-poster text-5xl">0.002</strong><span className="text-primary">BNB</span></div><div className="my-6 space-y-3 border-y border-border py-4 text-xs"><div className="flex justify-between"><span className="text-muted-foreground">铸造资格</span><span>{connected ? "体验 Agent ID" : "需持有 Agent ID"}</span></div><div className="flex justify-between"><span className="text-muted-foreground">终身剩余名额</span><span className="font-mono">{connected ? mintRemaining(used) : "—"} / 7</span></div><div className="flex justify-between"><span className="text-muted-foreground">网络费用</span><span className="text-muted-foreground">另计</span></div></div><Button className="h-12 w-full" disabled={connected && mintRemaining(used) === 0} onClick={() => openAction({ kind: "mint" })}>{connected ? mintRemaining(used) === 0 ? "铸造名额已用完" : "铸造一张卡牌" : "使用 Agent 钱包"}<ArrowUpRight /></Button><p className="mt-3 text-center text-[11px] text-muted-foreground">体验操作不会扣款，也不会发送链上交易</p></div>
+            </div>}
+
+            {tab === "market" && <><div className="mb-6 flex flex-wrap items-center justify-between gap-4"><div className="flex flex-wrap items-center gap-3"><label className="flex h-10 items-center gap-2 border border-border px-3"><Search className="size-4 text-muted-foreground" /><input aria-label="搜索卡牌编号" placeholder="搜索卡牌编号" className="w-32 bg-transparent text-sm outline-none" value={query} onChange={e => setQuery(e.target.value)} /></label><select aria-label="筛选批次" className="h-10 border border-border bg-background px-3 text-sm" value={batch} onChange={e => setBatch(e.target.value)}><option value="all">全部批次</option><option value="1">第 01 批</option><option value="2">第 02 批</option></select><select aria-label="市场排序" className="h-10 border border-border bg-background px-3 text-sm" value={sort} onChange={e => setSort(e.target.value)}><option value="id">按编号</option><option value="price">价格从低到高</option></select></div><Button variant="outline" onClick={() => openAction({ kind: "bid" })}><Plus />发布求购</Button></div><p className="mb-5 text-xs text-muted-foreground">示例挂单 · 成交手续费 1% · 市场成交前的未领分红归卖家</p><div className="ac-market-grid">{listings.map(c => <article key={c.id} className="ac-market-card"><AgentCardArt id={c.id} compact /><div className="p-4"><div className="flex justify-between"><h3 className="font-mono text-sm">#{String(c.id).padStart(6, "0")}</h3><span className="text-xs text-muted-foreground">第 {String(batchForCard(c.id)).padStart(2, "0")} 批</span></div><div className="my-4 flex items-end justify-between"><div><p className="text-[10px] text-muted-foreground">售价</p><p className="mt-1 font-mono text-base">{c.price} <span className="text-xs text-primary">BNB</span></p></div><span className={`text-[10px] ${c.closed ? "text-primary" : "text-muted-foreground"}`}>{c.closed ? "可兑换" : "批次未售满"}</span></div><Button className="w-full" variant="outline" onClick={() => openAction({ kind: "buy", card: c })}><ShoppingBag />购买卡牌</Button></div></article>)}</div>{listings.length === 0 && <div className="py-16 text-center text-muted-foreground">没有匹配的卡牌</div>}</>}
+
+            {tab === "collection" && <>{!connected ? <div className="ac-empty"><Wallet className="mb-4 size-8 text-primary" /><h3 className="text-xl">你的卡牌，你的链上权益。</h3><p className="my-4 text-sm text-muted-foreground">铸造、购买的卡牌，都保留在自己的钱包里。</p><Button onClick={() => setWalletOpen(true)}>使用 Agent 钱包<ArrowUpRight /></Button></div> : <><div className="mb-7 flex flex-wrap items-center justify-between gap-4"><div><h3 className="text-xl">我的收藏 <span className="ml-2 text-primary">{owned.length}</span></h3><p className="mt-2 text-xs text-muted-foreground">体验资产 · 不代表实际钱包余额</p></div><p className="font-mono text-sm">待领分红 <span className="text-primary">{owned.reduce((sum, c) => sum + c.dividend, 0).toFixed(5)} BNB</span></p></div><div className="ac-market-grid">{owned.map(c => <article key={c.id} className="ac-market-card"><AgentCardArt id={c.id} compact /><div className="p-4"><h3 className="font-mono text-sm">#{String(c.id).padStart(6, "0")}</h3><p className="my-3 text-xs text-muted-foreground">未领分红 <span className="text-foreground">{c.dividend.toFixed(5)} BNB</span></p><div className="grid grid-cols-2 gap-2"><Button size="sm" variant="outline" disabled={c.dividend === 0} onClick={() => openAction({ kind: "claim", card: c })}><ArrowDownLeft />领分红</Button><Button size="sm" variant="outline" disabled={!c.closed} onClick={() => openAction({ kind: "redeem", card: c })}><Flame />兑换</Button></div><Button size="sm" variant="ghost" className="mt-2 w-full text-primary" onClick={() => { if (listed.includes(c.id)) { setListed(ids => ids.filter(id => id !== c.id)); setNotice("体验挂单已下架"); } else openAction({ kind: "list", card: c }); }}>{listed.includes(c.id) ? <X /> : <Plus />}{listed.includes(c.id) ? "下架挂单" : "挂单出售"}</Button>{!c.closed && <p className="mt-2 text-[10px] text-muted-foreground">本批售满后可销毁兑换</p>}</div></article>)}</div>{owned.length === 0 && <div className="ac-empty"><Layers className="mb-3 size-8 text-primary" /><p>还没有卡牌</p><Button className="mt-4" onClick={() => setTab("mint")}>去铸造<ArrowUpRight /></Button></div>}</>}</>}
+
+            {tab === "vault" && <div className="ac-mint-grid"><div><h3 className="text-xl">BNB 税收账本</h3><p className="mb-5 mt-2 text-xs text-muted-foreground">未连接新金库，实时金额暂不显示。</p>{["累计收到税收", "待分配税收", "未领取分红", "求购托管金额", "已支付分红"].map(label => <div key={label} className="flex justify-between border-b border-border py-4 text-sm"><span className="text-muted-foreground">{label}</span><span className="font-mono">— BNB</span></div>)}</div><div className="border-l border-border pl-6"><p className="font-mono text-[10px] text-primary">DISTRIBUTION LOGIC</p><h3 className="mt-3 text-xl">税收先累积，批次售满再分配。</h3><p className="mt-4 text-sm leading-7 text-muted-foreground">77 批全部售完之前，每次有一批售满，累积的 BNB 税收才会分配给当时所有有效、未销毁的卡牌。不是实时到账，也不是固定收益。</p><p className="mt-4 text-sm leading-7 text-muted-foreground">全部售完后，新税收按当时有效卡牌分配。销毁卡牌后，不再参与后续分红。</p><Button variant="link" className="mt-5 px-0" onClick={() => setRulesOpen(true)}>查看完整规则<ArrowUpRight /></Button></div></div>}
+          </div>
+        </section>
+
+        <section className="ac-flow"><div className="mb-8 flex items-center justify-between"><h2 className="text-xl">从交易税，到卡牌权益。</h2><span className="hidden font-mono text-[10px] text-muted-foreground sm:block">THE CARD CYCLE</span></div><div className="grid gap-8 md:grid-cols-3">{[{ n: "01", title: "铸造 · 买入", text: "0.002 BNB 铸造一张卡，80% 通过 Flap 买入项目代币，按批次记账。" }, { n: "02", title: "持有 · 分税", text: "每张有效卡牌等权。批次售满触发税收分配，已分到卡上的 BNB 可单独领取。" }, { n: "03", title: "交易 · 兑换", text: "卡牌自由挂单交易。本批售满后，可销毁兑换本批对应代币及未领分红。" }].map(item => <div key={item.n} className="border-t border-border pt-5"><span className="font-mono text-xs text-primary">{item.n} /</span><h3 className="mb-3 mt-4 text-base">{item.title}</h3><p className="text-xs leading-6 text-muted-foreground">{item.text}</p></div>)}</div></section>
+        <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-border py-7 text-xs text-muted-foreground"><span>AGENT CARD <span className="mx-2 text-primary">×</span> FLAP</span><span>独立合约体验 · 无固定收益承诺 · 数字资产存在风险</span><Button variant="ghost" size="sm" onClick={() => setRulesOpen(true)}>合约规则<ArrowUpRight /></Button></footer>
+      </main>
+
+      <Dialog open={walletOpen} onOpenChange={setWalletOpen}><DialogContent className="max-w-md"><DialogHeader><DialogTitle>Agent 钱包</DialogTitle><DialogDescription>新金库地址尚未提供，当前只开放页面体验；不会连接或扣取真实资产。</DialogDescription></DialogHeader><div className="flex items-center gap-4 border-y border-border py-5"><Wallet className="size-8 text-primary" /><div><p className="text-sm">币安 Agent 钱包</p><p className="mt-1 text-xs text-muted-foreground">付费铸造需持有 SPACE ID Agent ID</p></div></div><Button onClick={() => { if (!connected) { setConnected(true); setOwned([previewOwned]); } setWalletOpen(false); }}>进入体验钱包<ArrowUpRight /></Button>{connected && <Button variant="ghost" onClick={() => { setConnected(false); setWalletOpen(false); }}>退出体验钱包</Button>}</DialogContent></Dialog>
+
+      <Dialog open={action !== null} onOpenChange={open => { if (!open) setAction(null); }}><DialogContent className="max-w-md"><DialogHeader><DialogTitle>{completed ? "体验操作已完成" : action?.kind === "mint" ? "铸造确认" : action?.kind === "buy" ? "购买卡牌" : action?.kind === "claim" ? "领取 BNB 分红" : action?.kind === "redeem" ? "销毁并兑换" : action?.kind === "bid" ? "发布求购" : "挂单出售"}</DialogTitle><DialogDescription>{completed ? "只有页面中的示例资产发生变化，没有发送真实交易。" : "此操作为体验预览，不会花费 BNB。"}</DialogDescription></DialogHeader>{completed ? <div className="flex flex-col items-center py-7"><CheckCheck className="mb-5 size-12 text-primary" /><p className="text-sm">{action?.kind === "redeem" ? "示例卡牌已销毁，不再参与分红" : action?.kind === "bid" ? "示例求购已创建，未托管真实资金" : "可在「我的卡牌」查看体验状态"}</p></div> : <><div className="space-y-4 border-y border-border py-5 text-sm"><div className="flex justify-between"><span className="text-muted-foreground">网络</span><span>BNB Chain · 56</span></div>{action?.card && <div className="flex justify-between"><span className="text-muted-foreground">卡牌</span><span className="font-mono">#{action.card.id}</span></div>}{action?.kind === "mint" && <div className="flex justify-between"><span className="text-muted-foreground">铸造价格</span><span>0.002 BNB + 网络费</span></div>}{action?.kind === "buy" && <div className="flex justify-between"><span className="text-muted-foreground">购买价格</span><span>{action.card?.price} BNB</span></div>}{action?.kind === "claim" && <div className="flex justify-between"><span className="text-muted-foreground">示例可领</span><span>{action.card?.dividend} BNB</span></div>}{action?.kind === "redeem" && <p className="text-sm text-primary">销毁不可撤销。兑换项目代币及未领分红，随后失去这张卡的分红权。示例不填造代币数量。</p>}{(action?.kind === "bid" || action?.kind === "list") && <label className="block text-muted-foreground">单张价格（BNB）<input type="number" min="0.000001" step="0.001" value={price} onChange={e => setPrice(e.target.value)} className="mt-2 h-11 w-full border border-input bg-background px-3 font-mono text-foreground" /></label>}{action?.kind === "bid" && <div className="flex items-center justify-between"><span className="text-muted-foreground">求购数量</span><div className="flex items-center gap-3"><Button variant="outline" size="icon" aria-label="减少数量" disabled={quantity <= 1} onClick={() => setQuantity(n => n - 1)}><Minus /></Button><span className="w-7 text-center font-mono">{quantity}</span><Button variant="outline" size="icon" aria-label="增加数量" onClick={() => setQuantity(n => n + 1)}><Plus /></Button></div></div>}</div><Button className="h-11" disabled={(action?.kind === "bid" || action?.kind === "list") && !(Number(price) > 0)} onClick={confirmAction}>确认体验<Check /></Button></>}{completed && <Button onClick={() => { setAction(null); if (action?.kind !== "bid") setTab("collection"); }}>完成<ArrowUpRight /></Button>}</DialogContent></Dialog>
+
+      <Dialog open={rulesOpen} onOpenChange={setRulesOpen}><DialogContent className="max-h-[85svh] max-w-xl overflow-y-auto"><DialogHeader><DialogTitle>Agent Card 合约规则</DialogTitle><DialogDescription>依据你上传的 AgentCardVault 合约；不是原 CATCH 股票金库。</DialogDescription></DialogHeader><div className="space-y-5 text-sm leading-7">{[{ title: "铸造与供给", text: `总量 ${CARD_RULES.supply.toLocaleString()} 张，77 批，每批 9,500 张付费卡与 500 张团队卡。付费铸造仅限 Agent ID 钱包，每地址终身最多 7 张；卖掉或销毁不会恢复名额。` }, { title: "税收分配", text: "税收保留为 BNB。全部售完之前，按批次售满触发分配，分给当时所有有效未销毁卡牌。全部售完后，新税收随收到分配。收入取决于实际交易税，不保证收益。" }, { title: "团队与代币兑换", text: "每付费铸造 19 张，激活 1 张团队卡。批次售满后，该批买到的项目代币平均记到本批 10,000 张卡上。销毁可兑换该份代币及未领 BNB，之后停止分红。" }, { title: "市场与转让", text: "买卖不限 Agent ID。合约市场手续费 1%；成交时未领分红支付给卖家，买家从成交后参与分红。普通转账则让未领分红随卡转移。求购资金在合约托管，未成交部分可撤单退回。" }, { title: "权限与风险", text: "Flap Guardian 可升级实现或锁定升级。紧急提取限于账外资产，不得提走已记账税收、分红、求购押金或回购代币。合约、交易与升级仍有风险。" }].map(r => <div key={r.title}><h3 className="mb-1 text-primary">{r.title}</h3><p className="text-muted-foreground">{r.text}</p></div>)}</div><Button variant="outline" onClick={async () => { try { await navigator.clipboard.writeText("Agent Card：0.002 BNB/张；每地址终身付费铸造最多7张；80%买入项目代币、20%运营；批次售满触发税收分配；市场手续费1%。"); setCopied(true); } catch { setNotice("复制失败，请手动选择规则文字"); } }}><Copy />{copied ? "规则已复制" : "复制规则摘要"}</Button></DialogContent></Dialog>
+      {notice && <div role="status" className="fixed bottom-6 left-1/2 z-50 flex max-w-[90%] -translate-x-1/2 items-center gap-4 border border-border bg-popover px-4 py-3 text-sm">{notice}<Button variant="ghost" size="icon" aria-label="关闭提示" onClick={() => setNotice("")}><X /></Button></div>}
+    </div>
+  );
+}

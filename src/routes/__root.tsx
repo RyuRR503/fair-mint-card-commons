@@ -141,19 +141,20 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useLocation({ select: (location) => location.pathname });
+  const standaloneCards = pathname === "/agent-cards";
 
   return (
     <QueryClientProvider client={queryClient}>
       <LangProvider>
-        <HuntBackdrop />
+        {!standaloneCards && <HuntBackdrop />}
         <div className="relative flex min-h-screen flex-col">
-          {pathname !== COMING_SOON_PATH && <SiteHeader />}
-          {pathname !== COMING_SOON_PATH && <SiteMotion />}
+          {!standaloneCards && pathname !== COMING_SOON_PATH && <SiteHeader />}
+          {!standaloneCards && pathname !== COMING_SOON_PATH && <SiteMotion />}
           <main className="flex-1">
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <div key={pathname} className="site-page"><Outlet /></div>
           </main>
-          {pathname !== COMING_SOON_PATH && <SiteFooter />}
+          {!standaloneCards && pathname !== COMING_SOON_PATH && <SiteFooter />}
           {/* global film grain — static, never animated */}
           <div className="pointer-events-none fixed inset-0 z-50 grain" aria-hidden />
         </div>

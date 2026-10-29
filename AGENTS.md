@@ -10,10 +10,11 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- /agent-cards is an isolated client-only preview; rules use agent-card-model. Never call CATCH claim services or wake Cloud: the separate card vault has no supplied deployment addresses.
 - Catch insertion atomically locks the wallet and point and reserves cooldown in a database trigger; callers must check insert failure before returning a voucher. Settlement recording and display require a successful vault receipt matching recipient, asset, amount and nonce, never a caller-supplied hash alone.
 - Public map display reads come from a shared display_snapshots row rebuilt only by the holder of a short database lease (src/lib/display-snapshot.ts), fronted by bounded per-isolate caching, so visitor count does not multiply full spawn reads; snapshots past the max age count as unavailable, unavailable summaries must not block the homepage or imply zero inventory, and claim/payout validation must remain uncached by this display layer.
 - Failed display reads get bounded cancellable browser retries; GPS jitter updates distances locally without refetching all spawns, and public app spawn reads share a display-only cache to reduce load.
-- Stock company and ETF logos are centrally mapped in brandMarks and rendered by TokenChip using static asset pointers (Apple/Tesla retain vector marks), so all pages share consistent identities without runtime logo lookup.
+- Stock/ETF logos use brandMarks and TokenChip static pointers (Apple/Tesla vectors), never runtime lookup.
 - Keep the uploaded VaultEx/Trigger revision verbatim in contracts/reference/MapCityBeaconFactory.flat.sol and generate its vault/factory ABIs with Solidity 0.8.24; legacy contracts/MapCityVault.sol and its fork tests remain separate because this revision is not a validated storage-compatible upgrade.
 - Use the shared CatchLettering image component for homepage and coming-soon brand lettering; derive the shared header/footer logo and square favicon from the same approved upload, giving replacement icons new URLs to avoid stale browser caches.
 - Vault inventory is the live bStocks balance (`gamePool` = balanceOf), never a counter — bStocks can rebase.
@@ -30,7 +31,7 @@
 
 - Agent claims are two-step: the map's claimDrop runs on-site GPS and inventory checks and issues a single-use 15-minute claim code (claim_codes table, no wallet); the AI redeems it at /api/public/agent-claim with its own address, where Agent ID, wallet caps and signing happen, returning claimGameVoucher calldata. Users never type a wallet; on-site checks are skippable only on preview hosts.
 - Claim size and live points derive from on-chain prices and vault inventory (src/lib/allocation.ts, liveBook in game.functions.ts), so the map never shows points the vault cannot pay.
-- Published hosts are gated to /coming-soon by the root beforeLoad (src/lib/site-gate.ts); preview/dev hosts see the full site, so development stays previewable before launch.
+- The root no longer gates published hosts to coming-soon; preserve public page access.
 - AI agent commands always target the published host's /api/public/agent-claim (catch.fun), never window.location.origin: preview hosts are login-walled and return 401 to outside callers.
 - Claim progress is derived on read (src/lib/claim-status.ts): claim_codes → matching catches row → on-chain gameNonceUsed, with tx hash found via windowed eth_getLogs; the device keeps its own code list in localStorage, so no wallet login is needed to follow a claim.
 - claimDrop verifies a Cloudflare Turnstile token server-side before any database work on published hosts (preview hosts skip it, as they are not registered widget hostnames); browsing stays unchallenged so real visitors are not blocked.
