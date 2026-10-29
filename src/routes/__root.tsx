@@ -141,7 +141,7 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useLocation({ select: (location) => location.pathname });
-  const standaloneCards = pathname === "/agent-cards";
+  const standaloneCards = pathname === "/agent-cards" || pathname.startsWith("/agent-cards/");
 
   return (
     <QueryClientProvider client={queryClient}>

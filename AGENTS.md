@@ -10,7 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
-- /agent-cards is an isolated client-only preview; rules use agent-card-model. Never call CATCH claim services or wake Cloud: the separate card vault has no supplied deployment addresses.
+- /agent-cards and /agent-cards/rules are isolated client-only previews; shared rules and mock supply calculations use agent-card-model, and the rules leaf uses an unnested route so the workspace is not its layout. Never call CATCH claim services or wake Cloud: the separate card vault has no supplied deployment addresses.
 - Catch insertion atomically locks the wallet and point and reserves cooldown in a database trigger; callers must check insert failure before returning a voucher. Settlement recording and display require a successful vault receipt matching recipient, asset, amount and nonce, never a caller-supplied hash alone.
 - Public map display reads come from a shared display_snapshots row rebuilt only by the holder of a short database lease (src/lib/display-snapshot.ts), fronted by bounded per-isolate caching, so visitor count does not multiply full spawn reads; snapshots past the max age count as unavailable, unavailable summaries must not block the homepage or imply zero inventory, and claim/payout validation must remain uncached by this display layer.
 - Failed display reads get bounded cancellable browser retries; GPS jitter updates distances locally without refetching all spawns, and public app spawn reads share a display-only cache to reduce load.

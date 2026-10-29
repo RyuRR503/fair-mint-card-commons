@@ -16,6 +16,14 @@ export function mintRemaining(used: number) {
   return Math.max(0, CARD_RULES.lifetimeMints - used);
 }
 
+/** Preview-only seed: 12,000 paid cards, with one team card activated per 19 paid. */
+export function previewSupply(additionalPaid = 0) {
+  const paid = 12_000 + additionalPaid;
+  const team = Math.floor(paid / 19);
+  const minted = paid + team;
+  return { minted, remaining: CARD_RULES.supply - minted, batch: Math.floor(paid / CARD_RULES.paidPerBatch) + 1, batchPaid: paid % CARD_RULES.paidPerBatch };
+}
+
 export function mintSplit() {
   return {
     buyback: CARD_RULES.mintPriceBnb * CARD_RULES.buybackBps / 10_000,

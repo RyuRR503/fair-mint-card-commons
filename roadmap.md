@@ -1,45 +1,4 @@
-# Roadmap
-- [x] Build independent /agent-cards black-gold contract preview; mint, purchase and dividend readback verified, desktop/mobile checked, six contract-rule tests passed and build OK. Cloud and CATCH claims untouched; not published.
-- [ ] Connect Agent Card to live transactions; blocked on supplied new deployed vault/token addresses. Current page clearly labels all interactive assets as examples.
-- [x] Synchronize map, claim rules and docs with existing CATCH holding, code wait, rolling payout caps and optional motion checks; all three pages verified, 18 existing tests passed and build OK. Presentation only; not published.
-- [ ] Restore missing map content: production home/app return 200 but summary times out and app points are empty. Backend health: memory 48%, connections 34/90, no exhaustion alerts; no evidence establishing attack. Added cancellable bounded display retries, GPS-jitter read suppression, parallel summary reads, display-only spawn coalescing and RPC deadlines; 21 tests pass and build OK. One direct preview spawn probe returned 600/708 points in 7s, but subsequent browser recovery remained empty. Blocker: intermittent hosted data/RPC read failures still prevent reliable end-to-end recovery; changes not published and restoration not claimed.
-- [x] Audit real claims: one Shanghai point issued two vouchers six seconds apart (one confirmed paid at audit); all 18 stored hashes exist and succeed, with 11 belonging to the old vault, not fake transactions. Added an atomic catch-insert trigger for wallet/point limits and cooldown reservation; caller now refuses vouchers on insertion failure. Receipt recording/display require exact successful vault events. 31 tests pass, fake-hash RPC returns false, real receipt accepted, preview has no runtime errors and build OK. No payout submitted; application changes need publication before full production protection applies. GPS authenticity remains unresolved without independent presence evidence.
-- [x] Resize the Lovable Cloud instance at the user's request (size picker approved "Small"); backend status healthy afterwards and the live map verified showing real city points with no browser errors. Health metrics readout still returns no numbers, and live payout remains untested.
-- [x] Restore homepage access during backend outages: abortable 4-second display reads, short fresh cache/coalescing and failure backoff shipped; backend restart recovered data access; production homepage 200 and map points verified with no browser errors. 11 tests and build pass. Current connections 7/60, pool 1/200, memory 75%, disk 14%, no exhaustion alerts; no paid resize. Live payout not tested.
-- [x] Remove the shared-network two-claims-per-day rejection; 17 regression checks pass and preview build is OK. Draft an accurate anti-spoofing tweet; no live payout submitted or publication performed.
-- [x] Verify the Flap handover ZIP carries every website animation (29 keyframes + all scene components byte-identical to live), bundle the 18 hosted image pointers as real files so the package runs offline, and deliver catch-fullstack-v2.zip.
-
-- [x] Animate the shared CATCH lettering as five individual letters with a staggered rise-in and a masked gold sheen sweep; verify sweep travel, pause toggle, reduced motion, coming-soon sizing and build OK.
-
-- [x] Explain device-based claim records and recipient wallets; simplify restocking and inventory-based rollout copy; correct Owner versus Guardian withdrawal assertions; verify four pages and thirteen existing tests (no new payout submitted).
-- [x] Clarify current per-claim reward targets and future updates; complete genuine stock/ETF brand marks and verify shared rendering on homepage/rules pages, with seven allocation tests passing.
-- [x] Apply the newly uploaded single-row CATCH logo to the header and browser favicon; verify displayed assets and build OK.
-- [x] Replace the promo's old chart-frame logo with the approved single-row CATCH lettering; inspect full timeline and ending, validate 600 frames and identical audio, deliver v3 in the existing video collection.
-- [x] Preserve the uploaded VaultEx/Trigger contract verbatim, generate matching ABIs with Solidity 0.8.24, and run 13 voucher/interface and Agent-presentation checks; document signer setup and integration gaps without enabling payouts.
-- [ ] Enable and verify live Agent claims only after deployed vault/factory addresses and Agent caller integration are supplied; resolve uploaded Guardian-only withdrawal policy versus the prior owner-full-control requirement before treating it as the final deployment source.
-- [x] Revise the 20-second CATCH promo: remove the transition pause near 15 seconds, align music with visual beats, add synthesized transition sounds, and verify all 600 frames play without stalls using a temporary compatible review encode.
-- [ ] Actual listening review of promo v2 remains unavailable: no audio-perception capability; beat alignment and levels are measured, not heard. Small logo-finishing motion at 15.17–15.40 seconds is intentional.
-- [x] Apply the selected clear, steady copy direction throughout the homepage, shared UI and content pages; preserve rules and pending integration status, verify navigation and command preview.
-- [x] Unify the city signal and Agent step arrivals on one geometry-aware scroll timeline; verify forward/backward scrolling, pause and reduced motion.
-- [x] Refine sequential homepage location capture into ring, expanding stock label and collapse; add scroll-driven decorative signal handoff and verify pause, reduced motion and mobile.
-- [x] Upgrade shared site scroll reveals, navigation feedback and page transitions; preserve approved city-stock signals and branding.
-- [x] Choreograph homepage city-to-Agent-to-map scrolling; verify native forward/back scrolling, preview controls, mobile and reduced motion.
-- [x] Restore the approved sequential city-location stock signals and remove the rejected optical-frame scene; verify cycling, pause, sharp background and existing controls.
-- [x] Redesign homepage motion as a composed capture sequence; refine hierarchy, whitespace, scroll handoff and micro-interactions; verify desktop/mobile, pause, reduced motion and existing controls.
-- [x] Connect the city scene and homepage content through a shared sticky backdrop and scroll-driven progression; verify forward/backward scrolling, mobile, reduced motion and existing controls.
-- [x] Separate city foreground, midground and distance with stronger smooth pointer parallax; preserve lettering and palette, verify pointer movement, mobile framing and reduced motion.
-- [x] Add a decorative 3D city stock-lock scene with pointer depth and scroll-driven movement; verify desktop/mobile rendering, reduced motion and map navigation while preserving branding and claim protections.
-- [x] Unify homepage and navigation CATCH lettering with the approved uploaded map banner; verify desktop and mobile.
-- [x] Update all four banners to the approved lettering, inspect exact 1500×500 outputs and deliver a new collection.
-- [x] Redesign only banner CATCH typography and color; compare three lettering directions on the same unchanged map artwork and deliver inspected 1500×500 options.
-- [x] Recompose all four 1500×500 banners with individually sized and positioned CATCH lettering, preserving the final logo's yellow-to-gold palette without forcing hero typography; inspect all final compositions and deliver v4 collection.
-- [x] Refine black-gold navigation, mobile stock list and shared visual details; verify interactions and reduced motion.
-- [x] Replace warm yellow city treatment with a cool neutral Agent visual direction.
-- [x] Add intentional city motion, signal details and Agent flow micro-interactions with reduced-motion support.
-- [x] Verify homepage, preview interaction and desktop/mobile layout.
-- [x] Make Agent Wallet the core homepage and map-page experience.
-- [x] Align all claim rules and documentation; distinguish planned integration from current contracts.
-- [x] Test the preview-only claim gate and verify the UI on desktop/mobile.
-- [x] Apply a cohesive black-and-gold visual theme inspired by baid.help.
-- [x] Replace the homepage decorative fragment panel with city photography.
-- [x] Verify desktop/mobile appearance and existing navigation.- [x] Logo 重做：选定"框住涨势"造型，改成 hero 同款亮黄到金渐变，已接入页头/页脚/favicon
+# Agent Card preview
+- [ ] Add clearly labeled mock supply, minted, remaining and price figures.
+- [ ] Add standalone rules page and navigation.
+- [ ] Verify mock mint updates and rules navigation.
