@@ -98,10 +98,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-catch-16.png" },
-      { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-catch-32.png" },
-      { rel: "icon", type: "image/png", sizes: "64x64", href: "/favicon-catch.png" },
-      { rel: "apple-touch-icon", type: "image/png", sizes: "180x180", href: "/apple-touch-icon-catch.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://tiles.openfreemap.org", crossOrigin: "anonymous" },
@@ -125,9 +121,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const pathname = useLocation({ select: location => location.pathname });
+  const standaloneCards = pathname === "/agent-cards" || pathname.startsWith("/agent-cards/");
   return (
     <html lang="zh-Hans">
       <head>
+        {!standaloneCards && <>
+          <link rel="icon" type="image/png" sizes="16x16" href="/favicon-catch-16.png" />
+          <link rel="icon" type="image/png" sizes="32x32" href="/favicon-catch-32.png" />
+          <link rel="icon" type="image/png" sizes="64x64" href="/favicon-catch.png" />
+          <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="/apple-touch-icon-catch.png" />
+        </>}
         <HeadContent />
       </head>
       <body>
