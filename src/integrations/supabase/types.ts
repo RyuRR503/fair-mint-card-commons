@@ -361,6 +361,21 @@ export type Database = {
           },
         ]
       }
+      test_wallets: {
+        Row: {
+          created_at: string
+          wallet: string
+        }
+        Insert: {
+          created_at?: string
+          wallet: string
+        }
+        Update: {
+          created_at?: string
+          wallet?: string
+        }
+        Relationships: []
+      }
       waitlist: {
         Row: {
           city: string | null

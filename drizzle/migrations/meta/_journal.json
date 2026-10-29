@@ -43,6 +43,13 @@
       "when": 1793194749295,
       "tag": "0005_display_snapshots",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793264774961,
+      "tag": "0006_test_wallets_unlimited",
+      "breakpoints": true
     }
   ]
 }
