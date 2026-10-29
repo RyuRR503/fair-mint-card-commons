@@ -7,8 +7,8 @@
 - [x] Verify updated rules and navigation without waking Cloud.
 
 # FAGENT visual exploration
-- [ ] Make an approved-logo-based 500×500 asset and reduce header and hero brand size.
-- [ ] Create and inspect three genuinely distinct F-led NFT card concepts for selection; no eagle or unapproved replacement.
+- [x] Make an approved-logo-based 500×500 asset and reduce header and hero brand size.
+- [x] Create and inspect three genuinely distinct F-led NFT card concepts for selection; no eagle or unapproved replacement.
 - [x] Adopt the approved uploaded FAGENT logo throughout the independent card pages and rename public Agent Card branding; preserve CATCH and contracts.
 - [x] Create four genuinely different F-led black-and-gold logo concepts, not font variations; inspect and present without adopting.
 - [x] Create multiple distinct butterfly-related logo concepts using the supplied Flap reference and a conventional crossbar A.
