@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FagentLogo } from "@/components/agent-cards/FagentLogo";
 import { AgentCardArt } from "@/components/agent-cards/AgentCardArt";
+import { AgentCommands } from "@/components/agent-cards/AgentCommands";
 import { MarketBook } from "@/components/agent-cards/MarketBook";
 import { batchForCard, CARD_RULES, mintRemaining, PREVIEW_LISTINGS, previewSupply, type PreviewCard } from "@/lib/agent-card-model";
 
@@ -20,9 +21,9 @@ export const Route = createFileRoute("/agent-cards")({
   component: AgentCards,
 });
 
-type Tab = "mint" | "market" | "collection" | "vault";
+type Tab = "mint" | "market" | "collection" | "commands" | "vault";
 type Action = { kind: "mint" | "buy" | "claim" | "redeem" | "bid" | "list"; card?: PreviewCard; price?: number };
-const tabs: { key: Tab; label: string }[] = [{ key: "mint", label: "铸造卡牌" }, { key: "market", label: "卡牌市场" }, { key: "collection", label: "我的卡牌" }, { key: "vault", label: "金库账本" }];
+const tabs: { key: Tab; label: string }[] = [{ key: "mint", label: "铸造卡牌" }, { key: "market", label: "卡牌市场" }, { key: "collection", label: "我的卡牌" }, { key: "commands", label: "Agent 指令" }, { key: "vault", label: "金库账本" }];
 const previewOwned: PreviewCard = { id: 751, price: 0.002, dividend: 0.00021, closed: true };
 
 function AgentCards() {
@@ -69,7 +70,7 @@ function AgentCards() {
       <header className="ac-header">
         <div className="ac-container flex h-20 items-center justify-between gap-4">
           <Link to="/agent-cards" aria-label="FAGENT 首页" className="min-w-0 shrink"><FagentLogo /></Link>
-          <nav className="hidden items-center gap-7 md:flex" aria-label="卡牌导航">{tabs.slice(0, 3).map(item => <Button key={item.key} variant="ghost" className={`h-10 rounded-none px-0 ${tab === item.key ? "text-primary" : "text-muted-foreground"}`} onClick={() => setTab(item.key)}>{item.label}</Button>)}<Button asChild variant="ghost" className="h-10 rounded-none px-0 text-muted-foreground"><Link to="/agent-cards/rules">规则</Link></Button></nav>
+          <nav className="hidden items-center gap-7 md:flex" aria-label="卡牌导航">{tabs.slice(0, 4).map(item => <Button key={item.key} variant="ghost" className={`h-10 rounded-none px-0 ${tab === item.key ? "text-primary" : "text-muted-foreground"}`} onClick={() => setTab(item.key)}>{item.label}</Button>)}<Button asChild variant="ghost" className="h-10 rounded-none px-0 text-muted-foreground"><Link to="/agent-cards/rules">规则</Link></Button></nav>
           <Button variant="outline" className="h-10 border-primary/40 text-primary" onClick={() => setWalletOpen(true)}><Wallet />{connected ? "体验钱包" : "Agent 钱包"}<ArrowUpRight /></Button>
         </div>
       </header>
@@ -112,6 +113,7 @@ function AgentCards() {
 
             {tab === "collection" && <>{!connected ? <div className="ac-empty"><Wallet className="mb-4 size-8 text-primary" /><h3 className="text-xl">你的卡牌，你的链上权益。</h3><p className="my-4 text-sm text-muted-foreground">铸造、购买的卡牌，都保留在自己的钱包里。</p><Button onClick={() => setWalletOpen(true)}>使用 Agent 钱包<ArrowUpRight /></Button></div> : <><div className="mb-7 flex flex-wrap items-center justify-between gap-4"><div><h3 className="text-xl">我的收藏 <span className="ml-2 text-primary">{owned.length}</span></h3><p className="mt-2 text-xs text-muted-foreground">体验资产 · 不代表实际钱包余额</p></div><p className="font-mono text-sm">待领分红 <span className="text-primary">{owned.reduce((sum, c) => sum + c.dividend, 0).toFixed(5)} BNB</span></p></div><div className="ac-market-grid">{owned.map(c => <article key={c.id} className="ac-market-card"><AgentCardArt id={c.id} compact /><div className="p-4"><h3 className="font-mono text-sm">#{String(c.id).padStart(6, "0")}</h3><p className="my-3 text-xs text-muted-foreground">未领分红 <span className="text-foreground">{c.dividend.toFixed(5)} BNB</span></p><div className="grid grid-cols-2 gap-2"><Button size="sm" variant="outline" disabled={c.dividend === 0} onClick={() => openAction({ kind: "claim", card: c })}><ArrowDownLeft />领分红</Button><Button size="sm" variant="outline" disabled={!c.closed} onClick={() => openAction({ kind: "redeem", card: c })}><Flame />兑换</Button></div><Button size="sm" variant="ghost" className="mt-2 w-full text-primary" onClick={() => { if (listed.includes(c.id)) { setListed(ids => ids.filter(id => id !== c.id)); setNotice("体验挂单已下架"); } else openAction({ kind: "list", card: c }); }}>{listed.includes(c.id) ? <X /> : <Plus />}{listed.includes(c.id) ? "下架挂单" : "挂单出售"}</Button>{!c.closed && <p className="mt-2 text-[10px] text-muted-foreground">本批售满后可销毁兑换</p>}</div></article>)}</div>{owned.length === 0 && <div className="ac-empty"><Layers className="mb-3 size-8 text-primary" /><p>还没有卡牌</p><Button className="mt-4" onClick={() => setTab("mint")}>去铸造<ArrowUpRight /></Button></div>}</>}</>}
 
+            {tab === "commands" && <AgentCommands />}
             {tab === "vault" && <div className="ac-mint-grid"><div><h3 className="text-xl">BNB 税收账本</h3><p className="mb-5 mt-2 text-xs text-muted-foreground">未连接新金库，实时金额暂不显示。</p>{["累计收到税收", "待分配税收", "未领取分红", "求购托管金额", "已支付分红"].map(label => <div key={label} className="flex justify-between border-b border-border py-4 text-sm"><span className="text-muted-foreground">{label}</span><span className="font-mono">— BNB</span></div>)}</div><div className="border-l border-border pl-6"><p className="font-mono text-[10px] text-primary">DISTRIBUTION LOGIC</p><h3 className="mt-3 text-xl">税收先累积，批次售满再分配。</h3><p className="mt-4 text-sm leading-7 text-muted-foreground">77 批全部售完之前，每次有一批售满，累积的 BNB 税收才会分配给当时所有有效、未销毁的卡牌。不是实时到账，也不是固定收益。</p><p className="mt-4 text-sm leading-7 text-muted-foreground">例如第 1 批累积 10 BNB 税收，9,500 张付费卡售满后，连同 500 份团队权益共 10,000 份，每份约记入 0.001 BNB，需主动领取。团队未铸卡也计入份数。全部售完后，后续税收经同步等操作分配；销毁卡牌不再参与。</p><Button asChild variant="link" className="mt-5 px-0"><Link to="/agent-cards/rules">查看完整规则<ArrowUpRight /></Link></Button></div></div>}
           </div>
         </section>
