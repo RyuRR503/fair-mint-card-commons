@@ -71,7 +71,7 @@ function CardRulesPage() {
   return <div className="ac-page">
     <header className="ac-header"><div className="ac-container flex min-h-20 flex-wrap items-center justify-between gap-4 py-4">
       <Link to="/agent-cards" aria-label="FAGENT 首页"><FagentLogo /></Link>
-      <nav aria-label="卡牌导航" className="flex flex-wrap gap-2"><Button asChild variant="ghost"><Link to="/agent-cards">铸造卡牌 / 卡牌市场 / 我的卡牌</Link></Button><Button asChild variant="ghost" className="text-primary"><Link to="/agent-cards/rules" aria-current="page">规则</Link></Button></nav>
+      <nav aria-label="卡牌导航" className="flex flex-wrap gap-2"><Button asChild variant="ghost"><Link to="/agent-cards">铸造卡牌 / 卡牌市场 / Agent 指令</Link></Button><Button asChild variant="ghost" className="text-primary"><Link to="/agent-cards/rules" aria-current="page">规则</Link></Button></nav>
     </div></header>
     <main className="ac-container py-10 sm:py-14">
       <Button asChild variant="ghost" className="mb-8 px-0 text-muted-foreground"><Link to="/agent-cards"><ArrowLeft />返回卡牌</Link></Button>
