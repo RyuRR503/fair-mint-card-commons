@@ -84,7 +84,7 @@ function AgentCards() {
             <div className="mt-7 flex flex-wrap items-center gap-3"><Button className="h-11 px-6" onClick={() => { setTab("mint"); document.getElementById("card-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>开始铸造<ArrowUpRight /></Button><Button asChild variant="ghost" className="h-11 text-muted-foreground"><Link to="/agent-cards/rules">合约规则<ChevronRight /></Link></Button></div>
             <div className="mt-8 flex items-center gap-3 text-xs text-muted-foreground"><ShieldCheck className="size-4 text-primary" /><span>仅币安 Agent 钱包（Agent ID）可铸造</span><span className="text-border">/</span><span>市场交易不限身份</span></div>
           </div>
-          <div className="ac-collectible"><div className="ac-edition"><span>EDITION 001</span><span>THE GENESIS</span></div><AgentCardArt /><div className="ac-art-caption"><span>每张等权 · 分红不保本</span><span className="text-primary">FAGENT ↗</span></div></div>
+          <div className="ac-collectible"><div className="ac-edition"><span>EDITION 001</span><span>THE GENESIS</span></div><AgentCardArt /><div className="ac-art-caption"><span aria-hidden="true" /><span className="text-primary">FAGENT ↗</span></div></div>
           <div className="ac-side-code" aria-hidden>77 BATCHES / ONE COLLECTION</div>
         </section>
 
