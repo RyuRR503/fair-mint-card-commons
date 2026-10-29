@@ -1,17 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowUpRight, Layers } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FagentLogo } from "@/components/agent-cards/FagentLogo";
 import { CARD_RULES } from "@/lib/agent-card-model";
 
 export const Route = createFileRoute("/agent-cards_/rules")({
   head: () => ({ meta: [
-    { title: "Agent Card — 卡牌规则" },
-    { name: "description", content: "Agent Card 的发行数量、铸造价格、税收分配、交易与兑换规则。" },
-    { property: "og:title", content: "Agent Card — 卡牌规则" },
+    { title: "FAGENT — 卡牌规则" },
+    { name: "description", content: "FAGENT 的发行数量、铸造价格、税收分配、交易与兑换规则。" },
+    { property: "og:title", content: "FAGENT — 卡牌规则" },
     { property: "og:description", content: "77 万张卡牌的铸造、持有、交易与兑换规则。" },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
-  ] }),
+  ], links: [{ rel: "icon", type: "image/png", sizes: "64x64", href: "/favicon-fagent-approved.png" }] }),
   component: CardRulesPage,
 });
 
@@ -63,14 +64,14 @@ const sections = [
 function CardRulesPage() {
   return <div className="ac-page">
     <header className="ac-header"><div className="ac-container flex min-h-20 flex-wrap items-center justify-between gap-4 py-4">
-      <Link to="/agent-cards" className="flex items-center gap-3"><div className="ac-brand-icon"><Layers className="size-6" /></div><span className="font-poster text-3xl">AGENT CARD<span className="text-primary">.</span></span></Link>
+      <Link to="/agent-cards" aria-label="FAGENT 首页"><FagentLogo /></Link>
       <nav aria-label="卡牌导航" className="flex flex-wrap gap-2"><Button asChild variant="ghost"><Link to="/agent-cards">铸造卡牌 / 卡牌市场 / 我的卡牌</Link></Button><Button asChild variant="ghost" className="text-primary"><Link to="/agent-cards/rules" aria-current="page">规则</Link></Button></nav>
     </div></header>
     <main className="ac-container py-10 sm:py-14">
       <Button asChild variant="ghost" className="mb-8 px-0 text-muted-foreground"><Link to="/agent-cards"><ArrowLeft />返回卡牌</Link></Button>
-      <p className="mb-3 font-mono text-xs text-primary">AGENT CARD / RULES</p>
+      <p className="mb-3 font-mono text-xs text-primary">FAGENT / RULES</p>
       <h1 className="text-4xl font-bold">卡牌规则</h1>
-      <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">依据上传的 AgentCardVault 合约。当前页面中的数量与操作为模拟展示，不代表真实销量或链上资产。</p>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">依据本项目上传的卡牌金库合约。当前页面中的数量与操作为模拟展示，不代表真实销量或链上资产。</p>
       <div className="mt-10 max-w-3xl">{sections.map((section, i) => <section key={section.title} className="grid grid-cols-[32px_1fr] gap-4 border-t border-border py-7 sm:gap-8"><span className="font-mono text-xs text-primary">{String(i + 1).padStart(2, "0")}</span><div className="min-w-0"><h2 className="mb-3 text-xl">{section.title}</h2><div className="space-y-3">{section.paragraphs.map(paragraph => <p key={paragraph} className="text-sm leading-7 text-muted-foreground">{paragraph}</p>)}</div></div></section>)}</div>
       <Button asChild className="mt-6"><Link to="/agent-cards">返回铸造<ArrowUpRight /></Link></Button>
     </main>
