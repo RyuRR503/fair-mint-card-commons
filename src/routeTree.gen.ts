@@ -21,6 +21,7 @@ import { Route as LegendaryRouteImport } from './routes/legendary'
 import { Route as ProofRouteImport } from './routes/proof'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as SponsorRouteImport } from './routes/sponsor'
+import { Route as AgentCardsRulesRouteImport } from './routes/agent-cards_.rules'
 import { Route as ApiPublicAgentClaimRouteImport } from './routes/api/public/agent-claim'
 import { Route as ApiPublicSyncRouteImport } from './routes/api/public/sync'
 
@@ -84,6 +85,11 @@ const SponsorRoute = SponsorRouteImport.update({
   path: '/sponsor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentCardsRulesRoute = AgentCardsRulesRouteImport.update({
+  id: '/agent-cards_/rules',
+  path: '/agent-cards/rules',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAgentClaimRoute = ApiPublicAgentClaimRouteImport.update({
   id: '/api/public/agent-claim',
   path: '/api/public/agent-claim',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/proof': typeof ProofRoute
   '/roadmap': typeof RoadmapRoute
   '/sponsor': typeof SponsorRoute
+  '/agent-cards/rules': typeof AgentCardsRulesRoute
   '/api/public/agent-claim': typeof ApiPublicAgentClaimRoute
   '/api/public/sync': typeof ApiPublicSyncRoute
 }
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/proof': typeof ProofRoute
   '/roadmap': typeof RoadmapRoute
   '/sponsor': typeof SponsorRoute
+  '/agent-cards/rules': typeof AgentCardsRulesRoute
   '/api/public/agent-claim': typeof ApiPublicAgentClaimRoute
   '/api/public/sync': typeof ApiPublicSyncRoute
 }
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/proof': typeof ProofRoute
   '/roadmap': typeof RoadmapRoute
   '/sponsor': typeof SponsorRoute
+  '/agent-cards_/rules': typeof AgentCardsRulesRoute
   '/api/public/agent-claim': typeof ApiPublicAgentClaimRoute
   '/api/public/sync': typeof ApiPublicSyncRoute
 }
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/proof'
     | '/roadmap'
     | '/sponsor'
+    | '/agent-cards/rules'
     | '/api/public/agent-claim'
     | '/api/public/sync'
   fileRoutesByTo: FileRoutesByTo
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/proof'
     | '/roadmap'
     | '/sponsor'
+    | '/agent-cards/rules'
     | '/api/public/agent-claim'
     | '/api/public/sync'
   id:
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/proof'
     | '/roadmap'
     | '/sponsor'
+    | '/agent-cards_/rules'
     | '/api/public/agent-claim'
     | '/api/public/sync'
   fileRoutesById: FileRoutesById
@@ -208,6 +220,7 @@ export interface RootRouteChildren {
   ProofRoute: typeof ProofRoute
   RoadmapRoute: typeof RoadmapRoute
   SponsorRoute: typeof SponsorRoute
+  AgentCardsRulesRoute: typeof AgentCardsRulesRoute
   ApiPublicAgentClaimRoute: typeof ApiPublicAgentClaimRoute
   ApiPublicSyncRoute: typeof ApiPublicSyncRoute
 }
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SponsorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agent-cards_/rules': {
+      id: '/agent-cards_/rules'
+      path: '/agent-cards/rules'
+      fullPath: '/agent-cards/rules'
+      preLoaderRoute: typeof AgentCardsRulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/agent-claim': {
       id: '/api/public/agent-claim'
       path: '/api/public/agent-claim'
@@ -328,6 +348,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProofRoute: ProofRoute,
   RoadmapRoute: RoadmapRoute,
   SponsorRoute: SponsorRoute,
+  AgentCardsRulesRoute: AgentCardsRulesRoute,
   ApiPublicAgentClaimRoute: ApiPublicAgentClaimRoute,
   ApiPublicSyncRoute: ApiPublicSyncRoute,
 }
