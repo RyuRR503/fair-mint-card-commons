@@ -1051,20 +1051,21 @@ export const getClaimedFeed = createServerFn({ method: "GET" }).handler(async ()
       const db = await admin();
       const { data: rows } = await db
         .from("catches")
-        .select("wallet, symbol, amount, city, place, settled_at, tx_hash")
+        .select("wallet, symbol, amount, city, place, created_at, settled_at, tx_hash")
         .not("tx_hash", "is", null)
         .not("settled_at", "is", null)
         .eq("mode", "live")
         .gte("created_at", FEED_SINCE)
-        .order("settled_at", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(30);
+      // created_at is the real claim moment; settled_at is only when our scanner noticed the tx.
       return (rows ?? []).map((r) => ({
         wallet: shortAddress(r.wallet),
         symbol: r.symbol,
         amount: Number(r.amount),
         city: r.city,
         place: r.place,
-        at: r.settled_at!,
+        at: r.created_at,
         tx: r.tx_hash!,
       }));
     });
