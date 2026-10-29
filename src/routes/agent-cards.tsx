@@ -15,7 +15,7 @@ export const Route = createFileRoute("/agent-cards")({
     { property: "og:description", content: "77 批黑金卡牌，铸造、持有、交易与兑换。基于 AgentCardVault 合约的独立体验。" },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
-  ], links: [{ rel: "icon", type: "image/png", sizes: "64x64", href: "/favicon-fagent-approved.png" }] }),
+  ], links: ["16x16", "32x32", "64x64"].map(sizes => ({ rel: "icon", type: "image/png", sizes, href: "/favicon-fagent-approved.png" })) }),
   component: AgentCards,
 });
 

@@ -12,7 +12,7 @@ export const Route = createFileRoute("/agent-cards_/rules")({
     { property: "og:description", content: "77 万张卡牌的铸造、持有、交易与兑换规则。" },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
-  ], links: [{ rel: "icon", type: "image/png", sizes: "64x64", href: "/favicon-fagent-approved.png" }] }),
+  ], links: ["16x16", "32x32", "64x64"].map(sizes => ({ rel: "icon", type: "image/png", sizes, href: "/favicon-fagent-approved.png" })) }),
   component: CardRulesPage,
 });
 
