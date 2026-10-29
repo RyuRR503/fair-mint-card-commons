@@ -711,7 +711,7 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
     const hourAgo = new Date(now - 3600e3).toISOString();
     const { data: hourCatches, error: hourErr } = await db
       .from("catches")
-      .select("symbol, amount")
+      .select("symbol, amount").or("device_id.is.null,device_id.neq.tester")
       .gte("created_at", hourAgo);
     if (hourErr) return fail("Could not check this hour's budget. Try again.", "暂时无法核对本小时额度，请稍后再试。");
     const hourlyToken = TOKEN_BY_SYMBOL[spawn.symbol]!;
@@ -734,7 +734,7 @@ export async function redeemClaimCode(codeIn: string, address: string): Promise<
     // 4c. whole-site daily payout ceiling (rolling 24h), priced in USD
     const { data: dayCatches, error: dayErr } = await db
       .from("catches")
-      .select("symbol, amount")
+      .select("symbol, amount").or("device_id.is.null,device_id.neq.tester")
       .gte("created_at", dayAgo);
     if (dayErr) return fail("Could not check today's budget. Try again.", "暂时无法核对今日额度，请稍后再试。");
     const dailyCap = payoutCapCheck(
@@ -1105,7 +1105,7 @@ export const getClaimedFeed = createServerFn({ method: "GET" }).handler(async ()
       const db = await admin();
       const { data: rows } = await db
         .from("catches")
-        .select("wallet, symbol, amount, city, place, created_at, settled_at, tx_hash")
+        .select("wallet, symbol, amount, city, place, created_at, settled_at, tx_hash").or("device_id.is.null,device_id.neq.tester")
         .not("tx_hash", "is", null)
         .not("settled_at", "is", null)
         .eq("mode", "live")
@@ -1138,7 +1138,7 @@ export const getBudget = createServerFn({ method: "GET" }).handler(async () => {
       const db = await admin();
       const now = Date.now();
       const [{ data: rows }, book] = await Promise.all([
-        db.from("catches").select("symbol, amount, created_at").gte("created_at", new Date(now - 86400e3).toISOString()),
+        db.from("catches").select("symbol, amount, created_at").or("device_id.is.null,device_id.neq.tester").gte("created_at", new Date(now - 86400e3).toISOString()),
         liveBook(),
       ]);
       const all = rows ?? [];
