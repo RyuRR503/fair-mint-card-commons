@@ -46,7 +46,7 @@ export function MarketBook({ listings, onBuy, onBid }: { listings: PreviewCard[]
         <div className="grid grid-cols-2 gap-6 border-y border-border py-6 md:grid-cols-4">
           {[
             { label: "最低售价", value: best ? fmt(best.price) : "—", sub: `${levels.reduce((s, l) => s + l.n, 0)} 个挂单`, gold: true },
-            { label: "最近成交", value: fmt(MOCK_TRADES[0].price), sub: MOCK_TRADES[0].time },
+            { label: "最近成交", value: fmt(MOCK_TRADES[0]!.price), sub: MOCK_TRADES[0]!.time },
             { label: "累计成交额", value: "38.6420", sub: "14,207 张已成交" },
             { label: "求购托管", value: "2.1150", sub: "在挂求购单中" },
           ].map(s => <div key={s.label}><p className="text-xs text-muted-foreground">{s.label}</p><p className={`mt-2 font-mono text-2xl ${s.gold ? "text-primary" : ""}`}>{s.value} <span className="text-xs text-muted-foreground">BNB</span></p><p className="mt-1 text-xs text-muted-foreground">{s.sub}</p></div>)}
