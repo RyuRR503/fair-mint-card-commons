@@ -10,7 +10,7 @@ const HEAD = `你是我的币安 Agent 钱包助手。链：BNB Chain（BSC）�
 type Cmd = { group: string; title: string; fn: string; desc: string; text: string };
 const CMDS: Cmd[] = [
   { group: "铸造", title: "铸造卡牌", fn: "mint()", desc: "每张 0.002 BNB，每个地址终身最多铸 7 张付费卡。", text: `${HEAD}\n任务：铸造 FAGENT 卡牌 【1】 张。\n每张单独调用一次 mint()，每次附带正好 0.002 BNB。\n开始前先确认：钱包有 Agent ID、余额够付铸造费和 gas、本地址付费铸造未超过 7 张。完成后告诉我每张的卡牌编号。` },
-  { group: "买", title: "买入挂单卡牌（买卖单）", fn: "buy(tokenIds, maxPrices)", desc: "直接买别人挂出的卡，可设最高价，多付的 BNB 自动退回。", text: `${HEAD}\n任务：买入 FAGENT 卡牌。\n卡牌编号：【#000627】；每张最高愿付：【0.0030】 BNB。\n调用 buy([编号], [最高价，换算成 wei])，附带的 BNB = 各卡最高价之和。价格变了超过最高价会自动跳过，多付的 BNB 合约会退回。完成后告诉我实际买到哪几张、花了多少。` },
+  { group: "买", title: "买入挂单卡牌（吃卖单）", fn: "buy(tokenIds, maxPrices)", desc: "直接买别人挂出的卡，可设最高价，多付的 BNB 自动退回。", text: `${HEAD}\n任务：买入 FAGENT 卡牌。\n卡牌编号：【#000627】；每张最高愿付：【0.0030】 BNB。\n调用 buy([编号], [最高价，换算成 wei])，附带的 BNB = 各卡最高价之和。价格变了超过最高价会自动跳过，多付的 BNB 合约会退回。完成后告诉我实际买到哪几张、花了多少。` },
   { group: "买", title: "发布求购（买单）", fn: "placeBid(price, quantity, batchPlusOne)", desc: "先托管 BNB，按你的出价等别人卖给你。", text: `${HEAD}\n任务：发布 FAGENT 求购单。\n出价：每张 【0.0020】 BNB；数量：【5】 张；批次：【不限】（不限填 0，只收第 N 批填 N+1）。\n调用 placeBid(出价 wei, 数量, 批次参数)，附带 BNB = 出价 × 数量，必须正好相等。完成后告诉我求购单编号 bidId。` },
   { group: "买", title: "撤销求购", fn: "cancelBids(bidIds)", desc: "撤掉还没成交的求购，退回剩余 BNB。", text: `${HEAD}\n任务：撤销我的 FAGENT 求购单 【bidId】。\n调用 cancelBids([bidId])，完成后告诉我退回了多少 BNB。` },
   { group: "卖", title: "挂单出售（卖单）", fn: "list(tokenIds, prices)", desc: "卡留在你钱包里，挂单期间照样分红。", text: `${HEAD}\n任务：挂单出售 FAGENT 卡牌。\n卡牌编号：【#000627】；售价：【0.0035】 BNB。\n先确认这张卡在我钱包里，然后调用 list([编号], [售价 wei])。重复调用可以改价。完成后告诉我挂单情况。` },
