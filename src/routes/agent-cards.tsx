@@ -21,10 +21,9 @@ export const Route = createFileRoute("/agent-cards")({
   component: AgentCards,
 });
 
-type Tab = "mint" | "market" | "collection" | "commands" | "vault";
+type Tab = "mint" | "market" | "commands" | "vault";
 type Action = { kind: "mint" | "buy" | "claim" | "redeem" | "bid" | "list"; card?: PreviewCard; price?: number };
-const tabs: { key: Tab; label: string }[] = [{ key: "mint", label: "铸造卡牌" }, { key: "market", label: "卡牌市场" }, { key: "collection", label: "我的卡牌" }, { key: "commands", label: "Agent 指令" }, { key: "vault", label: "金库账本" }];
-const previewOwned: PreviewCard = { id: 751, price: 0.002, dividend: 0.00021, closed: true };
+const tabs: { key: Tab; label: string }[] = [{ key: "mint", label: "铸造卡牌" }, { key: "market", label: "卡牌市场" }, { key: "commands", label: "Agent 指令" }, { key: "vault", label: "金库账本" }];
 
 function AgentCards() {
   const [tab, setTab] = useState<Tab>("mint");
