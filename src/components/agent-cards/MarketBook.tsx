@@ -102,7 +102,7 @@ export function MarketBook({ listings, onBuy, onBid, onSell }: { listings: Previ
             <p className="mt-1 font-mono text-3xl text-primary">{fmt(bestBid.price)} <span className="text-sm text-muted-foreground">BNB</span></p>
             <div className="mt-5 space-y-3 text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">成交手续费</span><span>{feePct}%</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">你约收到 / 张</span><span className="font-mono">{fmt(bestBid.price * (1 - feePct / 100))} BNB</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">你约收到 / 张</span><span className="font-mono">{(bestBid.price * (1 - feePct / 100)).toFixed(6)} BNB</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">该档可接</span><span>最多 {bestBid.size} 张</span></div>
             </div>
             <Button className="mt-6 w-full" onClick={() => onSell(bestBid.price)}><HandCoins />卖给最高求购</Button>
