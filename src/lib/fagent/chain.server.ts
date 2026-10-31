@@ -82,7 +82,7 @@ export async function readCard(id: number) {
   return { id, owner, active, dividend: formatEther(dividend), tokens: formatUnits(tokens, decimals), accounted, chainTime: Number(block.timestamp), openedAt: Number(opened), releaseSeconds: Number(release) };
 }
 export async function readHistory(toBlock?: string) {
-  const c = client();
+  const c = createPublicClient({ chain: bsc, transport: http("https://bsc-rpc.publicnode.com", { timeout: 15000, retryCount: 1 }) });
   const head = toBlock ? BigInt(toBlock) : await c.getBlockNumber();
   const from = head > 999n ? head - 999n : 0n;
   const logs = await c.getLogs({ address: FAGENT.vault, event: getAbiItem({ abi: vaultAbi, name: "Sold" }), fromBlock: from, toBlock: head });
