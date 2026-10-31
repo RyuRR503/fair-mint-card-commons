@@ -1,29 +1,11 @@
-# Welcome to your Lovable project
+# FAGENT
 
-This project was built with [Lovable](https://lovable.dev).
+独立卡牌展示项目。首页 `/` 包含铸造卡牌、卡牌市场、Agent 指令与金库账本；规则页位于 `/rules`。
 
-## Build with Lovable
+当前使用模拟数据，不连接真实钱包，不发送链上交易。金库部署地址待提供。
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+## 技术栈
+TanStack Start、React、TypeScript、Tailwind CSS。保留平台管理的 Cloud 配置，但页面不调用数据库或领取服务。
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+## 数据库
+已移除复制的迁移，保留空迁移集合；此操作不删除线上数据库记录。

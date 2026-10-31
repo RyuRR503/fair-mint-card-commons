@@ -1,456 +1,128 @@
-import { TIER_USD } from "@/lib/allocation";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { SITE_PREVIEW_META } from "@/lib/site-preview";
-import { useEffect, useMemo, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { retryDisplay } from "@/lib/display-retry";
-import { ArrowDown, ArrowUpRight, Pause, Play } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowUpRight, Check, CheckCheck, ChevronRight, Copy, Layers, Minus, Plus, ShieldCheck, Wallet, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AgentJourney, AgentStatus } from "@/components/site/AgentJourney";
-import cityGold from "@/assets/catch-city-gold.jpg";
-import { CityMarketScene } from "@/components/site/CityMarketScene";
-import { CitySignals } from "@/components/site/CitySignals";
-import { CatchLettering } from "@/components/site/CatchLettering";
-import { Section, Panel } from "@/components/site/Section";
-import { Reveal } from "@/components/site/Reveal";
-import { TokenChip } from "@/components/site/TokenChip";
-import { type MapPin } from "@/components/site/WorldMap";
-import { LiveMap } from "@/components/site/LiveMap";
-import { WaitlistForm } from "@/components/site/WaitlistForm";
-import { getMapSummary } from "@/lib/map.functions";
-import { useMapPoints } from "@/lib/useMapPoints";
-
-import { TOKENS, RARITY_LABEL, rarityVar, CHAIN } from "@/lib/tokens";
-import { useT } from "@/lib/i18n";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FagentLogo } from "@/components/agent-cards/FagentLogo";
+import { AgentCardArt } from "@/components/agent-cards/AgentCardArt";
+import { AgentCommands } from "@/components/agent-cards/AgentCommands";
+import { MarketBook } from "@/components/agent-cards/MarketBook";
+import { batchForCard, CARD_RULES, mintRemaining, PREVIEW_LISTINGS, previewSupply, type PreviewCard } from "@/lib/agent-card-model";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "CATCH — 真实地点美股碎片，币安 Agent 钱包领取" },
-      {
-        name: "description",
-        content:
-          "CATCH 将代币化美股碎片与真实地点连接。流程为现场定位验证、一次性领取码，再由币安 Agent 钱包链上领取。",
-      },
-      {
-        property: "og:title",
-        content: "CATCH — 在真实地点发现代币化美股，由币安 Agent 钱包完成链上领取",
-      },
-      {
-        property: "og:description",
-        content:
-          "浏览真实点位，了解定位验证与 Agent 专属领取规则。所有稀有度均仅限 Agent 钱包领取。",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      ...SITE_PREVIEW_META,
-
-    ],
-  }),
-  loader: () => getMapSummary(),
-  errorComponent: () => (
-    <div className="mx-auto max-w-3xl px-5 py-32 text-center text-muted-foreground">
-      点位信息暂时无法加载，请稍后刷新。
-    </div>
-  ),
-  notFoundComponent: () => (
-    <div className="mx-auto max-w-3xl px-5 py-32 text-center text-muted-foreground">页面不存在。</div>
-  ),
-  component: Home,
+  head: () => ({ meta: [
+    { title: "FAGENT — 一卡双权 · 公平铸造" },
+    { name: "description", content: "币安 Agent 钱包铸造 FAGENT，参与 BNB 税收分配、卡牌交易与批次代币兑换。" },
+    { property: "og:title", content: "FAGENT — 一张卡，连接链上税收" },
+    { property: "og:description", content: "77 批黑金卡牌，铸造、持有、交易与兑换。基于 AgentCardVault 合约的独立体验。" },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ], links: ["16x16", "32x32", "64x64"].map(sizes => ({ rel: "icon", type: "image/png", sizes, href: "/favicon-fagent-approved.png" })) }),
+  component: AgentCards,
 });
 
-function Home() {
-  const t = useT();
-  const [motionPaused, setMotionPaused] = useState(false);
-  const initialSummary = Route.useLoaderData();
-  const [recoveredSummary, setRecoveredSummary] = useState<typeof initialSummary | null>(null);
-  const summary = recoveredSummary ?? initialSummary;
-  const refreshSummary = useServerFn(getMapSummary);
-  useEffect(() => {
-    if (initialSummary.available) return;
-    const controller = new AbortController();
-    retryDisplay(async () => {
-      const result = await refreshSummary();
-      if (!result.available) throw new Error("Summary temporarily unavailable");
-      return result;
-    }, controller.signal).then((result) => {
-      if (!controller.signal.aborted) setRecoveredSummary(result);
-    }).catch(() => {});
-    return () => controller.abort();
-  }, [initialSummary.available, refreshSummary]);
-  const points = useMapPoints();
-  const TOTAL_SPAWNS = summary.available ? summary.totalSpawns : "—";
-  const TOTAL_CITIES = summary.available ? summary.totalCities : "—";
+type Tab = "mint" | "market" | "commands" | "vault";
+type Action = { kind: "mint" | "buy" | "claim" | "redeem" | "bid" | "list"; card?: PreviewCard; price?: number };
+const tabs: { key: Tab; label: string }[] = [{ key: "mint", label: "铸造卡牌" }, { key: "market", label: "卡牌市场" }, { key: "commands", label: "Agent 指令" }, { key: "vault", label: "金库账本" }];
 
-  const pins: MapPin[] = useMemo(
-    () =>
-      summary.pins.map((c) => ({
-        key: c.key,
-        lat: c.lat,
-        lng: c.lng,
-        label: t(c.name, c.nameZh),
-        count: c.count,
-        symbols: c.symbols,
-        rarity: c.rarity,
-      })),
-    [summary.pins, t],
-  );
+function AgentCards() {
+  const [tab, setTab] = useState<Tab>("mint");
+  const [connected, setConnected] = useState(false);
+  const [walletOpen, setWalletOpen] = useState(false);
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const [action, setAction] = useState<Action | null>(null);
+  const [owned, setOwned] = useState<PreviewCard[]>([]);
+  const [used, setUsed] = useState(0);
+  const [completed, setCompleted] = useState(false);
+  const [query, setQuery] = useState("");
+  const [batch, setBatch] = useState("all");
+  const [sort, setSort] = useState("id");
+  const [price, setPrice] = useState("0.003");
+  const [quantity, setQuantity] = useState(1);
+  const [copied, setCopied] = useState(false);
+  const [notice, setNotice] = useState("");
+  const listings = useMemo(() => PREVIEW_LISTINGS.filter(c => !owned.some(o => o.id === c.id) && String(c.id).includes(query) && (batch === "all" || batchForCard(c.id) === Number(batch))).sort((a, b) => sort === "price" ? a.price - b.price : a.id - b.id), [owned, query, batch, sort]);
+
+  const supply = previewSupply(used);
+
+  function openAction(next: Action) {
+    if (!connected) { setWalletOpen(true); return; }
+    setCompleted(false);
+    setAction(next);
+  }
+  function confirmAction() {
+    if (!action) return;
+    if (action.kind === "mint" && mintRemaining(used) > 0) {
+      setOwned(cards => [...cards, { id: 12950 + used, price: 0.002, dividend: 0, closed: false }]);
+      setUsed(n => n + 1);
+    }
+    if (action.kind === "buy" && action.card) { const card = action.card; setOwned(cards => [...cards, { ...card, dividend: 0 }]); }
+    if (action.kind === "claim" && action.card) setOwned(cards => cards.map(c => c.id === action.card?.id ? { ...c, dividend: 0 } : c));
+    if (action.kind === "redeem" && action.card) setOwned(cards => cards.filter(c => c.id !== action.card?.id));
+    setCompleted(true);
+  }
 
   return (
-    <div className="home-continuum" data-motion-paused={motionPaused}>
-      {/* ---------------------------------------------------------- hero */}
-      <div className="city-scroll-stage" aria-hidden="true">
-        <div className="city-scroll-backdrop">
-        <div className="city-depth city-depth--far" data-city-depth="far" aria-hidden="true">
-          <img src={cityGold} alt="" width={1920} height={1024} fetchPriority="high" className="city-cover size-full object-cover object-[64%_center] sm:object-center" />
+    <div className="ac-page">
+      <header className="ac-header">
+        <div className="ac-container flex h-20 items-center justify-between gap-4">
+          <Link to="/" aria-label="FAGENT 首页" className="min-w-0 shrink"><FagentLogo /></Link>
+          <nav className="hidden items-center gap-7 md:flex" aria-label="卡牌导航">{tabs.slice(0, 4).map(item => <Button key={item.key} variant="ghost" className={`h-10 rounded-none px-0 ${tab === item.key ? "text-primary" : "text-muted-foreground"}`} onClick={() => setTab(item.key)}>{item.label}</Button>)}<Button asChild variant="ghost" className="h-10 rounded-none px-0 text-muted-foreground"><Link to="/rules">规则</Link></Button></nav>
+          <Button variant="outline" className="h-10 border-primary/40 text-primary" onClick={() => setWalletOpen(true)}><Wallet />{connected ? "体验钱包" : "Agent 钱包"}<ArrowUpRight /></Button>
         </div>
-        <div aria-hidden className="city-hero-shade absolute inset-0" />
-        <CitySignals />
-        </div>
-      </div>
-      <CityMarketScene />
-      {/* ------------------------------------------------------ ticker */}
-      <div className="stock-ticker home-ticker overflow-hidden border-b border-border py-3" aria-hidden>
-        <div className="marquee-track gap-12">
-          {[...TOKENS, ...TOKENS].map((tk, i) => (
-            <span key={i} className="flex shrink-0 items-center gap-3 pr-12">
-              <TokenChip symbol={tk.symbol} size={22} />
-              <span className="font-poster text-2xl">{tk.symbol}</span>
-              <span className="text-sm text-muted-foreground">{t(tk.venue, tk.venueZh)}</span>
-              <span className="text-primary">✦</span>
-            </span>
-          ))}
-        </div>
-      </div>
+      </header>
 
+      <main className="ac-container">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border py-4 text-[11px] text-muted-foreground"><span className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-primary" />BNB CHAIN <span className="mx-1 text-border">/</span> GENESIS COLLECTION</span><span className="flex items-center gap-2"><ShieldCheck className="size-3.5" />体验版 · 尚未连接新金库</span></div>
 
-      <section className="agent-hero relative overflow-hidden pb-6 pt-6 sm:pt-8">
-        <div className="mx-auto max-w-6xl px-5">
-          <div className="hero-topline flex items-center justify-between gap-6 border-b border-border pb-5">
-            <span className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="size-1.5 rounded-full bg-primary" />
-              {CHAIN.name} · {t("Map live · Agent claims open", "地图已开放 · Agent 领取已开放")}
-            </span>
-            <span className="readout hidden sm:block">
-              {t("LOCATION VERIFICATION × AGENT WALLET", "定位验证 × Agent 钱包")}
-            </span>
+        <section className="ac-intro">
+          <div className="ac-intro-copy">
+            <p className="mb-5 flex items-center gap-2 font-mono text-xs text-primary"><span className="h-px w-7 bg-primary" /> FAIR MINT · 公平铸造 · 币安 Agent 钱包专属</p>
+            <h1 className="py-2"><FagentLogo square={false} className="h-auto w-44 sm:w-52" /></h1>
+            <h2 className="mt-5 text-xl font-bold sm:text-2xl">一张卡，接住 .AI 时代的每一笔税收。</h2>
+            <div className="mt-4 max-w-md space-y-3 text-sm leading-7 text-muted-foreground"><p><span className="block">交易在发生，税收在累积。</span><span className="block text-foreground">而这张卡，替你记下属于你的那一份。</span></p><p>持有，就参与每一次分配；销毁，就兑换卡上记下的代币。</p></div>
+            <div className="mt-7 flex flex-wrap items-center gap-3"><Button className="h-11 px-6" onClick={() => { setTab("mint"); document.getElementById("card-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>开始铸造<ArrowUpRight /></Button><Button asChild variant="ghost" className="h-11 text-muted-foreground"><Link to="/rules">合约规则<ChevronRight /></Link></Button></div>
+            <div className="mt-8 flex items-center gap-3 text-xs text-muted-foreground"><ShieldCheck className="size-4 text-primary" /><span>仅币安 Agent 钱包（Agent ID）可铸造</span><span className="text-border">/</span><span>市场交易不限身份</span></div>
           </div>
+          <div className="ac-collectible"><div className="ac-edition"><span>EDITION 001</span><span>THE GENESIS</span></div><AgentCardArt /><div className="ac-art-caption"><span aria-hidden="true" /><span className="text-primary">FAGENT ↗</span></div></div>
+          <div className="ac-side-code" aria-hidden>77 BATCHES / ONE COLLECTION</div>
+        </section>
 
-          <div className="hero-composition relative py-10 sm:py-12 lg:py-14">
-            <div className="hero-copy min-w-0 max-w-2xl">
-              <p className="hero-kicker label-caps text-xs text-primary">
-                {t("Tokenized U.S. stock fragments × Binance Agentic Wallet", "代币化美股碎片 × 币安 Agent 钱包")}
-              </p>
-              <div className="hero-lettering"><CatchLettering className="mt-6 w-[320px] max-w-full sm:w-[520px]" /></div>
-              <h1 className="hero-heading mt-5 max-w-xl text-balance text-[1.75rem] leading-[1.3] sm:text-[2.5rem]">
-                {t("Discover tokenized U.S. stocks at real locations.", "在真实地点，发现代币化美股。")}
-              </h1>
-              <p className="hero-description mt-6 max-w-lg border-l border-primary/50 pl-5 text-sm leading-[1.9] text-foreground/75 sm:text-base">
-                {t(
-                  "CATCH connects tokenized U.S. stock fragments with real locations. Verified visitors receive a single-use command for a Binance Agent Wallet to submit an on-chain claim. All rarities are Agent-only.",
-                  "CATCH 将代币化美股碎片与真实地点连接。用户抵达指定地点并通过定位验证后，可获取一次性领取指令，由币安 Agent 钱包完成链上领取。所有稀有度的碎片均仅限 Agent 钱包领取。",
-                )}
-              </p>
-              <div className="hero-actions mt-8 flex flex-wrap items-center gap-3">
-                <Button asChild size="lg" className="btn-arrow agent-cta h-12 rounded-sm px-7 font-bold">
-                  <Link to="/app">{t("Browse the map", "浏览地图")} <ArrowUpRight className="arrow" /></Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="h-12 rounded-sm border-foreground/25 bg-background/35 px-7">
-                  <Link to="/how-it-works">{t("Claim rules", "了解领取规则")}</Link>
-                </Button>
+        <p className="mb-3 text-xs text-muted-foreground">模拟数据 · 非真实链上销量</p>
+        <section className="ac-stats" aria-label="合约固定参数">{[{ value: CARD_RULES.supply.toLocaleString(), unit: "张", label: "总发行量" }, { value: supply.minted.toLocaleString(), unit: "张", label: "已铸造 · 模拟" }, { value: supply.remaining.toLocaleString(), unit: "张", label: "剩余可发行 · 模拟" }, { value: String(CARD_RULES.mintPriceBnb), unit: "BNB", label: "单张铸造价格" }].map(s => <div key={s.label}><p className="flex flex-wrap items-baseline gap-2"><span className="font-poster text-4xl sm:text-5xl">{s.value}</span><span className="text-xs text-primary">{s.unit}</span></p><p className="mt-3 text-xs text-muted-foreground">{s.label}</p></div>)}</section>
+
+        <section id="card-workspace" className="scroll-mt-6 pb-16 pt-9">
+          <div className="ac-tabs" role="tablist" aria-label="卡牌操作">{tabs.map(item => <Button key={item.key} id={`tab-${item.key}`} role="tab" aria-selected={tab === item.key} aria-controls="card-panel" variant="ghost" className={`ac-tab ${tab === item.key ? "ac-tab-active" : ""}`} onClick={() => setTab(item.key)}>{item.label}</Button>)}<Button asChild variant="ghost" className="ac-tab"><Link to="/rules">规则</Link></Button><span className="ml-auto hidden items-center gap-2 text-xs text-muted-foreground sm:flex"><span className="size-1 rounded-full bg-primary" />合约驱动</span></div>
+          <div id="card-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} className="pt-7">
+            {tab === "mint" && <div className="ac-mint-grid">
+              <div><div className="mb-7 flex items-end justify-between gap-4"><div><p className="mb-2 font-mono text-[10px] text-muted-foreground">TOTAL SUPPLY</p><h3 className="text-xl">创世铸造 · 总发行量</h3></div><span className="text-xs text-muted-foreground">共 {CARD_RULES.batches} 批</span></div>
+                <div className="flex flex-wrap items-baseline gap-2"><span className="font-poster text-4xl">{CARD_RULES.supply.toLocaleString()}</span><span className="text-sm text-primary">张 · 77 万张</span></div>
+                <div className="mt-5 flex flex-wrap justify-between gap-3 text-sm"><span>已铸造 <strong className="font-mono text-primary">{supply.minted.toLocaleString()}</strong> 张</span><span>剩余 <strong className="font-mono text-primary">{supply.remaining.toLocaleString()}</strong> 张</span></div>
+                <progress className="ac-progress mt-4" value={supply.minted} max={CARD_RULES.supply} aria-label="模拟总发行进度" />
+                <p className="mt-3 text-xs text-muted-foreground">模拟进度 {(supply.minted / CARD_RULES.supply * 100).toFixed(2)}% · 第 {supply.batch} / 77 批 · 本批付费卡 {supply.batchPaid.toLocaleString()} / 9,500 张</p>
+                <div className="mt-5 space-y-2 border-t border-border pt-4 text-xs text-muted-foreground"><p>分 77 批发行，每批共 10,000 张。</p><p>其中 9,500 张公开铸造，500 张团队自留；均包含在 77 万张总量内。</p><p>每批 9,500 张公开铸造售满，即结算一次。</p></div>
+                <div className="mt-8 grid grid-cols-2 gap-6 border-t border-border pt-6"><div><p className="font-poster text-3xl text-primary">80%</p><p className="mt-2 text-sm">买入项目代币</p><p className="mt-1 text-xs text-muted-foreground">每张 0.0016 BNB</p></div><div><p className="font-poster text-3xl">20%</p><p className="mt-2 text-sm">运营费用</p><p className="mt-1 text-xs text-muted-foreground">每张 0.0004 BNB</p></div></div>
               </div>
-            </div>
+              <div className="ac-mint-tool"><div className="mb-6 flex items-center justify-between"><span className="flex items-center gap-2 text-sm"><Layers className="size-4 text-primary" />铸造 FAGENT</span><span className="font-mono text-xs text-muted-foreground">× 1</span></div><div className="flex items-baseline gap-2"><strong className="font-poster text-5xl">0.002</strong><span className="text-primary">BNB</span></div><div className="my-6 space-y-3 border-y border-border py-4 text-xs"><div className="flex items-start justify-between gap-4"><span className="shrink-0 text-muted-foreground">铸造资格</span><span className="max-w-48 text-right leading-5">{connected ? "体验币安 Agent 钱包身份" : "币安 Agent 钱包的 Agent ID"}</span></div><div className="flex justify-between"><span className="text-muted-foreground">终身剩余名额</span><span className="font-mono">{connected ? mintRemaining(used) : "—"} / 7</span></div><div className="flex justify-between"><span className="text-muted-foreground">网络费用</span><span className="text-muted-foreground">另计</span></div></div><Button className="h-12 w-full" disabled={connected && mintRemaining(used) === 0} onClick={() => openAction({ kind: "mint" })}>{connected ? mintRemaining(used) === 0 ? "铸造名额已用完" : "铸造一张卡牌" : "使用 Agent 钱包"}<ArrowUpRight /></Button><p className="mt-3 text-center text-[11px] text-muted-foreground">体验操作不会扣款，也不会发送链上交易</p></div>
+            </div>}
 
+            {tab === "market" && <MarketBook listings={listings} onBuy={card => openAction({ kind: "buy", card })} onBid={() => openAction({ kind: "bid" })} onSell={() => setNotice("卡牌保存在你的 Agent 钱包里，网站无法读取；挂单出售请使用「Agent 指令」")} />}
 
+            {tab === "commands" && <AgentCommands />}
+            {tab === "vault" && <div className="ac-mint-grid"><div><h3 className="text-xl">BNB 税收账本</h3><p className="mb-5 mt-2 text-xs text-muted-foreground">未连接新金库，实时金额暂不显示。</p>{["累计收到税收", "待分配税收", "未领取分红", "求购托管金额", "已支付分红"].map(label => <div key={label} className="flex justify-between border-b border-border py-4 text-sm"><span className="text-muted-foreground">{label}</span><span className="font-mono">— BNB</span></div>)}</div><div className="border-l border-border pl-6"><p className="font-mono text-[10px] text-primary">DISTRIBUTION LOGIC</p><h3 className="mt-3 text-xl">税收先累积，批次售满再分配。</h3><p className="mt-4 text-sm leading-7 text-muted-foreground">77 批全部售完之前，每次有一批售满，累积的 BNB 税收才会分配给当时所有有效、未销毁的卡牌。不是实时到账，也不是固定收益。</p><p className="mt-4 text-sm leading-7 text-muted-foreground">例如第 1 批累积 10 BNB 税收，9,500 张付费卡售满后，连同 500 份团队权益共 10,000 份，每份约记入 0.001 BNB，需主动领取。团队未铸卡也计入份数。全部售完后，后续税收经同步等操作分配；销毁卡牌不再参与。</p><Button asChild variant="link" className="mt-5 px-0"><Link to="/rules">查看完整规则<ArrowUpRight /></Link></Button></div></div>}
           </div>
+        </section>
 
-          <div className="hero-scene-controls flex items-center justify-between gap-4">
-            <a href="#agent-journey" className="hero-scroll-link flex items-center gap-3 text-xs text-muted-foreground"><ArrowDown className="size-4 text-primary" />{t("Claim process", "领取流程")}<span className="font-mono text-primary">01 / 03</span></a>
-            <Button variant="ghost" size="icon" className="scene-playback size-9 text-muted-foreground" onClick={() => setMotionPaused((value) => !value)} aria-pressed={motionPaused} aria-label={t(motionPaused ? "Resume animation" : "Pause animation", motionPaused ? "继续动效" : "暂停动效")} title={t(motionPaused ? "Resume animation" : "Pause animation", motionPaused ? "继续动效" : "暂停动效")}>{motionPaused ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}</Button>
-          </div>
+        <section className="ac-flow"><div className="mb-8 flex items-center justify-between"><h2 className="text-xl">从交易税，到卡牌权益。</h2><span className="hidden font-mono text-[10px] text-muted-foreground sm:block">THE CARD CYCLE</span></div><div className="grid gap-8 md:grid-cols-3">{[{ n: "01", title: "铸造 · 买入", text: "0.002 BNB 铸造一张卡，80% 通过 Flap 买入项目代币，按批次记账。" }, { n: "02", title: "持有 · 分税", text: "每张有效卡牌等权。批次售满触发税收分配，已分到卡上的 BNB 可单独领取。" }, { n: "03", title: "交易 · 兑换", text: "卡牌自由挂单交易。本批售满后，可销毁兑换本批对应代币及未领分红。" }].map(item => <div key={item.n} className="border-t border-border pt-5"><span className="font-mono text-xs text-primary">{item.n} /</span><h3 className="mb-3 mt-4 text-base">{item.title}</h3><p className="text-xs leading-6 text-muted-foreground">{item.text}</p></div>)}</div></section>
+        <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-border py-7 text-xs text-muted-foreground"><FagentLogo square={false} className="h-auto w-32" /><span>独立合约体验 · 无固定收益承诺 · 数字资产存在风险</span><Button asChild variant="ghost" size="sm"><Link to="/rules">合约规则<ArrowUpRight /></Link></Button></footer>
+      </main>
 
-          {/* big numbers */}
-          <div className="hero-stats grid grid-cols-3 border-t border-border">
-            {[
-              { v: String(TOTAL_SPAWNS), l: t("Candidate points", "候选点位") },
-              { v: String(TOTAL_CITIES), l: t("Cities", "座城市") },
-              { v: String(TOKENS.length), l: t("Stocks", "种美股代币") },
-            ].map((s, i) => (
-              <div key={s.l} className={`py-6 sm:py-8 ${i ? "border-l border-border pl-4 sm:pl-8" : ""}`}>
-                <p className={`font-poster text-5xl sm:text-7xl ${i === 0 ? "text-primary" : ""}`}>{s.v}</p>
-                <p className="mt-2 text-xs text-muted-foreground sm:text-sm">{s.l}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Dialog open={walletOpen} onOpenChange={setWalletOpen}><DialogContent className="max-w-md"><DialogHeader><DialogTitle>Agent 钱包</DialogTitle><DialogDescription>新金库地址尚未提供，当前只开放页面体验；不会连接或扣取真实资产。</DialogDescription></DialogHeader><div className="flex items-center gap-4 border-y border-border py-5"><Wallet className="size-8 text-primary" /><div><p className="text-sm">币安 Agent 钱包</p><p className="mt-1 text-xs text-muted-foreground">付费铸造需持有币安 Agent 钱包的 Agent ID</p></div></div><Button onClick={() => { if (!connected) setConnected(true); setWalletOpen(false); }}>进入体验钱包<ArrowUpRight /></Button>{connected && <Button variant="ghost" onClick={() => { setConnected(false); setWalletOpen(false); }}>退出体验钱包</Button>}</DialogContent></Dialog>
 
-      <div className="mx-auto max-w-6xl px-5"><AgentStatus /></div>
+      <Dialog open={action !== null} onOpenChange={open => { if (!open) setAction(null); }}><DialogContent className="max-w-md"><DialogHeader><DialogTitle>{completed ? "体验操作已完成" : action?.kind === "mint" ? "铸造确认" : action?.kind === "buy" ? "购买卡牌" : action?.kind === "claim" ? "领取 BNB 分红" : action?.kind === "redeem" ? "销毁并兑换" : action?.kind === "bid" ? "发布求购" : "挂单出售"}</DialogTitle><DialogDescription>{completed ? "只有页面中的示例资产发生变化，没有发送真实交易。" : "此操作为体验预览，不会花费 BNB。"}</DialogDescription></DialogHeader>{completed ? <div className="flex flex-col items-center py-7"><CheckCheck className="mb-5 size-12 text-primary" /><p className="text-sm">{action?.kind === "redeem" ? "示例卡牌已销毁，不再参与分红" : action?.kind === "bid" ? "示例求购已创建，未托管真实资金" : "体验状态仅保存在当前页面，卡牌实际在你的 Agent 钱包中"}</p></div> : <><div className="space-y-4 border-y border-border py-5 text-sm"><div className="flex justify-between"><span className="text-muted-foreground">网络</span><span>BNB Chain · 56</span></div>{action?.card && <div className="flex justify-between"><span className="text-muted-foreground">卡牌</span><span className="font-mono">#{action.card.id}</span></div>}{action?.kind === "mint" && <div className="flex justify-between"><span className="text-muted-foreground">铸造价格</span><span>0.002 BNB + 网络费</span></div>}{action?.kind === "buy" && <div className="flex justify-between"><span className="text-muted-foreground">购买价格</span><span>{action.card?.price} BNB</span></div>}{action?.kind === "claim" && <div className="flex justify-between"><span className="text-muted-foreground">示例可领</span><span>{action.card?.dividend} BNB</span></div>}{action?.kind === "redeem" && <p className="text-sm text-primary">销毁不可撤销。兑换项目代币及未领分红，随后失去这张卡的分红权。示例不填造代币数量。</p>}{(action?.kind === "bid" || action?.kind === "list") && <label className="block text-muted-foreground">单张价格（BNB）<input type="number" min="0.000001" step="0.001" value={price} onChange={e => setPrice(e.target.value)} className="mt-2 h-11 w-full border border-input bg-background px-3 font-mono text-foreground" /></label>}{action?.kind === "bid" && <div className="flex items-center justify-between"><span className="text-muted-foreground">求购数量</span><div className="flex items-center gap-3"><Button variant="outline" size="icon" aria-label="减少数量" disabled={quantity <= 1} onClick={() => setQuantity(n => n - 1)}><Minus /></Button><span className="w-7 text-center font-mono">{quantity}</span><Button variant="outline" size="icon" aria-label="增加数量" onClick={() => setQuantity(n => n + 1)}><Plus /></Button></div></div>}</div><Button className="h-11" disabled={(action?.kind === "bid" || action?.kind === "list") && !(Number(price) > 0)} onClick={confirmAction}>确认体验<Check /></Button></>}{completed && <Button onClick={() => setAction(null)}>完成<ArrowUpRight /></Button>}</DialogContent></Dialog>
 
-      <section id="agent-journey" className="city-handoff mx-auto max-w-6xl px-5 py-12 sm:py-16" data-scroll-shot="journey"><div className="journey-sticky"><Reveal variant="heading"><AgentJourney /></Reveal><div className="journey-scroll-track" aria-hidden="true"><span /></div></div></section>
-
-      {/* ---------------------------------------------------------- map */}
-      <section className="city-map-arrival mx-auto mt-24 max-w-6xl px-5 sm:mt-32" data-scroll-shot="map">
-        <Reveal variant="heading" className="mb-8 flex flex-col justify-between gap-5 border-b border-border pb-6 md:flex-row md:items-end">
-          <div>
-            <span className="label-caps text-[10px] text-primary">Live map</span>
-            <h2 className="mt-3 text-[1.75rem] sm:text-4xl">
-              {t("Location coverage", "点位分布与覆盖城市")}
-            </h2>
-          </div>
-          <p className="readout">
-            {summary.available ? t(
-              `${TOTAL_CITIES} CITIES / ${TOTAL_SPAWNS} SPAWNS / SYNCED`,
-              `${TOTAL_CITIES} 城 / ${TOTAL_SPAWNS} 点 / 已同步`,
-            ) : t("Live point data temporarily unavailable", "实时点位数据暂时无法加载")}
-          </p>
-        </Reveal>
-
-        <div className="ink-frame relative overflow-hidden rounded-md">
-          <div className="overflow-hidden rounded-md">
-            <LiveMap pins={pins} points={points} />
-          </div>
-        </div>
-      </section>
-
-
-      {/* ------------------------------------------------------ what is this */}
-      <Section
-        eyebrow={t("about CATCH", "项目介绍")}
-        title={t("Real locations. Tokenized assets.", "连接真实地点与代币化资产。")}
-      >
-        <div className="hair-grid mt-10 grid md:grid-cols-3">
-          {[
-            {
-              n: "01 / REAL",
-              h: t("Tokenized U.S. stocks", "代币化美股"),
-              p: t(
-                `Rewards are BEP-20 tokenized U.S. stock fragments on ${CHAIN.name}, including NVDAB, AAPLB and TSLAB, rather than points. Eligible Agent Wallets claim and hold them.`,
-                `奖励采用 ${CHAIN.name} 上的 BEP-20 代币化美股碎片，包括 NVDAB、AAPLB、TSLAB，而非平台积分。由符合资格的 Agent 钱包领取并持有。`,
-              ),
-            },
-            {
-              n: "02 / PLACE",
-              h: t("Asset-related locations", "与资产相关的地点"),
-              p: t(
-                "Each token is associated with relevant venues: AAPLB at Apple Stores, NVDAB at internet cafés, and TSLAB at Tesla superchargers.",
-                "各类代币对应与其相关的真实场所：Apple 直营店对应 AAPLB，网吧对应 NVDAB，特斯拉超充站对应 TSLAB。",
-
-              ),
-            },
-            {
-              n: "03 / EFFORT",
-              h: t("On-site verification", "现场位置验证"),
-              p: t(
-                "Users must be physically present. Verification considers location samples, motion data, device information and travel speed; requests that fail the checks are rejected.",
-                "用户须抵达指定地点。验证结合定位采样、运动数据、设备信息与移动速度；未通过校验的请求无法领取。",
-              ),
-            },
-          ].map((c) => (
-            <div
-              key={c.n}
-              className="group bg-background p-8 transition-colors duration-500 hover:bg-primary/10 sm:p-10"
-            >
-              <span className="label-caps text-[10px] text-primary">{c.n}</span>
-              <span className="mt-7 block h-0.5 w-10 bg-primary/60" />
-              <h3 className="font-latin mt-7 text-2xl tracking-tight transition-colors group-hover:text-foreground">
-                {c.h}
-              </h3>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground transition-colors group-hover:text-foreground/75">
-                {c.p}
-              </p>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      {/* ------------------------------------------------------- spawn table */}
-      <Section
-        eyebrow={t("token rules", "代币规则")}
-        title={t("Each claim is sized by rarity at live prices.", "单次奖励按稀有度定价值，按实时价格换算数量。")}
-        lead={t(
-          "Current reward targets are approximately $5 for common, $10 for rare and $20 for epic claims. Token amounts are calculated from live on-chain prices, not fixed token quantities. If these targets change, this page and the claim rules will be updated. SPCXB legendary events are not open; the $150 target is reserved for future events.",
-          "目前单次奖励按稀有度设置参考价值：普通约 5 美元、稀有约 10 美元、史诗约 20 美元。实际代币数量按链上实时价格换算，并非固定股数。后续如调整奖励标准，本页与领取规则将同步更新。传奇 SPCXB 暂未开放，约 150 美元为后续活动的预设标准。",
-        )}
-      >
-        <div className="mt-8 divide-y divide-border border-y border-border sm:hidden">
-          {TOKENS.map((tk) => (
-            <div key={tk.symbol} className="flex items-start gap-3 py-5">
-              <TokenChip symbol={tk.symbol} size={36} />
-              <div className="min-w-0 flex-1">
-                <p className="font-mono text-sm font-semibold">{tk.symbol}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{t(tk.venue, tk.venueZh)}</p>
-              </div>
-              <div className="shrink-0 text-right">
-                <span className="text-xs" style={{ color: rarityVar(tk.rarity) }}>{RARITY_LABEL[tk.rarity]}</span>
-                <p className="mt-2 font-mono text-xs">{tk.rarity === "legendary" ? t("≈$150", "约 $150") : `≈$${TIER_USD[tk.rarity]}`}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <Panel className="mt-8 hidden overflow-x-auto p-0 sm:block sm:p-0">
-          <table className="w-full min-w-[640px] text-left text-sm">
-            <thead>
-              <tr className="label-caps border-b border-border text-[10px] text-muted-foreground">
-                <th className="px-6 py-4">{t("Stock", "股票")}</th>
-                <th className="px-6 py-4">{t("Appears at", "出现地点")}</th>
-                <th className="px-6 py-4">{t("Rarity", "稀有度")}</th>
-                <th className="px-6 py-4">{t("Current value per claim", "当前单次参考价值")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {TOKENS.map((tk) => (
-                <tr key={tk.symbol} className="border-b border-border/60 transition-colors last:border-0 hover:bg-secondary/60">
-                  <td className="px-6 py-4">
-                    <span className="flex items-center gap-3">
-                      <TokenChip symbol={tk.symbol} size={34} />
-                      <span className="label-caps text-xs">{tk.symbol}</span>
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-muted-foreground">
-                    {t(tk.venue, tk.venueZh)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className="label-caps rounded-full px-3 py-1 text-[10px] text-primary-foreground"
-                      style={{ background: rarityVar(tk.rarity) }}
-                    >
-                      {RARITY_LABEL[tk.rarity]}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 font-mono text-xs">
-                    {tk.rarity === "legendary" ? t("≈$150", "约 $150") : `≈$${TIER_USD[tk.rarity]}`}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Panel>
-        <p className="mt-4 text-sm text-muted-foreground">
-          {t(
-            `${TOTAL_SPAWNS} candidate points across ${TOTAL_CITIES} cities. How many are open at once follows the vault's real inventory and rotates daily; a caught point reopens after its cooldown. `,
-            `覆盖 ${TOTAL_CITIES} 座城市，共 ${TOTAL_SPAWNS} 个候选点位。同时开放多少个由金库实际库存决定，并每日轮换；被领取的点位冷却结束后重新开放。`,
-          )}
-          <Link to="/proof" className="text-primary underline underline-offset-4">
-            {t("View vault balances and on-chain records", "查看金库余额与链上记录")}
-          </Link>
-          .
-        </p>
-      </Section>
-
-      {/* ------------------------------------------------------ how it works */}
-      <Section
-        eyebrow={t("claim process", "领取流程")}
-        title={t("Location verification. Command. Agent claim.", "定位验证、一次性指令与 Agent 领取。")}
-        lead={t(
-          "All four rarities follow the same Agent-only claim rule. Map claims are live; the legendary event claim is not connected yet.",
-          "普通、稀有、史诗与传奇均适用 Agent 专属领取规则。地图点位已可真实领取；传奇活动的领取暂未接通。",
-        )}
-      >
-        <div className="mt-10 grid gap-px bg-border md:grid-cols-3">
-          {[
-            {
-              n: "01",
-              h: t("Arrive at the designated location.", "抵达指定地点。"),
-              p: t(
-                "Locate a designated venue on the map and arrive on-site to begin location verification.",
-                "通过地图查找指定点位，抵达现场后启动定位验证。",
-              ),
-            },
-            {
-              n: "02",
-              h: t("Complete location verification.", "完成定位验证。"),
-              p: t(
-                "Passing location and eligibility checks provides a single-use command valid for 15 minutes. Send it to your AI within that period.",
-                "通过定位与规则校验即可获取一次性领取指令，并在 15 分钟有效期内发送给 AI。",
-              ),
-            },
-            {
-              n: "03",
-              h: t("Claim through an Agent Wallet.", "Agent 钱包领取。"),
-              p: t(
-                `The AI uses its Agent Wallet to submit the claim on ${CHAIN.name}. Ordinary wallets are excluded.`,
-                `AI 使用 Agent 钱包在 ${CHAIN.name} 上提交领取；普通钱包不具备领取资格。`,
-              ),
-            },
-          ].map((s) => (
-            <div key={s.n} className="group bg-card p-8 transition-colors duration-500 hover:bg-secondary sm:p-10">
-              <span className="font-poster outline-text block text-8xl">
-                {s.n}
-              </span>
-              <h3 className="mt-6 text-xl transition-colors group-hover:text-primary">{s.h}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.p}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-8">
-          <Link
-            to="/how-it-works"
-            className="label-caps text-[11px] text-accent underline underline-offset-8"
-          >
-            {t("View all claim rules →", "查看完整规则 →")}
-          </Link>
-        </div>
-      </Section>
-
-
-      {/* --------------------------------------------------------- legendary */}
-      <Section
-        eyebrow={t("legendary", "传奇")}
-        title={t("Legendary event: one full share.", "传奇活动：一整股限时领取。")}
-      >
-        <Panel className="mt-8 flex flex-wrap items-center justify-between gap-8">
-          <div className="max-w-xl">
-            <p className="text-base leading-relaxed text-muted-foreground">
-              {t(
-                "Every day a whole SPCXB share sits at one spot for 120 minutes, announced 24 hours ahead with a live countdown. Planned eligibility requires on-site GPS and an Agent Wallet; the first valid Agent claim wins. Live claims are pending.",
-                "按计划规则，传奇活动每日投放一整股 SPCXB，指定点位开放 120 分钟，并提前 24 小时公布。用户须进入 25 米范围并通过定位验证，由 Agent 钱包提交领取；首个有效领取者获得奖励。真实领取功能尚未开放。",
-              )}
-            </p>
-            <Link
-              to="/legendary"
-              className="label-caps mt-6 inline-block rounded-md border border-accent/60 bg-accent/15 px-6 py-3 text-[11px] text-accent-foreground"
-            >
-              {t("See the countdown", "查看倒计时")}
-            </Link>
-          </div>
-          <TokenChip symbol="SPCXB" size={140} float />
-        </Panel>
-      </Section>
-
-      {/* --------------------------------------------------------- catchdex */}
-      <Section
-        eyebrow={t("the catchdex", "图鉴")}
-        title={t(`Explore ${TOKENS.length} tokenized assets.`, `了解全部 ${TOKENS.length} 种代币化资产。`)}
-      >
-        <Panel className="mt-8">
-          <div className="flex flex-wrap gap-4">
-            {TOKENS.map((tk) => (
-              <span key={tk.symbol} className="flex w-16 flex-col items-center gap-2 transition-transform duration-500 hover:-translate-y-1.5">
-                <TokenChip symbol={tk.symbol} size={52} />
-                <span className="label-caps text-[9px] text-muted-foreground">{tk.symbol}</span>
-              </span>
-            ))}
-          </div>
-          <p className="mt-6 text-sm text-muted-foreground">
-            {t(
-              `Each token is associated with a venue category, including bank branches, internet cafés, computer malls, phone shops, superchargers, Apple Stores and science museums. Fragments are transferred from the vault on ${CHAIN.short}.`,
-              `每种代币对应一类真实场所，包括银行网点、网吧、电脑城、手机店、超充站、Apple 直营店与科技馆。按规划流程，碎片由 ${CHAIN.short} 上的金库转出。`,
-
-            )}
-          </p>
-        </Panel>
-      </Section>
-
-      {/* --------------------------------------------------------- waitlist */}
-      <Section
-        eyebrow={t("city updates", "城市拓展")}
-        title={t("Register interest in your city.", "登记意向城市，关注后续开放。")}
-      >
-        <Panel className="mt-8">
-          <WaitlistForm />
-        </Panel>
-      </Section>
+      <Dialog open={rulesOpen} onOpenChange={setRulesOpen}><DialogContent className="max-h-[85svh] max-w-xl overflow-y-auto"><DialogHeader><DialogTitle>FAGENT 合约规则</DialogTitle><DialogDescription>依据本项目的 AgentCardVault 卡牌金库合约。</DialogDescription></DialogHeader><div className="space-y-5 text-sm leading-7">{[{ title: "铸造与供给", text: `总量 ${CARD_RULES.supply.toLocaleString()} 张，77 批，每批 9,500 张付费卡与 500 张团队卡。付费铸造仅限持有 Agent ID 的币安 Agent 钱包，每地址终身最多 7 张；卖掉或销毁不会恢复名额。` }, { title: "税收分配", text: "税收保留为 BNB。全部售完之前，按批次售满触发分配，分给当时所有有效未销毁卡牌。全部售完后，新税收经同步等操作分配。收入取决于实际交易税，不保证收益。" }, { title: "团队与代币兑换", text: "每付费铸造 19 张，激活 1 份团队权益，团队不铸卡也不影响结算和份数。9,500 张付费卡售满后，该批买到的项目代币平均记到本批 10,000 份权益上；这是代币数量，不是 BNB 余额。销毁可兑换该份代币及未领 BNB，之后停止分红。" }, { title: "市场与转让", text: "买卖不限 Agent ID。合约市场手续费 1%；成交时未领分红支付给卖家，买家从成交后参与分红。普通转账则让未领分红随卡转移。求购资金在合约托管，未成交部分可撤单退回。" }, { title: "合约安全", text: "合约已通过 Flap 官方审计，代码与规则全部公开在链上，资金安全。" }].map(r => <div key={r.title}><h3 className="mb-1 text-primary">{r.title}</h3><p className="text-muted-foreground">{r.text}</p></div>)}</div><Button variant="outline" onClick={async () => { try { await navigator.clipboard.writeText("FAGENT：0.002 BNB/张；每地址终身付费铸造最多7张；80%买入项目代币、20%运营；批次售满触发税收分配；市场手续费1%。"); setCopied(true); } catch { setNotice("复制失败，请手动选择规则文字"); } }}><Copy />{copied ? "规则已复制" : "复制规则摘要"}</Button></DialogContent></Dialog>
+      {notice && <div role="status" className="fixed bottom-6 left-1/2 z-50 flex max-w-[90%] -translate-x-1/2 items-center gap-4 border border-border bg-popover px-4 py-3 text-sm">{notice}<Button variant="ghost" size="icon" aria-label="关闭提示" onClick={() => setNotice("")}><X /></Button></div>}
     </div>
   );
 }

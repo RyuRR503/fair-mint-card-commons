@@ -1,11 +1,11 @@
 {
-  "asset_id": "cd8e7ee6-22b9-4864-a1b7-6be4ac31221b",
-  "content_type": "image/png",
-  "created_at": "2026-10-29T19:59:20Z",
-  "original_filename": "fagent-card-minimal.png",
+  "version": 1,
+  "asset_id": "47e67c22-7496-4cfc-8eff-a27f0b80281e",
   "project_id": "9dacf0a1-bfd8-4760-9f01-90da0565a23e",
-  "r2_key": "a/v1/9dacf0a1-bfd8-4760-9f01-90da0565a23e/cd8e7ee6-22b9-4864-a1b7-6be4ac31221b/fagent-card-minimal.png",
+  "url": "/__l5e/assets-v1/47e67c22-7496-4cfc-8eff-a27f0b80281e/fagent-card-minimal.png",
+  "r2_key": "a/v1/9dacf0a1-bfd8-4760-9f01-90da0565a23e/47e67c22-7496-4cfc-8eff-a27f0b80281e/fagent-card-minimal.png",
+  "original_filename": "fagent-card-minimal.png",
   "size": 882030,
-  "url": "/__l5e/assets-v1/cd8e7ee6-22b9-4864-a1b7-6be4ac31221b/fagent-card-minimal.png",
-  "version": 1
+  "content_type": "image/png",
+  "created_at": "2026-10-31T00:49:19Z"
 }

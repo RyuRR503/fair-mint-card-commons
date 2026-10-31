@@ -10,219 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AgentCardsRouteImport } from './routes/agent-cards'
-import { Route as AgentGuideRouteImport } from './routes/agent-guide'
-import { Route as AppRouteImport } from './routes/app'
-import { Route as ComingSoonRouteImport } from './routes/coming-soon'
-import { Route as DocsRouteImport } from './routes/docs'
-import { Route as DownloadRouteImport } from './routes/download'
-import { Route as HowItWorksRouteImport } from './routes/how-it-works'
-import { Route as LegendaryRouteImport } from './routes/legendary'
-import { Route as ProofRouteImport } from './routes/proof'
-import { Route as RoadmapRouteImport } from './routes/roadmap'
-import { Route as SponsorRouteImport } from './routes/sponsor'
-import { Route as AgentCardsRulesRouteImport } from './routes/agent-cards_.rules'
-import { Route as ApiPublicAgentClaimRouteImport } from './routes/api/public/agent-claim'
-import { Route as ApiPublicSyncRouteImport } from './routes/api/public/sync'
+import { Route as RulesRouteImport } from './routes/rules'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AgentCardsRoute = AgentCardsRouteImport.update({
-  id: '/agent-cards',
-  path: '/agent-cards',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AgentGuideRoute = AgentGuideRouteImport.update({
-  id: '/agent-guide',
-  path: '/agent-guide',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppRoute = AppRouteImport.update({
-  id: '/app',
-  path: '/app',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ComingSoonRoute = ComingSoonRouteImport.update({
-  id: '/coming-soon',
-  path: '/coming-soon',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DocsRoute = DocsRouteImport.update({
-  id: '/docs',
-  path: '/docs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DownloadRoute = DownloadRouteImport.update({
-  id: '/download',
-  path: '/download',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HowItWorksRoute = HowItWorksRouteImport.update({
-  id: '/how-it-works',
-  path: '/how-it-works',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LegendaryRoute = LegendaryRouteImport.update({
-  id: '/legendary',
-  path: '/legendary',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProofRoute = ProofRouteImport.update({
-  id: '/proof',
-  path: '/proof',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RoadmapRoute = RoadmapRouteImport.update({
-  id: '/roadmap',
-  path: '/roadmap',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SponsorRoute = SponsorRouteImport.update({
-  id: '/sponsor',
-  path: '/sponsor',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AgentCardsRulesRoute = AgentCardsRulesRouteImport.update({
-  id: '/agent-cards_/rules',
-  path: '/agent-cards/rules',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicAgentClaimRoute = ApiPublicAgentClaimRouteImport.update({
-  id: '/api/public/agent-claim',
-  path: '/api/public/agent-claim',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicSyncRoute = ApiPublicSyncRouteImport.update({
-  id: '/api/public/sync',
-  path: '/api/public/sync',
+const RulesRoute = RulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/agent-cards': typeof AgentCardsRoute
-  '/agent-guide': typeof AgentGuideRoute
-  '/app': typeof AppRoute
-  '/coming-soon': typeof ComingSoonRoute
-  '/docs': typeof DocsRoute
-  '/download': typeof DownloadRoute
-  '/how-it-works': typeof HowItWorksRoute
-  '/legendary': typeof LegendaryRoute
-  '/proof': typeof ProofRoute
-  '/roadmap': typeof RoadmapRoute
-  '/sponsor': typeof SponsorRoute
-  '/agent-cards/rules': typeof AgentCardsRulesRoute
-  '/api/public/agent-claim': typeof ApiPublicAgentClaimRoute
-  '/api/public/sync': typeof ApiPublicSyncRoute
+  '/rules': typeof RulesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/agent-cards': typeof AgentCardsRoute
-  '/agent-guide': typeof AgentGuideRoute
-  '/app': typeof AppRoute
-  '/coming-soon': typeof ComingSoonRoute
-  '/docs': typeof DocsRoute
-  '/download': typeof DownloadRoute
-  '/how-it-works': typeof HowItWorksRoute
-  '/legendary': typeof LegendaryRoute
-  '/proof': typeof ProofRoute
-  '/roadmap': typeof RoadmapRoute
-  '/sponsor': typeof SponsorRoute
-  '/agent-cards/rules': typeof AgentCardsRulesRoute
-  '/api/public/agent-claim': typeof ApiPublicAgentClaimRoute
-  '/api/public/sync': typeof ApiPublicSyncRoute
+  '/rules': typeof RulesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/agent-cards': typeof AgentCardsRoute
-  '/agent-guide': typeof AgentGuideRoute
-  '/app': typeof AppRoute
-  '/coming-soon': typeof ComingSoonRoute
-  '/docs': typeof DocsRoute
-  '/download': typeof DownloadRoute
-  '/how-it-works': typeof HowItWorksRoute
-  '/legendary': typeof LegendaryRoute
-  '/proof': typeof ProofRoute
-  '/roadmap': typeof RoadmapRoute
-  '/sponsor': typeof SponsorRoute
-  '/agent-cards_/rules': typeof AgentCardsRulesRoute
-  '/api/public/agent-claim': typeof ApiPublicAgentClaimRoute
-  '/api/public/sync': typeof ApiPublicSyncRoute
+  '/rules': typeof RulesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/agent-cards'
-    | '/agent-guide'
-    | '/app'
-    | '/coming-soon'
-    | '/docs'
-    | '/download'
-    | '/how-it-works'
-    | '/legendary'
-    | '/proof'
-    | '/roadmap'
-    | '/sponsor'
-    | '/agent-cards/rules'
-    | '/api/public/agent-claim'
-    | '/api/public/sync'
+  fullPaths: '/' | '/rules'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/agent-cards'
-    | '/agent-guide'
-    | '/app'
-    | '/coming-soon'
-    | '/docs'
-    | '/download'
-    | '/how-it-works'
-    | '/legendary'
-    | '/proof'
-    | '/roadmap'
-    | '/sponsor'
-    | '/agent-cards/rules'
-    | '/api/public/agent-claim'
-    | '/api/public/sync'
-  id:
-    | '__root__'
-    | '/'
-    | '/agent-cards'
-    | '/agent-guide'
-    | '/app'
-    | '/coming-soon'
-    | '/docs'
-    | '/download'
-    | '/how-it-works'
-    | '/legendary'
-    | '/proof'
-    | '/roadmap'
-    | '/sponsor'
-    | '/agent-cards_/rules'
-    | '/api/public/agent-claim'
-    | '/api/public/sync'
+  to: '/' | '/rules'
+  id: '__root__' | '/' | '/rules'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AgentCardsRoute: typeof AgentCardsRoute
-  AgentGuideRoute: typeof AgentGuideRoute
-  AppRoute: typeof AppRoute
-  ComingSoonRoute: typeof ComingSoonRoute
-  DocsRoute: typeof DocsRoute
-  DownloadRoute: typeof DownloadRoute
-  HowItWorksRoute: typeof HowItWorksRoute
-  LegendaryRoute: typeof LegendaryRoute
-  ProofRoute: typeof ProofRoute
-  RoadmapRoute: typeof RoadmapRoute
-  SponsorRoute: typeof SponsorRoute
-  AgentCardsRulesRoute: typeof AgentCardsRulesRoute
-  ApiPublicAgentClaimRoute: typeof ApiPublicAgentClaimRoute
-  ApiPublicSyncRoute: typeof ApiPublicSyncRoute
+  RulesRoute: typeof RulesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -234,102 +58,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/agent-cards': {
-      id: '/agent-cards'
-      path: '/agent-cards'
-      fullPath: '/agent-cards'
-      preLoaderRoute: typeof AgentCardsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/agent-guide': {
-      id: '/agent-guide'
-      path: '/agent-guide'
-      fullPath: '/agent-guide'
-      preLoaderRoute: typeof AgentGuideRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/coming-soon': {
-      id: '/coming-soon'
-      path: '/coming-soon'
-      fullPath: '/coming-soon'
-      preLoaderRoute: typeof ComingSoonRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/docs': {
-      id: '/docs'
-      path: '/docs'
-      fullPath: '/docs'
-      preLoaderRoute: typeof DocsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/download': {
-      id: '/download'
-      path: '/download'
-      fullPath: '/download'
-      preLoaderRoute: typeof DownloadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/how-it-works': {
-      id: '/how-it-works'
-      path: '/how-it-works'
-      fullPath: '/how-it-works'
-      preLoaderRoute: typeof HowItWorksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/legendary': {
-      id: '/legendary'
-      path: '/legendary'
-      fullPath: '/legendary'
-      preLoaderRoute: typeof LegendaryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/proof': {
-      id: '/proof'
-      path: '/proof'
-      fullPath: '/proof'
-      preLoaderRoute: typeof ProofRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/roadmap': {
-      id: '/roadmap'
-      path: '/roadmap'
-      fullPath: '/roadmap'
-      preLoaderRoute: typeof RoadmapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sponsor': {
-      id: '/sponsor'
-      path: '/sponsor'
-      fullPath: '/sponsor'
-      preLoaderRoute: typeof SponsorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/agent-cards_/rules': {
-      id: '/agent-cards_/rules'
-      path: '/agent-cards/rules'
-      fullPath: '/agent-cards/rules'
-      preLoaderRoute: typeof AgentCardsRulesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/agent-claim': {
-      id: '/api/public/agent-claim'
-      path: '/api/public/agent-claim'
-      fullPath: '/api/public/agent-claim'
-      preLoaderRoute: typeof ApiPublicAgentClaimRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/sync': {
-      id: '/api/public/sync'
-      path: '/api/public/sync'
-      fullPath: '/api/public/sync'
-      preLoaderRoute: typeof ApiPublicSyncRouteImport
+    '/rules': {
+      id: '/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof RulesRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -337,20 +70,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AgentCardsRoute: AgentCardsRoute,
-  AgentGuideRoute: AgentGuideRoute,
-  AppRoute: AppRoute,
-  ComingSoonRoute: ComingSoonRoute,
-  DocsRoute: DocsRoute,
-  DownloadRoute: DownloadRoute,
-  HowItWorksRoute: HowItWorksRoute,
-  LegendaryRoute: LegendaryRoute,
-  ProofRoute: ProofRoute,
-  RoadmapRoute: RoadmapRoute,
-  SponsorRoute: SponsorRoute,
-  AgentCardsRulesRoute: AgentCardsRulesRoute,
-  ApiPublicAgentClaimRoute: ApiPublicAgentClaimRoute,
-  ApiPublicSyncRoute: ApiPublicSyncRoute,
+  RulesRoute: RulesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
