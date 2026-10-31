@@ -1,3 +1,9 @@
+# Independent FAGENT remix
+- [ ] Remove CATCH pages, services, contracts and assets; make FAGENT the homepage and keep its rules.
+- [ ] Reset copied migrations to an empty set without executing old SQL.
+- [ ] Verify FAGENT navigation, mint preview, assets and absence of CATCH requests.
+- [ ] Resolve cancelled CATCH-secret updates: these are unnecessary once CATCH services are removed.
+
 # Agent Card preview
 - [x] Add clearly labeled mock supply, minted, remaining and price figures.
 - [x] Add standalone rules page and navigation.
