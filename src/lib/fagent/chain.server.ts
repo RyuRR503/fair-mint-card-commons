@@ -2,6 +2,7 @@ import { createPublicClient, fallback, http, formatEther, formatUnits, getAbiIte
 import { bsc } from "viem/chains";
 import { FAGENT, liveSupply } from "./config";
 import { vaultAbi } from "./vault-abi";
+import { estimatedMarketVolume } from "./market";
 
 function client() {
   return createPublicClient({ chain: bsc, transport: fallback([
@@ -41,13 +42,18 @@ export type Snapshot = Awaited<ReturnType<typeof readSnapshot>>;
 export async function readMarket(askCursor: string, bidCursor: string) {
   const c = client();
   const block = await c.getBlockNumber();
-  const [asks, bids, bidEnd] = await Promise.all([
+  const [asks, bids, bidEnd, fees, escrow, feeBps, maxBuy] = await Promise.all([
     c.readContract({ address: FAGENT.vault, abi: vaultAbi, functionName: "getActiveListings", args: [BigInt(askCursor), 500n], blockNumber: block }),
     c.readContract({ address: FAGENT.vault, abi: vaultAbi, functionName: "getActiveBids", args: [BigInt(bidCursor), 500n], blockNumber: block }),
     c.readContract({ address: FAGENT.vault, abi: vaultAbi, functionName: "nextBidId", blockNumber: block }),
+    c.readContract({ address: FAGENT.vault, abi: vaultAbi, functionName: "totalMarketFees", blockNumber: block }),
+    c.readContract({ address: FAGENT.vault, abi: vaultAbi, functionName: "bidEscrow", blockNumber: block }),
+    c.readContract({ address: FAGENT.vault, abi: vaultAbi, functionName: "MARKET_FEE_BPS", blockNumber: block }),
+    c.readContract({ address: FAGENT.vault, abi: vaultAbi, functionName: "MAX_BUY", blockNumber: block }),
   ]);
   return {
     block: String(block),
+    volume: estimatedMarketVolume(String(fees), Number(feeBps)), escrow: formatEther(escrow), feeBps: Number(feeBps), maxBuy: Number(maxBuy),
     asks: asks[0].map((id, i) => ({ id: Number(id), seller: asks[1][i]?.seller ?? "", priceWei: String(asks[1][i]?.price ?? 0n), price: formatEther(asks[1][i]?.price ?? 0n) })),
     bids: bids[0].map((id, i) => ({ id: String(id), bidder: bids[1][i]?.bidder ?? "", priceWei: String(bids[1][i]?.price ?? 0n), price: formatEther(bids[1][i]?.price ?? 0n), remaining: Number(bids[1][i]?.remaining ?? 0), batchPlusOne: Number(bids[1][i]?.batchPlusOne ?? 0) })),
     askNext: String(asks[2]), bidNext: String(bids[2]), bidEnd: String(bidEnd),

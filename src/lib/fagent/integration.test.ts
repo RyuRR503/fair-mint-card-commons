@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { encodeFunctionData, decodeFunctionData } from "viem";
 import { vaultAbi } from "./vault-abi";
 import { FAGENT, liveSupply, redemptionReady } from "./config";
-import { mintCommand, bidCommand } from "./commands";
+import { mintCommand, bidCommand, batchBuyCommand } from "./commands";
+import { estimatedMarketVolume, purchaseSelection } from "./market";
 
 test("the selected deployed vault is distinct from its token and factory", () => {
   assert.equal(FAGENT.vault, "0x188d8932ddc1715e541e82ce1c1ad4b91427ef5e");
@@ -36,4 +37,22 @@ test("order commands reject invalid amount, quantity and batch", () => {
   assert.throws(() => bidCommand("0.002", 4294967296, 0));
   assert.throws(() => bidCommand("0.002", 1, 78));
   assert.throws(() => bidCommand("0.0000000000000000001", 1, 0));
+});
+test("cumulative volume is estimated from the selected contract's 1 percent fee", () => {
+  assert.equal(estimatedMarketVolume("50000000000000", 100), "0.005");
+  assert.equal(estimatedMarketVolume("0", 100), "0");
+});
+test("quick purchase selects cheapest cards and respects the 150 card contract cap", () => {
+  const asks = Array.from({ length: 151 }, (_, id) => ({ id, priceWei: String(BigInt(151 - id) * 1000000000000000n) }));
+  const selection = purchaseSelection(asks, 150);
+  assert.equal(selection.cards.length, 150);
+  assert.equal(selection.cards[0]?.id, 150);
+  assert.equal(selection.cards.at(-1)?.id, 1);
+  assert.equal(selection.totalWei, "11325000000000000000");
+  assert.throws(() => batchBuyCommand(asks, 150));
+});
+test("batch purchase pays the sum of individual price caps", () => {
+  const command = batchBuyCommand([{ id: 500, priceWei: "1000000000000000" }, { id: 501, priceWei: "2000000000000000" }], 150);
+  assert.ok(command.includes("参数 [500,501]、[1000000000000000,2000000000000000]"));
+  assert.ok(command.includes("value=3000000000000000 wei"));
 });

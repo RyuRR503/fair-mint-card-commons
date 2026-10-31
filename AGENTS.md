@@ -14,6 +14,7 @@
 - FAGENT reads the deployed BNB Chain Vault through read-only server functions and TanStack Query; never call unrelated game services or initialize Cloud auth for public chain data.
 - Generate the contract ABI from the selected Solidity source; one shared deployment configuration supplies all readers and Agent commands to avoid address/signature drift.
 - Transactions remain user-confirmed Binance Agent Wallet commands; the website never signs, submits transactions, or fabricates successful on-chain actions.
+- Market math lives in the shared market utility: label fee-derived cumulative volume as an estimate and cap lowest-price purchase selections with the deployed MAX_BUY to avoid misleading totals or oversized transactions.
 - Reuse FagentLogo and AgentCardArt with project-owned asset pointers; this preserves the approved identity after remixing.
 - Keep colors and card treatments in semantic tokens in src/styles.css; this preserves the established theme across all card views.
 - Keep drizzle/schema.ts blank and the new project's migration journal empty until a new schema is explicitly requested; copied migrations must never initialize this database.
