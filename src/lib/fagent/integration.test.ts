@@ -7,9 +7,11 @@ import { mintCommand, bidCommand, batchBuyCommand } from "./commands";
 import { estimatedMarketVolume, purchaseSelection, saleCardIds } from "./market";
 
 test("the selected deployed vault is distinct from its token and factory", () => {
-  assert.equal(FAGENT.vault, "0x188d8932ddc1715e541e82ce1c1ad4b91427ef5e");
-  assert.equal(FAGENT.token, "0x568fb6350fd3645196f3bc679c2c8556eb537777");
+  assert.equal(FAGENT.vault, "0xbc2d8b6f4c4e2803c5e842e6e8250b79ee442b78");
+  assert.equal(FAGENT.token, "0x457badee84b6be7539458eac993983058c7f7777");
+  assert.equal(FAGENT.factory, "0x150209007c2c6176796DB254d792f976b6FBF931");
   assert.notEqual(FAGENT.factory, FAGENT.vault);
+  assert.notEqual(FAGENT.token, FAGENT.vault);
 });
 test("live supply counts materialized NFTs separately from activated team rights", () => {
   assert.deepEqual(liveSupply(19, 0, 770000), { minted: 19, remaining: 769981, batch: 1, batchPaid: 19, activatedTeam: 1 });

@@ -1,8 +1,8 @@
 export const FAGENT = {
   chainId: 56,
-  token: "0x568fb6350fd3645196f3bc679c2c8556eb537777",
-  vault: "0x188d8932ddc1715e541e82ce1c1ad4b91427ef5e",
-  factory: "0x55cb2c65d4b186c829ac2b994f9305a315c59849",
+  token: "0x457badee84b6be7539458eac993983058c7f7777",
+  vault: "0xbc2d8b6f4c4e2803c5e842e6e8250b79ee442b78",
+  factory: "0x150209007c2c6176796DB254d792f976b6FBF931",
 } as const;
 
 export function liveSupply(paid: number, teamMinted: number, total: number, paidPerBatch = 9500) {
