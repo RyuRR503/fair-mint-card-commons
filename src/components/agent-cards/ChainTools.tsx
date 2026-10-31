@@ -16,7 +16,7 @@ export function CommandDialog({ text, onClose }: { text: string | null; onClose:
 
 export function WalletCheck({ onResult }: { onResult?: (data: NonNullable<Awaited<ReturnType<typeof getWallet>>["data"]>) => void }) {
   const [address, setAddress] = useState("");
-  const [result, setResult] = useState<Awaited<ReturnType<typeof getWallet>> | null>(null);
+  const [result, setResult] = useState<{ data: Awaited<ReturnType<typeof getWallet>>["data"]; error: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
   const load = useServerFn(getWallet);
   return <div className="space-y-3"><label className="block text-xs text-muted-foreground" htmlFor="wallet-check">币安 Agent 钱包地址</label><div className="flex gap-2"><input id="wallet-check" aria-label="钱包地址" placeholder="0x…" value={address} onChange={e => { setAddress(e.target.value); setResult(null); }} className="h-10 min-w-0 flex-1 border border-input bg-background px-3 font-mono text-xs text-foreground" /><Button variant="outline" disabled={busy || !isAddress(address)} onClick={async () => { setBusy(true); try { const next = await load({ data: { address } }); setResult(next); if (next.data) onResult?.(next.data); } catch { setResult({ data: null, error: "读取失败，请重试。" }); } finally { setBusy(false); } }}><Search />{busy ? "查询中" : "查询"}</Button></div>{result?.error && <p role="alert" className="text-xs text-destructive">{result.error}</p>}{result?.data && <div className="space-y-2 text-xs"><p>Agent ID：<span className="text-primary">{result.data.hasAgentId ? "已持有" : "未持有，不能付费铸造"}</span></p><p>已用名额 {result.data.used} / 7 · 剩余 {Math.max(0, 7 - result.data.used)} 张</p><p>BNB 余额：{result.data.balance}</p><p>待提取卖卡款：{Number(result.data.proceeds) / 1e18} BNB</p></div>}</div>;
@@ -24,7 +24,7 @@ export function WalletCheck({ onResult }: { onResult?: (data: NonNullable<Awaite
 
 export function CardCheck() {
   const [id, setId] = useState("");
-  const [result, setResult] = useState<Awaited<ReturnType<typeof getCard>> | null>(null);
+  const [result, setResult] = useState<{ data: Awaited<ReturnType<typeof getCard>>["data"]; error: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
   const [command, setCommand] = useState<string | null>(null);
   const [price, setPrice] = useState("0.003");

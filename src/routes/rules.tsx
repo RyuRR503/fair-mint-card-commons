@@ -62,7 +62,7 @@ const sections = [
     "求购资金由合约托管，未成交部分可撤单退回。购买卡牌不消耗付费铸造名额，也不要求 Agent ID。",
   ] },
   { title: "合约安全", paragraphs: [
-    "合约已通过 Flap 官方审计，代码与规则全部公开在链上，资金安全。",
+    "当前金库已部署于 BNB Chain，可公开查询链上记录。上传包含测试报告，但本网站尚未独立核实官方审计结论；合约与数字资产仍存在风险。",
   ] },
 ];
 
@@ -76,7 +76,7 @@ function CardRulesPage() {
       <Button asChild variant="ghost" className="mb-8 px-0 text-muted-foreground"><Link to="/"><ArrowLeft />返回卡牌</Link></Button>
       <p className="mb-3 font-mono text-xs text-primary">FAGENT / RULES</p>
       <h1 className="text-4xl font-bold">卡牌规则</h1>
-      <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">依据本项目上传的卡牌金库合约。当前页面中的数量与操作为模拟展示，不代表真实销量或链上资产。</p>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">依据本项目选定的卡牌金库合约。铸造进度、市场挂单与金库账本读取 BNB Chain；交易由币安 Agent 钱包确认后执行。</p>
       <div className="mt-10 max-w-3xl">{sections.map((section, i) => <section key={section.title} className="grid grid-cols-[32px_1fr] gap-4 border-t border-border py-7 sm:gap-8"><span className="font-mono text-xs text-primary">{String(i + 1).padStart(2, "0")}</span><div className="min-w-0"><h2 className="mb-3 text-xl">{section.title}</h2><div className="space-y-3">{section.paragraphs.map(paragraph => <p key={paragraph} className="text-sm leading-7 text-muted-foreground">{paragraph}</p>)}</div></div></section>)}</div>
       <Button asChild className="mt-6"><Link to="/">返回铸造<ArrowUpRight /></Link></Button>
     </main>
