@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Outlet, Link, createRootRouteWithContext, useRouter, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRouteWithContext, useRouter, HeadContent, Scripts, type ErrorComponentProps } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
@@ -9,7 +9,7 @@ function NotFoundComponent() {
   return <div className="flex min-h-screen items-center justify-center bg-background px-4"><div className="max-w-md text-center"><p className="font-mono text-xs text-primary">FAGENT / 404</p><h1 className="mt-4 text-4xl">页面不存在</h1><Button asChild className="mt-6"><Link to="/">返回首页</Link></Button></div></div>;
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
   useEffect(() => { reportLovableError(error, { boundary: "tanstack_root_error_component" }); }, [error]);
   return <div className="flex min-h-screen items-center justify-center bg-background px-4"><div className="max-w-md text-center"><h1 className="text-xl">这一页没能加载</h1><p className="mt-3 text-sm text-muted-foreground">可以重试，或者回到 FAGENT 首页。</p><div className="mt-6 flex justify-center gap-3"><Button onClick={() => { void router.invalidate(); reset(); }}>重试</Button><Button asChild variant="outline"><Link to="/">返回首页</Link></Button></div></div></div>;
