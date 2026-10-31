@@ -1,1 +1,0 @@
-ALTER TABLE public.claim_codes ADD COLUMN IF NOT EXISTS ip text; CREATE INDEX IF NOT EXISTS claim_codes_ip_created ON public.claim_codes(ip, created_at);
