@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { snapshotOptions } from "@/lib/fagent/queries";
 import { CardExperience } from "@/components/agent-cards/CardExperience";
 
 export const Route = createFileRoute("/vault")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(snapshotOptions()),
   head: () => ({ meta: [
     { title: "FAGENT — 金库账本" },
     { name: "description", content: "FAGENT BNB 税收金库账本与分配说明。" },

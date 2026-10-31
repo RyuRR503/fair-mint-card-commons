@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { snapshotOptions } from "@/lib/fagent/queries";
 import { CardExperience } from "@/components/agent-cards/CardExperience";
 
 export const Route = createFileRoute("/commands")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(snapshotOptions()),
   head: () => ({ meta: [
     { title: "FAGENT — Agent 指令" },
     { name: "description", content: "币安 Agent 钱包的 FAGENT 铸造、买卖、分红与兑换指令。" },
