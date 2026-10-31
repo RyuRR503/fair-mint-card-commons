@@ -1,5 +1,13 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793460005450,
+      "tag": "0000_restrict_retired_catch_table_access",
+      "breakpoints": true
+    }
+  ]
 }
