@@ -31,3 +31,9 @@ test("human batch 1 maps to batchPlusOne 1 and 5 cards escrow exactly 0.01 BNB",
   assert.ok(command.includes("参数 2000000000000000、5、1"));
   assert.ok(command.includes("value=10000000000000000 wei"));
 });
+test("order commands reject invalid amount, quantity and batch", () => {
+  assert.throws(() => bidCommand("0", 1, 0));
+  assert.throws(() => bidCommand("0.002", 4294967296, 0));
+  assert.throws(() => bidCommand("0.002", 1, 78));
+  assert.throws(() => bidCommand("0.0000000000000000001", 1, 0));
+});

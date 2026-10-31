@@ -1,22 +1,29 @@
 import { parseEther } from "viem";
 import { FAGENT } from "./config";
 
+function orderPrice(price: string) {
+  if (!/^\d+(\.\d{1,18})?$/.test(price)) throw new Error("价格格式不正确");
+  const wei = parseEther(price);
+  if (wei <= 0n || wei > (1n << 96n) - 1n) throw new Error("价格超出合约范围");
+  return wei;
+}
 export const commandHead = `你是我的币安 Agent 钱包助手。网络：BNB Chain，chainId=${FAGENT.chainId}。项目代币 CA：${FAGENT.token}。卡牌金库 Vault：${FAGENT.vault}。所有卡牌函数调用 Vault，不调用代币 CA 或工厂。先从已验证源码获取 ABI 并核对函数签名，读取最新状态并模拟交易；展示函数、参数、BNB 金额和 gas，等我确认后才发送。失败立即停止，不索要或导出私钥。`;
 export function mintCommand(count: number) {
   if (!Number.isInteger(count) || count < 1 || count > 7) throw new Error("铸造数量须为 1–7");
   return `${commandHead}\n铸造 ${count} 张。先读 hasAgentId(我的地址)、mintsUsed(我的地址)、userMints()、mintPrice()，核对身份、终身 7 张名额、全系列 731500 张付费上限、余额和项目可交易状态。调用 mint(uint256 count)，参数 ${count}，value=${2000000000000000n * BigInt(count)} wei（${count * 0.002} BNB）。确认后发送，按 PaidMint 日志报告所有卡号与交易哈希。`;
 }
 export function buyCommand(id: number, price: string) {
-  const wei = parseEther(price);
+  const wei = orderPrice(price);
   return `${commandHead}\n买入卡牌 ${id}。读取 listings(${id}) 和 ownerOf(${id})，确认仍有有效卖单。最高价 ${price} BNB（${wei} wei）。调用 buy(uint256[] tokenIds,uint256[] maxPrices)，参数 [${id}]、[${wei}]，value=${wei} wei。超过限价的卡会被跳过，剩余款退回；按 Sold 日志报告实际成交，若没有 Sold 日志不能称为买入成功。`;
 }
 export function bidCommand(price: string, quantity: number, batch: number) {
-  const wei = parseEther(price);
+  const wei = orderPrice(price);
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 4294967295 || !Number.isInteger(batch) || batch < 0 || batch > 77) throw new Error("求购参数超出合约范围");
   return `${commandHead}\n发布求购：每张 ${price} BNB，数量 ${quantity}，${batch === 0 ? "不限批次" : `只收第 ${batch} 批`}。调用 placeBid(uint256 price,uint256 quantity,uint256 batchPlusOne)，参数 ${wei}、${quantity}、${batch}，value=${wei * BigInt(quantity)} wei，必须恰好等于出价×数量。合约批次从 0 开始，第 N 批的 batchPlusOne 就是 N。确认后发送，报告 bidId。`;
 }
 export function cardCommand(kind: "claim" | "redeem" | "list" | "unlist", id: number | string, price = "0.003") {
   const preparation = `读取 ownerOf(${id})、isActive(${id})、pendingDividend(${id})、repurchaseOf(${id})；核对卡牌属于我的钱包。`;
-  if (kind === "list") return `${commandHead}\n${preparation}调用 list(uint256[] tokenIds,uint256[] prices)，参数 [${id}]、[${parseEther(price)}]，售价 ${price} BNB。重复挂单可改价，卡牌不托管。`;
+  if (kind === "list") return `${commandHead}\n${preparation}调用 list(uint256[] tokenIds,uint256[] prices)，参数 [${id}]、[${orderPrice(price)}]，售价 ${price} BNB。重复挂单可改价，卡牌不托管。`;
   if (kind === "unlist") return `${commandHead}\n核对 listings(${id}) 的卖家是我，调用 unlist(uint256[] tokenIds)，参数 [${id}]。`;
   if (kind === "claim") return `${commandHead}\n${preparation}检查批次是否满额，或自本批第一张付费卡铸出已满 7 天；读取最新 undistributedTax()，模拟 claim(uint256 tokenId)，参数 ${id}。即便 pendingDividend 为 0，到期同步后也可能有分红，以模拟结果为准；无可领取额则不要发送。领取保留 NFT 与兑换权。`;
   return `${commandHead}\n${preparation}用卡号除以 10000 得到从 0 开始的 batchId，读取 batchAccounted(batchId)、batchOpenedAt() 和 STALL_RELEASE()，检查已售满或本批已满 7 天。模拟 redeem(uint256 tokenId)，参数 ${id}，先告诉我将收到的代币和 BNB；销毁不可逆、终身铸造名额不会恢复，必须等我再次确认才发送。未满 7 天且未售满则停止。`;
