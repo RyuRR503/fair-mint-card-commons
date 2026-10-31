@@ -1,4 +1,7 @@
 # Standalone FAGENT
+- [ ] Connect verified deployed Vault reads, supply, batch timer, real market orders/history and ledger; remove simulated actions.
+- [ ] Generate ABI from selected Solidity; wire real-address Agent commands and wallet-address/card checks without wallet login.
+- [ ] Verify live reads, command flow, empty/error states, desktop/mobile and contract rule tests.
 - [x] Split top navigation into independent mint, market, commands and vault pages; preserve rules copy and design.
 - [x] Verify direct visits, refresh, navigation and preview actions across desktop and mobile.
 - [x] Record the selected contract and compare updated rule copy against its behavior.
