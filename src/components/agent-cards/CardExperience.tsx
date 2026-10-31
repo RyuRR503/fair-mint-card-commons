@@ -76,7 +76,7 @@ export function CardExperience({ page = "mint" }: { page?: CardPage }) {
         <section className="ac-stats" aria-label="合约固定参数">{[{ value: CARD_RULES.supply.toLocaleString(), unit: "张", label: "总发行量" }, { value: supply.minted.toLocaleString(), unit: "张", label: "已铸造 · 模拟" }, { value: supply.remaining.toLocaleString(), unit: "张", label: "剩余可发行 · 模拟" }, { value: String(CARD_RULES.mintPriceBnb), unit: "BNB", label: "单张铸造价格" }].map(s => <div key={s.label}><p className="flex flex-wrap items-baseline gap-2"><span className="font-poster text-4xl sm:text-5xl">{s.value}</span><span className="text-xs text-primary">{s.unit}</span></p><p className="mt-3 text-xs text-muted-foreground">{s.label}</p></div>)}</section></>}
 
         <section id="card-workspace" className="scroll-mt-6 pb-16 pt-9">
-          <CardNavigation className="ac-tabs md:hidden" compact />
+          <div className="md:hidden"><CardNavigation className="ac-tabs" compact /></div>
           {page !== "mint" && <div className="mb-8 border-b border-border pb-6 pt-7"><p className="mb-3 font-mono text-xs text-primary">FAGENT / {page.toUpperCase()}</p><h1 className="text-3xl font-bold">{page === "market" ? "卡牌市场" : page === "commands" ? "Agent 指令" : "金库账本"}</h1></div>}
           <div className="pt-7">
             {page === "mint" && <div className="ac-mint-grid">
