@@ -1,4 +1,4 @@
-/** Values transcribed from the uploaded AgentCardVault.sol, not CATCH's map vault. */
+/** Values transcribed from the uploaded AgentCardVault.sol. */
 export const CARD_RULES = {
   supply: 770_000,
   batches: 77,
