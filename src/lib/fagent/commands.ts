@@ -16,6 +16,12 @@ export function buyCommand(id: number, price: string) {
   const wei = orderPrice(price);
   return `${commandHead}\n买入卡牌 ${id}。读取 listings(${id}) 和 ownerOf(${id})，确认仍有有效卖单。最高价 ${price} BNB（${wei} wei）。调用 buy(uint256[] tokenIds,uint256[] maxPrices)，参数 [${id}]、[${wei}]，value=${wei} wei。超过限价的卡会被跳过，剩余款退回；按 Sold 日志报告实际成交，若没有 Sold 日志不能称为买入成功。`;
 }
+export function batchBuyCommand(cards: { id: number; priceWei: string }[], maxBuy: number) {
+  if (!Number.isInteger(maxBuy) || maxBuy < 1 || !cards.length || cards.length > maxBuy) throw new Error("买入数量超出限制");
+  if (cards.some(c => !Number.isInteger(c.id) || c.id < 0 || c.id > 769999 || !/^\d+$/.test(c.priceWei) || BigInt(c.priceWei) <= 0n || BigInt(c.priceWei) > (1n << 96n) - 1n) || new Set(cards.map(c => c.id)).size !== cards.length) throw new Error("无效挂单");
+  const total = cards.reduce((sum, c) => sum + BigInt(c.priceWei), 0n);
+  return `${commandHead}\n从已读取卖单最低价开始，买入最多 ${cards.length} 张。逐一核对 listings、ownerOf 和 MAX_BUY，价格上限不提高。调用 buy(uint256[] tokenIds,uint256[] maxPrices)，参数 [${cards.map(c => c.id).join(",")}]、[${cards.map(c => c.priceWei).join(",")}]，value=${total} wei。失效或超过限价会跳过，余款退回；只按 Sold 日志报告实际成交张数和花费，无成交不得报告成功。`;
+}
 export function bidCommand(price: string, quantity: number, batch: number) {
   const wei = orderPrice(price);
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > 4294967295 || !Number.isInteger(batch) || batch < 0 || batch > 77) throw new Error("求购参数超出合约范围");
