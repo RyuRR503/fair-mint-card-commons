@@ -8,7 +8,7 @@ import { CommandDialog } from "./ChainTools";
 import { marketOptions } from "@/lib/fagent/queries";
 import { getMarket, getHistory } from "@/lib/fagent/chain.functions";
 import { batchBuyCommand, bidCommand, commandHead, agentCommands } from "@/lib/fagent/commands";
-import { purchaseSelection } from "@/lib/fagent/market";
+import { purchaseSelection, saleCardIds } from "@/lib/fagent/market";
 import type { MarketData } from "@/lib/fagent/chain.server";
 
 const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
@@ -38,8 +38,8 @@ export function MarketBook() {
   const best = asks[0]; const bestBid = bids[0];
   const purchase = purchaseSelection(asks, result.data?.maxBuy ?? 150);
   const feePercent = (result.data?.feeBps ?? 100) / 100;
-  const sellCards = [...new Set(sellIds.split(/[^0-9]+/).filter(Boolean).map(Number))];
-  const validSell = sellCards.length > 0 && sellCards.length <= 250 && sellCards.every(id => Number.isInteger(id) && id >= 0 && id <= 769999);
+  const sellCards = saleCardIds(sellIds, 250);
+  const validSell = sellCards.length > 0;
   const bidLevels = useMemo(() => { const map = new Map<string, typeof bids>(); bids.forEach(b => map.set(b.price, [...(map.get(b.price) ?? []), b])); let total = 0; return [...map].map(([price, orders]) => { const size = orders.reduce((sum, b) => sum + b.remaining, 0); return { price, size, total: total += size, orders: orders.length }; }); }, [bids]);
   useEffect(() => { let current = true; loadHistory({ data: {} }).then(next => { if (current && next.data) setHistory(next.data); }).catch(() => {}); return () => { current = false; }; }, [loadHistory, result.data?.block]);
   const nextAsk = cursor?.ask ?? result.data?.askNext ?? "770000";
