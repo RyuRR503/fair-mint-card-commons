@@ -1,4 +1,6 @@
 # Standalone FAGENT
+- [ ] Split top navigation into independent mint, market, commands and vault pages; preserve rules copy and design.
+- [ ] Verify direct visits, refresh, navigation and preview actions across desktop and mobile.
 - [x] Record the selected contract and compare updated rule copy against its behavior.
 - [x] Update only the rules page and verify it, leaving other pages and preview logic unchanged.
 - [x] Remove old site pages, map services, contracts and images; use FAGENT at `/` and rules at `/rules`.
