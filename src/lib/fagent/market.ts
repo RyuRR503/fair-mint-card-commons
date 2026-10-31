@@ -7,7 +7,7 @@ export function saleCardIds(raw: string, maxSell: number) {
 }
 
 export function formatBnb(value: bigint | string, maxDecimals = 4) {
-  const ether = formatEther(typeof value === "bigint" ? value : BigInt(value));
+  const ether = typeof value === "bigint" ? formatEther(value) : value.includes(".") ? value : formatEther(BigInt(value));
   if (!ether.includes(".")) return ether;
   return ether.slice(0, ether.indexOf(".") + 1 + maxDecimals).replace(/0+$/, "").replace(/\.$/, "") || "0";
 }
