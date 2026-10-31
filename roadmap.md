@@ -1,4 +1,5 @@
 # Standalone FAGENT
+- [ ] Match reference market statistics and missing order controls using real chain data; verify volume labeling and Agent commands.
 - [x] Connect verified deployed Vault reads, supply, batch timer, real market orders/history and ledger; remove simulated actions.
 - [x] Generate ABI from selected Solidity; wire real-address Agent commands and wallet-address/card checks without wallet login.
 - [x] Verify live reads, command flow, empty/error states, desktop/mobile and contract rule tests; real money transactions are not submitted by this website.
