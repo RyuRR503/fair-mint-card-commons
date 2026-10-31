@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatEther } from "viem";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Copy } from "lucide-react";
@@ -14,6 +14,18 @@ const manageCommand = `${commandHead}
 3. 下架挂单：调用 unlist([卡号])。
 4. 销毁换代币：确认本批已售满或满 7 天后，调用 redeem(卡号)，不可撤销。
 每步先展示交易预览，等我确认后再发送。`;
+
+export function BatchClock({ data }: { data: Snapshot }) {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => { setElapsed(0); const timer = setInterval(() => setElapsed(n => n + 1), 1000); return () => clearInterval(timer); }, [data.block]);
+  if (data.paid === 731500) return <p className="text-primary">全部售完 · 后续税收经同步等操作分配</p>;
+  if (!data.openedAt || data.batchPaid === 0) return <p className="text-muted-foreground">本批尚未开始，7 天计时从第一张付费卡铸出起计算。</p>;
+  const remaining = Math.max(0, data.openedAt + data.releaseSeconds - data.chainTime - elapsed);
+  const days = Math.floor(remaining / 86400);
+  const hours = Math.floor(remaining % 86400 / 3600);
+  const minutes = Math.floor(remaining % 3600 / 60);
+  return <p className="font-mono text-xs text-primary">{remaining === 0 ? "本批已满 7 天 · 可通过同步等操作提前分配与兑换" : `本批提前分配倒计时 ${days}天 ${hours}时 ${minutes}分 ${remaining % 60}秒`}</p>;
+}
 
 export function VaultLedger({ data }: { data: Snapshot }) {
   const [command, setCommand] = useState<string | null>(null);
