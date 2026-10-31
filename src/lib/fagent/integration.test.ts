@@ -4,7 +4,7 @@ import { encodeFunctionData, decodeFunctionData } from "viem";
 import { vaultAbi } from "./vault-abi";
 import { FAGENT, liveSupply, redemptionReady } from "./config";
 import { mintCommand, bidCommand, batchBuyCommand } from "./commands";
-import { estimatedMarketVolume, purchaseSelection } from "./market";
+import { estimatedMarketVolume, purchaseSelection, saleCardIds } from "./market";
 
 test("the selected deployed vault is distinct from its token and factory", () => {
   assert.equal(FAGENT.vault, "0x188d8932ddc1715e541e82ce1c1ad4b91427ef5e");
@@ -55,4 +55,10 @@ test("batch purchase pays the sum of individual price caps", () => {
   const command = batchBuyCommand([{ id: 500, priceWei: "1000000000000000" }, { id: 501, priceWei: "2000000000000000" }], 150);
   assert.ok(command.includes("参数 [500,501]、[1000000000000000,2000000000000000]"));
   assert.ok(command.includes("value=3000000000000000 wei"));
+});
+test("sell-to-bid accepts at most 250 unique valid card IDs", () => {
+  assert.equal(saleCardIds(Array.from({ length: 250 }, (_, i) => String(i)).join(","), 250).length, 250);
+  assert.deepEqual(saleCardIds(Array.from({ length: 251 }, (_, i) => String(i)).join(","), 250), []);
+  assert.deepEqual(saleCardIds("500,500,501", 250), [500, 501]);
+  assert.deepEqual(saleCardIds("770000", 250), []);
 });
