@@ -4,7 +4,7 @@ import { encodeFunctionData, decodeFunctionData } from "viem";
 import { vaultAbi } from "./vault-abi";
 import { FAGENT, liveSupply, redemptionReady } from "./config";
 import { mintCommand, bidCommand, batchBuyCommand } from "./commands";
-import { estimatedMarketVolume, purchaseSelection, saleCardIds } from "./market";
+import { estimatedMarketVolume, formatBnb, purchaseSelection, saleCardIds } from "./market";
 
 test("the selected deployed vault is distinct from its token and factory", () => {
   assert.equal(FAGENT.vault, "0xbc2d8b6f4c4e2803c5e842e6e8250b79ee442b78");
