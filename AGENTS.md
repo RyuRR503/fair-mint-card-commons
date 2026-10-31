@@ -10,7 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
-- This standalone FAGENT project serves the card experience at `/` and its separate rules at `/rules`; keep the TanStack Start bootstrap and leaf metadata so navigation and sharing remain independent.
+- FAGENT navigation uses independent leaf routes: mint at `/`, market at `/market`, commands at `/commands`, vault at `/vault`, and rules at `/rules`; shared CardNavigation and CardExperience preserve consistent styling while each URL remains directly accessible with its own metadata.
 - FAGENT remains a local-only preview backed by agent-card-model until deployment addresses are supplied; do not call unrelated game services or initialize Cloud auth for preview interactions.
 - Reuse FagentLogo and AgentCardArt with project-owned asset pointers; this preserves the approved identity after remixing.
 - Keep colors and card treatments in semantic tokens in src/styles.css; this preserves the established theme across all card views.

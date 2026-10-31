@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FagentLogo } from "@/components/agent-cards/FagentLogo";
 import { CARD_RULES } from "@/lib/agent-card-model";
+import { CardNavigation } from "@/components/agent-cards/CardNavigation";
 
 export const Route = createFileRoute("/rules")({
   head: () => ({ meta: [
@@ -69,7 +70,7 @@ function CardRulesPage() {
   return <div className="ac-page">
     <header className="ac-header"><div className="ac-container flex min-h-20 flex-wrap items-center justify-between gap-4 py-4">
       <Link to="/" aria-label="FAGENT 首页"><FagentLogo /></Link>
-      <nav aria-label="卡牌导航" className="flex flex-wrap gap-2"><Button asChild variant="ghost"><Link to="/">铸造卡牌 / 卡牌市场 / Agent 指令</Link></Button><Button asChild variant="ghost" className="text-primary"><Link to="/rules" aria-current="page">规则</Link></Button></nav>
+      <CardNavigation className="flex flex-wrap items-center gap-x-5 gap-y-2" />
     </div></header>
     <main className="ac-container py-10 sm:py-14">
       <Button asChild variant="ghost" className="mb-8 px-0 text-muted-foreground"><Link to="/"><ArrowLeft />返回卡牌</Link></Button>
