@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Check, Copy, Download } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { agentCommands } from "@/lib/fagent/commands";
 import { FAGENT, explorer } from "@/lib/fagent/config";
-import { vaultAbi } from "@/lib/fagent/vault-abi";
 import { CardCheck, WalletCheck } from "./ChainTools";
 
 export function AgentCommands() {
