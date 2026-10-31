@@ -5,7 +5,8 @@ export function normalizeLanguage(value: unknown): Language {
   return value === "en" ? "en" : "zh";
 }
 export function translate(language: Language, text: string, ...values: unknown[]): string {
-  let template = language === "en" ? english[text] ?? text : text;
+  const template = language === "en" ? english[text] ?? text : text;
+  const resolve = (value: unknown) => typeof value === "string" && language === "en" && /\p{Script=Han}/u.test(value) ? translate(language, value) : String(value);
   // A few contract-backed rule paragraphs are assembled before rendering.
   if (language === "en" && template === text && /\p{Script=Han}/u.test(text)) {
     for (const [source, target] of Object.entries(english)) {
@@ -19,8 +20,8 @@ export function translate(language: Language, text: string, ...values: unknown[]
       if (!match) continue;
       const resolved: unknown[] = [];
       indices.forEach((index, position) => { resolved[index] = match[position + 1]; });
-      return target.replace(/\{(\d+)\}/g, (placeholder, index: string) => String(resolved[Number(index)] ?? placeholder));
+      return target.replace(/\{(\d+)\}/g, (placeholder, index: string) => resolve(resolved[Number(index)] ?? placeholder));
     }
   }
-  return template.replace(/\{(\d+)\}/g, (placeholder, index: string) => String(values[Number(index)] ?? placeholder));
+  return template.replace(/\{(\d+)\}/g, (placeholder, index: string) => resolve(values[Number(index)] ?? placeholder));
 }
