@@ -8,7 +8,7 @@ import { mintCommand } from "@/lib/fagent/commands";
 import { CommandDialog, WalletCheck } from "./ChainTools";
 import { BatchClock, VaultLedger } from "./VaultLedger";
 import { RefreshCw } from "lucide-react";
-import { ArrowUpRight, ChevronRight, Layers, Minus, Plus, ShieldCheck, Wallet } from "lucide-react";
+import { ArrowUpRight, ChevronRight, Layers, Minus, Plus, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FagentLogo } from "@/components/agent-cards/FagentLogo";
 import { AgentCardArt } from "@/components/agent-cards/AgentCardArt";
@@ -29,7 +29,7 @@ export function CardExperience({ page = "mint" }: { page?: CardPage }) {
       <header className="ac-header">
         <div className="ac-container flex h-20 items-center justify-between gap-4">
           <Link to="/" aria-label={t("FAGENT 首页")} className="min-w-0 shrink"><FagentLogo /></Link>
-          <CardNavigation className="hidden items-center gap-7 md:flex" />
+          <CardNavigation className="hidden items-center gap-5 lg:gap-7 md:flex" />
           <LanguageSwitch />
         </div>
       </header>
@@ -44,7 +44,7 @@ export function CardExperience({ page = "mint" }: { page?: CardPage }) {
             <h2 className="mt-5 text-xl font-bold sm:text-2xl">{t("一张卡，接住 .AI 时代的每一笔税收。")}</h2>
             <div className="mt-4 max-w-md space-y-3 text-sm leading-7 text-muted-foreground"><p><span className="block">{t("交易在发生，税收在累积。")}</span><span className="block text-foreground">{t("而这张卡，替你记下属于你的那一份。")}</span></p><p>{t("持有，就参与每一次分配；销毁，就兑换卡上记下的代币。")}</p></div>
             <div className="mt-7 flex flex-wrap items-center gap-3"><Button className="h-11 px-6" onClick={() => { document.getElementById("card-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>{t("开始铸造")}<ArrowUpRight /></Button><Button asChild variant="ghost" className="h-11 text-muted-foreground"><Link to="/rules">{t("合约规则")}<ChevronRight /></Link></Button></div>
-            <div className="mt-8 flex items-center gap-3 text-xs text-muted-foreground"><ShieldCheck className="size-4 text-primary" /><span>{t("仅币安 Agent 钱包（Agent ID）可铸造")}</span><span className="text-border">/</span><span>{t("市场交易不限身份")}</span></div>
+            <div className="mt-8 flex flex-wrap items-center gap-3 text-xs text-muted-foreground"><ShieldCheck className="size-4 text-primary" /><span>{t("仅币安 Agent 钱包（Agent ID）可铸造")}</span><span className="text-border">/</span><span>{t("市场交易不限身份")}</span></div>
           </div>
           <div className="ac-collectible"><div className="ac-edition"><span>EDITION 001</span><span>THE GENESIS</span></div><AgentCardArt /><div className="ac-art-caption"><span aria-hidden="true" /><span className="text-primary">FAGENT ↗</span></div></div>
           <div className="ac-side-code" aria-hidden>77 BATCHES / ONE COLLECTION</div>

@@ -34,6 +34,7 @@ export function bidCommand(price: string, quantity: number, batch: number, langu
 }
 export function cardCommand(kind: "claim" | "redeem" | "list" | "unlist", id: number | string, price = "0.003", language: Language = "zh") {
   const t = (text: string, ...values: unknown[]) => translate(language, text, ...values);
+  id = language === "en" && id === "【卡号】" ? "[cardId]" : id;
   const preparation = t("读取 ownerOf({0})、isActive({1})、pendingDividend({2})、repurchaseOf({3})；核对卡牌属于我的钱包。", id, id, id, id);
   if (kind === "list") return t("{0}\n{1}调用 list(uint256[] tokenIds,uint256[] prices)，参数 [{2}]、[{3}]，售价 {4} BNB。重复挂单可改价，卡牌不托管。", translate(language, commandHead), preparation, id, orderPrice(price), price);
   if (kind === "unlist") return t("{0}\n核对 listings({1}) 的卖家是我，调用 unlist(uint256[] tokenIds)，参数 [{2}]。", translate(language, commandHead), id, id);
