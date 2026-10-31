@@ -1,4 +1,6 @@
 # Standalone FAGENT
+- [ ] Record the selected contract and compare updated rule copy against its behavior.
+- [ ] Update only the rules page and verify it, leaving other pages and preview logic unchanged.
 - [x] Remove old site pages, map services, contracts and images; use FAGENT at `/` and rules at `/rules`.
 - [x] Transfer the approved logo and card artwork into this project's asset storage.
 - [x] Replace copied database migrations with an empty migration set; leave hosted records untouched.
