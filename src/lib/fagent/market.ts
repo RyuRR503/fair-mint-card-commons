@@ -6,6 +6,12 @@ export function saleCardIds(raw: string, maxSell: number) {
   return ids;
 }
 
+export function formatBnb(value: bigint | string, maxDecimals = 4) {
+  const ether = formatEther(typeof value === "bigint" ? value : BigInt(value));
+  if (!ether.includes(".")) return ether;
+  return ether.slice(0, ether.indexOf(".") + 1 + maxDecimals).replace(/0+$/, "").replace(/\.$/, "") || "0";
+}
+
 export function estimatedMarketVolume(feesWei: string, feeBps: number) {
   if (!Number.isInteger(feeBps) || feeBps <= 0) throw new Error("Invalid market fee");
   return formatEther(BigInt(feesWei) * 10000n / BigInt(feeBps));
