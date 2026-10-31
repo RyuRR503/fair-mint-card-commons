@@ -51,7 +51,7 @@ export function VaultLedger({ data }: { data: Snapshot }) {
           <div className="border-b border-border py-4 text-sm">
             <div className="flex flex-wrap justify-between gap-2">
               <span className="text-muted-foreground">第 {data.batch} 批还没领的代币</span>
-              <span className="break-all font-mono">{data.batchInventory} 枚</span>
+              <span className="break-all font-mono">{Number(data.batchInventory).toLocaleString("en-US", { maximumFractionDigits: 4 })} 枚</span>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">本批还没售满，代币先堆在这一批，售满后销毁卡牌才能领走。</p>
           </div>
