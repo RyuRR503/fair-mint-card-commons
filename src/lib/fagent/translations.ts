@@ -32,6 +32,8 @@ export const english: Record<string, string> = {
   "剩余": "Remaining",
   "链上总发行进度": "On-chain supply progress",
   "铸造进度": "Mint progress",
+  "付费进度 {0}% · 第 {1} / 77 批 · 本批 {2} / 9,500": "Paid progress {0}% · Batch {1} / 77 · This batch {2} / 9,500",
+  "每批 9,500 张公开铸造售满，即结算一次。": "Each batch settles when its 9,500 public cards sell out.",
   "% · 第": "% · Batch",
   "/ 77 批 · 本批付费卡": "/ 77 · Paid cards in this batch",
   "/ 9,500 张": "/ 9,500 cards",
