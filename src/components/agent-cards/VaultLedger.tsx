@@ -1,6 +1,6 @@
 import { useLanguage } from "./LanguageProvider";
 import { useEffect, useState } from "react";
-import { formatEther } from "viem";
+import { formatBnb } from "@/lib/fagent/market";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -47,7 +47,7 @@ export function VaultLedger({ data }: { data: Snapshot }) {
           {rows.map(([label, value]) => (
             <div key={label} className="flex flex-wrap justify-between gap-2 border-b border-border py-4 text-sm">
               <span className="text-muted-foreground">{label}</span>
-              <span className="break-all font-mono">{formatEther(BigInt(value ?? "0"))} BNB</span>
+              <span className="break-all font-mono">{formatBnb(value ?? "0")} BNB</span>
             </div>
           ))}
           <h3 className="mt-10 text-lg">{t("各批还没领的代币")}</h3>

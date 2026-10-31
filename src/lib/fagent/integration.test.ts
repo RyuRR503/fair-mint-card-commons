@@ -4,7 +4,7 @@ import { encodeFunctionData, decodeFunctionData } from "viem";
 import { vaultAbi } from "./vault-abi";
 import { FAGENT, liveSupply, redemptionReady } from "./config";
 import { mintCommand, bidCommand, batchBuyCommand } from "./commands";
-import { estimatedMarketVolume, purchaseSelection, saleCardIds } from "./market";
+import { estimatedMarketVolume, formatBnb, purchaseSelection, saleCardIds } from "./market";
 
 test("the selected deployed vault is distinct from its token and factory", () => {
   assert.equal(FAGENT.vault, "0xbc2d8b6f4c4e2803c5e842e6e8250b79ee442b78");
@@ -43,6 +43,13 @@ test("order commands reject invalid amount, quantity and batch", () => {
 test("cumulative volume is estimated from the selected contract's 1 percent fee", () => {
   assert.equal(estimatedMarketVolume("50000000000000", 100), "0.005");
   assert.equal(estimatedMarketVolume("0", 100), "0");
+});
+test("BNB amounts display with at most 4 decimals and no trailing zeros", () => {
+  assert.equal(formatBnb(21873828437259251300n), "21.8738");
+  assert.equal(formatBnb(2000000000000000n), "0.002");
+  assert.equal(formatBnb(0n), "0");
+  assert.equal(formatBnb(100n), "0");
+  assert.equal(formatBnb(50000000000000n), "0");
 });
 test("quick purchase selects cheapest cards and respects the 150 card contract cap", () => {
   const asks = Array.from({ length: 151 }, (_, id) => ({ id, priceWei: String(BigInt(151 - id) * 1000000000000000n) }));

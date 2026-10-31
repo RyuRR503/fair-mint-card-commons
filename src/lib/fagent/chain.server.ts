@@ -2,7 +2,7 @@ import { createPublicClient, fallback, http, formatEther, formatUnits, getAbiIte
 import { bsc } from "viem/chains";
 import { FAGENT, liveSupply } from "./config";
 import { vaultAbi } from "./vault-abi";
-import { estimatedMarketVolume } from "./market";
+import { estimatedMarketVolume, formatBnb } from "./market";
 
 function client() {
   return createPublicClient({ chain: bsc, transport: fallback([
@@ -53,7 +53,7 @@ export async function readMarket(askCursor: string, bidCursor: string) {
   ]);
   return {
     block: String(block),
-    volume: estimatedMarketVolume(String(fees), Number(feeBps)), escrow: formatEther(escrow), feeBps: Number(feeBps), maxBuy: Number(maxBuy),
+    volume: formatBnb(estimatedMarketVolume(String(fees), Number(feeBps))), escrow: formatBnb(escrow), feeBps: Number(feeBps), maxBuy: Number(maxBuy),
     asks: asks[0].map((id, i) => ({ id: Number(id), seller: asks[1][i]?.seller ?? "", priceWei: String(asks[1][i]?.price ?? 0n), price: formatEther(asks[1][i]?.price ?? 0n) })),
     bids: bids[0].map((id, i) => ({ id: String(id), bidder: bids[1][i]?.bidder ?? "", priceWei: String(bids[1][i]?.price ?? 0n), price: formatEther(bids[1][i]?.price ?? 0n), remaining: Number(bids[1][i]?.remaining ?? 0), batchPlusOne: Number(bids[1][i]?.batchPlusOne ?? 0) })),
     askNext: String(asks[2]), bidNext: String(bids[2]), bidEnd: String(bidEnd),
