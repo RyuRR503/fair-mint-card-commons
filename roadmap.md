@@ -1,4 +1,5 @@
 # Standalone FAGENT
+- [ ] Replace header wallet entry with persistent Chinese/English switching; translate all pages, dialogs, errors and Agent commands; verify both languages and unchanged transaction parameters.
 - [x] Match reference market statistics and missing order controls using real chain data; verify fee-estimated volume, recent-range trades, escrow, batch purchase, listing and bid commands across desktop/mobile; 17 tests pass. Actual sell execution awaits user-confirmed orders and is not submitted by the website.
 - [x] Connect verified deployed Vault reads, supply, batch timer, real market orders/history and ledger; remove simulated actions.
 - [x] Generate ABI from selected Solidity; wire real-address Agent commands and wallet-address/card checks without wallet login.
