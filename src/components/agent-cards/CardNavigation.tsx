@@ -11,6 +11,6 @@ const pages = [
 ] as const;
 
 export function CardNavigation({ className, compact = false }: { className?: string; compact?: boolean }) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   return <nav className={className} aria-label={t("卡牌导航")}>{pages.map(item => <Button key={item.to} asChild variant="ghost" className={compact ? "ac-tab" : "h-10 rounded-none px-0"}><Link to={item.to} activeOptions={{ exact: true }} activeProps={{ className: compact ? "ac-tab-active text-primary" : "text-primary", "aria-current": "page" }} inactiveProps={{ className: "text-muted-foreground" }}>{t(item.label)}</Link></Button>)}</nav>;
 }

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
 import appCss from "../styles.css?url";
 import { LanguageProvider, useLanguage } from "@/components/agent-cards/LanguageProvider";
+import { LanguageMetadata } from "@/components/agent-cards/LanguageMetadata";
 
 function NotFoundComponent() {
   const { t } = useLanguage();
@@ -48,5 +49,5 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  return <QueryClientProvider client={queryClient}><Outlet /></QueryClientProvider>;
+  return <QueryClientProvider client={queryClient}><LanguageMetadata /><Outlet /></QueryClientProvider>;
 }

@@ -10,14 +10,14 @@ import { cardCommand } from "@/lib/fagent/commands";
 import { explorer, redemptionReady } from "@/lib/fagent/config";
 
 export function CommandDialog({ text, onClose }: { text: string | null; onClose: () => void }) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
   return <Dialog open={text !== null} onOpenChange={open => { if (!open) { setCopied(false); setError(""); onClose(); } }}><DialogContent className="max-w-2xl"><DialogHeader><DialogTitle>{t("币安 Agent 钱包指令")}</DialogTitle><DialogDescription>{t("发送给你的币安 Agent 钱包，核对交易预览后确认；网站不会代你发送交易。")}</DialogDescription></DialogHeader><textarea aria-label={t("交易指令")} className="h-64 w-full resize-none border border-input bg-background p-3 text-xs leading-6 text-foreground" value={text ?? ""} readOnly /><Button onClick={async () => { try { await navigator.clipboard.writeText(text ?? ""); setCopied(true); setError(""); } catch { setError(t("复制失败，请选中上方文字手动复制。")); } }}>{copied ? <Check /> : <Copy />}{copied ? t("已复制") : t("复制指令")}</Button>{error && <p role="alert" className="text-sm text-destructive">{t(error)}</p>}</DialogContent></Dialog>;
 }
 
 export function WalletCheck({ onResult }: { onResult?: (data: NonNullable<Awaited<ReturnType<typeof getWallet>>["data"]>) => void }) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [address, setAddress] = useState("");
   const [result, setResult] = useState<{ data: Awaited<ReturnType<typeof getWallet>>["data"]; error: string | null } | null>(null);
   const [busy, setBusy] = useState(false);

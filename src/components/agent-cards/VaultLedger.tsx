@@ -17,7 +17,7 @@ const manageCommand = `${commandHead}
 每步先展示交易预览，等我确认后再发送。`;
 
 export function BatchClock({ data }: { data: Snapshot }) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [elapsed, setElapsed] = useState(0);
   useEffect(() => { setElapsed(0); const timer = setInterval(() => setElapsed(n => n + 1), 1000); return () => clearInterval(timer); }, [data.block]);
   if (data.paid === 731500) return <p className="text-primary">{t("全部售完 · 后续税收经同步等操作分配")}</p>;
@@ -30,7 +30,7 @@ export function BatchClock({ data }: { data: Snapshot }) {
 }
 
 export function VaultLedger({ data }: { data: Snapshot }) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [command, setCommand] = useState<string | null>(null);
   const rows = [
     [t("累计收到税收"), data.taxReceived],
