@@ -21,3 +21,4 @@
 - Keep drizzle/schema.ts blank; never replay copied CATCH migrations. Only explicitly requested schema or security changes may create new migrations.
 - Retired CATCH places/spawns tables remain inaccessible to anon/authenticated roles; preserve records and service access so hardening does not change FAGENT chain reads.
 - Preserve generated Cloud integration files but leave them unused by the standalone preview; platform-managed configuration must not be hand-edited.
+- Agent commands come in two formats: general (full, verified-source) and Binance Wallet (short, explicit signature, no ABI lookup) in src/lib/fagent/binance.ts; Binance's built-in AI cannot resolve the proxy ABI.
