@@ -23,6 +23,12 @@ test("open-batch redemption unlocks at exactly 7 days, not one second earlier", 
   assert.equal(redemptionReady(false, 100, 604800, 604900), true);
   assert.equal(redemptionReady(true, 100, 604800, 101), true);
 });
+test("issuance progress uses cumulative minted cards out of 770000, not active dividend shares", () => {
+  const supply = liveSupply(34300, 1762, 770000);
+  assert.equal(supply.minted, 36062);
+  assert.equal(supply.remaining, 733938);
+  assert.equal((supply.minted / 770000 * 100).toFixed(2), "4.68");
+});
 test("selected ABI supports count-based mint, not obsolete mint()", () => {
   const data = encodeFunctionData({ abi: vaultAbi, functionName: "mint", args: [2n] });
   assert.deepEqual(decodeFunctionData({ abi: vaultAbi, data }).args, [2n]);
