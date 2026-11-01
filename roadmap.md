@@ -1,4 +1,5 @@
 # Standalone FAGENT
+- [ ] Revise the standalone merge-contract package with 2,000-paid-mint price tiers, +0.0001 BNB from 0.002 to a 0.004 cap; recommend and confirm token accounting, then verify tests, flattened builds and archive. Do not change the live website or deployment.
 - [x] Package the proposed reserve-distribution edition as ten design and accounting files; verify all 389 tiers and inspect the ZIP, without changing the live website or contract.
 - [x] Close public access to unused CATCH places/spawns without deleting records; live permissions verified, basic security rescan clear, 16 tests pass, all five FAGENT pages and current-vault command copying verified. Deep code analysis is not covered by this rescan.
 - [x] Replace header wallet entry with persistent Chinese/English switching; translate all pages, dialogs, errors and Agent commands; verify both languages, five mobile pages and unchanged transaction parameters; 21 tests pass.
