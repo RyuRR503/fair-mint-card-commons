@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { binanceMint, binanceCard, getBinanceCommands, SIGNATURES } from "./binance";
 import { getAgentCommands } from "./commands";
 import { vaultAbi } from "./vault-abi";
@@ -21,8 +21,8 @@ describe("binance wallet commands", () => {
   it("signatures match the vault ABI", () => {
     for (const sig of Object.values(SIGNATURES)) {
       const [, name, args] = sig.match(/function (\w+)\((.*?)\)/)!;
-      const fn = (vaultAbi as any[]).find(f => f.type === "function" && f.name === name);
-      expect(args.split(",").filter(Boolean).map(a => a.trim().split(" ")[0])).toEqual(fn.inputs.map((i: any) => i.type));
+      const fn = (vaultAbi as unknown as any[]).find(f => f.type === "function" && f.name === name);
+      expect((args ?? "").split(",").filter(Boolean).map(a => a.trim().split(" ")[0])).toEqual(fn.inputs.map((i: any) => i.type));
       expect(sig.endsWith("payable")).toBe(fn.stateMutability === "payable");
     }
   });
