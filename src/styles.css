@@ -197,6 +197,7 @@ html[lang^="zh"] .ac-title { line-height: .87 !important; }
 .ac-art-bottom span { font: 7px var(--font-mono); }
 .ac-art-bottom strong { font: 30px var(--font-poster); }
 .ac-side-code { position: absolute; right: -16px; top: 40%; writing-mode: vertical-rl; font: 9px var(--font-mono); color: var(--muted-foreground); }
+.ac-audit-bar { background: color-mix(in oklab, #22c55e 18%, var(--background)); border-bottom: 1px solid color-mix(in oklab, #22c55e 45%, transparent); color: #4ade80; }
 .ac-stats { display: grid; grid-template-columns: 1.25fr 1.1fr .8fr .8fr 1fr; border-block: 1px solid var(--border); }
 .ac-stats > div { padding-block: 26px; padding-left: 28px; border-left: 1px solid var(--border); }
 .ac-stats > div:first-child { border: 0; padding-left: 0; }

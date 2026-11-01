@@ -21,6 +21,7 @@ export const english: Record<string, string> = {
   "总发行量": "Total supply",
   "已铸造": "Minted",
   "已销毁": "Burned",
+  "机制与合约已通过 Flap 审计与验证 · 资金安全由链上合约保障": "Mechanism & contract audited and verified by Flap · Funds secured by on-chain contracts",
   "剩余可发行": "Remaining supply",
   "单张铸造价格": "Mint price per card",
   "卡牌市场": "Card market",

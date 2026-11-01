@@ -34,6 +34,13 @@ export function CardExperience({ page = "mint" }: { page?: CardPage }) {
         </div>
       </header>
 
+      <div className="ac-audit-bar" role="note">
+        <div className="ac-container flex items-center justify-center gap-2 py-2 text-center text-xs font-medium">
+          <ShieldCheck className="size-3.5 shrink-0" />
+          <span>{t("机制与合约已通过 Flap 审计与验证 · 资金安全由链上合约保障")}</span>
+        </div>
+      </div>
+
       <main className="ac-container">{result.error && <div role="alert" className="border-b border-border py-4 text-sm text-destructive">{t(result.error)}<Button variant="link" onClick={() => void refetch()}>{t("重试")}</Button></div>}
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border py-4 text-[11px] text-muted-foreground"><span className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-primary" />BNB CHAIN <span className="mx-1 text-border">/</span> GENESIS COLLECTION</span><span className="flex items-center gap-2"><ShieldCheck className="size-3.5" />{supply ? t("链上数据 · 区块 {0}", supply.block) : t("链上读取失败")}<Button variant="ghost" size="icon" aria-label={t("刷新链上数据")} disabled={isFetching} onClick={() => void refetch()}><RefreshCw className={`size-3.5 ${isFetching ? "animate-spin" : ""}`} /></Button></span></div>
 
