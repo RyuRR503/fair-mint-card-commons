@@ -1,5 +1,5 @@
 # Standalone FAGENT
-- [ ] Package the proposed reserve-distribution edition as design documents and updated 389-tier accounting, without changing the live website or contract.
+- [x] Package the proposed reserve-distribution edition as ten design and accounting files; verify all 389 tiers and inspect the ZIP, without changing the live website or contract.
 - [x] Close public access to unused CATCH places/spawns without deleting records; live permissions verified, basic security rescan clear, 16 tests pass, all five FAGENT pages and current-vault command copying verified. Deep code analysis is not covered by this rescan.
 - [x] Replace header wallet entry with persistent Chinese/English switching; translate all pages, dialogs, errors and Agent commands; verify both languages, five mobile pages and unchanged transaction parameters; 21 tests pass.
 - [x] Match reference market statistics and missing order controls using real chain data; verify fee-estimated volume, recent-range trades, escrow, batch purchase, listing and bid commands across desktop/mobile; 17 tests pass. Actual sell execution awaits user-confirmed orders and is not submitted by the website.
