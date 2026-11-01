@@ -20,6 +20,7 @@ export const english: Record<string, string> = {
   "张": "cards",
   "总发行量": "Total supply",
   "已铸造": "Minted",
+  "已销毁": "Burned",
   "剩余可发行": "Remaining supply",
   "单张铸造价格": "Mint price per card",
   "卡牌市场": "Card market",

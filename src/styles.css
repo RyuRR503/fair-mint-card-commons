@@ -197,7 +197,7 @@ html[lang^="zh"] .ac-title { line-height: .87 !important; }
 .ac-art-bottom span { font: 7px var(--font-mono); }
 .ac-art-bottom strong { font: 30px var(--font-poster); }
 .ac-side-code { position: absolute; right: -16px; top: 40%; writing-mode: vertical-rl; font: 9px var(--font-mono); color: var(--muted-foreground); }
-.ac-stats { display: grid; grid-template-columns: 1.25fr 1.1fr .8fr 1fr; border-block: 1px solid var(--border); }
+.ac-stats { display: grid; grid-template-columns: 1.25fr 1.1fr .8fr .8fr 1fr; border-block: 1px solid var(--border); }
 .ac-stats > div { padding-block: 26px; padding-left: 28px; border-left: 1px solid var(--border); }
 .ac-stats > div:first-child { border: 0; padding-left: 0; }
 .ac-tabs { display: flex; align-items: center; gap: 28px; border-bottom: 1px solid var(--border); }
@@ -243,7 +243,7 @@ html[lang^="zh"] .ac-title { line-height: .87 !important; }
   .ac-side-code { display: none; }
   .ac-stats { grid-template-columns: 1fr 1fr; }
   .ac-stats > div { padding: 22px 14px; }
-  .ac-stats > div:nth-child(3) { border-left: 0; padding-left: 0; }
+  .ac-stats > div:nth-child(odd) { border-left: 0; padding-left: 0; }
   .ac-stats > div:nth-child(n+3) { border-top: 1px solid var(--border); }
   .ac-tabs { gap: 0; justify-content: space-between; }
   .ac-tab { font-size: 12px; gap: 4px; }

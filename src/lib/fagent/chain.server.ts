@@ -30,7 +30,7 @@ export async function readSnapshot() {
     c.readContract({ address: FAGENT.token, abi: [{ type: "function", name: "decimals", inputs: [], outputs: [{ type: "uint8" }], stateMutability: "view" }] as const, functionName: "decimals", blockNumber: block.number }),
   ]);
   return {
-    ...supply, total: numberAt(0), paid: numberAt(1), teamMinted: numberAt(2), weight: numberAt(3), price: formatEther(BigInt(weiAt(4))), maxMints: numberAt(5),
+    ...supply, total: numberAt(0), paid: numberAt(1), teamMinted: numberAt(2), weight: numberAt(3), burned: supply.minted - numberAt(3), price: formatEther(BigInt(weiAt(4))), maxMints: numberAt(5),
     openedAt: numberAt(6), releaseSeconds: numberAt(7), chainTime: Number(block.timestamp), block: String(block.number),
     undistributed: weiAt(8), taxReceived: weiAt(9), dividendsPaid: weiAt(10), dividendLiability: weiAt(11), bidEscrow: weiAt(12),
     marketFees: weiAt(13), marketFeeOwed: weiAt(14), opsOwed: weiAt(15), proceedsLiability: weiAt(16), nextBidId: weiAt(18), balance: String(balance),
