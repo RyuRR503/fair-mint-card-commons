@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Preserve uploaded live Solidity source byte-for-byte under contracts/fagent/live; source archival must not change website ABI, deployment configuration, or deployed contracts.
 - Standalone Solidity delivery packages keep source, tests, independently compiled flattened contracts and explicit verification limits together; never update the live ABI or deployment from a package-only request.
 - FAGENT uses a root-scoped language provider and explicit Chinese/English dictionary with interpolated values; pass language into command generators so SSR and contract parameters never depend on mutable global locale state.
 - FAGENT navigation uses independent leaf routes: mint at `/`, market at `/market`, commands at `/commands`, vault at `/vault`, and rules at `/rules`; shared CardNavigation and CardExperience preserve consistent styling while each URL remains directly accessible with its own metadata.
