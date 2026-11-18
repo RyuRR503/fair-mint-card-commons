@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Standalone media pages render directly as leaf routes without CardExperience or navigation links, so video-only views do not inherit the card-site chrome.
 - Preserve uploaded live Solidity source byte-for-byte under contracts/fagent/live; source archival must not change website ABI, deployment configuration, or deployed contracts.
 - Standalone Solidity delivery packages keep source, tests, independently compiled flattened contracts and explicit verification limits together; never update the live ABI or deployment from a package-only request.
 - FAGENT uses a root-scoped language provider and explicit Chinese/English dictionary with interpolated values; pass language into command generators so SSR and contract parameters never depend on mutable global locale state.

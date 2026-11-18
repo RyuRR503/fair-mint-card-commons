@@ -1,4 +1,5 @@
 # Standalone FAGENT
+- [x] Add a direct-access video-only page at /video using the uploaded video, without a navigation entry; verified real playback, desktop/mobile framing, zero navigation links and no runtime errors.
 - [x] Archive the user-uploaded live fagent.sol unchanged in the project repository for Git sync; byte-for-byte comparison and SHA-256 match, with no undeployed variants included.
 - [x] Deliver standalone merge-tiered v2 package: preserve equal batch allocation, capped price ladder, 78 local tests passing across final suite runs, independently compiled flattened files and inspected 41-file ZIP. Mainnet fork not rerun; live website and deployment unchanged.
 - [x] Package the proposed reserve-distribution edition as ten design and accounting files; verify all 389 tiers and inspect the ZIP, without changing the live website or contract.
